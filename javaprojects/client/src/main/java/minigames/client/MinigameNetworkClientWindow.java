@@ -156,6 +156,7 @@ public class MinigameNetworkClientWindow {
      * @param servers
      */
     public void showGameServers(List<GameServerDetails> servers) {
+        frame.setTitle("COSC220 2023 Minigame Collection");
         clearAll();
 
         JPanel panel = new JPanel();
@@ -191,14 +192,9 @@ public class MinigameNetworkClientWindow {
             frame.setTitle(AchievementUI.TITLE);
             center.add(achievements);
             pack();
-            parent.repaint();
         });
         south.add(achievementsButton);
-
-        frame.setTitle("COSC220 2023 Minigame Collection");
-
         pack();
-        parent.repaint();
     }
 
     /**
