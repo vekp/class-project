@@ -187,7 +187,7 @@ public class MinigameNetworkClientWindow {
             showGameServers(servers);
         };        achievementsButton.addActionListener(e -> {
             clearAll();
-            JPanel achievements = new AchievementUI(this, returnAction);
+            JPanel achievements = new AchievementUI(returnAction);
             frame.setTitle(AchievementUI.TITLE);
             center.add(achievements);
             pack();

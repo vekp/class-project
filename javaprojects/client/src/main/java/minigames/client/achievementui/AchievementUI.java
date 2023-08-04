@@ -1,7 +1,5 @@
 package minigames.client.achievementui;
 
-import minigames.client.MinigameNetworkClientWindow;
-import minigames.rendering.GameServerDetails;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,7 +12,7 @@ public class AchievementUI extends JPanel {
      * Creates a new <code>JPanel</code> with a double buffer
      * and a flow layout.
      */
-    public AchievementUI(MinigameNetworkClientWindow mainWindow, ActionListener returnAction) {
+    public AchievementUI(ActionListener returnAction) {
         this.setPreferredSize(new Dimension(800, 600));
         this.add(new JLabel("Is this working? I think it is!"));
 
