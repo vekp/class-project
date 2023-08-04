@@ -9,6 +9,7 @@ import javax.swing.JTextField;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 
+import minigames.client.achievementui.AchievementUI;
 import minigames.client.backgrounds.Starfield;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.GameServerDetails;
@@ -18,8 +19,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 
+import java.awt.event.ActionListener;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * The main window that appears.
@@ -178,6 +179,24 @@ public class MinigameNetworkClientWindow {
         }
 
         center.add(panel);
+
+        // Create a button for the Achievement UI.
+        JButton achievementsButton = new JButton("Achievements");
+        // Create action listener to use as back button action.
+        ActionListener returnAction = (a) -> {
+            showGameServers(servers);
+        };        achievementsButton.addActionListener(e -> {
+            clearAll();
+            JPanel achievements = new AchievementUI(this, returnAction);
+            frame.setTitle(AchievementUI.TITLE);
+            center.add(achievements);
+            pack();
+            parent.repaint();
+        });
+        south.add(achievementsButton);
+
+        frame.setTitle("COSC220 2023 Minigame Collection");
+
         pack();
         parent.repaint();
     }
