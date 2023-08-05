@@ -1,8 +1,5 @@
 package achievements;
 
-import minigames.achievements.Achievement;
-import minigames.achievements.AchievementHandler;
-import minigames.achievements.AchievementRegister;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
