@@ -1,6 +1,5 @@
 package minigames.server;
 
-import achievements.AchievementRegister;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import minigames.server.muddle.MuddleServer;
