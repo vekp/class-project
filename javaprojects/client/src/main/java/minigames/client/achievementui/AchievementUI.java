@@ -1,6 +1,7 @@
 package minigames.client.achievementui;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -22,20 +23,31 @@ public class AchievementUI extends JPanel {
         List<String> games = new ArrayList<>();
         List<String> achievements = new ArrayList<>();
         for(int i = 0; i < 20; i++) {
-            usernames.add("DummyUsername");
-            games.add("DummyGame");
-            achievements.add("DummyAchievement");
+            usernames.add("DummyUsername"+i);
+            games.add("DummyGame"+i);
+            achievements.add("DummyAchievement"+i);
         }
 
-        // Selection menu items
+        // Title
+        JLabel title = new JLabel(TITLE);
+        title.setFont(new Font(title.getFont().getFontName(), Font.PLAIN, 25));
+        title.setBackground(Color.LIGHT_GRAY);
+        JPanel titlePanel = new JPanel(new BorderLayout());
+        titlePanel.add(title, BorderLayout.CENTER);
+        this.add(titlePanel, BorderLayout.NORTH);
+
+
+        // Selection menu items on the left
         JPanel selectorPanel = new JPanel();
         selectorPanel.setLayout(new BoxLayout(selectorPanel, BoxLayout.Y_AXIS));
-        selectorPanel.add(new JList<>(usernames.toArray()));
-        selectorPanel.add(new JList<>(games.toArray()));
+        selectorPanel.add(generateScrollJPanel("Username:", new JList<String>(usernames.toArray(new String[0]))));
+        selectorPanel.add(generateScrollJPanel("Game:", new JList<String>(games.toArray(new String[0]))));
         this.add(selectorPanel, BorderLayout.WEST);
 
-        // Achievement list
-        this.add(new JList<>(achievements.toArray()));
+        // Achievement list on the right
+        JPanel achievementPanel = generateScrollJPanel("Achievements:", new JList<String>(achievements.toArray(new String[0])));
+        achievementPanel.setBorder(new EmptyBorder(0, 10, 0, 0));
+        this.add(achievementPanel);
 
         JPanel buttonPanel = new JPanel(new BorderLayout());
         // Add submit button TODO: Make it functional
@@ -48,6 +60,24 @@ public class AchievementUI extends JPanel {
         buttonPanel.add(backButton, BorderLayout.EAST);
 
         this.add(buttonPanel, BorderLayout.SOUTH);
+    }
 
+    private JPanel generateScrollJPanel(String label, JList<String> selectItems){
+        JScrollPane scrollPane = new JScrollPane(selectItems);
+        selectItems.setLayoutOrientation(JList.VERTICAL);
+        // Set preferred size so that scrolling is only needed if window is shrunk.
+        scrollPane.setPreferredSize(new Dimension(250, selectItems.getModel().getSize()*18));
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        SwingUtilities.invokeLater(() -> scrollPane.getViewport().setViewPosition(new Point(0, 0)));
+
+        JLabel instructionLabel = new JLabel(label);
+        instructionLabel.setAlignmentX(0);
+        JPanel itemsPanel = new JPanel();
+        itemsPanel.setLayout(new BoxLayout(itemsPanel,BoxLayout.Y_AXIS));
+        itemsPanel.add(Box.createRigidArea(new Dimension(0,20)));
+        itemsPanel.add(instructionLabel);
+        scrollPane.setAlignmentX(0);
+        itemsPanel.add(scrollPane);
+        return itemsPanel;
     }
 }
