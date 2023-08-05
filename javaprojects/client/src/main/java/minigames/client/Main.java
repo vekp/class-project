@@ -2,6 +2,7 @@ package minigames.client;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
+import minigames.client.achievementui.AchievementUITestData;
 import minigames.client.muddletext.MuddleText;
 import io.vertx.core.Launcher;
 
@@ -28,7 +29,6 @@ public class Main extends AbstractVerticle {
      */
     private static void doWiring() {
         clientRegistry.registerGameClient("MuddleText", new MuddleText());
-
     }
 
     public static void main(String... args) {

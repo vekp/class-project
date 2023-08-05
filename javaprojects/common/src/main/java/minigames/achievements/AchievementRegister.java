@@ -1,4 +1,4 @@
-package achievements;
+package minigames.achievements;
 
 import java.util.*;
 

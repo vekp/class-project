@@ -1,4 +1,4 @@
-package achievements;
+package minigames.achievements;
 
 public record Achievement(
         String name, //Achievement ID / Name - Must be unique per game server

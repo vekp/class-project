@@ -1,6 +1,5 @@
-package achievements;
+package minigames.achievements;
 
-import java.sql.Timestamp;
 import java.util.*;
 
 public class AchievementHandler {
