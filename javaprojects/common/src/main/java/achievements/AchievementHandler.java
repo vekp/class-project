@@ -1,9 +1,7 @@
 package achievements;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.sql.Timestamp;
+import java.util.*;
 
 public class AchievementHandler {
 
@@ -13,6 +11,14 @@ public class AchievementHandler {
 
     public AchievementHandler(String gameServer) {
         this.gameID = gameServer;
+    }
+
+    public String getGameID() {
+        return gameID;
+    }
+
+    public HashSet<String> getPlayers(){
+        return new HashSet<>(playerUnlockList.keySet());
     }
 
     public ArrayList<Achievement> getAllAchievements() {

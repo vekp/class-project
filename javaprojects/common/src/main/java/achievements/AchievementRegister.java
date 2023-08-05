@@ -1,10 +1,6 @@
 package achievements;
 
-import javax.net.ssl.HandshakeCompletedListener;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 public class AchievementRegister {
 
@@ -25,5 +21,23 @@ public class AchievementRegister {
             result.add(handlers.get(id));
         }
         return result;
+    }
+
+    /**
+     * Will return a list of unique players who have been involved in unlocking achievements
+     * in at least 1 game.
+     *
+     * @return
+     */
+    public ArrayList<String> getPlayerList() {
+        HashSet<String> uniquePlayers = new HashSet<>();
+        for (AchievementHandler handler : handlers.values()) {
+            for (String player : handler.getPlayers()) {
+                uniquePlayers.add(player);
+            }
+        }
+        ArrayList<String> sortedPlayers = new ArrayList<>(uniquePlayers);
+        Collections.sort(sortedPlayers);
+        return sortedPlayers;
     }
 }
