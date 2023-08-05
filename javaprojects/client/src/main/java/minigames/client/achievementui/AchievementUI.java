@@ -25,8 +25,8 @@ public class AchievementUI extends JPanel {
         for(int i = 0; i < 20; i++) {
             usernames.add("DummyUsername"+i);
             games.add("DummyGame"+i);
-            achievements.add("DummyAchievement"+i);
-        }
+            achievements.add("DummyAchievement"+2*i);
+            achievements.add("DummyAchievement"+(2*i+1));        }
 
         // Title
         JLabel title = new JLabel(TITLE);
@@ -40,12 +40,12 @@ public class AchievementUI extends JPanel {
         // Selection menu items on the left
         JPanel selectorPanel = new JPanel();
         selectorPanel.setLayout(new BoxLayout(selectorPanel, BoxLayout.Y_AXIS));
-        selectorPanel.add(generateScrollJPanel("Username:", new JList<String>(usernames.toArray(new String[0]))));
-        selectorPanel.add(generateScrollJPanel("Game:", new JList<String>(games.toArray(new String[0]))));
+        selectorPanel.add(generateScrollJPanel("Username:", new JList<>(usernames.toArray(new String[0]))));
+        selectorPanel.add(generateScrollJPanel("Game:", new JList<>(games.toArray(new String[0]))));
         this.add(selectorPanel, BorderLayout.WEST);
 
         // Achievement list on the right
-        JPanel achievementPanel = generateScrollJPanel("Achievements:", new JList<String>(achievements.toArray(new String[0])));
+        JPanel achievementPanel = generateScrollJPanel("Achievements:", new JList<>(achievements.toArray(new String[0])));
         achievementPanel.setBorder(new EmptyBorder(0, 10, 0, 0));
         this.add(achievementPanel);
 
