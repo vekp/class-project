@@ -1,5 +1,8 @@
 package minigames.client.achievementui;
 
+import minigames.achievements.AchievementHandler;
+import minigames.achievements.AchievementRegister;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -18,15 +21,17 @@ public class AchievementUI extends JPanel {
         this.setPreferredSize(new Dimension(800, 600));
         this.setLayout(new BorderLayout());
 
-        // Create some dummy values. TODO: Get real values from server.
-        List<String> usernames = new ArrayList<>();
+        // Get test values. TODO: Get real values from server.
+        AchievementRegister register = AchievementUITestData.getTestData();
+
+        List<String> usernames = register.getPlayerList();
         List<String> games = new ArrayList<>();
+        for (AchievementHandler h : register.getAllHandlers()) games.add(h.getGameID());
+
         List<String> achievements = new ArrayList<>();
-        for(int i = 0; i < 20; i++) {
-            usernames.add("DummyUsername"+i);
-            games.add("DummyGame"+i);
-            achievements.add("DummyAchievement"+2*i);
-            achievements.add("DummyAchievement"+(2*i+1));        }
+        for(int i = 0; i < 30; i++) {
+            achievements.add("DummyAchievement " + i);
+        }
 
         // Title
         JLabel title = new JLabel(TITLE);
@@ -46,7 +51,7 @@ public class AchievementUI extends JPanel {
 
         // Achievement list on the right
         JPanel achievementPanel = generateScrollJPanel("Achievements:", new JList<>(achievements.toArray(new String[0])));
-        achievementPanel.setBorder(new EmptyBorder(0, 10, 0, 0));
+        achievementPanel.setBorder(new EmptyBorder(0, 15, 0, 0));
         this.add(achievementPanel);
 
         JPanel buttonPanel = new JPanel(new BorderLayout());
