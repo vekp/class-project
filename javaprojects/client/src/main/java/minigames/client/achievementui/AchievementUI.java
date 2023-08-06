@@ -107,7 +107,7 @@ public class AchievementUI extends JPanel {
 
     private JPanel populateAchievementPanel(String username, String gameID, AchievementRegister register, boolean unlocked) {
         ArrayList<Achievement> userAchievements = register.getUserAchievements(username, gameID, unlocked);
-        StringBuilder achievementStringBuilder = new StringBuilder((unlocked? "Unlocked" : "Locked") + " achievements:\n");
+        StringBuilder achievementStringBuilder = new StringBuilder();
         for (Achievement achievement : userAchievements) {
             System.out.println(achievement.name() + ", " + achievement.description());
             achievementStringBuilder.append(achievement.name()).append("\n");
@@ -116,7 +116,7 @@ public class AchievementUI extends JPanel {
         if (results.length() == 0) results = "Nothing found.";
         JPanel panel = new JPanel();
         //TODO: Put in a scroll pane and make less ugly
-        panel.add(new JTextArea(results));
+        panel.add(new JTextArea((unlocked? "Unlocked" : "Locked") + " achievements:\n" + results));
         return panel;
     }
 }
