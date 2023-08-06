@@ -40,10 +40,11 @@ public class AchievementUI extends JPanel {
         // Selection menu items on the left
         JPanel selectorPanel = new JPanel();
         selectorPanel.setLayout(new BoxLayout(selectorPanel, BoxLayout.Y_AXIS));
-        JList usernameJList = new JList<>(usernames.toArray(new String[0]));
+        JList<String> usernameJList = new JList<>(usernames.toArray(new String[0]));
         selectorPanel.add(generateScrollPane("Username:", usernameJList));
-        JList gamesJList = new JList<>(games.toArray(new String[0]));
+        JList<String> gamesJList = new JList<>(games.toArray(new String[0]));
         selectorPanel.add(generateScrollPane("Game:", gamesJList));
+
         // Radio buttons under the menus
         JRadioButton unlockedButton = new JRadioButton("Unlocked", true);
         JRadioButton lockedButton = new JRadioButton("Locked", false);
@@ -56,8 +57,7 @@ public class AchievementUI extends JPanel {
         selectorPanel.setBorder(new EmptyBorder(0, 0, 0, 15));
         this.add(selectorPanel, BorderLayout.WEST);
 
-        // Achievement list on the right
-
+        // Achievement list on the right in a scroll pane
         JPanel achievementPanel = new JPanel();
         achievementPanel.setLayout(new BoxLayout(achievementPanel, BoxLayout.Y_AXIS));
         achievementPanel.add(Box.createRigidArea(new Dimension(0,20)));
@@ -75,14 +75,13 @@ public class AchievementUI extends JPanel {
         // Add submit button
         JButton submit = new JButton("Submit");
         submit.addActionListener(e -> {
-            String selectedUsername = (String) usernameJList.getSelectedValue();
-            String selectedGame = (String) gamesJList.getSelectedValue();
+            String selectedUsername = usernameJList.getSelectedValue();
+            String selectedGame = gamesJList.getSelectedValue();
             System.out.println("Selected: " + selectedUsername + ", " + selectedGame +", "+unlockedButton.isSelected());
             if (selectedUsername == null || selectedGame == null) return;
             JPanel scrollPaneContents = populateAchievementPanel(selectedUsername, selectedGame, register, unlockedButton.isSelected());
             achievementScrollPane.setViewportView(scrollPaneContents);
             // Update the frame
-
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
             frame.invalidate();
             frame.validate();
@@ -117,7 +116,6 @@ public class AchievementUI extends JPanel {
 
     private JPanel populateAchievementPanel(String username, String gameID, AchievementRegister register, boolean unlocked) {
         ArrayList<Achievement> userAchievements = register.getUserAchievements(username, gameID, unlocked);
-//        StringBuilder achievementStringBuilder = new StringBuilder();
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(Color.WHITE);
@@ -127,7 +125,6 @@ public class AchievementUI extends JPanel {
             label.setToolTipText(achievement.description());
             panel.add(label);
         }
-        //TODO: Put in a scroll pane and make less ugly
         return panel;
     }
 }
