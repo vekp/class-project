@@ -1,5 +1,6 @@
 package minigames.client.achievementui;
 
+import minigames.achievements.Achievement;
 import minigames.achievements.AchievementHandler;
 import minigames.achievements.AchievementRegister;
 
@@ -29,7 +30,7 @@ public class AchievementUI extends JPanel {
         for (AchievementHandler h : register.getAllHandlers()) games.add(h.getGameID());
 
         List<String> achievements = new ArrayList<>();
-        for(int i = 0; i < 30; i++) {
+        for(int i = 0; i < 4000; i++) {
             achievements.add("DummyAchievement " + i);
         }
 
@@ -45,18 +46,34 @@ public class AchievementUI extends JPanel {
         // Selection menu items on the left
         JPanel selectorPanel = new JPanel();
         selectorPanel.setLayout(new BoxLayout(selectorPanel, BoxLayout.Y_AXIS));
-        selectorPanel.add(generateScrollJPanel("Username:", new JList<>(usernames.toArray(new String[0]))));
-        selectorPanel.add(generateScrollJPanel("Game:", new JList<>(games.toArray(new String[0]))));
+        JList usernameJList = new JList<>(usernames.toArray(new String[0]));
+        selectorPanel.add(generateScrollPane("Username:", usernameJList));
+        JList gamesJList = new JList<>(games.toArray(new String[0]));
+        selectorPanel.add(generateScrollPane("Game:", gamesJList));
+        selectorPanel.setBorder(new EmptyBorder(0, 0, 0, 15));
         this.add(selectorPanel, BorderLayout.WEST);
 
         // Achievement list on the right
-        JPanel achievementPanel = generateScrollJPanel("Achievements:", new JList<>(achievements.toArray(new String[0])));
-        achievementPanel.setBorder(new EmptyBorder(0, 15, 0, 0));
-        this.add(achievementPanel);
+        JPanel emptyAchievementPanel = generateScrollPane("Achievements:", new JList<>(new String[0]));
+        this.add(emptyAchievementPanel);
+
+        //TODO: Add checkboxes to select unlocked/locked achievements
 
         JPanel buttonPanel = new JPanel(new BorderLayout());
-        // Add submit button TODO: Make it functional
+        // Add submit button
         JButton submit = new JButton("Submit");
+        submit.addActionListener(e -> {
+            String selectedUsername = (String) usernameJList.getSelectedValue();
+            String selectedGame = (String) gamesJList.getSelectedValue();
+            System.out.println("Selected: " + selectedUsername + ", " + selectedGame);
+            if (selectedUsername == null || selectedGame == null) return;
+            JPanel achievementPanel = populateAchievementPanel(selectedUsername, selectedGame, register, true);
+            this.add(achievementPanel);
+            // Update the frame
+            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            frame.invalidate();
+            frame.validate();
+        });
         buttonPanel.add(submit, BorderLayout.CENTER);
 
         // Add a back button
@@ -67,11 +84,11 @@ public class AchievementUI extends JPanel {
         this.add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    private JPanel generateScrollJPanel(String label, JList<String> selectItems){
+    private JPanel generateScrollPane(String label, JList<String> selectItems){
         JScrollPane scrollPane = new JScrollPane(selectItems);
-        selectItems.setLayoutOrientation(JList.VERTICAL);
+//        selectItems.setLayoutOrientation(JList.VERTICAL);
         // Set preferred size so that scrolling is only needed if window is shrunk.
-        scrollPane.setPreferredSize(new Dimension(250, selectItems.getModel().getSize()*18));
+        scrollPane.setPreferredSize(new Dimension(200, selectItems.getModel().getSize()*18));
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         SwingUtilities.invokeLater(() -> scrollPane.getViewport().setViewPosition(new Point(0, 0)));
 
@@ -84,5 +101,18 @@ public class AchievementUI extends JPanel {
         scrollPane.setAlignmentX(0);
         itemsPanel.add(scrollPane);
         return itemsPanel;
+    }
+
+    private JPanel populateAchievementPanel(String username, String gameID, AchievementRegister register, boolean unlocked) {
+        ArrayList<Achievement> userAchievements = register.getUserAchievements(username, gameID, unlocked);
+        StringBuilder achievementString = new StringBuilder();
+        for (Achievement achievement : userAchievements) {
+            System.out.println(achievement.name() + ", " + achievement.description());
+            achievementString.append(achievement.name()).append("\n");
+        }
+        JPanel panel = new JPanel();
+        //TODO: Put in a scroll pane and make less ugly
+        panel.add(new JTextArea(achievementString.toString()));
+        return panel;
     }
 }
