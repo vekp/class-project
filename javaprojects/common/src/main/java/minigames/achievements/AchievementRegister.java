@@ -40,4 +40,27 @@ public class AchievementRegister {
         Collections.sort(sortedPlayers);
         return sortedPlayers;
     }
+
+
+    /**
+     *
+     * @param playerID String of playerID
+     * @param gameID String of gameID
+     * @param unlocked bool representing whether unlocked or locked achievements are to be returned
+     * @return ArrayList of the given player's achievements for the given game.
+     */
+    public ArrayList<Achievement> getUserAchievements(String playerID, String gameID, boolean unlocked) {
+        AchievementHandler handler = handlers.get(gameID);
+        ArrayList<Achievement> allAchievements = handler.getAllAchievements();
+        HashSet<String> playerUnlockList = handler.getPlayerUnlockList(playerID);
+        ArrayList<Achievement> unlockedAchievements = new ArrayList<>();
+        ArrayList<Achievement> lockedAchievements = new ArrayList<>();
+        for (String achievementID : playerUnlockList) {
+            Achievement achievement = handler.getAchievementFromID(achievementID);
+            unlockedAchievements.add(achievement);
+        }
+        if (unlocked) return unlockedAchievements;
+        allAchievements.removeAll(unlockedAchievements);
+        return lockedAchievements;
+    }
 }

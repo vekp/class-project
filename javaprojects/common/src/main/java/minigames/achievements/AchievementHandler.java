@@ -51,4 +51,23 @@ public class AchievementHandler {
             return playerUnlockList.get(playerID).contains(achievementID);
         else return false;
     }
+
+    /**
+     *
+     * @param playerID String representing player's ID
+     * @return the set of unlocked achievements for the given playerID
+     */
+    public HashSet<String> getPlayerUnlockList (String playerID) {
+        return new HashSet<>(playerUnlockList.get(playerID));
+    }
+
+    /**
+     *
+     * @param achievementID String representation of achievement
+     * @return the associated Achievement
+     */
+    public Achievement getAchievementFromID (String achievementID) {
+        if (achievements.containsKey(achievementID)) return achievements.get(achievementID);
+        return null;
+    }
 }
