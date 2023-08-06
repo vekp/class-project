@@ -24,15 +24,9 @@ public class AchievementUI extends JPanel {
 
         // Get test values. TODO: Get real values from server.
         AchievementRegister register = AchievementUITestData.getTestData();
-
         List<String> usernames = register.getPlayerList();
         List<String> games = new ArrayList<>();
         for (AchievementHandler h : register.getAllHandlers()) games.add(h.getGameID());
-
-        List<String> achievements = new ArrayList<>();
-        for(int i = 0; i < 4000; i++) {
-            achievements.add("DummyAchievement " + i);
-        }
 
         // Title
         JLabel title = new JLabel(TITLE);
@@ -50,6 +44,15 @@ public class AchievementUI extends JPanel {
         selectorPanel.add(generateScrollPane("Username:", usernameJList));
         JList gamesJList = new JList<>(games.toArray(new String[0]));
         selectorPanel.add(generateScrollPane("Game:", gamesJList));
+        // Radio buttons the menus
+        JRadioButton unlockedButton = new JRadioButton("Unlocked", true);
+        JRadioButton lockedButton = new JRadioButton("Locked", false);
+        ButtonGroup buttonGroup = new ButtonGroup();
+        buttonGroup.add(unlockedButton);
+        buttonGroup.add(lockedButton);
+        selectorPanel.add(unlockedButton);
+        selectorPanel.add(lockedButton);
+
         selectorPanel.setBorder(new EmptyBorder(0, 0, 0, 15));
         this.add(selectorPanel, BorderLayout.WEST);
 
@@ -65,9 +68,9 @@ public class AchievementUI extends JPanel {
         submit.addActionListener(e -> {
             String selectedUsername = (String) usernameJList.getSelectedValue();
             String selectedGame = (String) gamesJList.getSelectedValue();
-            System.out.println("Selected: " + selectedUsername + ", " + selectedGame);
+            System.out.println("Selected: " + selectedUsername + ", " + selectedGame +", "+unlockedButton.isSelected());
             if (selectedUsername == null || selectedGame == null) return;
-            JPanel achievementPanel = populateAchievementPanel(selectedUsername, selectedGame, register, true);
+            JPanel achievementPanel = populateAchievementPanel(selectedUsername, selectedGame, register, unlockedButton.isSelected());
             this.add(achievementPanel);
             // Update the frame
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
@@ -86,7 +89,6 @@ public class AchievementUI extends JPanel {
 
     private JPanel generateScrollPane(String label, JList<String> selectItems){
         JScrollPane scrollPane = new JScrollPane(selectItems);
-//        selectItems.setLayoutOrientation(JList.VERTICAL);
         // Set preferred size so that scrolling is only needed if window is shrunk.
         scrollPane.setPreferredSize(new Dimension(200, selectItems.getModel().getSize()*18));
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -105,14 +107,16 @@ public class AchievementUI extends JPanel {
 
     private JPanel populateAchievementPanel(String username, String gameID, AchievementRegister register, boolean unlocked) {
         ArrayList<Achievement> userAchievements = register.getUserAchievements(username, gameID, unlocked);
-        StringBuilder achievementString = new StringBuilder();
+        StringBuilder achievementStringBuilder = new StringBuilder((unlocked? "Unlocked" : "Locked") + " achievements:\n");
         for (Achievement achievement : userAchievements) {
             System.out.println(achievement.name() + ", " + achievement.description());
-            achievementString.append(achievement.name()).append("\n");
+            achievementStringBuilder.append(achievement.name()).append("\n");
         }
+        String results = achievementStringBuilder.toString();
+        if (results.length() == 0) results = "Nothing found.";
         JPanel panel = new JPanel();
         //TODO: Put in a scroll pane and make less ugly
-        panel.add(new JTextArea(achievementString.toString()));
+        panel.add(new JTextArea(results));
         return panel;
     }
 }
