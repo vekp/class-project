@@ -54,13 +54,12 @@ public class AchievementRegister {
         ArrayList<Achievement> allAchievements = handler.getAllAchievements();
         HashSet<String> playerUnlockList = handler.getPlayerUnlockList(playerID);
         ArrayList<Achievement> unlockedAchievements = new ArrayList<>();
-        ArrayList<Achievement> lockedAchievements = new ArrayList<>();
         for (String achievementID : playerUnlockList) {
             Achievement achievement = handler.getAchievementFromID(achievementID);
             unlockedAchievements.add(achievement);
         }
         if (unlocked) return unlockedAchievements;
         allAchievements.removeAll(unlockedAchievements);
-        return lockedAchievements;
+        return allAchievements;
     }
 }
