@@ -79,6 +79,7 @@ public class AchievementUI extends JPanel {
             String selectedGame = gamesJList.getSelectedValue();
             System.out.println("Selected: " + selectedUsername + ", " + selectedGame +", "+unlockedButton.isSelected());
             if (selectedUsername == null || selectedGame == null) return;
+            achievementPanelLabel.setText((unlockedButton.isSelected()? "Unl" : "L") + "ocked achievements");
             JPanel scrollPaneContents = populateAchievementPanel(selectedUsername, selectedGame, register, unlockedButton.isSelected());
             achievementScrollPane.setViewportView(scrollPaneContents);
             // Update the frame
