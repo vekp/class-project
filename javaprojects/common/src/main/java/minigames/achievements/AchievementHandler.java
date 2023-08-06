@@ -58,7 +58,10 @@ public class AchievementHandler {
      * @return the set of unlocked achievements for the given playerID
      */
     public HashSet<String> getPlayerUnlockList (String playerID) {
-        return new HashSet<>(playerUnlockList.get(playerID));
+        if(playerUnlockList.containsKey(playerID))
+            return new HashSet<>(playerUnlockList.get(playerID));
+
+        return new HashSet<>();
     }
 
     /**
