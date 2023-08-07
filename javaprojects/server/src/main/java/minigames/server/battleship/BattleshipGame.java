@@ -10,13 +10,28 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.*;
 import minigames.rendering.NativeCommands.LoadClient;
 
+/**
+ *
+ */
 public class BattleshipGame {
 
     /** A logger for logging output */
     private static final Logger logger = LogManager.getLogger(BattleshipGame.class);
 
+    static String player = "Nautical Map";
+    static String enemy = "Target Map";
+    static String chars = "ABCDEFGHI";
+
     static int WIDTH = 2;
     static int HEIGHT = 2;
+
+//    static Map<String, Integer> vessels = new HashMap<String, Integer>() {{
+//            vessels.put("Carrier", 6);
+//            vessels.put("BattleShip", 5);
+//            vessels.put("Destroyer", 4);
+//            vessels.put("Submarine", 4);
+//            vessels.put("Patrol Boat", 3);
+//        }};
 
     record BattleshipPlayer(
             String name,
@@ -43,7 +58,12 @@ public class BattleshipGame {
             }
     };
 
-    HashMap<String, BattleshipGame.BattleshipPlayer> players = new HashMap<>();
+    static String welcomeMessage = "Welcome Captain! Enter 'Ready' to start conquering the seas!\nUse arrow keys to move ships" +
+            " around the grid. Press 'Tab' to switch vessel and 'Space' to rotate.\n\n...Ready\n\nTo fire at the enemy, enter " +
+            "grid coordinates: (eg, A,4)\n...D,7\n\nSalvo missed. Prepare for incoming fire!\nEnemy has hit our fleet, " +
+            "Ship-Class:Carrier at coordinates [C,3]\n\nReturn fire! Enter grid coordinates:\n...";
+
+    HashMap<String, BattleshipPlayer> players = new HashMap<>();
 
     /** The players currently playing this game */
     public String[] getPlayerNames() {
@@ -59,8 +79,7 @@ public class BattleshipGame {
     private String describeState(BattleshipGame.BattleshipPlayer p) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(String.format("[%d,%d] \n\n", p.x, p.y));
-        sb.append(rooms[p.x()][p.y()]);
+        sb.append(welcomeMessage);
 
         return sb.toString();
     }
@@ -85,7 +104,7 @@ public class BattleshipGame {
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         renderingCommands.add(new JsonObject().put("command", "clearText"));
         renderingCommands.add(new JsonObject().put("command", "appendText").put("text", describeState(p)));
-//        renderingCommands.add(new JsonObject().put("command", "setDirections").put("directions", directions(p.x(), p.y())));
+        renderingCommands.add(new JsonObject().put("command", "setDirections").put("directions", directions(p.x(), p.y())));
 
         return new RenderingPackage(this.gameMetadata(), renderingCommands);
     }
@@ -100,14 +119,14 @@ public class BattleshipGame {
                     }).map((r) -> r.toJson()).toList()
             );
         } else {
-            BattleshipGame.BattleshipPlayer p = new BattleshipGame.BattleshipPlayer(playerName, 0, 0, List.of());
+            BattleshipPlayer p = new BattleshipPlayer(playerName, 0, 0, List.of());
             players.put(playerName, p);
 
             ArrayList<JsonObject> renderingCommands = new ArrayList<>();
             renderingCommands.add(new LoadClient("Battleship", "Battleship", name, playerName).toJson());
             renderingCommands.add(new JsonObject().put("command", "clearText"));
             renderingCommands.add(new JsonObject().put("command", "appendText").put("text", describeState(p)));
-//            renderingCommands.add(new JsonObject().put("command", "setDirections").put("directions", directions(p.x(), p.y())));
+            renderingCommands.add(new JsonObject().put("command", "setDirections").put("directions", directions(p.x(), p.y())));
 
             return new RenderingPackage(gameMetadata(), renderingCommands);
         }

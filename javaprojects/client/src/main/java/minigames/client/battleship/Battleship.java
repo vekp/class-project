@@ -7,6 +7,7 @@ import minigames.rendering.GameMetadata;
 import minigames.commands.CommandPackage;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.util.Collections;
@@ -41,35 +42,56 @@ public class Battleship implements GameClient {
 
     public Battleship() {
         heading = new JPanel();
+        heading.setLayout(new BorderLayout());
         title = new JLabel("< BattleShip >");
+        title.setFont(fonts[0]);
+        title.setHorizontalAlignment(JLabel.CENTER);
+        title.setBorder(new EmptyBorder(10, 0, 10,0));
+
         currentPlayerName = new JLabel("Current Player: ");
-        heading.add(title);
-        heading.add(currentPlayerName);
+        currentPlayerName.setFont(fonts[3]);
+        currentPlayerName.setHorizontalAlignment(JLabel.CENTER);
+
+        heading.add(title, BorderLayout.NORTH);
+        heading.add(Box.createRigidArea(new Dimension(0,10)));
+        heading.add(currentPlayerName, BorderLayout.CENTER);
 
         maps = new JPanel();
         fleetMap = new JPanel();   // Add player ship grid
         targetMap = new JPanel();  // Add enemy ship grid
         maps.add(fleetMap);
         maps.add(targetMap);
+        maps.setPreferredSize(new Dimension(800, 350));
 
         terminal = new JPanel();
+        terminal.setLayout(new BorderLayout());
         messages = new JTextArea();  // Add message/message history here
         messages.setEditable(false);
+        messages.setFont(fonts[3]);
+        messages.setLineWrap(true);
+        messages.setWrapStyleWord(true);
+
         commandTerminal = new JScrollPane(messages);
         commandTerminal.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
                 " Command Terminal: ", TitledBorder.LEFT, TitledBorder.TOP, fonts[2], Color.WHITE));
-        commandTerminal.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-        terminal.add(commandTerminal);
+        // commandTerminal.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        commandTerminal.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        commandTerminal.setPreferredSize(new Dimension(800, 130));
+        terminal.add(commandTerminal, BorderLayout.NORTH);
 
         userCommand = new JTextField();
         userCommand.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), " "));
         userCommand.addActionListener((evt) -> sendCommand(userCommand.getText()));
+        terminal.add(userCommand, BorderLayout.CENTER);
 
         mainPanel = new JPanel();
-        mainPanel.add(maps);
-        mainPanel.add(terminal);
+        mainPanel.setLayout(new BorderLayout());
+        mainPanel.add(heading, BorderLayout.NORTH);
+        mainPanel.add(maps, BorderLayout.CENTER);
+        mainPanel.add(terminal, BorderLayout.SOUTH);
 
-        for (Component c : new Component[] {heading, maps, terminal, userCommand}) {
+        for (Component c : new Component[] {mainPanel, heading, title, currentPlayerName, fleetMap, targetMap, maps,
+                messages, commandTerminal, userCommand}) {
             c.setForeground(Color.WHITE);
             c.setBackground(Color.decode(colour));
         }
@@ -99,9 +121,9 @@ public class Battleship implements GameClient {
         this.player = player;
 
         // Add our components to the north, south, east, west, or centre of the main window's BorderLayout
-        mnClient.getMainWindow().addNorth(heading);
         mnClient.getMainWindow().addCenter(mainPanel);
-        mnClient.getMainWindow().addSouth(userCommand);
+
+        messages.append("Starting...");
 
         // Don't forget to call pack - it triggers the window to resize and repaint itself
         mnClient.getMainWindow().pack();
