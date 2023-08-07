@@ -1,7 +1,9 @@
 package minigames.server.battleship;
 
 /**
- *
+ * The cell represents each cell of the board grid, and can either be "shotAt" (has been targetted in a previous round),
+ * or not.
+ * Each cell is also of a certain type (CellType enum) to represent whether it is ocean, ship, player cursor, etc.
  */
 public class Cell {
 
@@ -12,7 +14,7 @@ public class Cell {
     // Constructor
 
     /**
-     *
+     * Default constructor, each Cell is initialised as an OCEAN Cell and is changed as needed
      */
     Cell() {
         this.shotAt = false;
@@ -20,16 +22,16 @@ public class Cell {
     }
 
     /**
-     *
-     * @return
+     * Return the CellType of the current Cell
+     * @return A String representing the CellType
      */
     public String getCellType() {
         return cellType.toString();
     }
 
     /**
-     *
-     * @param cellType
+     * Change the CellType of the current Cell
+     * @param cellType The CellType to change the current cell to
      */
     public void setCellType(CellType cellType) {
         this.cellType = cellType;

@@ -46,7 +46,7 @@ public class BattleshipGame {
     public BattleshipGame(String name) {
         this.name = name;
     }
-
+    // We can get rid of this MUD stuff right? - CRAIG
     String[][] rooms = new String[][] {
             {
                     "You are in a maze of twisting passages, all alike",
@@ -65,17 +65,27 @@ public class BattleshipGame {
 
     HashMap<String, BattleshipPlayer> players = new HashMap<>();
 
-    /** The players currently playing this game */
+    /**
+     * Returns the names of the players currently playing the game
+     * @return An array containing the names of current players
+     */
     public String[] getPlayerNames() {
         return players.keySet().toArray(String[]::new);
     }
 
-    /** Metadata for this game */
+    /**
+     * Return the meta-data for the in-progress game
+     * @return a GameMetadata Object containing the information for the current game
+     */
     public GameMetadata gameMetadata() {
         return new GameMetadata("Battleship", name, getPlayerNames(), true);
     }
 
-    /** Describes the state of a player */
+    /**
+     * Returns the current state of the requested player, takes a BattleShipPlayer Object as a parameter
+     * @param p The player whose state is to be described
+     * @return The String to be displayed to the player
+     */
     private String describeState(BattleshipGame.BattleshipPlayer p) {
         StringBuilder sb = new StringBuilder();
 
@@ -84,6 +94,7 @@ public class BattleshipGame {
         return sb.toString();
     }
 
+    // I'll add javadoc on this one once I fully understand what it's for ;) - CRAIG
     private String directions(int x, int y) {
         String d = "";
         if (x > 0) d += "W";
@@ -94,7 +105,11 @@ public class BattleshipGame {
         return d;
     }
 
-
+    /**
+     * Run the commands received from the BattleshipServer class
+     * @param cp The CommandPackage Object containing the commands to be run
+     * @return The information to render in the client
+     */
     public RenderingPackage runCommands(CommandPackage cp) {
         logger.info("Received command package {}", cp);
         BattleshipGame.BattleshipPlayer p = players.get(cp.player());
@@ -109,8 +124,15 @@ public class BattleshipGame {
         return new RenderingPackage(this.gameMetadata(), renderingCommands);
     }
 
-    /** Joins this game */
+    /**
+     * Joins an in-progress game taking the player name as a parameter. Returns the rendering package to display the
+     * game in its current state
+     * NOTE: We'll be adding in some logic to check the number of players and other conditions to not open / join a game
+     * @param playerName The name of the player making the request to join a game
+     * @return The RenderingPackage for the game in its current (or new) state
+     */
     public RenderingPackage joinGame(String playerName) {
+        // Don't allow a player to join if the player's name is already taken
         if (players.containsKey(playerName)) {
             return new RenderingPackage(
                     gameMetadata(),

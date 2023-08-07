@@ -1,13 +1,13 @@
 package minigames.server.battleship;
 
 /**
- * Class representing a coordinate
+ * This class represents the and convert user input into grid coordinates
  */
 public class Coordinate {
 
     // Fields
-    private String vertical;
-    private Integer horizontal;
+    private String vertical;   // This could also be changed to a char if we wanted to be finicky - CRAIG
+    private Integer horizontal;// And this could be changed to a byte if we wanted to be ultra finicky - CRAIG
 
     // Constructor
 
@@ -22,16 +22,16 @@ public class Coordinate {
     }
 
     /**
-     *
-     * @return
+     * Get the vertical coordinate from the Coordinate object
+     * @return A String containing the vertical position (A - J)
      */
     public String getVertical() {
         return vertical;
     }
 
     /**
-     *
-     * @return
+     * Get the horizontal coordinate from the Coordinate object
+     * @return An Integer containing the horizontal position (0 - 9)
      */
     public Integer getHorizontal() {
         return horizontal;

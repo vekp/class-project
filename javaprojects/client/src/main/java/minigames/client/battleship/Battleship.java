@@ -114,6 +114,12 @@ public class Battleship implements GameClient {
     /**
      * What happens when client is loaded into the main screen
      */
+    /**
+     * Loads the client into the main screen and renders it taking in the relevant information from the server
+     * @param mnClient The Client Window
+     * @param game The meta-game data for the current game
+     * @param player The name of the player
+     */
     @Override
     public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {
         this.mnClient = mnClient;
@@ -129,6 +135,11 @@ public class Battleship implements GameClient {
         mnClient.getMainWindow().pack();
     }
 
+    /**
+     * Execute a specific command from the game's "vocabulary"
+     * @param game The meta-data of the current game
+     * @param command The JsonObject command to be executed
+     */
     @Override
     public void execute(GameMetadata game, JsonObject command) {
         this.gm = game;
@@ -143,6 +154,9 @@ public class Battleship implements GameClient {
 
     }
 
+    /**
+     * Ends the game once certain conditions are met, or manually ended by the player
+     */
     @Override
     public void closeGame() {
         // Nothing to do
