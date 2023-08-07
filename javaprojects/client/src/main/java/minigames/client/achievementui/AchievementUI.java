@@ -32,9 +32,8 @@ public class AchievementUI extends JPanel {
         // Title
         JLabel title = new JLabel(TITLE);
         title.setFont(new Font(title.getFont().getFontName(), Font.PLAIN, 36));
-        title.setBackground(Color.LIGHT_GRAY);
-        JPanel titlePanel = new JPanel(new BorderLayout());
-        titlePanel.add(title, BorderLayout.CENTER);
+        JPanel titlePanel = new JPanel();
+        titlePanel.add(title);
         this.add(titlePanel, BorderLayout.NORTH);
 
         // Selection menu items on the left
@@ -61,7 +60,7 @@ public class AchievementUI extends JPanel {
         JPanel achievementPanel = new JPanel();
         achievementPanel.setLayout(new BoxLayout(achievementPanel, BoxLayout.Y_AXIS));
         achievementPanel.add(Box.createRigidArea(new Dimension(0,20)));
-        JLabel achievementPanelLabel = new JLabel("Achievements");
+        JLabel achievementPanelLabel = new JLabel("Please make your selections.");
         achievementPanelLabel.setAlignmentX(0);
         achievementPanel.add(achievementPanelLabel);
         achievementScrollPane = new JScrollPane();
@@ -82,10 +81,11 @@ public class AchievementUI extends JPanel {
             achievementPanelLabel.setText((unlockedButton.isSelected()? "Unl" : "L") + "ocked achievements");
             JPanel scrollPaneContents = populateAchievementPanel(selectedUsername, selectedGame, register, unlockedButton.isSelected());
             achievementScrollPane.setViewportView(scrollPaneContents);
-            // Update the frame
-            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            frame.invalidate();
-            frame.validate();
+            // This code might be required if components need to be redrawn
+//            // Update the frame
+//            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+//            frame.invalidate();
+//            frame.validate();
         });
         buttonPanel.add(submit, BorderLayout.CENTER);
 
