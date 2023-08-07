@@ -97,6 +97,12 @@ public class AchievementUI extends JPanel {
         this.add(buttonPanel, BorderLayout.SOUTH);
     }
 
+    /**
+     *  
+     * @param label
+     * @param selectItems
+     * @return
+     */
     private JPanel generateScrollPane(String label, JList<String> selectItems){
         JScrollPane scrollPane = new JScrollPane(selectItems);
         // Set preferred size so that scrolling is only needed if window is shrunk.
@@ -115,6 +121,14 @@ public class AchievementUI extends JPanel {
         return itemsPanel;
     }
 
+    /**
+     * Fills the panel with the obtained achievements for the specified user
+     * @param username The username of the specified user
+     * @param gameID The ID of the game that is being queried
+     * @param register The AchievementRegister Object containing all achievement information
+     * @param unlocked Whether the achievement has been unlocked or not
+     * @return A panel with this information displayed
+     */
     private JPanel populateAchievementPanel(String username, String gameID, AchievementRegister register, boolean unlocked) {
         ArrayList<Achievement> userAchievements = register.getUserAchievements(username, gameID, unlocked);
         JPanel panel = new JPanel();

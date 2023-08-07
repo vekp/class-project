@@ -2,6 +2,9 @@ package minigames.achievements;
 
 import java.util.*;
 
+/**
+ * The AchievementRegister keeps track of all Achievement information across all games that are utilising the API
+ */
 public class AchievementRegister {
 
     //Each game server gets 1 handler, to store and track unlocks for their achievements
@@ -27,7 +30,7 @@ public class AchievementRegister {
      * Will return a list of unique players who have been involved in unlocking achievements
      * in at least 1 game.
      *
-     * @return
+     * @return A sorted ArrayList containing all players that have unlocked achievements
      */
     public ArrayList<String> getPlayerList() {
         HashSet<String> uniquePlayers = new HashSet<>();
@@ -43,6 +46,8 @@ public class AchievementRegister {
 
 
     /**
+     * Returns a list of all achievements obtained by a certain player in a certain game
+     * NOTE: Are we making a function to check the achievements across ALL games? - CRAIG
      *
      * @param playerID String of playerID
      * @param gameID String of gameID
