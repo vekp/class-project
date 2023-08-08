@@ -57,9 +57,12 @@ public class Board {
 
     /**
      * For now, I'm literally just putting in a default ship placement lazily, it will be changed later
-     * Note, this does not work... - CRAIG
      */
-    public Cell[][] placeDefaultConvoy() {
+    public Cell[][] placeDefaultConvoy(Cell[][] grid) {
+        // The Board should perhaps just contain the 2D array of cells and nothing more so that functions like this one
+        // can be called upon other grid objects
+        this.grid = grid;
+
         // Create the cells
         // TODO: See if there is a less redundant way to do this
         Cell top = new Cell();
@@ -81,11 +84,11 @@ public class Board {
         this.setCell(1, 6, bottom);
 
         // Create the Battleship
-        this.setCell(6, 10, left);
-        for(int i = 7; i < 10; i++){
-            this.setCell(i, 10, mid);
+        this.setCell(2, 2, top);
+        for(int i = 3; i < 6; i++){
+            this.setCell(2, i, mid);
         }
-        this.setCell(10,10,right);
+        this.setCell(2,6,bottom);
 
         // Create the Submarine
         this.setCell(4,5, top);
@@ -95,16 +98,16 @@ public class Board {
         this.setCell(4, 8, bottom);
 
         // Create the Destroyer
-        this.setCell(6, 3, left);
+        this.setCell(6, 6, left);
         for(int i = 7; i < 9; i++){
-            this.setCell(6, i, mid);
+            this.setCell(i, 6, mid);
         }
-        this.setCell(10, 3, right);
+        this.setCell(9, 6, right);
 
         // And finally the Patrol Boat
         this.setCell(4, 2, left);
         this.setCell(5, 2, mid);
-        this.setCell(6, 2, mid);
+        this.setCell(6, 2, right);
         return this.grid;
 //        this.grid = new String[][]{
 //                {" ", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"},
@@ -121,8 +124,14 @@ public class Board {
 //        };
     }
 
+    /**
+     * Set the Cell at a specific x and y coordinate
+     * @param y
+     * @param x
+     * @param cell
+     */
     public void setCell(int x, int y, Cell cell){
-        this.grid[x][y] = cell;
+        this.grid[y][x - 1] = cell;
     }
 
     /**
@@ -188,6 +197,7 @@ public class Board {
                 grid[i][j] = new Cell();
             }
         }
+        grid = placeDefaultConvoy(grid);
         return grid;
     }
 
