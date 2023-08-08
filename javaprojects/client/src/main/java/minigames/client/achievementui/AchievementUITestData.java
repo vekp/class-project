@@ -1,8 +1,5 @@
 package minigames.client.achievementui;
-
 import minigames.achievements.*;
-
-import java.util.Arrays;
 import java.util.Random;
 
 //Test class for setting up a fake Achievement registry to populate a UI with
@@ -36,7 +33,7 @@ public class AchievementUITestData {
             for (int k = 0; k < count; k++) {
                 String achieveName = name + ": Achievement - " + k;
                 String desc = "This is achievement number " + k + " for the game!";
-                handlers[i].addAchievement(new Achievement(achieveName, desc, false));
+                handlers[i].addAchievement(new Achievement(achieveName, desc, "",false));
 
                 int p1 = r.nextInt(0,players.length-1);
                 int p2 = (p1 + r.nextInt(1, 4)) % players.length;
