@@ -33,8 +33,10 @@ public class Battleship implements GameClient {
     JLabel title;
     JLabel currentPlayerName;
     JPanel maps;
-    JPanel fleetMap;
+    JPanel nauticalMap;
+    JTextArea nauticalText;
     JPanel targetMap;
+    JTextArea targetText;
     JPanel terminal;
     JTextArea messages;
     JScrollPane commandTerminal;
@@ -57,11 +59,22 @@ public class Battleship implements GameClient {
         heading.add(currentPlayerName, BorderLayout.CENTER);
 
         maps = new JPanel();
-        fleetMap = new JPanel();   // Add player ship grid
+        nauticalMap = new JPanel();   // Add player ship grid
+        nauticalText = new JTextArea();
+        nauticalText.setFont(fonts[1]);
+        nauticalText.setEditable(false);
+        nauticalMap.add(nauticalText);
+
+        maps.add(nauticalMap);
+        maps.add(Box.createRigidArea(new Dimension(100,350)));
+
+
         targetMap = new JPanel();  // Add enemy ship grid
-        maps.add(fleetMap);
+        targetText = new JTextArea();
+        targetText.setFont(fonts[1]);
+        targetText.setEditable(false);
+        targetMap.add(targetText);
         maps.add(targetMap);
-        maps.setPreferredSize(new Dimension(800, 350));
 
         terminal = new JPanel();
         terminal.setLayout(new BorderLayout());
@@ -90,8 +103,8 @@ public class Battleship implements GameClient {
         mainPanel.add(maps, BorderLayout.CENTER);
         mainPanel.add(terminal, BorderLayout.SOUTH);
 
-        for (Component c : new Component[] {mainPanel, heading, title, currentPlayerName, fleetMap, targetMap, maps,
-                messages, commandTerminal, userCommand}) {
+        for (Component c : new Component[] {mainPanel, heading, title, currentPlayerName, nauticalMap, nauticalText,
+                targetMap, targetText, maps, messages, commandTerminal, userCommand}) {
             c.setForeground(Color.WHITE);
             c.setBackground(Color.decode(colour));
         }
@@ -150,6 +163,8 @@ public class Battleship implements GameClient {
         switch (command.getString("command")) {
             case "clearText" -> messages.setText("");
             case "appendText" -> messages.setText(messages.getText() + command.getString("text"));
+            case "placePlayer1Board" -> nauticalText.setText(nauticalText.getText() + command.getString("text"));
+            case "placePlayer2Board" -> targetText.setText(targetText.getText() + command.getString("text"));
         }
 
     }

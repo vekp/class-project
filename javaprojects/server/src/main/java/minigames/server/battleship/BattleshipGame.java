@@ -20,10 +20,10 @@ public class BattleshipGame {
 
     static String player = "Nautical Map";
     static String enemy = "Target Map";
-    static String chars = "ABCDEFGHI";
 
-    static int WIDTH = 2;
-    static int HEIGHT = 2;
+    static Board player1 = new Board("Mitcho");
+    static Board player2 = new Board("Craig");
+
 
 //    static Map<String, Integer> vessels = new HashMap<String, Integer>() {{
 //            vessels.put("Carrier", 6);
@@ -46,17 +46,6 @@ public class BattleshipGame {
     public BattleshipGame(String name) {
         this.name = name;
     }
-    // We can get rid of this MUD stuff right? - CRAIG
-    String[][] rooms = new String[][] {
-            {
-                    "You are in a maze of twisting passages, all alike",
-                    "You are in a maze of twisting passages that weren't so alike after all"
-            },
-            {
-                    "You are standing in an open field west of a white house, with a boarded front door. There is a small mailbox here.",
-                    "You wake up. The room is very gently spinning around your head. Or at least it would be if you could see it which you can't. It is pitch black."
-            }
-    };
 
     static String welcomeMessage = "Welcome Captain! Enter 'Ready' to start conquering the seas!\nUse arrow keys to move ships" +
             " around the grid. Press 'Tab' to switch vessel and 'Space' to rotate.\n\n...Ready\n\nTo fire at the enemy, enter " +
@@ -86,23 +75,12 @@ public class BattleshipGame {
      * @param p The player whose state is to be described
      * @return The String to be displayed to the player
      */
-    private String describeState(BattleshipGame.BattleshipPlayer p) {
+    private String describeState(BattleshipPlayer p) {
         StringBuilder sb = new StringBuilder();
 
         sb.append(welcomeMessage);
 
         return sb.toString();
-    }
-
-    // I'll add javadoc on this one once I fully understand what it's for ;) - CRAIG
-    private String directions(int x, int y) {
-        String d = "";
-        if (x > 0) d += "W";
-        if (y > 0) d += "N";
-        if (x < WIDTH - 1) d += "E";
-        if (x < HEIGHT - 1) d += "S";
-
-        return d;
     }
 
     /**
@@ -112,14 +90,16 @@ public class BattleshipGame {
      */
     public RenderingPackage runCommands(CommandPackage cp) {
         logger.info("Received command package {}", cp);
-        BattleshipGame.BattleshipPlayer p = players.get(cp.player());
+        BattleshipPlayer p = players.get(cp.player());
 
         // FIXME: Need to actually run the commands!
 
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         renderingCommands.add(new JsonObject().put("command", "clearText"));
         renderingCommands.add(new JsonObject().put("command", "appendText").put("text", describeState(p)));
-        renderingCommands.add(new JsonObject().put("command", "setDirections").put("directions", directions(p.x(), p.y())));
+        renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.createGrid(player, player1.defaultGridCreator())));
+        renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.createGrid(enemy, player2.defaultGridCreator())));
+
 
         return new RenderingPackage(this.gameMetadata(), renderingCommands);
     }
@@ -148,7 +128,9 @@ public class BattleshipGame {
             renderingCommands.add(new LoadClient("Battleship", "Battleship", name, playerName).toJson());
             renderingCommands.add(new JsonObject().put("command", "clearText"));
             renderingCommands.add(new JsonObject().put("command", "appendText").put("text", describeState(p)));
-            renderingCommands.add(new JsonObject().put("command", "setDirections").put("directions", directions(p.x(), p.y())));
+            renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.createGrid(player, player1.defaultGridCreator())));
+            renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.createGrid(enemy, player2.defaultGridCreator())));
+
 
             return new RenderingPackage(gameMetadata(), renderingCommands);
         }
