@@ -1,6 +1,7 @@
 package minigames.server.memory;
 
 import io.vertx.core.Future;
+import io.vertx.core.json.JsonObject;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -21,10 +22,7 @@ public class MemoryServer implements GameServer {
 
     static final String chars = "abcdefghijklmopqrstuvwxyz";
 
-    /** Holds the game in progress in memory (no db). */
-    HashMap<String, MemoryGame> games = new HashMap<>();
-
-    /** Random name */
+    /** A random name. We could do with something more memorable, like Docker has. */
     static String randomName() {
         Random r = new Random();
         StringBuffer sb = new StringBuffer();
@@ -34,21 +32,23 @@ public class MemoryServer implements GameServer {
         return sb.toString();
     }
 
+    /** Holds the game in progress in memory (no db). */
+    HashMap<String, MemoryGame> games = new HashMap<>();
+
     @Override
     public GameServerDetails getDetails() {
-        return new GameServerDetails("Memory", "Find the pairs in the Memory card game!");
+        return new GameServerDetails("Memory", "[Casual] Find the pairs in the Memory card game!");
     }
 
-    // Only supports Java Swing
     @Override
     public ClientType[] getSupportedClients() {
-        return new ClientType[] { ClientType.Swing };
+        return new ClientType[] { ClientType.Swing, ClientType.Scalajs, ClientType.Scalafx };
     }
 
     @Override
     public GameMetadata[] getGamesInProgress() {
         return games.keySet().stream().map((name) -> {
-            return new GameMetadata("Memory", name, games.get(name).getPlayerNames(), true);
+            return new GameMetadata("Memory", name, games.get(name).getPlayerNames(), false); // true for multiplayer
         }).toArray(GameMetadata[]::new);
     }
 
@@ -68,7 +68,19 @@ public class MemoryServer implements GameServer {
     @Override
     public Future<RenderingPackage> callGame(CommandPackage cp) {
         MemoryGame g = games.get(cp.gameId());
+
+        // Create temp JSONObject object
+        JsonObject cmd = cp.commands().get(0);
+        switch (cmd.getString("command")) {
+            case "clearServer" -> {
+                clearServer(cp.gameId());
+            }
+        }
         return Future.succeededFuture(g.runCommands(cp));
+    }
+
+    private void clearServer(String s) {
+        games.remove(s);
     }
     
 }

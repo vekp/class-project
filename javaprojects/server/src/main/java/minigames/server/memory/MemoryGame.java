@@ -19,6 +19,9 @@ public class MemoryGame {
     /** A logger for logging output */
     private static final Logger logger = LogManager.getLogger(MemoryGame.class);
 
+    // Create a record of MemoryPlayer class
+    record MemoryPlayer(String name) {}
+
     /** Uniquely identifies this game */
     String name;
 
@@ -29,7 +32,7 @@ public class MemoryGame {
     // Players
     HashMap<String, MemoryPlayer> players = new HashMap<>();
 
-    /** Players currently playing this game */
+    /** The players currently playing this game */
     public String[] getPlayerNames() {
         return players.keySet().toArray(String[]::new);
     }
@@ -40,9 +43,9 @@ public class MemoryGame {
     }
 
     public RenderingPackage runCommands(CommandPackage cp) {   
-        logger.info("Received command package {}", cp);     
-        //MemoryPlayer p = players.get(cp.player());
+        logger.info("Received command package {}", cp);
 
+        // Create temp JSONObject object
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         JsonObject cmd = cp.commands().get(0);
         switch (cmd.getString("command")) {
@@ -68,14 +71,12 @@ public class MemoryGame {
             MemoryPlayer p = new MemoryPlayer(playerName);
             players.put(playerName, p);
 
+            // Create temp JSONObject object
             ArrayList<JsonObject> renderingCommands = new ArrayList<>();
             renderingCommands.add(new LoadClient("Memory", "Memory", name, playerName).toJson());
 
             return new RenderingPackage(gameMetadata(), renderingCommands);
         }
     }
-
-    // Create a record of MemoryPlayer class
-    record MemoryPlayer(String name) {}
 
 }
