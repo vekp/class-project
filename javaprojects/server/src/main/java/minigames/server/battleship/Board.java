@@ -57,8 +57,9 @@ public class Board {
 
     /**
      * For now, I'm literally just putting in a default ship placement lazily, it will be changed later
+     * Note, this does not work... - CRAIG
      */
-    public void placeDefaultConvoy() {
+    public Cell[][] placeDefaultConvoy() {
         // Create the cells
         // TODO: See if there is a less redundant way to do this
         Cell top = new Cell();
@@ -104,12 +105,13 @@ public class Board {
         this.setCell(4, 2, left);
         this.setCell(5, 2, mid);
         this.setCell(6, 2, mid);
+        return this.grid;
 //        this.grid = new String[][]{
 //                {" ", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"},
 //                {"A", "^", "~", "~", "~", "~", "~", "~", "~", "~", "~"},
 //                {"B", "0", "~", "<", "0", ">", "~", "~", "~", "~", "~"},
 //                {"C", "0", "~", "~", "~", "~", "<", "0", "0", ">", "~"},
-//               {"D", "0", "~", "~", "~", "~", "~", "~", "~", "~", "~"},
+//                {"D", "0", "~", "~", "~", "~", "~", "~", "~", "~", "~"},
 //                {"E", "0", "~", "~", "^", "~", "~", "~", "~", "~", "~"},
 //                {"F", "V", "~", "~", "0", "~", "~", "~", "~", "~", "~"},
 //                {"G", "~", "~", "~", "0", "~", "~", "~", "~", "~", "~"},
