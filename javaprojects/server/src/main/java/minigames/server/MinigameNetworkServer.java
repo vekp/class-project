@@ -72,6 +72,13 @@ public class MinigameNetworkServer {
           return Future.succeededFuture(Arrays.asList(games));
         });
 
+        // Respond to request from AchievementUI client
+        router.get("/achievement/:player").handler((ctx) -> {
+            String playerId = ctx.pathParam(":player");
+            ctx.response().end("I will give you some achievement data later, for " + playerId);
+        });
+
+
 
         // Starts a new game on the server
         router.post("/newGame/:gameServer").respond((ctx) -> {
@@ -133,8 +140,4 @@ public class MinigameNetworkServer {
             }
           });
     }
-   
-
-
-
 }
