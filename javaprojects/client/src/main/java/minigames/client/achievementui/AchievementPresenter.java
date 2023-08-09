@@ -6,49 +6,55 @@ import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.io.File;
-import java.io.IOError;
 
 public class AchievementPresenter {
 
-    private final String rootImageFolderLocation = "src/main/resources/images/achievements/";
-    private final String defaultFilepath = rootImageFolderLocation + "default/";
-    private final String resourceFilepath;
+    private final String achievementImageFolderLocation = "src/main/resources/images/achievements/";
     private final Achievement achievement;
-    private final ImageIcon smallImage;
-    private final ImageIcon largeImage;
     //TODO: Add a sound effect?
 
     public AchievementPresenter(Achievement achievement) {
         this.achievement = achievement;
-        resourceFilepath = rootImageFolderLocation + achievement.type().toLowerCase().replace(" ", "") + "/";
-        System.out.println(resourceFilepath);
-        smallImage = makeImage("small.png");
-        largeImage = makeImage("large.png");
     }
 
-    private ImageIcon makeImage(String filename) {
-        String path = resourceFilepath + filename;
+    private ImageIcon makeImage(int size) {
+        // Attempt to set path of image
+        String path = achievementImageFolderLocation + achievement.type().toLowerCase().replace(" ", "") + ".png";
         System.out.println(path);
-        System.out.println((new File(path).exists())? "Found" : "Not found");
-        ImageIcon image;
-        try {
-            image = new ImageIcon(resourceFilepath + filename);
-        } catch (IOError e) {
-            System.out.println("not found");
+        if (!new File(path).exists()) {
+            path = path.replace(".png", ".jpg");
+            if (!new File(path).exists()) {
+                path = path.replace(".jpg", ".gif");
+                // Use default if not found
+                if (!new File(path).exists()) {
+                    path = achievementImageFolderLocation + "default.png";
+                }
+            }
         }
-        return new ImageIcon(resourceFilepath + filename);
+        // Scale to desired size
+        ImageIcon imageIcon = new ImageIcon(path);
+        Image scaledImage = imageIcon.getImage().getScaledInstance(size, size, Image.SCALE_DEFAULT);
+        imageIcon.setImage(scaledImage);
+        return imageIcon;
     }
 
     public JPanel smallAchievementPanel() {
-        JPanel panel = new JPanel();
         JLabel name = new JLabel(achievement.name());
         name.setBorder(new LineBorder(Color.BLACK));
+        Font currentFont = name.getFont();
+        Font boldFont = new Font(currentFont.getFontName(), Font.BOLD, currentFont.getSize());
+        name.setFont(boldFont);
+
         JTextArea description = new JTextArea(achievement.description());
         description.setBorder(new LineBorder(Color.BLACK));
 
-        panel.add(new JLabel(smallImage));
-        panel.add(name);
-        panel.add(description);
+        JPanel panel = new JPanel();
+        panel.setBorder(new LineBorder(Color.BLACK));
+        panel.add(new JLabel(makeImage(100)));
+        JPanel textPanel = new JPanel(new BorderLayout());
+        textPanel.add(name, BorderLayout.NORTH);
+        textPanel.add(description);
+        panel.add(textPanel);
         return panel;
     }
 

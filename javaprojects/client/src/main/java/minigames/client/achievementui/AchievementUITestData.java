@@ -33,7 +33,7 @@ public class AchievementUITestData {
             for (int k = 0; k < count; k++) {
                 String achieveName = name + ": Achievement - " + k;
                 String desc = "This is achievement number " + k + " for the game!";
-                handlers[i].addAchievement(new Achievement(achieveName, desc, "default",false));
+                handlers[i].addAchievement(new Achievement(achieveName, desc, "DeFa Lt",false));
 
                 int p1 = r.nextInt(0,players.length-1);
                 int p2 = (p1 + r.nextInt(1, 4)) % players.length;

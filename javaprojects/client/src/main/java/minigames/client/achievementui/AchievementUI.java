@@ -63,7 +63,7 @@ public class AchievementUI extends JPanel {
         achievementPanel.setLayout(new BoxLayout(achievementPanel, BoxLayout.Y_AXIS));
         achievementPanel.add(Box.createRigidArea(new Dimension(0,20)));
         JLabel achievementPanelLabel = new JLabel("Please make your selections.");
-        achievementPanelLabel.setAlignmentX(0);
+        achievementPanelLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         achievementPanel.add(achievementPanelLabel);
         achievementScrollPane = new JScrollPane();
         achievementScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -138,10 +138,9 @@ public class AchievementUI extends JPanel {
         panel.setBackground(Color.WHITE);
         for (Achievement achievement : userAchievements) {
             AchievementPresenter presenter = new AchievementPresenter(achievement);
-//            System.out.println(achievement.name() + ", " + achievement.description());
-//            JLabel label = new JLabel(achievement.name());
-//            label.setToolTipText(achievement.description());
-            panel.add(presenter.smallAchievementPanel());
+            JPanel achievementPanel = presenter.smallAchievementPanel();
+            achievementPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            panel.add(achievementPanel);
         }
         return panel;
     }
