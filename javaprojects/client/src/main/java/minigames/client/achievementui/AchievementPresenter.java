@@ -12,9 +12,11 @@ public class AchievementPresenter {
     private final String achievementImageFolderLocation = "src/main/resources/images/achievements/";
     private final Achievement achievement;
     //TODO: Add a sound effect?
+    final boolean isUnlocked;
 
-    public AchievementPresenter(Achievement achievement) {
+    public AchievementPresenter(Achievement achievement, boolean isUnlocked) {
         this.achievement = achievement;
+        this.isUnlocked = isUnlocked;
     }
 
     private ImageIcon makeImage(int size) {
@@ -50,11 +52,21 @@ public class AchievementPresenter {
 
         JPanel panel = new JPanel();
         panel.setBorder(new LineBorder(Color.BLACK));
-        panel.add(new JLabel(makeImage(100)));
+        panel.add(new JLabel(makeImage(60)));
         JPanel textPanel = new JPanel(new BorderLayout());
         textPanel.add(name, BorderLayout.NORTH);
         textPanel.add(description);
         panel.add(textPanel);
+        if (!isUnlocked) {
+            name.setForeground(Color.GRAY);
+            description.setForeground(Color.GRAY);
+
+            //todo Can we blur this out instead?
+            if (achievement.hidden()) {
+                panel.setBackground(Color.ORANGE);
+                description.setText("This is a hidden achievement. What do you think you need to do to earn it?");
+            }
+        } else if (achievement.hidden()) panel.setBackground(Color.YELLOW);
         return panel;
     }
 

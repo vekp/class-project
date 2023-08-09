@@ -20,7 +20,6 @@ public class AchievementUI extends JPanel {
      * @param returnAction an ActionListener for returning to the previous screen.
      */
     public AchievementUI(MinigameNetworkClient networkClient, ActionListener returnAction) {
-        System.out.println(new File("src/main/resources").exists());
         this.setPreferredSize(new Dimension(800, 600));
         this.setLayout(new BorderLayout());
 
@@ -139,7 +138,7 @@ public class AchievementUI extends JPanel {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(Color.WHITE);
         for (Achievement achievement : userAchievements) {
-            AchievementPresenter presenter = new AchievementPresenter(achievement);
+            AchievementPresenter presenter = new AchievementPresenter(achievement, true);
             JPanel achievementPanel = presenter.smallAchievementPanel();
             achievementPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
             panel.add(achievementPanel);
@@ -154,6 +153,36 @@ public class AchievementUI extends JPanel {
      */
     public void populateAchievementPanel(PlayerAchievementRecord data){
         //todo use the server-based data to populate panels
+        JPanel achievementPanel = new JPanel();
+        achievementPanel.setLayout(new BoxLayout(achievementPanel, BoxLayout.Y_AXIS));
         System.out.println("I have received some player data for " + data.playerID());
+        for (GameAchievementState state: data.gameAchievements()) {
+            String gameID = state.gameID();
+            JLabel gameLabel = new JLabel(gameID);
+            gameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            gameLabel.setFont(new Font(gameLabel.getFont().getFontName(), Font.BOLD, 25));
+            achievementPanel.add(gameLabel);
+            List<Achievement> unlockedAchievements = state.unlocked();
+                if (!unlockedAchievements.isEmpty()) {
+                    AchievementCollection presenterList = achievementCollection(unlockedAchievements, true);
+                    achievementPanel.add(presenterList.achievementListPanel());
+                }
+            List<Achievement> lockedAchievements = state.locked();
+            if (!lockedAchievements.isEmpty()) {
+                AchievementCollection presenterList = achievementCollection(lockedAchievements, false);
+                achievementPanel.add(presenterList.achievementListPanel());
+            }
+
+        }
+        achievementScrollPane.setViewportView(achievementPanel);
+
+    }
+
+    private AchievementCollection achievementCollection(List<Achievement> achievementList, boolean isUnlocked) {
+        List<AchievementPresenter> presenterList = new ArrayList<>();
+        for (Achievement achievement : achievementList) {
+            presenterList.add(new AchievementPresenter(achievement, isUnlocked));
+        }
+        return new AchievementCollection(presenterList);
     }
 }
