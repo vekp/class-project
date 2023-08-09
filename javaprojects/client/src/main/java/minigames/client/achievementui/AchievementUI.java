@@ -7,7 +7,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,11 +22,8 @@ public class AchievementUI extends JPanel {
         this.setPreferredSize(new Dimension(800, 600));
         this.setLayout(new BorderLayout());
 
-        // Get test values. TODO: Get real values from server.
-        AchievementRegister register = AchievementUITestData.getTestData();
-        List<String> usernames = AchievementUITestData.getNames();
-        List<String> games = new ArrayList<>();
-        for (AchievementHandler h : register.getAllHandlers()) games.add(h.getGameID());
+        //todo obtain username from login / user system when able
+        List<String> usernames = AchievementTestData.getNames();
 
         // Title
         JLabel title = new JLabel(TITLE);
@@ -41,6 +37,9 @@ public class AchievementUI extends JPanel {
         selectorPanel.setLayout(new BoxLayout(selectorPanel, BoxLayout.Y_AXIS));
         JList<String> usernameJList = new JList<>(usernames.toArray(new String[0]));
         selectorPanel.add(generateScrollPane("Username:", usernameJList));
+
+        //todo games list no longer does anything, remove?
+        List<String> games = new ArrayList<>();
         JList<String> gamesJList = new JList<>(games.toArray(new String[0]));
         selectorPanel.add(generateScrollPane("Game:", gamesJList));
 
@@ -77,18 +76,6 @@ public class AchievementUI extends JPanel {
             //TODO implement new data package - hook up to the ui panels
             String selectedUsername = usernameJList.getSelectedValue();
             networkClient.getPlayerAchievements(this, selectedUsername);
-
-//            String selectedGame = gamesJList.getSelectedValue();
-//            System.out.println("Selected: " + selectedUsername + ", " + selectedGame +", "+unlockedButton.isSelected());
-//            if (selectedUsername == null || selectedGame == null) return;
-//            achievementPanelLabel.setText((unlockedButton.isSelected()? "Unl" : "L") + "ocked achievements");
-//            JPanel scrollPaneContents = populateAchievementPanel(selectedUsername, selectedGame, register, unlockedButton.isSelected());
-//            achievementScrollPane.setViewportView(scrollPaneContents);
-            // This code might be required if components need to be redrawn
-//            // Update the frame
-//            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-//            frame.invalidate();
-//            frame.validate();
         });
         buttonPanel.add(submit, BorderLayout.CENTER);
 
@@ -124,29 +111,7 @@ public class AchievementUI extends JPanel {
         return itemsPanel;
     }
 
-    /**
-     * Fills the panel with the obtained achievements for the specified user
-     * @param username The username of the specified user
-     * @param gameID The ID of the game that is being queried
-     * @param register The AchievementRegister Object containing all achievement information
-     * @param unlocked Whether the achievement has been unlocked or not
-     * @return A panel with this information displayed
-     */
-    private JPanel populateAchievementPanel(String username, String gameID, AchievementRegister register, boolean unlocked) {
-        ArrayList<Achievement> userAchievements = register.getUserAchievements(username, gameID, unlocked);
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBackground(Color.WHITE);
-        for (Achievement achievement : userAchievements) {
-            AchievementPresenter presenter = new AchievementPresenter(achievement, true);
-            JPanel achievementPanel = presenter.smallAchievementPanel();
-            achievementPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-            panel.add(achievementPanel);
-        }
-        return panel;
-    }
-
-    /** This will be called when the server responds to an achevement data request. The player achievement record
+     /** This will be called when the server responds to an achevement data request. The player achievement record
      * contains the ID of the player that we requested info for, and the list of achievements they have unlocked/have
      * yet to unlock
      * @param data the achievement data for a single player

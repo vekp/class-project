@@ -12,7 +12,7 @@ import io.vertx.ext.web.handler.CorsHandler;
 import java.util.Arrays;
 import java.util.List;
 
-import minigames.achievements.AchievementUITestData;
+import minigames.achievements.AchievementTestData;
 import minigames.achievements.PlayerAchievementRecord;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -77,7 +77,7 @@ public class MinigameNetworkServer {
         // Respond to request from AchievementUI client
         router.get("/achievement/:player").handler((ctx) -> {
             String playerId = ctx.pathParam("player");
-            PlayerAchievementRecord record = AchievementUITestData.getPlayerTestData(playerId);
+            PlayerAchievementRecord record = AchievementTestData.getPlayerTestData(playerId);
             ctx.response().end(record.toJSON());
         });
 

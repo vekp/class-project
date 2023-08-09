@@ -1,4 +1,6 @@
-package minigames.achievements;
+package minigames.server.achievements;
+
+import minigames.achievements.Achievement;
 
 import java.util.*;
 
