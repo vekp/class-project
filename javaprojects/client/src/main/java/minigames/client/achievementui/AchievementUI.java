@@ -3,6 +3,7 @@ package minigames.client.achievementui;
 import minigames.achievements.Achievement;
 import minigames.achievements.AchievementHandler;
 import minigames.achievements.AchievementRegister;
+import minigames.achievements.PlayerAchievementRecord;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -25,9 +26,10 @@ public class AchievementUI extends JPanel {
         this.setPreferredSize(new Dimension(800, 600));
         this.setLayout(new BorderLayout());
 
+
         // Get test values. TODO: Get real values from server.
         AchievementRegister register = AchievementUITestData.getTestData();
-        List<String> usernames = register.getPlayerList();
+        List<String> usernames = AchievementUITestData.getNames();
         List<String> games = new ArrayList<>();
         for (AchievementHandler h : register.getAllHandlers()) games.add(h.getGameID());
 
@@ -76,7 +78,11 @@ public class AchievementUI extends JPanel {
         // Add submit button
         JButton submit = new JButton("Submit");
         submit.addActionListener(e -> {
+            //TODO implement new data package - hook up to the ui panels
             String selectedUsername = usernameJList.getSelectedValue();
+            PlayerAchievementRecord testRecord = AchievementUITestData.getPlayerTestData(selectedUsername);
+
+
             String selectedGame = gamesJList.getSelectedValue();
             System.out.println("Selected: " + selectedUsername + ", " + selectedGame +", "+unlockedButton.isSelected());
             if (selectedUsername == null || selectedGame == null) return;
