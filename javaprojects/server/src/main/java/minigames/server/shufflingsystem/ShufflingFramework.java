@@ -20,7 +20,7 @@ public class ShufflingFramework {
         //It's early days so play around with the code, it can definitely be better than what I've done here.
         Random rand = new Random();
         for(int i = cards.length -1; i > 0; i--){
-            int swap = rand.nextInt(i);
+            int swap = rand.nextInt(i + 1);
             PlayingCard temp = cards[i];
             cards[i] = cards[swap];
             cards[swap] = temp;
