@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import javax.swing.JLabel;
 
+import minigames.achievements.PlayerAchievementRecord;
 import minigames.client.achievementui.AchievementUI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -128,11 +129,16 @@ public class MinigameNetworkClient {
             });
     }
 
-    /** gets the current achievement data for the logged in / selected player */
-    public Future<String> achievementRequest(AchievementUI ui, String playerID) {
+    /** gets the current achievement data for the logged in / selected player
+     * this will be sent back as a JSON string that can be used to construct a PlayerAchievementRecord
+     * */
+    public Future<String> getPlayerAchievements(AchievementUI ui, String playerID) {
         return webClient.get(port, host, "/achievement/" + playerID)
                 .send()
                 .onSuccess((resp) -> {
+                    //re-create the player record from the JSON we should have been sent, and pass it
+                    //over to the UI to populate its panels
+                    ui.populateAchievementPanel(PlayerAchievementRecord.fromJSON(resp.bodyAsString()));
                     logger.info(resp.bodyAsString());
                 })
                 .onFailure((resp) -> {

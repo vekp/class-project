@@ -1,9 +1,7 @@
 package minigames.client.achievementui;
 
-import minigames.achievements.Achievement;
-import minigames.achievements.AchievementHandler;
-import minigames.achievements.AchievementRegister;
-import minigames.achievements.PlayerAchievementRecord;
+import minigames.achievements.*;
+import minigames.client.MinigameNetworkClient;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -21,11 +19,10 @@ public class AchievementUI extends JPanel {
      * Creates a new JPanel containing a user interface for viewing achievements.
      * @param returnAction an ActionListener for returning to the previous screen.
      */
-    public AchievementUI(ActionListener returnAction) {
+    public AchievementUI(MinigameNetworkClient networkClient, ActionListener returnAction) {
         System.out.println(new File("src/main/resources").exists());
         this.setPreferredSize(new Dimension(800, 600));
         this.setLayout(new BorderLayout());
-
 
         // Get test values. TODO: Get real values from server.
         AchievementRegister register = AchievementUITestData.getTestData();
@@ -80,8 +77,7 @@ public class AchievementUI extends JPanel {
         submit.addActionListener(e -> {
             //TODO implement new data package - hook up to the ui panels
             String selectedUsername = usernameJList.getSelectedValue();
-            PlayerAchievementRecord testRecord = AchievementUITestData.getPlayerTestData(selectedUsername);
-
+            networkClient.getPlayerAchievements(this, selectedUsername);
 
             String selectedGame = gamesJList.getSelectedValue();
             System.out.println("Selected: " + selectedUsername + ", " + selectedGame +", "+unlockedButton.isSelected());
@@ -149,5 +145,15 @@ public class AchievementUI extends JPanel {
             panel.add(achievementPanel);
         }
         return panel;
+    }
+
+    /** This will be called when the server responds to an achevement data request. The player achievement record
+     * contains the ID of the player that we requested info for, and the list of achievements they have unlocked/have
+     * yet to unlock
+     * @param data the achievement data for a single player
+     */
+    public void populateAchievementPanel(PlayerAchievementRecord data){
+        //todo use the server-based data to populate panels
+        System.out.println("I have received some player data for " + data.playerID());
     }
 }

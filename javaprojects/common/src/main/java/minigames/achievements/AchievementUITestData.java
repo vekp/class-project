@@ -1,4 +1,4 @@
-package minigames.client.achievementui;
+package minigames.achievements;
 
 import minigames.achievements.*;
 import org.checkerframework.checker.units.qual.A;
