@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import javax.swing.JLabel;
 
+import minigames.client.achievementui.AchievementUI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -126,6 +127,19 @@ public class MinigameNetworkClient {
                 logger.error("Failed: {} ", resp.getMessage());
             });
     }
+
+    /** gets the current achievement data for the logged in / selected player */
+    public Future<String> achievementRequest(AchievementUI ui, String playerID) {
+        return webClient.get(port, host, "/achievement/" + playerID)
+                .send()
+                .onSuccess((resp) -> {
+                    logger.info(resp.bodyAsString());
+                })
+                .onFailure((resp) -> {
+                    logger.error("Failed: {} ", resp.getMessage());
+                }).map((resp) -> resp.bodyAsString());
+    }
+
 
     /** Creates a new game on the server, running any commands that come back */
     public Future<RenderingPackage> newGame(String gameServer, String playerName) {

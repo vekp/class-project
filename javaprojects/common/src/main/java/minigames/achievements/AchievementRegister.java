@@ -10,12 +10,12 @@ public class AchievementRegister {
     //Each game server gets 1 handler, to store and track unlocks for their achievements
     final Map<String, AchievementHandler> handlers = new HashMap<>();
 
-    //get or create a handler for a game server.
-    public AchievementHandler getHandler(String gameID) {
-        if (!handlers.containsKey(gameID)) {
-            handlers.put(gameID, new AchievementHandler(gameID));
+    //get a handler for a game server, or create one if it wasn't already
+    public AchievementHandler getHandler(String handlerID) {
+        if (!handlers.containsKey(handlerID)) {
+            handlers.put(handlerID, new AchievementHandler(handlerID));
         }
-        return handlers.get(gameID);
+        return handlers.get(handlerID);
     }
 
     public ArrayList<AchievementHandler> getAllHandlers() {
