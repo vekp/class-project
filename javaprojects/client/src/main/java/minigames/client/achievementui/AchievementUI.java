@@ -8,6 +8,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class AchievementUI extends JPanel {
      * @param returnAction an ActionListener for returning to the previous screen.
      */
     public AchievementUI(ActionListener returnAction) {
+        System.out.println(new File("src/main/resources").exists());
         this.setPreferredSize(new Dimension(800, 600));
         this.setLayout(new BorderLayout());
 
@@ -135,10 +137,11 @@ public class AchievementUI extends JPanel {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(Color.WHITE);
         for (Achievement achievement : userAchievements) {
-            System.out.println(achievement.name() + ", " + achievement.description());
-            JLabel label = new JLabel(achievement.name());
-            label.setToolTipText(achievement.description());
-            panel.add(label);
+            AchievementPresenter presenter = new AchievementPresenter(achievement);
+//            System.out.println(achievement.name() + ", " + achievement.description());
+//            JLabel label = new JLabel(achievement.name());
+//            label.setToolTipText(achievement.description());
+            panel.add(presenter.smallAchievementPanel());
         }
         return panel;
     }
