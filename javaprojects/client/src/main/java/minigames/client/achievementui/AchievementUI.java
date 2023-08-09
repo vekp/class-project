@@ -78,12 +78,12 @@ public class AchievementUI extends JPanel {
             String selectedUsername = usernameJList.getSelectedValue();
             networkClient.getPlayerAchievements(this, selectedUsername);
 
-            String selectedGame = gamesJList.getSelectedValue();
-            System.out.println("Selected: " + selectedUsername + ", " + selectedGame +", "+unlockedButton.isSelected());
-            if (selectedUsername == null || selectedGame == null) return;
-            achievementPanelLabel.setText((unlockedButton.isSelected()? "Unl" : "L") + "ocked achievements");
-            JPanel scrollPaneContents = populateAchievementPanel(selectedUsername, selectedGame, register, unlockedButton.isSelected());
-            achievementScrollPane.setViewportView(scrollPaneContents);
+//            String selectedGame = gamesJList.getSelectedValue();
+//            System.out.println("Selected: " + selectedUsername + ", " + selectedGame +", "+unlockedButton.isSelected());
+//            if (selectedUsername == null || selectedGame == null) return;
+//            achievementPanelLabel.setText((unlockedButton.isSelected()? "Unl" : "L") + "ocked achievements");
+//            JPanel scrollPaneContents = populateAchievementPanel(selectedUsername, selectedGame, register, unlockedButton.isSelected());
+//            achievementScrollPane.setViewportView(scrollPaneContents);
             // This code might be required if components need to be redrawn
 //            // Update the frame
 //            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
