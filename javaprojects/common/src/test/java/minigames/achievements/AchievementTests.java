@@ -36,7 +36,7 @@ public class AchievementTests {
     public void AchievementUnlocked() {
         AchievementHandler handler = new AchievementHandler("TestGame");
 
-        Achievement test = new Achievement("FirstAchievement", "", false);
+        Achievement test = new Achievement("FirstAchievement", "", "none", false);
         handler.addAchievement(test);
 
         handler.unlockAchievement("Player1", "FirstAchievement");
@@ -48,7 +48,7 @@ public class AchievementTests {
     public void AchievementRefused() {
         AchievementHandler handler = new AchievementHandler("TestGame");
 
-        Achievement test = new Achievement("FirstAchievement", "", false);
+        Achievement test = new Achievement("FirstAchievement", "","none", false);
         handler.addAchievement(test);
 
         handler.unlockAchievement("Player1", "FirstAchievement");
@@ -60,11 +60,11 @@ public class AchievementTests {
         AchievementRegister register = new AchievementRegister();
         AchievementHandler handlerA = register.getHandler("HandlerA");
         AchievementHandler handlerB = register.getHandler("HandlerB");
-        handlerA.addAchievement(new Achievement("TestA1", "", false));
-        handlerA.addAchievement(new Achievement("TestA2", "", false));
-        handlerA.addAchievement(new Achievement("TestA3", "", false));
-        handlerB.addAchievement(new Achievement("TestB1", "", false));
-        handlerB.addAchievement(new Achievement("TestB2", "", false));
+        handlerA.addAchievement(new Achievement("TestA1", "", "none",false));
+        handlerA.addAchievement(new Achievement("TestA2", "", "none",false));
+        handlerA.addAchievement(new Achievement("TestA3", "", "none",false));
+        handlerB.addAchievement(new Achievement("TestB1", "", "none",false));
+        handlerB.addAchievement(new Achievement("TestB2", "", "none",false));
 
         handlerA.unlockAchievement("Albert", "TestA1");
         handlerA.unlockAchievement("Zebra", "TestA3");

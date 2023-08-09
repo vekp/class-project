@@ -12,7 +12,8 @@ public class AchievementHandler {
     private final String gameID;                                                    // The String for the game's ID
 
     /**
-     * Constructor for the AchievementHandler takes the gameServer (gameID) as it's only parameter
+     * Constructor
+     *
      * @param gameServer The id for the current game server
      */
     public AchievementHandler(String gameServer) {
@@ -21,6 +22,7 @@ public class AchievementHandler {
 
     /**
      * Returns the ID for the game in-progress
+     *
      * @return A String for the game's server ID
      */
     public String getGameID() {
@@ -29,14 +31,16 @@ public class AchievementHandler {
 
     /**
      * Returns a list of all Player IDs that achievements against their name
+     *
      * @return A HashSet containing all players who are in the playerUnlockList (those who have received achievements)
      */
-    public HashSet<String> getPlayers(){
+    public HashSet<String> getPlayers() {
         return new HashSet<>(playerUnlockList.keySet());
     }
 
     /**
      * Returns a list of all achievements available for the current game
+     *
      * @return An ArrayList containing all available achievements
      */
     public ArrayList<Achievement> getAllAchievements() {
@@ -45,6 +49,7 @@ public class AchievementHandler {
 
     /**
      * Adds an achievement to the list of obtainable achievements
+     *
      * @param a The Achievement Object to be added to the Map
      */
     public void addAchievement(Achievement a) {
@@ -55,6 +60,7 @@ public class AchievementHandler {
 
     /**
      * Adds multiple achievements to the list of obtainable achievements
+     *
      * @param achievementList An ArrayList containing Achievement Objects to be added to the Achievement map
      */
     public void addAchievementMultiple(ArrayList<Achievement> achievementList) {
@@ -65,7 +71,8 @@ public class AchievementHandler {
 
     /**
      * Adds an achievement and the playerID of the player who has unlocked it to the playerUnlockList Map
-     * @param playerID The ID of the player who has unlocked the achievement
+     *
+     * @param playerID      The ID of the player who has unlocked the achievement
      * @param achievementID The ID of the achievement
      */
     public void unlockAchievement(String playerID, String achievementID) {
@@ -80,7 +87,8 @@ public class AchievementHandler {
 
     /**
      * Checks whether a certain achievement has already been unlocked by a certain player
-     * @param playerID The ID of the player to be checked
+     *
+     * @param playerID      The ID of the player to be checked
      * @param achievementID The ID of the achievement being checked
      * @return Whether the achievement has been unlocked by the player
      */
@@ -92,11 +100,12 @@ public class AchievementHandler {
 
     /**
      * Get a list of all achievements unlocked by a certain player
+     *
      * @param playerID String representing player's ID
      * @return the set of unlocked achievements for the given playerID
      */
-    public HashSet<String> getPlayerUnlockList (String playerID) {
-        if(playerUnlockList.containsKey(playerID))
+    public HashSet<String> getPlayerUnlockList(String playerID) {
+        if (playerUnlockList.containsKey(playerID))
             return new HashSet<>(playerUnlockList.get(playerID));
 
         return new HashSet<>();
@@ -104,10 +113,11 @@ public class AchievementHandler {
 
     /**
      * Get information of a specific Achievement using its ID
+     *
      * @param achievementID String representation of achievement
      * @return the associated Achievement
      */
-    public Achievement getAchievementFromID (String achievementID) {
+    public Achievement getAchievementFromID(String achievementID) {
         if (achievements.containsKey(achievementID)) return achievements.get(achievementID);
         return null;
     }
