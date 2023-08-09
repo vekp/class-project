@@ -1,7 +1,7 @@
 package minigames.server.battleship;
 
 /**
- * This class represents the and convert user input into grid coordinates
+ * This class represents the grid coordinates and is used to convert user input
  */
 public class Coordinate {
 
