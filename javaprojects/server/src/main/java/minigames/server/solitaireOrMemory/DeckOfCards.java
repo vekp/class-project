@@ -39,6 +39,17 @@ public class DeckOfCards {
             faceUp = !faceUp;
         }
 
+        // @Override
+        // public boolean equals(Object o){
+        //     if (this == o) return true;
+        //     if (o == null || getClass() != o.getClass()) return false;
+
+        //     PlayingCard playingCard = (PlayingCard) o;
+
+        //     if(suit != playingCard.suit || value != playingCard.value) return false;
+        //     return ()
+        // }
+
         // Incorporating clone() and making the PlayingCard object cloneable
         // This will enable easy deep copies for when we want to create pairs of cards.
         // Wasn't strictly necessary to do it this way, but it makes the code later a
@@ -101,6 +112,10 @@ public class DeckOfCards {
                 cardStack[i] = card;
             }
         }
+    }
+
+    public PlayingCard[] getCards(){
+        return this.cardStack;
     }
 
 }
