@@ -36,21 +36,12 @@ public class AchievementUI extends JPanel {
         JPanel selectorPanel = new JPanel();
         selectorPanel.setLayout(new BoxLayout(selectorPanel, BoxLayout.Y_AXIS));
         JList<String> usernameJList = new JList<>(usernames.toArray(new String[0]));
+        usernameJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         selectorPanel.add(generateScrollPane("Username:", usernameJList));
-
-        //todo games list no longer does anything, remove?
-        List<String> games = new ArrayList<>();
-        JList<String> gamesJList = new JList<>(games.toArray(new String[0]));
-        selectorPanel.add(generateScrollPane("Game:", gamesJList));
-
-        // Radio buttons under the menus
-        JRadioButton unlockedButton = new JRadioButton("Unlocked", true);
-        JRadioButton lockedButton = new JRadioButton("Locked", false);
-        ButtonGroup buttonGroup = new ButtonGroup();
-        buttonGroup.add(unlockedButton);
-        buttonGroup.add(lockedButton);
-        selectorPanel.add(unlockedButton);
-        selectorPanel.add(lockedButton);
+        usernameJList.addListSelectionListener(e -> {
+            String selectedUsername = usernameJList.getSelectedValue();
+            networkClient.getPlayerAchievements(this, selectedUsername);
+        });
 
         selectorPanel.setBorder(new EmptyBorder(0, 0, 0, 15));
         this.add(selectorPanel, BorderLayout.WEST);
@@ -59,7 +50,7 @@ public class AchievementUI extends JPanel {
         JPanel achievementPanel = new JPanel();
         achievementPanel.setLayout(new BoxLayout(achievementPanel, BoxLayout.Y_AXIS));
         achievementPanel.add(Box.createRigidArea(new Dimension(0,20)));
-        JLabel achievementPanelLabel = new JLabel("Please make your selections.");
+        JLabel achievementPanelLabel = new JLabel("Achievements");
         achievementPanelLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         achievementPanel.add(achievementPanelLabel);
         achievementScrollPane = new JScrollPane();
@@ -70,14 +61,13 @@ public class AchievementUI extends JPanel {
         this.add(achievementPanel);
 
         JPanel buttonPanel = new JPanel(new BorderLayout());
-        // Add submit button
-        JButton submit = new JButton("Submit");
-        submit.addActionListener(e -> {
-            //TODO implement new data package - hook up to the ui panels
-            String selectedUsername = usernameJList.getSelectedValue();
-            networkClient.getPlayerAchievements(this, selectedUsername);
-        });
-        buttonPanel.add(submit, BorderLayout.CENTER);
+//        // Add submit button
+//        JButton submit = new JButton("Submit");
+//        submit.addActionListener(e -> {
+//            String selectedUsername = usernameJList.getSelectedValue();
+//            networkClient.getPlayerAchievements(this, selectedUsername);
+//        });
+//        buttonPanel.add(submit, BorderLayout.CENTER);
 
         // Add a back button
         JButton backButton = new JButton("Back");
@@ -96,7 +86,7 @@ public class AchievementUI extends JPanel {
     private JPanel generateScrollPane(String label, JList<String> selectItems){
         JScrollPane scrollPane = new JScrollPane(selectItems);
         // Set preferred size so that scrolling is only needed if window is shrunk.
-        scrollPane.setPreferredSize(new Dimension(200, selectItems.getModel().getSize()*18));
+        scrollPane.setPreferredSize(new Dimension(150, selectItems.getModel().getSize()*18));
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         SwingUtilities.invokeLater(() -> scrollPane.getViewport().setViewPosition(new Point(0, 0)));
 
@@ -111,13 +101,12 @@ public class AchievementUI extends JPanel {
         return itemsPanel;
     }
 
-     /** This will be called when the server responds to an achevement data request. The player achievement record
+     /** This will be called when the server responds to an achievement data request. The player achievement record
      * contains the ID of the player that we requested info for, and the list of achievements they have unlocked/have
      * yet to unlock
      * @param data the achievement data for a single player
      */
     public void populateAchievementPanel(PlayerAchievementRecord data){
-        //todo use the server-based data to populate panels
         JPanel achievementPanel = new JPanel();
         achievementPanel.setLayout(new BoxLayout(achievementPanel, BoxLayout.Y_AXIS));
         System.out.println("I have received some player data for " + data.playerID());
@@ -128,19 +117,19 @@ public class AchievementUI extends JPanel {
             gameLabel.setFont(new Font(gameLabel.getFont().getFontName(), Font.BOLD, 25));
             achievementPanel.add(gameLabel);
             List<Achievement> unlockedAchievements = state.unlocked();
-                if (!unlockedAchievements.isEmpty()) {
-                    AchievementCollection presenterList = achievementCollection(unlockedAchievements, true);
-                    achievementPanel.add(presenterList.achievementListPanel());
-                }
+            if (!unlockedAchievements.isEmpty()) {
+                achievementPanel.add(new JLabel("Unlocked achievements"));
+                AchievementCollection presenterList = achievementCollection(unlockedAchievements, true);
+                achievementPanel.add(presenterList.achievementListPanel());
+            }
             List<Achievement> lockedAchievements = state.locked();
             if (!lockedAchievements.isEmpty()) {
+                achievementPanel.add(new JLabel("Locked achievements"));
                 AchievementCollection presenterList = achievementCollection(lockedAchievements, false);
                 achievementPanel.add(presenterList.achievementListPanel());
             }
-
         }
         achievementScrollPane.setViewportView(achievementPanel);
-
     }
 
     private AchievementCollection achievementCollection(List<Achievement> achievementList, boolean isUnlocked) {

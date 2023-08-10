@@ -5,7 +5,11 @@ import minigames.achievements.Achievement;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.Arrays;
+import java.util.Random;
 
 public class AchievementPresenter {
 
@@ -19,7 +23,7 @@ public class AchievementPresenter {
         this.isUnlocked = isUnlocked;
     }
 
-    private ImageIcon makeImage(int size) {
+    private ImageIcon makeScaledImage(int size) {
         // Attempt to set path of image
         String path = achievementImageFolderLocation + achievement.mediaFileName().toLowerCase().replace(" ", "") + ".png";
         System.out.println(path);
@@ -29,7 +33,7 @@ public class AchievementPresenter {
                 path = path.replace(".jpg", ".gif");
                 // Use default if not found
                 if (!new File(path).exists()) {
-                    path = achievementImageFolderLocation + "default.png";
+                    path = achievementImageFolderLocation + "goldbadge.png";
                 }
             }
         }
@@ -42,32 +46,72 @@ public class AchievementPresenter {
 
     public JPanel smallAchievementPanel() {
         JLabel name = new JLabel(achievement.name());
-        name.setBorder(new LineBorder(Color.BLACK));
+//        name.setBorder(new LineBorder(Color.BLACK));
         Font currentFont = name.getFont();
         Font boldFont = new Font(currentFont.getFontName(), Font.BOLD, currentFont.getSize());
         name.setFont(boldFont);
 
         JTextArea description = new JTextArea(achievement.description());
-        description.setBorder(new LineBorder(Color.BLACK));
+        description.setEditable(false);
+        description.setFocusable(false);
+        description.setWrapStyleWord(true);
+        description.setLineWrap(true);
+        description.setBackground(name.getBackground());
+//        description.setBorder(new LineBorder(Color.BLACK));
 
         JPanel panel = new JPanel();
-        panel.setBorder(new LineBorder(Color.BLACK));
-        panel.add(new JLabel(makeImage(60)));
+//        panel.setBorder(new LineBorder(Color.BLACK));
+        JPanel imageAndSpacer = new JPanel();
+        JLabel image = new JLabel(makeScaledImage(60));
+        imageAndSpacer.add(image);
+        Component spacer = Box.createRigidArea(new Dimension(115, 0));
+        imageAndSpacer.add(spacer);
+        panel.add(imageAndSpacer);
         JPanel textPanel = new JPanel(new BorderLayout());
         textPanel.add(name, BorderLayout.NORTH);
         textPanel.add(description);
         panel.add(textPanel);
         if (!isUnlocked) {
-            name.setForeground(Color.GRAY);
-            description.setForeground(Color.GRAY);
-
-            //todo Can we blur this out instead?
+            name.setForeground(Color.LIGHT_GRAY);
+            description.setForeground(Color.LIGHT_GRAY);
             if (achievement.hidden()) {
                 panel.setBackground(Color.ORANGE);
-                description.setText("This is a hidden achievement. What do you think you need to do to earn it?");
+                description.setText(makeRandomText(achievement.description()));
             }
+
         } else if (achievement.hidden()) panel.setBackground(Color.YELLOW);
+
+        // Expand image if clicked on.
+        if (isUnlocked) {
+            panel.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    image.setIcon(makeScaledImage(180));
+                    imageAndSpacer.remove(spacer);
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    image.setIcon(makeScaledImage(60));
+                    if (!Arrays.stream(imageAndSpacer.getComponents()).toList().contains(spacer)) imageAndSpacer.add(spacer);
+                }
+            });
+        }
         return panel;
+    }
+
+    private String makeRandomText(String text) {
+        StringBuilder randomText = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < text.length(); i++) {
+            char c;
+            if (Character.isUpperCase(text.charAt(i))) c = (char)(random.nextInt(26) + 'A');
+            else if (Character.isLowerCase(text.charAt(i))) c = (char)(random.nextInt(26) + 'a');
+            else if (Character.isDigit(text.charAt(i))) c = (char) (random.nextInt(10) + '0');
+            else c = text.charAt(i);
+            randomText.append(c);
+        }
+        return randomText.toString();
     }
 
 }
