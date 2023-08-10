@@ -13,6 +13,11 @@ import javax.swing.*;
 
 import org.apache.logging.log4j.*;
 
+/**
+ * COSC220 Assessment 3
+ * @author Melinda Luo, Lyam Talbot, Scott Lehmann, William Koller
+ * Memory Card Game
+ */
 public class Memory implements GameClient {
 
     // Client instance
@@ -56,7 +61,6 @@ public class Memory implements GameClient {
         // Collections.singletonList() is a quick way of getting a "list of one item"
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
     }
- 
 
     /**
      * What we do when our client is loaded into the main screen
@@ -94,5 +98,5 @@ public class Memory implements GameClient {
     public void closeGame() {
         // Nothing to do        
     }
-    
+
 }
