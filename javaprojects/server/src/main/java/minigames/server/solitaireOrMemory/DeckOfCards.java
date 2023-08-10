@@ -12,7 +12,7 @@ public class DeckOfCards {
      * from true to false and back
      * with the flipCard() method.
      */
-    public class PlayingCard implements Cloneable {
+    public class PlayingCard implements Cloneable{
         private String suit;
         private String value;
         private boolean faceUp;
@@ -39,7 +39,7 @@ public class DeckOfCards {
             faceUp = !faceUp;
         }
 
-        // Incorporating clone and making the playing card object cloneable
+        // Incorporating clone() and making the PlayingCard object cloneable
         // This will enable easy deep copies for when we want to create pairs of cards.
         // Wasn't strictly necessary to do it this way, but it makes the code later a
         // lot cleaner.
@@ -51,11 +51,6 @@ public class DeckOfCards {
         }
     }
 
-    /**
-     * @params numberOfCards, pairs | how many cards do you want and do you want
-     *         pairs of the same cards?
-     *         This will create a deckOfCards to be used
-     */
     private PlayingCard[] cardStack;
     private String[] suits = new String[] { "Clubs", "Diamonds", "Hearts", "Spades" };
     private String[] values = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
@@ -91,6 +86,8 @@ public class DeckOfCards {
                 PlayingCard card = new PlayingCard(suits[rand.nextInt(suits.length)], values[i], true);
                 cardStack[i] = card;
                 try {
+                    //Cloning the card object that's already been made, we want to make pairs of cards
+                    //The cloned object is just of type Object, so it needs to be cast to PlayingCard
                     cardStack[i + 1] = (PlayingCard) card.clone();
                 } catch (CloneNotSupportedException e) {
                     System.out.println("PlayingCard cannot be cloned " + e.getCause());
