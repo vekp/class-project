@@ -48,9 +48,11 @@ public class BattleshipGame {
     }
 
     static String welcomeMessage = "Welcome Captain! Enter 'Ready' to start conquering the seas!\nUse arrow keys to move ships" +
-            " around the grid. Press 'Tab' to switch vessel and 'Space' to rotate.\n\n...Ready\n\nTo fire at the enemy, enter " +
-            "grid coordinates: (eg, A,4)\n...D,7\n\nSalvo missed. Prepare for incoming fire!\nEnemy has hit our fleet, " +
-            "Ship-Class:Carrier at coordinates [C,3]\n\nReturn fire! Enter grid coordinates:\n...";
+            " around the grid. Press 'Tab' to switch vessel and 'Space' to rotate.\n...";
+
+//    Ready\n\nTo fire at the enemy, enter " +
+//            "grid coordinates: (eg, A,4)\n...D,7\n\nSalvo missed. Prepare for incoming fire!\nEnemy has hit our fleet, " +
+//            "Ship-Class:Carrier at coordinates [C,3]\n\nReturn fire! Enter grid coordinates:\n...";
 
     HashMap<String, BattleshipPlayer> players = new HashMap<>();
 
@@ -96,11 +98,9 @@ public class BattleshipGame {
 
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         renderingCommands.add(new JsonObject().put("command", "clearText"));
-        renderingCommands.add(new JsonObject().put("command", "appendText").put("text", describeState(p)));
-        renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.createGrid(player, player1.defaultGridCreator())));
-        renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.createGrid(enemy, player2.defaultGridCreator())));
-
-
+        renderingCommands.add(new JsonObject().put("command", "appendText").put("text", cp.commands().get(0).getValue("command")));
+        renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, player1.defaultGridCreator())));
+        renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.generateBoard(enemy, player2.defaultGridCreator())));
         return new RenderingPackage(this.gameMetadata(), renderingCommands);
     }
 
@@ -128,8 +128,8 @@ public class BattleshipGame {
             renderingCommands.add(new LoadClient("Battleship", "Battleship", name, playerName).toJson());
             renderingCommands.add(new JsonObject().put("command", "clearText"));
             renderingCommands.add(new JsonObject().put("command", "appendText").put("text", describeState(p)));
-            renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.createGrid(player, player1.defaultGridCreator())));
-            renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.createGrid(enemy, player2.defaultGridCreator())));
+            renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, player1.defaultGridCreator())));
+            renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.generateBoard(enemy, player2.defaultGridCreator())));
 
 
             return new RenderingPackage(gameMetadata(), renderingCommands);

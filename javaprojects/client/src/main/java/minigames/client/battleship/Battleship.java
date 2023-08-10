@@ -161,8 +161,12 @@ public class Battleship implements GameClient {
         // Note that this uses the -> version of case statements, not the : version
         // (which means we don't nead to say "break;" at the end of our cases)
         switch (command.getString("command")) {
-            case "clearText" -> messages.setText("");
-            case "appendText" -> messages.setText(messages.getText() + command.getString("text"));
+            case "clearText" -> {
+                nauticalText.setText("");
+                targetText.setText("");
+                userCommand.setText("");
+            }
+            case "appendText" -> messages.append(command.getString("text"));
             case "placePlayer1Board" -> nauticalText.setText(nauticalText.getText() + command.getString("text"));
             case "placePlayer2Board" -> targetText.setText(targetText.getText() + command.getString("text"));
         }

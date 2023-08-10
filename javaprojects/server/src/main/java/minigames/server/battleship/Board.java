@@ -1,7 +1,5 @@
 package minigames.server.battleship;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import static java.lang.Math.round;
 
 /**
@@ -58,7 +56,7 @@ public class Board {
      * @param grid
      * @return
      */
-    public static String createGrid(String boardTitle, Cell[][] grid) {
+    public static String generateBoard(String boardTitle, Cell[][] grid) {
         StringBuilder gridStrings = new StringBuilder();
         String chars = "ABCDEFGHI";
 
