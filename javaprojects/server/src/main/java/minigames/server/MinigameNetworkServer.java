@@ -54,7 +54,7 @@ public class MinigameNetworkServer {
             ctx.response().end("pong");
         });
 
-        // Gets the list of game servers for this client type
+        // Gets the list of game servers for this client mediaFileName
         router.get("/gameServers/:clientType").respond((ctx) -> {
           String clientStr = ctx.pathParam("clientType");
           ClientType ct = ClientType.valueOf(clientStr);
@@ -64,7 +64,7 @@ public class MinigameNetworkServer {
           return Future.succeededFuture(servers.stream().map((gs) -> gs.getDetails()).toList());
         });
 
-        // Gets the list of game servers for this client type
+        // Gets the list of game servers for this client mediaFileName
         router.get("/games/:gameServer").respond((ctx) -> {
           String serverName = ctx.pathParam("gameServer");
           GameServer gs = Main.gameRegistry.getGameServer(serverName);

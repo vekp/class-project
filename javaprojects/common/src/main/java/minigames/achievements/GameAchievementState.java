@@ -33,11 +33,11 @@ public record GameAchievementState(
         obj.put("gameID", gameID);
         JsonArray unlockedList = new JsonArray();
         JsonArray lockedList = new JsonArray();
-        for (int i = 0; i < unlocked.size(); i++) {
-            unlockedList.add(unlocked.get(i).toJSON());
+        for (Achievement achievement : unlocked) {
+            unlockedList.add(achievement.toJSON());
         }
-        for (int i = 0; i < locked.size(); i++) {
-            lockedList.add(locked.get(i).toJSON());
+        for (Achievement achievement : locked) {
+            lockedList.add(achievement.toJSON());
         }
         obj.put("unlocked", unlockedList);
         obj.put("locked", lockedList);

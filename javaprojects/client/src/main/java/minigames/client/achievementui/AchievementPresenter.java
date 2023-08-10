@@ -21,7 +21,7 @@ public class AchievementPresenter {
 
     private ImageIcon makeImage(int size) {
         // Attempt to set path of image
-        String path = achievementImageFolderLocation + achievement.type().toLowerCase().replace(" ", "") + ".png";
+        String path = achievementImageFolderLocation + achievement.mediaFileName().toLowerCase().replace(" ", "") + ".png";
         System.out.println(path);
         if (!new File(path).exists()) {
             path = path.replace(".png", ".jpg");

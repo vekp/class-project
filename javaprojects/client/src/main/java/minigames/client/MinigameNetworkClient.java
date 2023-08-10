@@ -93,7 +93,7 @@ public class MinigameNetworkClient {
             }).map((resp) -> resp.bodyAsString());        
     }
 
-    /** Get the list of GameServers that are supported for this client type */
+    /** Get the list of GameServers that are supported for this client mediaFileName */
     public Future<List<GameServerDetails>> getGameServers() {
         return webClient.get(port, host, "/gameServers/Swing")
             .send()
