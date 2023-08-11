@@ -2,6 +2,7 @@ package minigames.server;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
+import minigames.server.battleship.BattleshipServer;
 import minigames.server.highscore.*;
 import minigames.server.muddle.MuddleServer;
 import io.vertx.core.Launcher;
@@ -45,6 +46,7 @@ public class Main extends AbstractVerticle {
     private static void doWiring() {
         // Register our first demo game
         gameRegistry.registerGameServer("Muddle", new MuddleServer());
+        gameRegistry.registerGameServer("Battleship", new BattleshipServer());
 
         // Initialize the HighScoreAPI
         HighScoreStorage highScoreStorage = new StubHighScoreStorage();
