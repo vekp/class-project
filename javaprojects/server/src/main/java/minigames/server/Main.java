@@ -37,6 +37,7 @@ public class Main extends AbstractVerticle {
     private static void doWiring() {
         // Register our first demo game
         gameRegistry.registerGameServer("Muddle", new MuddleServer());
+        gameRegistry.registerGameServer("SpaceMaze", new SpaceMazeServer());
 
     }
 

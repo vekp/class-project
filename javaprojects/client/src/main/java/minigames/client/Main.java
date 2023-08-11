@@ -28,6 +28,7 @@ public class Main extends AbstractVerticle {
      */
     private static void doWiring() {
         clientRegistry.registerGameClient("MuddleText", new MuddleText());
+        gameRegistry.registerGameServer("SpaceMaze", new spacemaze());
 
     }
 
