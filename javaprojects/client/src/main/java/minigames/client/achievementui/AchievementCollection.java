@@ -16,7 +16,7 @@ public class AchievementCollection {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         for (AchievementPresenter ap : achievements) {
-            JPanel achievementPanel = ap.smallAchievementPanel();
+            JPanel achievementPanel = ap.smallAchievementPanel(true);
             achievementPanel.setLayout(new BoxLayout(achievementPanel, BoxLayout.X_AXIS));
             achievementPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
             panel.add(achievementPanel);

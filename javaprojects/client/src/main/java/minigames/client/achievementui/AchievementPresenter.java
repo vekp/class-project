@@ -3,7 +3,7 @@ package minigames.client.achievementui;
 import minigames.achievements.Achievement;
 
 import javax.swing.*;
-import javax.swing.border.LineBorder;
+import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -16,6 +16,9 @@ public class AchievementPresenter {
     private final Achievement achievement;
     //TODO: Add a sound effect?
     final boolean isUnlocked;
+    private final Color hiddenUnlockedColour = new Color(0, 51, 204);
+    private final Color hiddenLockedColour = new Color(204, 216, 255);
+    private final Color lockedColour = Color.LIGHT_GRAY;
 
     public AchievementPresenter(Achievement achievement, boolean isUnlocked) {
         this.achievement = achievement;
@@ -44,50 +47,83 @@ public class AchievementPresenter {
         return imageIcon;
     }
 
-    public JPanel smallAchievementPanel() {
+    public JPanel smallAchievementPanel(boolean isClickable) {
+        Border smallEmptyBorder = new EmptyBorder(4, 4, 4, 4);
+        Border largeEmptyBorder = new EmptyBorder(10, 10, 10, 10);
+
         JLabel name = new JLabel(achievement.name());
 //        name.setBorder(new LineBorder(Color.BLACK));
         Font currentFont = name.getFont();
         Font boldFont = new Font(currentFont.getFontName(), Font.BOLD, currentFont.getSize());
         name.setFont(boldFont);
 
-        // Todo: make description a jtextpane.  Jtextarea can't be clicked on.
+        // Todo: make description a jtextpane so it wraps.  Jtextarea can't be clicked on.
         JLabel description = new JLabel(achievement.description());
         description.setVerticalAlignment(JLabel.TOP);
 //        description.setBorder(new LineBorder(Color.BLACK));
 
         JPanel panel = new JPanel();
 //        panel.setBorder(new LineBorder(Color.BLACK));
-        JLabel image = new JLabel(makeScaledImage(60));
+        JLabel image = new JLabel(makeScaledImage(50));
+        if (achievement.hidden() && isUnlocked) {
+            image.setBackground(Color.YELLOW);
+            image.setOpaque(true);
+            name.setForeground(hiddenUnlockedColour);
+            description.setForeground(hiddenUnlockedColour);
+        }
+        image.setBorder(smallEmptyBorder);
         panel.add(image);
+        panel.add(Box.createRigidArea(new Dimension(10, 0)));
         JPanel textPanel = new JPanel(new BorderLayout());
         textPanel.add(name, BorderLayout.NORTH);
         textPanel.add(description);
         panel.add(textPanel);
         if (!isUnlocked) {
-            name.setForeground(Color.LIGHT_GRAY);
-            description.setForeground(Color.LIGHT_GRAY);
+            name.setForeground(achievement.hidden()? hiddenLockedColour : lockedColour);
+            description.setForeground(achievement.hidden()? hiddenLockedColour : lockedColour);
             if (achievement.hidden()) {
                 description.setText(makeRandomText(achievement.description()));
             }
 
-        } else if (achievement.hidden()) panel.setBackground(Color.YELLOW);
+        } //else if (achievement.hidden()) panel.setBackground(Color.YELLOW);
 
-        // Show large panel if clicked on.
-        if (isUnlocked) {
+        panel.setBorder(largeEmptyBorder);
+        Border mouseOverBorder = new CompoundBorder(new CompoundBorder(smallEmptyBorder,
+                new BevelBorder(BevelBorder.RAISED)), smallEmptyBorder);
+        Border mouseDownBorder = new CompoundBorder(new CompoundBorder(smallEmptyBorder,
+                new BevelBorder(BevelBorder.LOWERED)), smallEmptyBorder);
+        if (isUnlocked && isClickable) {
             panel.addMouseListener(new MouseAdapter() {
+                // Show large panel if clicked on, if unlocked.
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    panel.setBorder(mouseDownBorder);
+                }
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(panel), largeAchievementPanel(),
                             "Your achievement", JOptionPane.PLAIN_MESSAGE);
                 }
+
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    panel.setBorder(mouseOverBorder);
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    panel.setBorder(largeEmptyBorder);
+                }
             });
         }
+
         return panel;
     }
 
     public JPanel largeAchievementPanel() {
         JPanel panel = new JPanel();
+        panel.setBorder(new EmptyBorder(20, 20, 20, 20));
+
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         JLabel image = new JLabel(makeScaledImage(200));
         image.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -97,6 +133,7 @@ public class AchievementPresenter {
         Font nameFont = new Font(name.getFont().getFontName(), Font.BOLD, 36);
         name.setFont(nameFont);
         name.setAlignmentX(Component.CENTER_ALIGNMENT);
+        name.setBorder(new EmptyBorder(15, 0, 15, 0));
         panel.add(name);
 
         JLabel description = new JLabel(achievement.description());
@@ -104,6 +141,11 @@ public class AchievementPresenter {
         description.setFont(descriptionFont);
         description.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(description);
+
+        if (achievement.hidden()) {
+            name.setForeground(hiddenUnlockedColour);
+            description.setForeground(hiddenUnlockedColour);
+        }
 
         return panel;
     }

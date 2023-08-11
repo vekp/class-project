@@ -27,7 +27,7 @@ public class AchievementUI extends JPanel {
 
         // Title
         JLabel title = new JLabel(TITLE);
-        title.setFont(new Font(title.getFont().getFontName(), Font.PLAIN, 36));
+        title.setFont(new Font(title.getFont().getFontName(), Font.BOLD, 36));
         JPanel titlePanel = new JPanel();
         titlePanel.add(title);
         this.add(titlePanel, BorderLayout.NORTH);
@@ -50,7 +50,7 @@ public class AchievementUI extends JPanel {
         JPanel achievementPanel = new JPanel();
         achievementPanel.setLayout(new BoxLayout(achievementPanel, BoxLayout.Y_AXIS));
         achievementPanel.add(Box.createRigidArea(new Dimension(0,20)));
-        JLabel achievementPanelLabel = new JLabel("Achievements");
+        JLabel achievementPanelLabel = new JLabel("Achievements:");
         achievementPanelLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         achievementPanel.add(achievementPanelLabel);
         achievementScrollPane = new JScrollPane();
@@ -61,14 +61,6 @@ public class AchievementUI extends JPanel {
         this.add(achievementPanel);
 
         JPanel buttonPanel = new JPanel(new BorderLayout());
-//        // Add submit button
-//        JButton submit = new JButton("Submit");
-//        submit.addActionListener(e -> {
-//            String selectedUsername = usernameJList.getSelectedValue();
-//            networkClient.getPlayerAchievements(this, selectedUsername);
-//        });
-//        buttonPanel.add(submit, BorderLayout.CENTER);
-
         // Add a back button
         JButton backButton = new JButton("Back");
         backButton.addActionListener(returnAction);
@@ -115,16 +107,15 @@ public class AchievementUI extends JPanel {
             JLabel gameLabel = new JLabel(gameID);
             gameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
             gameLabel.setFont(new Font(gameLabel.getFont().getFontName(), Font.BOLD, 25));
+            gameLabel.setBorder(new EmptyBorder(10, 10, 10, 10));
             achievementPanel.add(gameLabel);
             List<Achievement> unlockedAchievements = state.unlocked();
             if (!unlockedAchievements.isEmpty()) {
-                achievementPanel.add(new JLabel("Unlocked achievements"));
                 AchievementCollection presenterList = achievementCollection(unlockedAchievements, true);
                 achievementPanel.add(presenterList.achievementListPanel());
             }
             List<Achievement> lockedAchievements = state.locked();
             if (!lockedAchievements.isEmpty()) {
-                achievementPanel.add(new JLabel("Locked achievements"));
                 AchievementCollection presenterList = achievementCollection(lockedAchievements, false);
                 achievementPanel.add(presenterList.achievementListPanel());
             }
