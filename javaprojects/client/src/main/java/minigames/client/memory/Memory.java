@@ -8,6 +8,8 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 
 import java.awt.*;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.util.*;
 import javax.swing.*;
 
@@ -29,24 +31,92 @@ public class Memory implements GameClient {
     // Player
     String player;
 
+    // Swing components
     JPanel gamePanel;
     JPanel headingPanel;
     JLabel title;
     JPanel playerPanel;
     JLabel playerName;
     JPanel gameOptionsPanel;
+    JButton newGameButton;
     JButton restartLevelButton;
-    JButton restartGameButton;
     JButton exitButton;
-    JPanel commandPanel;
+    JPanel cardGridPanel;
 
-    JTextArea textArea; 
+    JTextArea textArea;
 
     // Game variable
     boolean gameStarted = false;
 
     public Memory() {
-        // TODO
+        headingPanel = new JPanel();
+        headingPanel.setLayout(new GridLayout(1, 1));
+        title = new JLabel("Memory");
+        title.setFont(new Font("Arial", Font.BOLD, 30));
+        title.setHorizontalAlignment(JLabel.CENTER);
+        headingPanel.add(title);
+
+        // Create the game panel
+        gamePanel = new JPanel();
+        gamePanel.setLayout(new GridLayout(3, 1));
+        gamePanel.add(headingPanel);
+
+        // Create the player panel
+        playerPanel = new JPanel();
+        playerPanel.setLayout(new GridLayout(1, 1));
+        playerName = new JLabel("Player: ");
+        playerName.setFont(new Font("Arial", Font.BOLD, 20));
+        playerPanel.add(playerName);
+
+        // Create the game options panel which hosts new game, restart level, and exit buttons
+        gameOptionsPanel = new JPanel();
+        gameOptionsPanel.setLayout(new GridLayout(1, 3));
+        newGameButton = new JButton("New Game");
+        newGameButton.setFont(new Font("Arial", Font.BOLD, 20));
+        restartLevelButton = new JButton("Restart Level");
+        restartLevelButton.setFont(new Font("Arial", Font.BOLD, 20));
+        exitButton = new JButton("Exit");
+        exitButton.setFont(new Font("Arial", Font.BOLD, 20));
+        gameOptionsPanel.add(newGameButton);
+        gameOptionsPanel.add(restartLevelButton);
+        gameOptionsPanel.add(exitButton);
+
+        gamePanel.add(playerPanel);
+        gamePanel.add(gameOptionsPanel);
+
+        // Create placeholder for card grid
+        cardGridPanel = new JPanel();
+        cardGridPanel.setLayout(new GridLayout(4, 4)); // 4x4 grid for placeholders
+        for (int i = 0; i < 16; i++) {
+            JLabel cardLabel = new JLabel("Card " + (i + 1)); // Placeholder text for cards
+            cardLabel.setHorizontalAlignment(JLabel.CENTER);
+            cardLabel.setVerticalAlignment(JLabel.CENTER);
+            cardLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+            cardGridPanel.add(cardLabel);
+        }
+
+        // Create the command panel
+        JPanel commandPanel = new JPanel();
+        commandPanel.setLayout(new BorderLayout());
+        textArea = new JTextArea();
+        textArea.setEditable(false);
+        textArea.setFont(new Font("Arial", Font.BOLD, 20));
+        commandPanel.add(new JScrollPane(textArea), BorderLayout.CENTER);
+
+        // Set up the main layout
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
+        mainPanel.add(gamePanel, BorderLayout.NORTH);
+        mainPanel.add(cardGridPanel, BorderLayout.CENTER);
+        mainPanel.add(commandPanel, BorderLayout.SOUTH);
+
+        // Create and configure the main frame
+        JFrame frame = new JFrame("Memory Game");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().add(mainPanel);
+        frame.setPreferredSize(new Dimension(1920, 1080));
+        frame.pack();
+        frame.setVisible(true);
     }
 
     /** 
