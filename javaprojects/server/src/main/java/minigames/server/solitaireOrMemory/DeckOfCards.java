@@ -50,12 +50,26 @@ public class DeckOfCards {
         //     return ()
         // }
 
+        @Override
+        public boolean equals(Object o){
+            if(o == this) return true;
+
+            if(!(o instanceof PlayingCard)) return false;
+
+            PlayingCard p = (PlayingCard) o;
+            return value.equals(p.value) && suit.equals(p.suit);
+        }
+
+
+
         // Incorporating clone() and making the PlayingCard object cloneable
         // This will enable easy deep copies for when we want to create pairs of cards.
         // Wasn't strictly necessary to do it this way, but it makes the code later a
         // lot cleaner.
         // From the reading I've done, clone() is more efficient then new, so I thought
         // I'd just do it this way.
+
+
         @Override
         protected Object clone() throws CloneNotSupportedException {
             return super.clone();
@@ -88,7 +102,7 @@ public class DeckOfCards {
     public DeckOfCards(int numberOfCards, boolean pairs) {
         Random rand = new Random();
         cardStack = new PlayingCard[numberOfCards];
-        if (numberOfCards % 2 == 1) {
+        if (numberOfCards % 2 == 1 && pairs == true) {
             System.out.println("If you want pairs please enter an even number");
             System.exit(-2);
         }
@@ -108,7 +122,7 @@ public class DeckOfCards {
             }
         } else {
             for (int i = 0; i < numberOfCards; i++) {
-                PlayingCard card = new PlayingCard(suits[rand.nextInt(suits.length)], values[i], true);
+                PlayingCard card = new PlayingCard(suits[0], values[i], true);
                 cardStack[i] = card;
             }
         }
