@@ -11,22 +11,26 @@ public class Board {
     private Grid grid; // A two-dimensional array of Cells for drawing the game board
     private Ship[] vessels = new Ship[5];  // An array containing each of the five ship types for the current board
     private int turnNumber;  // The current turn number
+    private String messageHistory;
+    private GameState gameState;
 
     /**
      * The Constructor takes only the player's name as a parameter
      * @param playerName A String representing the name of the player
      */
-    public Board(String playerName){
+    public Board(String playerName, String message){
         this.playerName = playerName;
         this.turnNumber = 0;
         // Create a default grid
         this.grid = new Grid();
+        this.messageHistory = message;
+        this.gameState = GameState.SHIP_PLACEMENT;
     }
 
 
 
 
-
+    // Getters
     /**
      * Return the 2D string array to display in the client window
      * @return The 2D String Array in its current state
@@ -35,8 +39,6 @@ public class Board {
         // There is probably a smarter way to do this too, but for now it stays
         return this.grid.getGrid();
     }
-
-
 
     /**
      * Getter for the player name
@@ -49,6 +51,39 @@ public class Board {
      * @return An int for the current turn number
      */
     public int getTurnNumber(){return this.turnNumber;}
+
+    /**
+     * Getter for the player's message history
+     * @return the message history string
+     */
+    public String getMessageHistory() {
+        return messageHistory;
+    }
+
+    /**
+     * Getter for the player's current game state
+     * @return enum game state value
+     */
+    public GameState getGameState() {
+        return gameState;
+    }
+
+    // Setters
+
+    /**
+     * Sets the current game state for the player
+     * @param gameState enum value
+     */
+    public void setGameState(GameState gameState) {
+        this.gameState = gameState;
+    }
+
+    public void updateMessageHistory(String input) {
+        this.messageHistory = getMessageHistory() + input;
+    }
+    public void incrementTurnNumber() {
+        this.turnNumber = getTurnNumber() + 1;
+    }
 
     /**
      * Function to create a grid of strings to be displayed

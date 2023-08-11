@@ -9,7 +9,10 @@ import minigames.commands.CommandPackage;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.DefaultCaret;
 import java.awt.*;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.util.Collections;
 
 public class Battleship implements GameClient {
@@ -26,7 +29,11 @@ public class Battleship implements GameClient {
             new Font("Lucida Sans Typewriter", Font.BOLD, 18),
             new Font("Lucida Sans Typewriter", Font.PLAIN, 16)
     };
-    String colour = "#07222b";
+
+    // Background colour
+    String bgColour = "#07222b";
+    // Foreground colour
+    String fgColour = "#ffffff";
 
     JPanel mainPanel;
     JPanel heading;
@@ -42,8 +49,14 @@ public class Battleship implements GameClient {
     JScrollPane commandTerminal;
     JTextField userCommand;
 
+    /**
+     * Creates the panels and layout for the game
+     */
     public Battleship() {
-        heading = new JPanel();
+        //TODO: Add current player label functionality
+
+        // Heading
+        heading = new JPanel();  // Game title and current player
         heading.setLayout(new BorderLayout());
         title = new JLabel("< BattleShip >");
         title.setFont(fonts[0]);
@@ -58,15 +71,16 @@ public class Battleship implements GameClient {
         heading.add(Box.createRigidArea(new Dimension(0,10)));
         heading.add(currentPlayerName, BorderLayout.CENTER);
 
+        // Maps
         maps = new JPanel();
-        nauticalMap = new JPanel();   // Add player ship grid
+        nauticalMap = new JPanel();  // Add player ship grid
         nauticalText = new JTextArea();
         nauticalText.setFont(fonts[1]);
         nauticalText.setEditable(false);
         nauticalMap.add(nauticalText);
 
         maps.add(nauticalMap);
-        maps.add(Box.createRigidArea(new Dimension(100,350)));
+        maps.add(Box.createRigidArea(new Dimension(100,330)));
 
 
         targetMap = new JPanel();  // Add enemy ship grid
@@ -76,9 +90,10 @@ public class Battleship implements GameClient {
         targetMap.add(targetText);
         maps.add(targetMap);
 
+        // Terminal - Messages and input area
         terminal = new JPanel();
         terminal.setLayout(new BorderLayout());
-        messages = new JTextArea();  // Add message/message history here
+        messages = new JTextArea();  // Message history
         messages.setEditable(false);
         messages.setFont(fonts[3]);
         messages.setLineWrap(true);
@@ -87,26 +102,32 @@ public class Battleship implements GameClient {
         commandTerminal = new JScrollPane(messages);
         commandTerminal.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
                 " Command Terminal: ", TitledBorder.LEFT, TitledBorder.TOP, fonts[2], Color.WHITE));
-        // commandTerminal.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         commandTerminal.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        commandTerminal.getVerticalScrollBar().setPreferredSize(new Dimension(0,0));
         commandTerminal.setPreferredSize(new Dimension(800, 130));
+        commandTerminal.setWheelScrollingEnabled(true);
+        DefaultCaret caret = (DefaultCaret)messages.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         terminal.add(commandTerminal, BorderLayout.NORTH);
 
-        userCommand = new JTextField();
+        userCommand = new JTextField();  // User input
         userCommand.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), " "));
         userCommand.addActionListener((evt) -> sendCommand(userCommand.getText()));
+        userCommand.setFont(fonts[3]);
         terminal.add(userCommand, BorderLayout.CENTER);
 
+        // Add everything to one panel
         mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout());
-        mainPanel.add(heading, BorderLayout.NORTH);
-        mainPanel.add(maps, BorderLayout.CENTER);
-        mainPanel.add(terminal, BorderLayout.SOUTH);
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.add(heading);
+        mainPanel.add(maps);
+        mainPanel.add(terminal);
 
+        // Set colours for all panels
         for (Component c : new Component[] {mainPanel, heading, title, currentPlayerName, nauticalMap, nauticalText,
                 targetMap, targetText, maps, messages, commandTerminal, userCommand}) {
-            c.setForeground(Color.WHITE);
-            c.setBackground(Color.decode(colour));
+            c.setForeground(Color.decode(fgColour));
+            c.setBackground(Color.decode(bgColour));
         }
 
     }
@@ -164,11 +185,16 @@ public class Battleship implements GameClient {
             case "clearText" -> {
                 nauticalText.setText("");
                 targetText.setText("");
-                userCommand.setText("");
+                messages.setText("");
             }
-            case "appendText" -> messages.append(command.getString("text"));
+            case "updateHistory" -> {
+                messages.setText(command.getString("history"));
+                messages.setCaretPosition(messages.getDocument().getLength());
+            }
+//            case "appendText" -> messages.append(command.getString("input"));
             case "placePlayer1Board" -> nauticalText.setText(nauticalText.getText() + command.getString("text"));
             case "placePlayer2Board" -> targetText.setText(targetText.getText() + command.getString("text"));
+            case "clearInput" -> userCommand.setText("");
         }
 
     }

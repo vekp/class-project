@@ -1,6 +1,8 @@
 package minigames.server.battleship;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,24 +23,11 @@ public class BattleshipGame {
     static String player = "Nautical Map";
     static String enemy = "Target Map";
 
-    static Board player1 = new Board("Mitcho");
-    static Board player2 = new Board("Craig");
-
-
-//    static Map<String, Integer> vessels = new HashMap<String, Integer>() {{
-//            vessels.put("Carrier", 6);
-//            vessels.put("BattleShip", 5);
-//            vessels.put("Destroyer", 4);
-//            vessels.put("Submarine", 4);
-//            vessels.put("Patrol Boat", 3);
-//        }};
-
-    record BattleshipPlayer(
-            String name,
-            int x, int y,
-            List<String> inventory
-    ) {
-    }
+    //  ("Carrier", 6);
+    //  ("BattleShip", 5);
+    //  ("Destroyer", 4);
+    //  ("Submarine", 4);
+    //  ("Patrol Boat", 3);
 
     /** Uniquely identifies this game */
     String name;
@@ -47,14 +36,12 @@ public class BattleshipGame {
         this.name = name;
     }
 
-    static String welcomeMessage = "Welcome Captain! Enter 'Ready' to start conquering the seas!\nUse arrow keys to move ships" +
+    static String welcomeMessage = "Good evening Captain! Enter 'Ready' to start conquering the seas!\nUse arrow keys to move ships" +
             " around the grid. Press 'Tab' to switch vessel and 'Space' to rotate.\n...";
 
-//    Ready\n\nTo fire at the enemy, enter " +
-//            "grid coordinates: (eg, A,4)\n...D,7\n\nSalvo missed. Prepare for incoming fire!\nEnemy has hit our fleet, " +
-//            "Ship-Class:Carrier at coordinates [C,3]\n\nReturn fire! Enter grid coordinates:\n...";
-
-    HashMap<String, BattleshipPlayer> players = new HashMap<>();
+    static Board player1 = new Board("Mitcho", welcomeMessage);
+    static Board player2 = new Board("Craig", welcomeMessage);
+    HashMap<String, Board> players = new HashMap<>();
 
     /**
      * Returns the names of the players currently playing the game
@@ -77,12 +64,130 @@ public class BattleshipGame {
      * @param p The player whose state is to be described
      * @return The String to be displayed to the player
      */
-    private String describeState(BattleshipPlayer p) {
+    private String messageHistory(Board p) {
+        if (p.getMessageHistory().isEmpty()) return welcomeMessage;
+        else {
+            StringBuilder sb = new StringBuilder();
+
+            sb.append(p.getMessageHistory());
+
+            return sb.toString();
+        }
+    }
+
+    /**
+     * This function is responsible for validating user input
+     * @param coordinates The raw coordinate string that the user has entered into the console
+     * @return true if the coordinate is valid, false if not
+     */
+    private boolean validate(String coordinates) {
+        // Craig's code split off and moved here by Mitch
+        // Regex to check that the coordinate string is valid
+        String regex = "^[A-J][0-9]$";
+        Pattern pattern = Pattern.compile(regex);
+        //convert the coordinates to uppercase
+        coordinates = coordinates.toUpperCase();
+        Matcher matcher = pattern.matcher(coordinates);
+        // If the coordinates don't match it will return false
+        return matcher.matches();
+    }
+
+    /**
+     * Format the user input for better readability
+     * @param input String input from the console
+     * @return formatted string
+     */
+    private String formatInput(String input) {
+        input = input.toUpperCase();
+        String a = String.valueOf(input.charAt(0));
+        String b = String.valueOf(input.charAt(1));
+        return a + "," + b;
+    }
+
+    /**
+     * Function to return an appropriate message to the player after their input
+     * @param player player - not sure if this will be needed yet
+     * @param gameState player's current game state
+     * @param coordinate coordinate of enemy
+     * @return formatted response string
+     */
+    private String respondToInput(Board player, GameState gameState, String coordinate) {
+        // Response strings
+        String inputPending = "...";
+        String initialInstruction = "To fire at the enemy, enter grid coordinates: (eg, A4)";
+        String incoming = "Prepare for incoming fire!";
+        String enterCoords = "Enter grid coordinates:";
+        String coordTag = "Return fire!";
+
+        // Currently a simple implementation with a couple options that could be chosen at random
+        String[] playerHitEnemy = {"Enemy ship hit! Well done Sir.", "Straight into their hull!", "Direct Hit!"};
+        String[] playerMissedEnemy = {"Salvo Missed.", "Target not hit.", "Adjust your coordinates."};
+        String[] enemyHitPlayer = {"Enemy has hit our fleet,", "We've been hit!", "We're under fire!"};
+        String[] enemyMissedPlayer = {"Enemy has missed!", "Enemy missed another salvo.", "They missed us."};
+
         StringBuilder sb = new StringBuilder();
-
-        sb.append(welcomeMessage);
-
+        switch (gameState) {
+            case SHIP_PLACEMENT -> {
+                sb.append("\n\n").append(initialInstruction).append("\n").append(inputPending);
+                return sb.toString();
+            }
+            case CALC_PLAYER -> {
+                sb.append("\n\n").append(playerHitEnemy[0]).append(" ").append(incoming);
+                return sb.toString();
+            }
+            case CALC_ENEMY -> {
+                sb.append("\n").append(enemyHitPlayer[0]).append(" Ship-Class:").append(" Carrier");
+                sb.append(" at coordinates: [").append(coordinate).append("]");
+                sb.append("\n\n").append(coordTag).append(" ").append(enterCoords).append("\n").append(inputPending);
+                return sb.toString();
+            }
+        }
         return sb.toString();
+    }
+
+    /**
+     * Function to determine what to do with user input based on the current game state
+     * @param player current player - Board object
+     * @param input user input from the console
+     * @return
+     */
+    private void calcUserInput(Board player, String input) {
+        //convert the input to uppercase
+        input = input.toUpperCase();
+        // Respond to the user's input in relation to game state
+        String response = "";
+        switch (player.getGameState()) {
+            case SHIP_PLACEMENT -> {
+                // Check if the users input was "ready", to start the game
+                if (input.matches("READY")) {
+                    player.updateMessageHistory("Ready");
+                    response = respondToInput(player, player.getGameState(), "");
+                    player.updateMessageHistory(response);
+                    player.setGameState(GameState.INPUT_PENDING);
+                }
+            }
+            case INPUT_PENDING -> {
+                // Check if coordinates are valid, if so, format and add to message history
+                if (validate(input)) {
+                    String validatedInput = formatInput(input);
+                    player.updateMessageHistory(validatedInput);
+                    player.setGameState(GameState.CALC_PLAYER);
+                }
+            }
+            case CALC_PLAYER -> {
+                // Take user input and determine the result of shooting that coordinate
+                response = respondToInput(player, player.getGameState(), "");
+                player.updateMessageHistory(response);
+                player.setGameState(GameState.CALC_ENEMY);
+            }
+            case CALC_ENEMY -> {
+                // Determine the result of enemy action
+                // Create function to shoot at a player grid coordinate
+                response = respondToInput(player, player.getGameState(), "C,3");
+                player.updateMessageHistory(response);
+                player.setGameState(GameState.INPUT_PENDING);
+            }
+        }
     }
 
     /**
@@ -92,15 +197,24 @@ public class BattleshipGame {
      */
     public RenderingPackage runCommands(CommandPackage cp) {
         logger.info("Received command package {}", cp);
-        BattleshipPlayer p = players.get(cp.player());
+        Board p = players.get(cp.player());
+        // Get user input typed into the console
+        String userInput = String.valueOf(cp.commands().get(0).getValue("command"));
+        // Update players message history
+        calcUserInput(p, userInput);
 
-        // FIXME: Need to actually run the commands!
+        // Confirming values manually...
+        System.out.println(userInput);
+        System.out.println(p.getMessageHistory());
+
 
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         renderingCommands.add(new JsonObject().put("command", "clearText"));
-        renderingCommands.add(new JsonObject().put("command", "appendText").put("text", cp.commands().get(0).getValue("command")));
-        renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, player1.defaultGridCreator())));
-        renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.generateBoard(enemy, player2.defaultGridCreator())));
+        renderingCommands.add(new JsonObject().put("command", "updateHistory").put("history", p.getMessageHistory()));
+//        renderingCommands.add(new JsonObject().put("command", "appendText").put("input", userInput));
+        renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, player1.getGrid())));
+        renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.generateBoard(enemy, player2.getGrid())));
+        renderingCommands.add(new JsonObject().put("command", "clearInput"));
         return new RenderingPackage(this.gameMetadata(), renderingCommands);
     }
 
@@ -121,16 +235,15 @@ public class BattleshipGame {
                     }).map((r) -> r.toJson()).toList()
             );
         } else {
-            BattleshipPlayer p = new BattleshipPlayer(playerName, 0, 0, List.of());
+            Board p = new Board(playerName, welcomeMessage);
             players.put(playerName, p);
 
             ArrayList<JsonObject> renderingCommands = new ArrayList<>();
             renderingCommands.add(new LoadClient("Battleship", "Battleship", name, playerName).toJson());
             renderingCommands.add(new JsonObject().put("command", "clearText"));
-            renderingCommands.add(new JsonObject().put("command", "appendText").put("text", describeState(p)));
+            renderingCommands.add(new JsonObject().put("command", "updateHistory").put("history", messageHistory(p)));
             renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, player1.defaultGridCreator())));
             renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.generateBoard(enemy, player2.defaultGridCreator())));
-
 
             return new RenderingPackage(gameMetadata(), renderingCommands);
         }
