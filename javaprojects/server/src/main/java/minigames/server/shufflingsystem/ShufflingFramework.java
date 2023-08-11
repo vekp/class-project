@@ -10,6 +10,8 @@ public class ShufflingFramework<T> {
      * This method takes an array of any data type 
      * the fisher-yates in place shuffling algorithm on them. 
      * @param items -> an array of items to be shuffled
+     * @param random -> an instance of a Random object | you could create the default one or pass a seed if you want
+     * to control the randomness or reproduce a particular shuffle
      * This method will modify the original array so ensure you have a copy of
      * your original array, or an easy way to create a new unshuffled version
      */

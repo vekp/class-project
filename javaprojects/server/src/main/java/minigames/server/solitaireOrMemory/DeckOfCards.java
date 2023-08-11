@@ -39,17 +39,9 @@ public class DeckOfCards {
             faceUp = !faceUp;
         }
 
-        // @Override
-        // public boolean equals(Object o){
-        //     if (this == o) return true;
-        //     if (o == null || getClass() != o.getClass()) return false;
-
-        //     PlayingCard playingCard = (PlayingCard) o;
-
-        //     if(suit != playingCard.suit || value != playingCard.value) return false;
-        //     return ()
-        // }
-
+        /**
+         * Overriding the equals operator so that playing cards can be tested for equality. 
+         */
         @Override
         public boolean equals(Object o){
             if(o == this) return true;
@@ -71,6 +63,8 @@ public class DeckOfCards {
 
 
         @Override
+        //TODO: Properly implement clone() so that deep copies of the PlayingCard class are possible
+        //This will be necessary to make pair generation easier
         protected Object clone() throws CloneNotSupportedException {
             return super.clone();
         }
@@ -108,7 +102,7 @@ public class DeckOfCards {
         }
         if (pairs == true) {
             for (int i = 0; i < numberOfCards / 2; i++) {
-                PlayingCard card = new PlayingCard(suits[rand.nextInt(suits.length)], values[i], true);
+                PlayingCard card = new PlayingCard(suits[0], values[i], true);
                 cardStack[i] = card;
                 try {
                     //Cloning the card object that's already been made, we want to make pairs of cards
