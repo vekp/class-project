@@ -26,5 +26,5 @@ public class ShufflingFramework<T> {
             items[i] = items[swap];
             items[swap] = temp;
         } 
-    } 
+    }
 }
