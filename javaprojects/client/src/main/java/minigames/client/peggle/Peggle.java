@@ -6,7 +6,7 @@ public class Peggle {
     private static JFrame mainWindow = null;
     private static JPanel titleScreen = null;
     private static ImageIcon icon = null;
-    private static final String iconFilePath = "./assets/gameicon.png";
+    private static final String iconFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/gameicon.png;
 
 
     // TODO: Decide on game colours
@@ -38,7 +38,7 @@ public class Peggle {
 
     public static JPanel displayTitleScreen(){
         PeggleUI titleScreenButtons = new PeggleUI();
-        return titleScreenButtons.generateTitleScreenButtons();
+        return titleScreenButtons.generateTitleScreen();
 
     }
 
