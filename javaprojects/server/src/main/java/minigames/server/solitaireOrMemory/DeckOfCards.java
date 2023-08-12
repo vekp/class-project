@@ -12,7 +12,7 @@ public class DeckOfCards {
      * from true to false and back
      * with the flipCard() method.
      */
-    public class PlayingCard implements Cloneable{
+    public class PlayingCard {
         private String suit;
         private String value;
         private boolean faceUp;
@@ -21,6 +21,17 @@ public class DeckOfCards {
             this.suit = suit;
             this.value = value;
             this.faceUp = faceUp;
+        }
+
+
+        /*
+         * This is a copy constructor? I think?
+         * I saw someone post an interface of a copy constructor and tried to infer how it would work.
+         */
+        public PlayingCard(PlayingCard cardToCopy){
+            this.suit = cardToCopy.getSuit();
+            this.value = cardToCopy.getValue();
+            this.faceUp = cardToCopy.isFaceUp();
         }
 
         public String getSuit() {
@@ -52,22 +63,6 @@ public class DeckOfCards {
             return value.equals(p.value) && suit.equals(p.suit);
         }
 
-
-
-        // Incorporating clone() and making the PlayingCard object cloneable
-        // This will enable easy deep copies for when we want to create pairs of cards.
-        // Wasn't strictly necessary to do it this way, but it makes the code later a
-        // lot cleaner.
-        // From the reading I've done, clone() is more efficient then new, so I thought
-        // I'd just do it this way.
-
-
-        @Override
-        //TODO: Properly implement clone() so that deep copies of the PlayingCard class are possible
-        //This will be necessary to make pair generation easier
-        protected Object clone() throws CloneNotSupportedException {
-            return super.clone();
-        }
     }
 
     private PlayingCard[] cardStack;
@@ -103,16 +98,9 @@ public class DeckOfCards {
         if (pairs == true) {
             for (int i = 0; i < numberOfCards / 2; i++) {
                 PlayingCard card = new PlayingCard(suits[0], values[i], true);
+                PlayingCard cardPair = new PlayingCard(card);
                 cardStack[i] = card;
-                try {
-                    //Cloning the card object that's already been made, we want to make pairs of cards
-                    //The cloned object is just of type Object, so it needs to be cast to PlayingCard
-                    cardStack[i + 1] = (PlayingCard) card.clone();
-                } catch (CloneNotSupportedException e) {
-                    System.out.println("PlayingCard cannot be cloned " + e.getCause());
-                    System.exit(-1);
-                }
-
+                cardStack[i+1] = cardPair;
             }
         } else {
             for (int i = 0; i < numberOfCards; i++) {
