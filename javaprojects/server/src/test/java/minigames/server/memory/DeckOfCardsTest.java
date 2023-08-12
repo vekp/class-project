@@ -40,16 +40,17 @@ public class DeckOfCardsTest {
  * Deep copies of PlayingCard should not be possible at this time, so the test will fail.
  * It did fail but more research into clone() showed that it was not worth the added complexity
  * Clone was replaced with a copy constructor -> test now passes
+ * Had issues with the test passing if the deck of pairs was more than 2 cards. I.E if it contained more than 1 pair.
+ * This led me to find a bug with my implementation which has now been resolved.
  */
 
     @Test
     @DisplayName("Testing pair constructor")
     public void testPairConstructor(){
-        int numberOfCards = 2;
+        int numberOfCards = 10;
         PlayingCard[] pairDeck = new DeckOfCards(numberOfCards, true).getCards();
-        for(int i = 0; i < numberOfCards/2; i+=2){
-            assertTrue(pairDeck[i].equals(pairDeck[i+1]));
-            // assertTrue(pairDeck[i].getValue().equals(pairDeck[i+1].getValue()));
+        for(int i = 1; i < numberOfCards; i+=2){
+            assertTrue(pairDeck[i].equals(pairDeck[i-1]));
         }
     }
 }

@@ -96,7 +96,7 @@ public class DeckOfCards {
             System.exit(-2);
         }
         if (pairs == true) {
-            for (int i = 0; i < numberOfCards / 2; i++) {
+            for (int i = 0; i < numberOfCards; i+=2) {
                 PlayingCard card = new PlayingCard(suits[0], values[i], true);
                 PlayingCard cardPair = new PlayingCard(card);
                 cardStack[i] = card;
