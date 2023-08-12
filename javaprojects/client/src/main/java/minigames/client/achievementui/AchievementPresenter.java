@@ -40,7 +40,11 @@ public class AchievementPresenter {
                 }
             }
         }
-        return scaledImage(path, targetHeight);
+        ImageIcon scaledImage =  scaledImage(path, targetHeight);
+        if (isUnlocked) return scaledImage;
+        // Apply grey filter to locked items
+        Image grayedImage = GrayFilter.createDisabledImage(scaledImage.getImage());
+        return new ImageIcon(grayedImage);
     }
 
 
@@ -58,7 +62,6 @@ public class AchievementPresenter {
         imageIcon.setImage(scaledImage);
         return imageIcon;
     }
-
 
 
     public JPanel smallAchievementPanel(boolean isClickable) {
