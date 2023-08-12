@@ -42,7 +42,7 @@ public class AchievementPresenter {
         }
         // Scale to desired size
         ImageIcon imageIcon = new ImageIcon(path);
-        Image scaledImage = imageIcon.getImage().getScaledInstance(size, size, Image.SCALE_DEFAULT);
+        Image scaledImage = imageIcon.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH);
         imageIcon.setImage(scaledImage);
         return imageIcon;
     }
@@ -124,8 +124,13 @@ public class AchievementPresenter {
         JPanel panel = new JPanel();
         panel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
+        if (!isUnlocked) {
+            panel.add(new JLabel("Sorry, haven't unlocked this achievement yet and you shouldn't be here!"));
+            return panel;
+        }
+
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        JLabel image = new JLabel(makeScaledImage(200));
+        JLabel image = new JLabel(makeScaledImage(256));
         image.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(image);
 
