@@ -10,8 +10,6 @@ import org.apache.logging.log4j.Logger;
 import minigames.server.solitaireOrMemory.DeckOfCards;
 import minigames.server.solitaireOrMemory.DeckOfCards.PlayingCard;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 public class ShufflingFrameworkTest {
@@ -48,8 +46,7 @@ public class ShufflingFrameworkTest {
         ShufflingFramework.shuffle(fullDeckControl, random);
         ShufflingFramework.shuffle(fullDeckCards, random2);
 
-        assertArrayEquals(fullDeckControl, fullDeckCards);
-        
+        assertArrayEquals(fullDeckControl, fullDeckCards);        
     }
 
 }
