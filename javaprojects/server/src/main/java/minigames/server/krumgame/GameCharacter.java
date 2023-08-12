@@ -8,7 +8,9 @@ public class GameCharacter{
     private int yPosition;
     private int health;
     private String type;
-    // TODO: Projectiles this game character has
+    // TODO: Projectiles this game character has, probably need a separate class
+    // TODO: Terrain class 
+    // TODO: Achievements that A player has
 
     // Constructor
     public GameCharacter(String name, String type, int x, int y, int health){
