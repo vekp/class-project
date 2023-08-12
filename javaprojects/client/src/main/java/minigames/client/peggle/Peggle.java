@@ -12,6 +12,9 @@ public class Peggle {
     // TODO: Decide on game colours
     private static final Color mainColour = new Color(1, 172, 252);
     private static final Color accentColour = new Color(255, 255, 255);
+    private static final Color textColour = new Color(0, 0, 0);
+
+
 
     public static void main(String[] args) {
 
@@ -43,17 +46,41 @@ public class Peggle {
 
         //Get UI details from UI class depending on response
         JButton startGameButton = new JButton("Start Game");
-        JButton settingsButton = new JButton("Settings (In Development)");
         JButton leaderboardButton = new JButton("Leaderboard (In Development)");
+        JButton settingsButton = new JButton("Settings (In Development)");
 
+        //Button colour (background) and button text (foreground)
+        startGameButton.setBackground(accentColour);
+        startGameButton.setForeground(textColour);
+        startGameButton.addActionListener(e -> startGame());
+
+        leaderboardButton.setBackground(accentColour);
+        leaderboardButton.setForeground(textColour);
+        leaderboardButton.addActionListener(e -> checkLeaderboard());
+
+        settingsButton.setBackground(accentColour);
+        settingsButton.setForeground(textColour);
+        settingsButton.addActionListener(e -> checkSettings());
+
+        //Add buttons
         titleScreen.add(startGameButton);
-        titleScreen.add(settingsButton);
         titleScreen.add(leaderboardButton);
+        titleScreen.add(settingsButton);
 
         return titleScreen;
-
-
     }
 
+
+    public static void startGame(){
+        System.out.println("Starting game");
+    }
+
+    public static void checkSettings(){
+        System.out.println("Open Settings");
+    }
+
+    public static void checkLeaderboard(){
+        System.out.println("Checking Leaderboard");
+    }
 
 }
