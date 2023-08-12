@@ -7,6 +7,8 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +18,7 @@ public class AchievementUI extends JPanel {
 
     /**
      * Creates a new JPanel containing a user interface for viewing achievements.
+     * @param networkClient the MinigameNetworkClient to be used for communicating with server.
      * @param returnAction an ActionListener for returning to the previous screen.
      */
     public AchievementUI(MinigameNetworkClient networkClient, ActionListener returnAction) {
@@ -70,10 +73,10 @@ public class AchievementUI extends JPanel {
     }
 
     /**
-     *  
-     * @param label
-     * @param selectItems
-     * @return
+     *
+     * @param label a label to place at the top of the pane
+     * @param selectItems the JList containing the selectable items
+     * @return a JScrollPane with selectable items
      */
     private JPanel generateScrollPane(String label, JList<String> selectItems){
         JScrollPane scrollPane = new JScrollPane(selectItems);
@@ -113,6 +116,15 @@ public class AchievementUI extends JPanel {
             if (!unlockedAchievements.isEmpty()) {
                 AchievementCollection presenterList = achievementCollection(unlockedAchievements, true);
                 achievementPanel.add(presenterList.achievementListPanel());
+
+                //Demo for carousel. todo: remove later when not needed.
+                gameLabel.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(achievementPanel), presenterList.achievementCarousel(),
+                                gameID, JOptionPane.PLAIN_MESSAGE);
+                    }
+                });
             }
             List<Achievement> lockedAchievements = state.locked();
             if (!lockedAchievements.isEmpty()) {
