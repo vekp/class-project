@@ -37,12 +37,4 @@ public class GameRegistry {
             .toList();
     }
 
-    /**
-     * Gets a list of every game server currently registered (regardless of platform)
-     * @return the entire list of registered game servers
-     */
-    public List<GameServer> getAllGameServers(){
-        return gameServers.values().stream().toList();
-    }
-    
 }
