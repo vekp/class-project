@@ -1,4 +1,4 @@
-package minigames.server.highscore;
+package minigames.server.highscoreapi;
 
 import java.util.List;
 import java.util.Map;

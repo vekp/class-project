@@ -48,7 +48,7 @@ public class MemoryServer implements GameServer {
     @Override
     public GameMetadata[] getGamesInProgress() {
         return games.keySet().stream().map((name) -> {
-            return new GameMetadata("Memory", name, games.get(name).getPlayerNames(), false); // true for multiplayer
+            return new GameMetadata("Memory", name, games.get(name).getPlayerNames(), true); // true for multiplayer
         }).toArray(GameMetadata[]::new);
     }
 
@@ -69,18 +69,28 @@ public class MemoryServer implements GameServer {
     public Future<RenderingPackage> callGame(CommandPackage cp) {
         MemoryGame g = games.get(cp.gameId());
 
-        // Create temp JSONObject object
-        JsonObject cmd = cp.commands().get(0);
-        switch (cmd.getString("command")) {
-            case "clearServer" -> {
-                clearServer(cp.gameId());
-            }
-        }
         return Future.succeededFuture(g.runCommands(cp));
     }
 
-    private void clearServer(String s) {
-        games.remove(s);
-    }
+    /* 
+        @Override
+        public Future<RenderingPackage> callGame(CommandPackage cp) {
+            MemoryGame g = games.get(cp.gameId());
+
+            // Create temp JSONObject object
+            JsonObject cmd = cp.commands().get(0);
+            switch (cmd.getString("command")) {
+                case "clearServer" -> {
+                    clearServer(cp.gameId());
+                }
+            }
+            return Future.succeededFuture(g.runCommands(cp));
+        }
+
+        private void clearServer(String s) {
+            games.remove(s);
+        }
+    
+     */
     
 }

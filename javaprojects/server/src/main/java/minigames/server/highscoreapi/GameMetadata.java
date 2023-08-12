@@ -1,4 +1,4 @@
-package minigames.server.highscore;
+package minigames.server.highscoreapi;
 
 public class GameMetadata {
     private String gameName;

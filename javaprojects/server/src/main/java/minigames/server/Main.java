@@ -3,7 +3,8 @@ package minigames.server;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import minigames.server.battleship.BattleshipServer;
-import minigames.server.highscore.*;
+import minigames.server.highscoreapi.*;
+import minigames.server.memory.MemoryServer;
 import minigames.server.muddle.MuddleServer;
 import io.vertx.core.Launcher;
 
@@ -47,6 +48,7 @@ public class Main extends AbstractVerticle {
         // Register our first demo game
         gameRegistry.registerGameServer("Muddle", new MuddleServer());
         gameRegistry.registerGameServer("Battleship", new BattleshipServer());
+        gameRegistry.registerGameServer("Memory", new MemoryServer());
 
         // Initialize the HighScoreAPI
         HighScoreStorage highScoreStorage = new StubHighScoreStorage();
@@ -89,6 +91,5 @@ public class Main extends AbstractVerticle {
         gameServer = new MinigameNetworkServer(vertx);
         gameServer.start(port);
     }
-
 
 }

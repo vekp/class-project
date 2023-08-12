@@ -32,7 +32,9 @@ public class Memory implements GameClient {
     String player;
 
     // Swing components
+    JPanel mainPanel;
     JPanel gamePanel;
+    JPanel commandPanel;
     JPanel headingPanel;
     JLabel title;
     JPanel playerPanel;
@@ -96,7 +98,7 @@ public class Memory implements GameClient {
         }
 
         // Create the command panel
-        JPanel commandPanel = new JPanel();
+        commandPanel = new JPanel();
         commandPanel.setLayout(new BorderLayout());
         textArea = new JTextArea();
         textArea.setEditable(false);
@@ -104,19 +106,22 @@ public class Memory implements GameClient {
         commandPanel.add(new JScrollPane(textArea), BorderLayout.CENTER);
 
         // Set up the main layout
-        JPanel mainPanel = new JPanel();
+        mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
         mainPanel.add(gamePanel, BorderLayout.NORTH);
         mainPanel.add(cardGridPanel, BorderLayout.CENTER);
         mainPanel.add(commandPanel, BorderLayout.SOUTH);
 
-        // Create and configure the main frame
-        JFrame frame = new JFrame("Memory Game");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(mainPanel);
-        frame.setPreferredSize(new Dimension(1920, 1080));
-        frame.pack();
-        frame.setVisible(true);
+        /* 
+            // Create and configure the main frame
+            JFrame frame = new JFrame("Memory Game");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.getContentPane().add(mainPanel);
+            frame.setPreferredSize(new Dimension(1920, 1080));
+            frame.pack();
+            frame.setVisible(true);
+        */
+        
     }
 
     /** 
@@ -142,8 +147,7 @@ public class Memory implements GameClient {
         this.player = player;
 
         // Add our components to the north, south, east, west, or centre of the main window's BorderLayout
-        mnClient.getMainWindow().addCenter(gamePanel);
-        mnClient.getMainWindow().addSouth(commandPanel);   
+        mnClient.getMainWindow().addCenter(mainPanel);  
 
         textArea.append("Starting...");
 

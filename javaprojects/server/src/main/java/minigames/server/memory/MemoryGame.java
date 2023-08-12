@@ -74,6 +74,7 @@ public class MemoryGame {
             // Create temp JSONObject object
             ArrayList<JsonObject> renderingCommands = new ArrayList<>();
             renderingCommands.add(new LoadClient("Memory", "Memory", name, playerName).toJson());
+            renderingCommands.add(new JsonObject().put("command", "clearText"));
 
             return new RenderingPackage(gameMetadata(), renderingCommands);
         }
