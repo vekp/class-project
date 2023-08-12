@@ -4,8 +4,10 @@ import java.awt.*;
 public class Peggle {
     private static final String gameName = "Peggle";
     private static JFrame mainWindow = null;
+    private static JPanel titleScreen = null;
     private static ImageIcon icon = null;
     private static final String iconFilePath = "./assets/gameicon.png";
+
 
     // TODO: Decide on game colours
     private static final Color mainColour = new Color(1, 172, 252);
@@ -29,7 +31,11 @@ public class Peggle {
         icon = new ImageIcon(iconFilePath);
         mainWindow.setIconImage(icon.getImage());
 
-
+        //Initialise game with start screen
+        titleScreen = new JPanel();
+        mainWindow.setContentPane(titleScreen);
+        mainWindow.pack();
+        mainWindow.setVisible(true);
 
     }
 }
