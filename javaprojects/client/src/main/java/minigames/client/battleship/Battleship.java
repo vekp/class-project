@@ -63,7 +63,8 @@ public class Battleship implements GameClient {
         title.setHorizontalAlignment(JLabel.CENTER);
         title.setBorder(new EmptyBorder(10, 0, 10,0));
 
-        currentPlayerName = new JLabel("Current Player: ");
+        //TODO: set player name
+        currentPlayerName = new JLabel("Current Player: Mitcho");
         currentPlayerName.setFont(fonts[3]);
         currentPlayerName.setHorizontalAlignment(JLabel.CENTER);
 
@@ -145,7 +146,7 @@ public class Battleship implements GameClient {
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
     }
 
-    /**
+    /*
      * What happens when client is loaded into the main screen
      */
     /**
@@ -191,7 +192,6 @@ public class Battleship implements GameClient {
                 messages.setText(command.getString("history"));
                 messages.setCaretPosition(messages.getDocument().getLength());
             }
-//            case "appendText" -> messages.append(command.getString("input"));
             case "placePlayer1Board" -> nauticalText.setText(nauticalText.getText() + command.getString("text"));
             case "placePlayer2Board" -> targetText.setText(targetText.getText() + command.getString("text"));
             case "clearInput" -> userCommand.setText("");

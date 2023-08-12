@@ -39,6 +39,7 @@ public class BattleshipGame {
     static String welcomeMessage = "Good evening Captain! Enter 'Ready' to start conquering the seas!\nUse arrow keys to move ships" +
             " around the grid. Press 'Tab' to switch vessel and 'Space' to rotate.\n...";
 
+    //TODO: having two set players will likely not work for multiplayer and will need to be fixed - Names should also not be fixed values
     static Board player1 = new Board("Mitcho", welcomeMessage);
     static Board player2 = new Board("Craig", welcomeMessage);
     HashMap<String, Board> players = new HashMap<>();
@@ -111,7 +112,8 @@ public class BattleshipGame {
      * @param coordinate coordinate of enemy
      * @return formatted response string
      */
-    private String respondToInput(Board player, GameState gameState, String coordinate) {
+    private String respondToInput(Board player, GameState gameState, String coordinate, boolean hit) {
+        //TODO: Clean up, it's a bit messy too
         // Response strings
         String inputPending = "...";
         String initialInstruction = "To fire at the enemy, enter grid coordinates: (eg, A4)";
@@ -125,6 +127,10 @@ public class BattleshipGame {
         String[] enemyHitPlayer = {"Enemy has hit our fleet,", "We've been hit!", "We're under fire!"};
         String[] enemyMissedPlayer = {"Enemy has missed!", "Enemy missed another salvo.", "They missed us."};
 
+        // Generate a random number to pick a response string
+        Random rand = new Random();
+        int randomNum = rand.nextInt(3);
+
         StringBuilder sb = new StringBuilder();
         switch (gameState) {
             case SHIP_PLACEMENT -> {
@@ -132,13 +138,24 @@ public class BattleshipGame {
                 return sb.toString();
             }
             case CALC_PLAYER -> {
-                sb.append("\n\n").append(playerHitEnemy[0]).append(" ").append(incoming);
+                if (hit) {
+                    sb.append("\n\n").append(playerHitEnemy[randomNum]).append(" ").append(incoming);
+                } else {
+                    sb.append("\n\n").append(playerMissedEnemy[randomNum]).append(" ").append(incoming);
+                }
                 return sb.toString();
             }
             case CALC_ENEMY -> {
-                sb.append("\n").append(enemyHitPlayer[0]).append(" Ship-Class:").append(" Carrier");
-                sb.append(" at coordinates: [").append(coordinate).append("]");
-                sb.append("\n\n").append(coordTag).append(" ").append(enterCoords).append("\n").append(inputPending);
+                if (hit) {
+                    //TODO: append appropriate ship class value? or remove and leave just coordinates
+                    sb.append("\n").append(enemyHitPlayer[randomNum]).append(" Ship-Class:").append(" Carrier");
+                    sb.append(" at coordinates: [").append(coordinate).append("]");
+                    sb.append("\n\n").append(coordTag).append(" ").append(enterCoords).append("\n").append(inputPending);
+                } else {
+                    sb.append("\n").append(enemyMissedPlayer[randomNum]).append(" Salvo fired at: coordinates: [");
+                    sb.append(coordinate).append("]");
+                    sb.append("\n\n").append(coordTag).append(" ").append(enterCoords).append("\n").append(inputPending);
+                }
                 return sb.toString();
             }
         }
@@ -146,12 +163,35 @@ public class BattleshipGame {
     }
 
     /**
+     * Function to determine whether the player's input has hit a ship. Sets the CellType accordingly and returns
+     * true or false. The boolean value is used in another function to determine the response
+     * @param player current player - Board object
+     * @param x horizontal coordinate
+     * @param y vertical coordinate
+     * @return true if player has hit a ship, false if player hit water or previously missed cell
+     */
+    private boolean shotOutcome(Board player, int x, int y) {
+        // Get players current grid
+        Cell[][] grid = player.getGrid();
+        // Get cell type of player's coordinate
+        CellType currentState = grid[x][y].getCellType();
+        // If player hit ocean or missed set CellType to Miss and return false
+        if (currentState.equals(CellType.OCEAN) || currentState.equals(CellType.MISS)) {
+            player.setGridCell(x, y, CellType.MISS);
+            return false;
+        } else {
+            player.setGridCell(x, y, CellType.HIT);
+            return true;
+        }
+    }
+
+    /**
      * Function to determine what to do with user input based on the current game state
      * @param player current player - Board object
      * @param input user input from the console
-     * @return
      */
     private void calcUserInput(Board player, String input) {
+        //TODO: This is pretty messy and wants cleaning up - the whole process probably wants refactoring
         //convert the input to uppercase
         input = input.toUpperCase();
         // Respond to the user's input in relation to game state
@@ -161,31 +201,39 @@ public class BattleshipGame {
                 // Check if the users input was "ready", to start the game
                 if (input.matches("READY")) {
                     player.updateMessageHistory("Ready");
-                    response = respondToInput(player, player.getGameState(), "");
+                    response = respondToInput(player, player.getGameState(), "", false);
                     player.updateMessageHistory(response);
-                    player.setGameState(GameState.INPUT_PENDING);
+                    player.setGameState(GameState.INPUT_CALC);
                 }
             }
-            case INPUT_PENDING -> {
+            case INPUT_CALC -> {
                 // Check if coordinates are valid, if so, format and add to message history
                 if (validate(input)) {
                     String validatedInput = formatInput(input);
                     player.updateMessageHistory(validatedInput);
                     player.setGameState(GameState.CALC_PLAYER);
+                    if (player.getGameState().equals(GameState.CALC_PLAYER)) {
+                        // Take user input and determine the result of shooting that coordinate
+                        String chars = "ABCDEFGHIJ";
+                        String coordVert = validatedInput.split(",")[0];
+                        int x = chars.indexOf(coordVert);
+                        int y = Integer.parseInt(validatedInput.split(",")[1]);
+                        boolean result = shotOutcome(player2, x, y);
+                        response = respondToInput(player, player.getGameState(), "", result);
+                        player.updateMessageHistory(response);
+                        player.setGameState(GameState.CALC_ENEMY);
+                    }
                 }
-            }
-            case CALC_PLAYER -> {
-                // Take user input and determine the result of shooting that coordinate
-                response = respondToInput(player, player.getGameState(), "");
-                player.updateMessageHistory(response);
-                player.setGameState(GameState.CALC_ENEMY);
             }
             case CALC_ENEMY -> {
                 // Determine the result of enemy action
                 // Create function to shoot at a player grid coordinate
-                response = respondToInput(player, player.getGameState(), "C,3");
+                // Generate a random boolean for now, with placeholder coordinate
+                Random rand = new Random();
+                boolean randomBool = rand.nextBoolean();
+                response = respondToInput(player, player.getGameState(), "C,3", randomBool);
                 player.updateMessageHistory(response);
-                player.setGameState(GameState.INPUT_PENDING);
+                player.setGameState(GameState.INPUT_CALC);
             }
         }
     }
@@ -203,15 +251,9 @@ public class BattleshipGame {
         // Update players message history
         calcUserInput(p, userInput);
 
-        // Confirming values manually...
-        System.out.println(userInput);
-        System.out.println(p.getMessageHistory());
-
-
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         renderingCommands.add(new JsonObject().put("command", "clearText"));
         renderingCommands.add(new JsonObject().put("command", "updateHistory").put("history", p.getMessageHistory()));
-//        renderingCommands.add(new JsonObject().put("command", "appendText").put("input", userInput));
         renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, player1.getGrid())));
         renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.generateBoard(enemy, player2.getGrid())));
         renderingCommands.add(new JsonObject().put("command", "clearInput"));
@@ -242,8 +284,8 @@ public class BattleshipGame {
             renderingCommands.add(new LoadClient("Battleship", "Battleship", name, playerName).toJson());
             renderingCommands.add(new JsonObject().put("command", "clearText"));
             renderingCommands.add(new JsonObject().put("command", "updateHistory").put("history", messageHistory(p)));
-            renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, player1.defaultGridCreator())));
-            renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.generateBoard(enemy, player2.defaultGridCreator())));
+            renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, player1.defaultGrid())));
+            renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.generateBoard(enemy, player2.defaultGrid())));
 
             return new RenderingPackage(gameMetadata(), renderingCommands);
         }
