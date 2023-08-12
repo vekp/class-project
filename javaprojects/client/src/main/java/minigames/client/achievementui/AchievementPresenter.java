@@ -25,7 +25,7 @@ public class AchievementPresenter {
         this.isUnlocked = isUnlocked;
     }
 
-    private ImageIcon makeScaledImage(int size) {
+    private ImageIcon achievementImage(int targetHeight) {
         // Attempt to set path of image
         String path = (achievement.hidden() && !isUnlocked) ? achievementImageFolderLocation + "mystery.png" :
                 achievementImageFolderLocation + achievement.mediaFileName().toLowerCase().replace(" ", "") + ".png";
@@ -40,12 +40,26 @@ public class AchievementPresenter {
                 }
             }
         }
-        // Scale to desired size
-        ImageIcon imageIcon = new ImageIcon(path);
-        Image scaledImage = imageIcon.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH);
+        return scaledImage(path, targetHeight);
+    }
+
+
+    /**
+     * Makes a scaled image of desired height and proportional width.
+     * @param filepath String with filepath of the source image
+     * @param targetHeight int of desired height to scale image to
+     * @return ImageIcon after it has been scaled.
+     */
+    private ImageIcon scaledImage(String filepath, int targetHeight) {
+        ImageIcon imageIcon = new ImageIcon(filepath);
+        float aspectRatio = (float) imageIcon.getIconWidth() / imageIcon.getIconHeight();
+        int targetWidth = (int) (targetHeight * aspectRatio);
+        Image scaledImage = imageIcon.getImage().getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
         imageIcon.setImage(scaledImage);
         return imageIcon;
     }
+
+
 
     public JPanel smallAchievementPanel(boolean isClickable) {
         Border smallEmptyBorder = new EmptyBorder(4, 4, 4, 4);
@@ -64,7 +78,7 @@ public class AchievementPresenter {
 
         JPanel panel = new JPanel();
 //        panel.setBorder(new LineBorder(Color.BLACK));
-        JLabel image = new JLabel(makeScaledImage(50));
+        JLabel image = new JLabel(achievementImage(50));
         if (achievement.hidden() && isUnlocked) {
             image.setBackground(Color.YELLOW);
             image.setOpaque(true);
@@ -130,7 +144,7 @@ public class AchievementPresenter {
         }
 
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        JLabel image = new JLabel(makeScaledImage(256));
+        JLabel image = new JLabel(achievementImage(256));
         image.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(image);
 
