@@ -1,5 +1,6 @@
 package minigames.server;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Arrays;
@@ -35,5 +36,5 @@ public class GameRegistry {
             .filter((gs) -> Arrays.asList(gs.getSupportedClients()).contains(platform))
             .toList();
     }
-    
+
 }

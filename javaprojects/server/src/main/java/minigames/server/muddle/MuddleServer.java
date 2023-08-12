@@ -1,6 +1,7 @@
 package minigames.server.muddle;
 
 import io.vertx.core.Future;
+import minigames.achievements.Achievement;
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.GameServerDetails;
@@ -9,7 +10,9 @@ import minigames.server.ClientType;
 import minigames.server.GameServer;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Our MuddleServer holds MuddleGames. 
@@ -67,5 +70,5 @@ public class MuddleServer implements GameServer {
         MuddleGame g = games.get(cp.gameId());
         return Future.succeededFuture(g.runCommands(cp));
     }
-    
+
 }
