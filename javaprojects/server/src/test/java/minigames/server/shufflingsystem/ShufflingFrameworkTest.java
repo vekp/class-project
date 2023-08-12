@@ -35,6 +35,11 @@ public class ShufflingFrameworkTest {
 
     @Test
     @DisplayName("Full deck shuffle test")
+    /**
+     * This is more of a determanism test as is the previous test. 
+     * Both tests are attempting to prove that if 2 identical decks are 
+     * shuffled with the same random seed that the results will be the same
+     */
     public void shuffleFullDeckTest() {
         long seed = 44567;
         Random random = new Random(seed);
