@@ -246,6 +246,8 @@ public class MinigameNetworkClientWindow {
         pack();
         parent.repaint();
     }
-
+    public JFrame getFrame() {
+        return this.frame;
+    }
 
 }

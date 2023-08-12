@@ -9,6 +9,7 @@ import io.vertx.core.json.JsonObject;
 import minigames.commands.CommandPackage;
 import minigames.rendering.*;
 //import minigames.rendering.NativeCommands.LoadClient;
+import minigames.rendering.NativeCommands.LoadClient;
 
 
 // TODO: Change the game name
@@ -21,7 +22,7 @@ public class KrumGame{
     private String name;
     private String currentPlayerTurn;
     private CommandProcessor commandProcessor;
-
+    private String playerName;
 
     public KrumGame(String name){
         this.name = name;
@@ -91,7 +92,7 @@ public class KrumGame{
         renderingCommands.add(new JsonObject().put("command", "addPlayer").put("name", p.name)
                         .put("type", p.playerType).put("xPosition", p.xPosition)
                         .put("yPosition", p.yPosition).put("health", p.health));
-
+        renderingCommands.add(new LoadClient("KrumGame", "KrumGame", name, playerName).toJson());
         return new RenderingPackage(gameMetadata(), renderingCommands);
     }
 
@@ -113,6 +114,7 @@ public class KrumGame{
 
         renderingCommands.add(new JsonObject().put("command", "updatePlayer").put("name", p.name).put("xPosition", p.xPosition)    
                                        .put("yPosition", p.yPosition).put("health", p.health).put("turn", this.currentPlayerTurn));
+   
         // Change the turn
         this.changeTurn();
         return new RenderingPackage(gameMetadata(), renderingCommands);
