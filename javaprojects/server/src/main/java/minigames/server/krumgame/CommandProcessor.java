@@ -19,7 +19,7 @@ public class CommandProcessor {
     }
 
     // TODO: Need to make process commands simpler and modular
-    public void processCommand(JSONObject command, GameCharacter player) {
+    public void processCommand(JsonObject command, GameCharacter player) {
         // Extract the command type or other identifying information
         String commandType = command.getString("commandType");
 

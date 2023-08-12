@@ -53,6 +53,8 @@ public class KrumGame{
         // Using to send both player Name, type separated by space
         // Could be used for multiplayer functionality as well
         
+        // Matt temporarily commented this out so we can get past the first screen
+        /*
         String[] parts = playerNameWithType.split(" ");
 
         if(parts.length != 2){
@@ -61,6 +63,9 @@ public class KrumGame{
 
         String playerName = parts[0];
         String playerType = parts[1];
+        */
+        String playerName = playerNameWithType;
+        String playerType = "";
 
         if (players.containsKey(playerName)){
             return sendErrorMsg("This name is already taken");
@@ -83,7 +88,7 @@ public class KrumGame{
         }
 
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
-        renderingCommands.add(new JsonObject().put("command", "addPlayer").put("name", p.playerName)
+        renderingCommands.add(new JsonObject().put("command", "addPlayer").put("name", p.name)
                         .put("type", p.playerType).put("xPosition", p.xPosition)
                         .put("yPosition", p.yPosition).put("health", p.health));
 

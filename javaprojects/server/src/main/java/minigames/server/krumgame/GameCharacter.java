@@ -4,10 +4,12 @@ package minigames.server.krumgame;
 // TODO: Change the class name if desired
 public class GameCharacter{
     // Class fields
-    private int xPosition;
-    private int yPosition;
-    private int health;
-    private String type;
+    public int xPosition;
+    public int yPosition;
+    public int health;
+    public String type;
+    public String name;
+    public String playerType;
     // TODO: Projectiles this game character has, probably need a separate class
     // TODO: Terrain class 
     // TODO: Achievements that A player has
@@ -62,7 +64,7 @@ public class GameCharacter{
     // Using package private access modifier
     // TODO: move the object based on terrain
     void move(String direction){
-        switch(direction.tolowercase()){
+        switch(direction.toLowerCase()){
             case "east":
                 xPosition += 1;
                 break;
