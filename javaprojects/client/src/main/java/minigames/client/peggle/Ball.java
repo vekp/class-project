@@ -17,7 +17,7 @@ public class Ball {
     public void drawToScreen(Graphics g){
         BufferedImage ball = null;
         try {
-            ball = ImageIO.read(New File("Assets/ball.png"));
+            ball = ImageIO.read(New File("assets/ball.png"));
         } catch (IOException e) {
             System.out.println("Error loading file. \nError message: " + e.getMessage());
         }
