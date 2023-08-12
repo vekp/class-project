@@ -30,9 +30,7 @@ public class DeckOfCardsTest {
                 counter++;
             }
         }
-
     }
-
 
 /**
  * This test will check to see if building a deck with pairs works
