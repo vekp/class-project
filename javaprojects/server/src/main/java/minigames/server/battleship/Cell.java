@@ -9,31 +9,42 @@ public class Cell {
 
     // Fields
     private boolean shotAt;
-    CellType cellType;
+    private CellType cellType;
 
     // Constructor
 
     /**
      * Default constructor, each Cell is initialised as an OCEAN Cell and is changed as needed
      */
-    Cell() {
+    public Cell() {
         this.shotAt = false;
         this.cellType = CellType.OCEAN;
+    }
+
+    // Getters
+    /**
+     * Return the CellType of the current Cell
+     * @return an enum value
+     */
+    public CellType getCellType() {
+        return cellType;
     }
 
     /**
      * Return the CellType of the current Cell
      * @return A String representing the CellType
      */
-    public String getCellType() {
+    public String getCellTypeString() {
         return cellType.toString();
     }
 
+    // Setters
     /**
      * Change the CellType of the current Cell
      * @param cellType The CellType to change the current cell to
      */
     public void setCellType(CellType cellType) {
         this.cellType = cellType;
+        this.shotAt = true;
     }
 }
