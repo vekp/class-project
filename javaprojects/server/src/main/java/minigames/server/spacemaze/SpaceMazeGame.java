@@ -20,10 +20,7 @@ public class SpaceMazeGame {
     /** A logger for logging output */
     private static final Logger logger = LogManager.getLogger(SpaceMazeGame.class);
 
-    record SpacePlayer (
-            String name
-    ) {
-    }
+    SpacePlayer player;
 
     /** String to uniquely identify this game*/
     String name;
@@ -38,31 +35,43 @@ public class SpaceMazeGame {
     public SpaceMazeGame(String name) {
         this.name = name;
         this.mazeControl = new MazeControl();
+        this.player = new SpacePlayer(1,0);
+        players.put(name, this.player);
     }
 
     // Players in this game
     HashMap<String, SpacePlayer> players = new HashMap<>();
 
-
-    /** The players currently playing this game */
+    /**
+     * Getter to get the names of all players currently playing this game
+     * @return an array of the names
+     */
     public String[] getPlayerNames() {
         return players.keySet().toArray(String[]::new);
     }
 
-    /** Metadata for this game */
+    /**
+     * Metadata for this instance of the game
+     * @return A GameMetadata object
+     */
     public GameMetadata gameMetadata() {
         return new GameMetadata("SpaceMaze", name, getPlayerNames(), true);
     }
 
+    /**
+     * Runs the commands sent by the client to the SpaceMazeServer
+     * @param cp Command Packet Object with commands
+     * @return Rendering Package with commands
+     */
     public RenderingPackage runCommands(CommandPackage cp) {
         logger.info("Received command package {}", cp);
         SpacePlayer p = players.get(cp.player());
 
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
-        String commandString = cp.commands().get(0).getValue("command");
+        String commandString = (String) cp.commands().get(0).getValue("command");
 
         if (commandString.startsWith("key")) {
-            String keyPressed = commandString.toLowerCase.replace("key", "");
+            String keyPressed = commandString.toLowerCase().replace("key", "");
             processKeyInput(keyPressed, p);
         }
 
@@ -86,34 +95,38 @@ public class SpaceMazeGame {
         int y = pLoc[1];
 
         switch (keyPressed) {
-            case "up" -> {
-                if (mazeControl.validMove(x, y-1) {
+            case "up":
+                if (mazeControl.validMove(x, y-1)) {
                     player.updateLocation(x, y-1);
-                    mazeControl.updateLocation(x, y-1);
+                    mazeControl.updatePlayerLocation(x, y-1);
                 }
-            }
-            case "down" -> if {
-                (mazeControl.validMove(x, y+1) {
+                break;
+            case "down":
+                if (mazeControl.validMove(x, y+1)) {
                     player.updateLocation(x, y+1);
-                    mazeControl.updateLocation(x, y+1);
+                    mazeControl.updatePlayerLocation(x, y+1);
                 }
-            }
-            case "left" -> {
-                if (mazeControl.validMove(x-1, y) {
+                break;
+            case "left":
+                if (mazeControl.validMove(x-1, y)) {
                     player.updateLocation(x-1, y);
-                    mazeControl.updateLocation(x-1, y);
+                    mazeControl.updatePlayerLocation(x-1, y);
                 }
-            }
-            case "right" -> {
-                if (mazeControl.validMove(x+1, y) {
+                break;
+            case "right":
+                if (mazeControl.validMove(x+1, y)) {
                     player.updateLocation(x+1, y);
-                    mazeControl.updateLocation(x+1, y);
+                    mazeControl.updatePlayerLocation(x+1, y);
                 }
-            }
+                break;
         }
     }
 
-    /** Joins this game */
+    /**
+     * To allow more players to join a current game in progress
+     * @param playerName The name of the player to join
+     * @return RenderingPackage of the game with or without the new player
+     */
     public RenderingPackage joinGame(String playerName) {
         // If playerName is already in the game, show error
         if (players.containsKey(playerName)) {
@@ -125,7 +138,7 @@ public class SpaceMazeGame {
             );
         } else {
             // Create the new player with starting position
-            SpacePlayer p = new SpacePlayer(playerName);
+            SpacePlayer p = new SpacePlayer(1, 0);
             players.put(playerName, p);
 
             ArrayList<JsonObject> renderingCommands = new ArrayList<>();
@@ -135,6 +148,5 @@ public class SpaceMazeGame {
             renderingCommands.add(new LoadClient("SpaceMazeGame", "SpaceMaze", name, playerName).toJson());
             return new RenderingPackage(gameMetadata(), renderingCommands);
         }
-
     }
 }
