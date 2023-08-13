@@ -1,12 +1,14 @@
 package minigames.server.achievements;
 
 import minigames.achievements.Achievement;
+import minigames.server.GameServer;
 
 import java.util.*;
 
 /**
- * A class holding registered achievements for a game server. Also, currently stores the unlock state for a player
- * for this game's achievements (which can be moved to a more appropriate place once user accounts are in)
+ * A class holding registered achievements for a game server. This class acts as a middleman to interact with the
+ * database (which for now is just another class), but also provides functionality for unlocking achievements
+ * (manually, or using a watcher)
  */
 public class AchievementHandler {
 
@@ -26,28 +28,33 @@ public class AchievementHandler {
     /**
      * Constructor
      *
-     * @param gameName the game/server name this handler will manage achievements for.
+     * @param type the Game server type/class for which this handler should be managing achievements.
+     *             Multiple handlers can share the same type - they will access the same entries in the database
      */
-    public AchievementHandler(String gameName) {
-        handlerID = gameName;
-    }
-
-    public void registerAchievement(Achievement achievement) {
-        if (database.getAchievement(handlerID, achievement.name()) != null) {
-            //todo exception? cannot register duplicate achievements
-            return;
-        }
-        database.addAchievement(handlerID, achievement.name(), achievement);
+    public AchievementHandler(Class<GameServer> type) {
+        handlerID = type.getName();
     }
 
     /**
-     * Returns a list of all achievements available for the current game
+     * A method that provides access to the achievement database to add achievements to it. Will check to make sure that
+     * the achievement is not a duplicate and throw an error if so.
+     *
+     * @param achievement the achievement to register
+     */
+    public void registerAchievement(Achievement achievement) {
+        if (!database.addAchievement(handlerID, achievement)) {
+            throw new IllegalArgumentException("Duplicate Achievement! Achievement - " + achievement.name() +
+                    "has already been registered for handler ID: " + handlerID);
+        }
+    }
+
+    /**
+     * Returns a list of all achievements available for this handler
      *
      * @return An ArrayList containing all available achievements
      */
-    public ArrayList<Achievement> getAllAchievements() {
-        //todo implement
-        return new ArrayList<>();
+    public List<Achievement> getAllAchievements() {
+        return database.getAchievementsByGame(handlerID);
     }
 
     /**
@@ -57,13 +64,16 @@ public class AchievementHandler {
      * @param achievementID The ID of the achievement
      */
     public void unlockAchievement(String playerID, String achievementID) {
+        //make a new player profile if needed
         if (!playerUnlockList.containsKey(playerID))
             playerUnlockList.put(playerID, new HashSet<>());
 
+        //we will throw an error if we try to unlock an achievement that does not exist
         if (database.getAchievement(handlerID, achievementID) != null) {
             playerUnlockList.get(playerID).add(achievementID);
         } else {
-            //todo throw exception? Cannot unlock nonexistant achievement
+            throw new IllegalArgumentException("Achievement with ID: " + achievementID +
+                    "does not exist for handler: " + handlerID);
         }
     }
 
