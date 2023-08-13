@@ -108,9 +108,10 @@ public class DeckOfCards {
             }
         }
     }
-    /*
+    /* 
      * This returns the array which honestly probably violates some OOP principal
-     * I could have it return a copy of the array
+     * I think for our purposes this implementation is fine but in a more 'real-world' scenario
+     * I would probably return a copy of the array not the array itself
      */
     public PlayingCard[] getCards(){
         return this.cardStack;
