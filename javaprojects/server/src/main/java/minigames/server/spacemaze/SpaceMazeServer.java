@@ -54,20 +54,20 @@ public class SpaceMazeServer implements GameServer {
 
     @Override
     public Future<RenderingPackage> newGame(String playerName) {
-        SpaceMaze g = new SpaceMaze(randomName());
+        SpaceMazeGame g = new SpaceMazeGame(randomName());
         games.put(g.name, g);
         return Future.succeededFuture(g.joinGame(playerName));
     }
 
     @Override
     public Future<RenderingPackage> joinGame(String game, String playerName) {
-        SpaceMaze g = games.get(game);
+        SpaceMazeGame g = games.get(game);
         return Future.succeededFuture(g.joinGame(playerName));
     }
 
     @Override
     public Future<RenderingPackage> callGame(CommandPackage cp) {
-        SpaceMaze g = games.get(cp.gameId());
+        SpaceMazeGame g = games.get(cp.gameId());
         return Future.succeededFuture(g.runCommands(cp));
     }
 

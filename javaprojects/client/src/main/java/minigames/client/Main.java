@@ -3,6 +3,7 @@ package minigames.client;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import minigames.client.muddletext.MuddleText;
+import minigames.client.spacemaze.SpaceMaze;
 import io.vertx.core.Launcher;
 
 import org.apache.logging.log4j.LogManager;
@@ -28,7 +29,7 @@ public class Main extends AbstractVerticle {
      */
     private static void doWiring() {
         clientRegistry.registerGameClient("MuddleText", new MuddleText());
-        gameRegistry.registerGameServer("SpaceMaze", new spacemaze());
+        gameRegistry.registerGameServer("SpaceMaze", new SpaceMaze());
 
     }
 

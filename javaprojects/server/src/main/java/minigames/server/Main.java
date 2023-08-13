@@ -3,6 +3,7 @@ package minigames.server;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import minigames.server.muddle.MuddleServer;
+import minigames.server.spacemaze.SpaceMazeServer;
 import io.vertx.core.Launcher;
 
 import org.apache.logging.log4j.LogManager;

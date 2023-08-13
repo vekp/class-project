@@ -31,7 +31,7 @@ public class Timer {
      */
     public Timer(){
         this.timerWasUsed = false;
-        this.pausedTime = 0;
+        this.prePausedTime = 0;
         this.timerRunning = false;
     }
 
