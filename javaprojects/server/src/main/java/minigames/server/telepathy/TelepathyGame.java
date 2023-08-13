@@ -19,9 +19,9 @@ public class TelepathyGame {
 
 
     /**
-     * Constructs a new game of Telepathy using a name.
+     * Constructs a new game of Telepathy with a given name.
      * 
-     * @param name: String with the name for this game.
+     * @param name: String with the name to use for thisgame.
      */
     public TelepathyGame(String name) {
         this.name = name;
