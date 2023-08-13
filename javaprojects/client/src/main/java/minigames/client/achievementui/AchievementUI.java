@@ -1,14 +1,15 @@
 package minigames.client.achievementui;
 
-import minigames.achievements.*;
+import minigames.achievements.Achievement;
+import minigames.achievements.AchievementTestData;
+import minigames.achievements.GameAchievementState;
+import minigames.achievements.PlayerAchievementRecord;
 import minigames.client.MinigameNetworkClient;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,6 +69,16 @@ public class AchievementUI extends JPanel {
         JButton backButton = new JButton("Back");
         backButton.addActionListener(returnAction);
         buttonPanel.add(backButton, BorderLayout.EAST);
+        // Add demo popup button
+        AchievementPresenter testAchievement = new AchievementPresenter(new Achievement(
+                "Popup tester",
+                "Congratulations, you have opened a popup notification!",
+                "",
+                false
+        ), true);
+        JButton popup = new JButton("Demo popup");
+        popup.addActionListener(e -> networkClient.getMainWindow().showNotification(testAchievement.smallAchievementPanel(false)));
+        buttonPanel.add(popup, BorderLayout.WEST);
 
         this.add(buttonPanel, BorderLayout.SOUTH);
     }
@@ -115,16 +126,13 @@ public class AchievementUI extends JPanel {
             List<Achievement> unlockedAchievements = state.unlocked();
             if (!unlockedAchievements.isEmpty()) {
                 AchievementCollection presenterList = achievementCollection(unlockedAchievements, true);
-                achievementPanel.add(presenterList.achievementListPanel());
-
                 //Demo for carousel. todo: remove later when not needed.
-                gameLabel.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(achievementPanel), presenterList.achievementCarousel(),
-                                gameID, JOptionPane.PLAIN_MESSAGE);
-                    }
-                });
+                JButton carousel = new JButton("Demo carousel");
+                carousel.addActionListener(e -> JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(achievementPanel), presenterList.achievementCarousel(),
+                        gameID, JOptionPane.PLAIN_MESSAGE));
+                achievementPanel.add(carousel);
+
+                achievementPanel.add(presenterList.achievementListPanel());
             }
             List<Achievement> lockedAchievements = state.locked();
             if (!lockedAchievements.isEmpty()) {
