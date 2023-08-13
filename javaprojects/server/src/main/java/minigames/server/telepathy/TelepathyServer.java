@@ -9,13 +9,14 @@ import minigames.server.ClientType;
 import minigames.server.GameServer;
 
 import java.util.HashMap;
-
+import java.util.HashSet;
 /**
  * The Telepathy Server containing any Telepathy games being run on the
  * server.
  */
 public class TelepathyServer implements GameServer {
 
+    // HashMap of current running Telepathy games
     HashMap<String, TelepathyGame> games = new HashMap<>();
 
     /**
@@ -44,11 +45,13 @@ public class TelepathyServer implements GameServer {
      *         the current Telepathy games being played.
      */
     public GameMetadata[] getGamesInProgress() {
-        // TODO Create TelepathyGame class to store data about each game
+        HashSet<GameMetadata> gameData = new HashSet<>();
+        for(String key : games.keySet()){
+            TelepathyGame g = games.get(key);
+            gameData.add(g.telepathyGameMetadata());
+        }
 
-        String[] tempPlayers = { "Player 1", "Player 2" };
-        GameMetadata[] tempData = { new GameMetadata("Telepathy", "test game", tempPlayers, false) };
-        return tempData;
+        return gameData.toArray(new GameMetadata[gameData.size()]);
     }
 
     /**
@@ -59,8 +62,8 @@ public class TelepathyServer implements GameServer {
      * @return Future object where player has joined the new game.
      */
     public Future<RenderingPackage> newGame(String playerName) {
-        TelepathyGame game = new TelepathyGame(playerName);
-        games.put(game.name, game);
+        TelepathyGame game = new TelepathyGame(playerName + "'s game");
+        games.put(game.getName(), game);
         return Future.succeededFuture(game.joinGame(playerName));
     }
 

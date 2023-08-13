@@ -14,9 +14,9 @@ public class TelepathyGame {
     // Logs output
     private static final Logger logger = LogManager.getLogger(TelepathyGame.class);
 
-    // Players stored as a String to start
-    HashSet<String> players = new HashSet<>();
-    String name;
+    private HashSet<String> players = new HashSet<>();
+    private String name;
+
 
     /**
      * Constructs a new game of Telepathy using a name.
@@ -35,7 +35,7 @@ public class TelepathyGame {
      */
     public GameMetadata telepathyGameMetadata() {
 
-        return new GameMetadata("Telepathy", name, this.players.toArray(new String[this.players.size()]), false);
+        return new GameMetadata("Telepathy", name, this.players.toArray(new String[this.players.size()]), true);
     }
 
     public RenderingPackage runCommands(CommandPackage commandPackage) {
@@ -62,5 +62,23 @@ public class TelepathyGame {
 
         // TODO Create rendering commands for the package
         return new RenderingPackage(this.telepathyGameMetadata(), null);
+    }
+
+    // Accessor methods
+
+    /**
+     * Getter for current players in the game.
+     * @return copy of the HashSet of players.
+     */
+    public HashSet<String> getPlayers(){
+        return new HashSet<>(this.players);
+    }
+
+    /**
+     * Getter for the name assigned to this game on creation.
+     * @return String value with the name.
+     */
+    public String getName(){
+        return this.name;
     }
 }
