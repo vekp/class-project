@@ -1,7 +1,6 @@
 package minigames.server.battleship;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.HashMap;
 
 /**
  * The Grid Class contains a 2D array containing Cell items
@@ -24,7 +23,7 @@ public class Grid {
                 grid[i][j] = new Cell();
             }
         }
-        grid = placeDefaultConvoy(grid);
+//        grid = placeDefaultConvoy(grid);
         return grid;
     }
 
@@ -38,27 +37,27 @@ public class Grid {
      * @param orientation The raw String that the user has entered into the console
      * @return true if the placement is valid, false if not
      */
-    public boolean placeShip(String coordinates, String orientation){
-        // The first chunk of code deals with validating the user's input
-        // Regex to check that the coordinate string is valid
-        String regex = "^[A-J][0-9]$";
-        Pattern pattern = Pattern.compile(regex);
-        //convert the coordinates to uppercase
-        coordinates = coordinates.toUpperCase();
-        Matcher matcher = pattern.matcher(coordinates);
-        // If the coordinates don't match then return false
-        if(!matcher.matches()){
-            return false;
-        }
-        // Force the character to be uppercase
-        orientation = orientation.toUpperCase();
-        // If the orientation
-        if(orientation != "V" && orientation != "H"){
-            return false;
-        }
-        // TODO Finish this manual placement function off later, for now just use a default placement function
-        return true;
-    }
+//    public boolean placeShip(String coordinates, String orientation){
+//        // The first chunk of code deals with validating the user's input
+//        // Regex to check that the coordinate string is valid
+//        String regex = "^[A-J][0-9]$";
+//        Pattern pattern = Pattern.compile(regex);
+//        //convert the coordinates to uppercase
+//        coordinates = coordinates.toUpperCase();
+//        Matcher matcher = pattern.matcher(coordinates);
+//        // If the coordinates don't match then return false
+//        if(!matcher.matches()){
+//            return false;
+//        }
+//        // Force the character to be uppercase
+//        orientation = orientation.toUpperCase();
+//        // If the orientation
+//        if(orientation != "V" && orientation != "H"){
+//            return false;
+//        }
+//        // TODO Finish this manual placement function off later, for now just use a default placement function
+//        return true;
+//    }
 
     /**
      * For now, I'm literally just putting in a default ship placement lazily, it will be changed later
@@ -136,5 +135,92 @@ public class Grid {
      */
     public void setCell(int x, int y, Cell cell){
         this.grid[y][x - 1] = cell;
+    }
+
+    /**
+     * Function to set a particular cell's CellType in the grid
+     * @param x x index
+     * @param y y index
+     * @param cellType enum value to set the Cell's parameter to
+     */
+    public void setCellType(int x, int y, CellType cellType){
+        this.grid[x][y].setCellType(cellType);
+    }
+
+    /**
+     * Function to place ship on the grid and return a Ship object
+     * @param parts vertical or horizontal list of ship parts
+     * @param size size of ship, eg Carrier = 6
+     * @param y vertical location in grid
+     * @param x horizontal location in grid
+     * @return Ship object
+     */
+    public Ship placeShip(CellType[] parts, int size, int y, int x) {
+        String chars = "ABCDEFGHIJ";
+        Cell[] newShipParts = new Cell[size];
+        Coordinate[] shipLocation = new Coordinate[size];
+        for (int i=0; i<size; i++) {
+            newShipParts[i] = new Cell();
+            shipLocation[i] = new Coordinate("A",0);  // Default values - changed below
+        }
+        //TODO: there has to be a better implementation than setting newShipParts and shipLocation like this
+
+        // If horizontal
+        if (parts[0].equals(CellType.SHIP_LEFT)) {
+            if (x + parts.length < 10) {
+                this.grid[y][x].setCellType(parts[0]);
+                newShipParts[0].setCellType(parts[0]);
+                shipLocation[0].setHorizontal(x);
+                shipLocation[0].setVertical(String.valueOf(chars.charAt(y)));
+                for (int i = 1; i < size; i++) {
+                    this.grid[y][x + i].setCellType(parts[1]);
+                    newShipParts[i].setCellType(parts[1]);
+                    shipLocation[i].setHorizontal(i);
+                    shipLocation[i].setVertical(String.valueOf(chars.charAt(y)));
+                }
+                grid[y][x + size-1].setCellType(parts[2]);
+                newShipParts[size-1].setCellType(parts[2]);
+                shipLocation[size-1].setHorizontal(size-1);
+                shipLocation[size-1].setVertical(String.valueOf(chars.charAt(y)));
+            }
+        }
+        // If Vertical
+        if (parts[0].equals(CellType.SHIP_UP)) {
+            if (y + parts.length < 10) {
+                this.grid[y][x].setCellType(parts[0]);
+                newShipParts[0].setCellType(parts[0]);
+                shipLocation[0].setHorizontal(x);
+                shipLocation[0].setVertical(String.valueOf(chars.charAt(y)));
+                for (int i = 1; i < size; i++) {
+                    this.grid[y +i][x].setCellType(parts[1]);
+                    newShipParts[i].setCellType(parts[1]);
+                    shipLocation[i].setHorizontal(i);
+                    shipLocation[i].setVertical(String.valueOf(chars.charAt(y)));
+                }
+                grid[y + size-1][x].setCellType(parts[2]);
+                newShipParts[size-1].setCellType(parts[2]);
+                shipLocation[size-1].setHorizontal(size-1);
+                shipLocation[size-1].setVertical(String.valueOf(chars.charAt(y)));
+            }
+        }
+        return new Ship(newShipParts, shipLocation);
+    }
+
+    /**
+     * Function to place ships in a default configuration and add each ship to a hashmap which is returned
+     * @return a hashmap containing Ship objects
+     */
+    public HashMap<String,Ship> defaultShips() {
+        // Ship parts
+        CellType[] hor = {CellType.SHIP_LEFT,CellType.SHIP_HULL, CellType.SHIP_RIGHT};
+        CellType[] ver = {CellType.SHIP_UP,CellType.SHIP_HULL, CellType.SHIP_DOWN};
+        // Map of ships
+        HashMap<String, Ship> vessels = new HashMap<>();
+        vessels.put("Carrier", placeShip(hor, 6,  2, 0));
+        vessels.put("Battleship", placeShip(ver, 5,  1, 8));
+        vessels.put("Destroyer", placeShip(ver, 4,  4, 1));
+        vessels.put("Submarine", placeShip(hor, 4,  8, 3));
+        vessels.put("Patrol Boat", placeShip(hor, 3,  5, 4));
+        return vessels;
     }
 }
