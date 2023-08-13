@@ -142,7 +142,7 @@ public class AchievementPresenter {
         panel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
         if (!isUnlocked) {
-            panel.add(new JLabel("Sorry, haven't unlocked this achievement yet and you shouldn't be here!"));
+            panel.add(new JLabel("Sorry, you haven't unlocked this achievement yet and you shouldn't be here!"));
             return panel;
         }
 
