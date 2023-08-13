@@ -58,7 +58,7 @@ public class KrumPlayer {
             aimAngleRadians = Math.atan2(y - my, mx - x);
             long power = System.nanoTime() - fireStart;
             power /= 10000000;
-            g.drawLine((int)(x + 15 - Math.cos(aimAngleRadians) * 10), (int)(y + 5 - Math.sin(aimAngleRadians) * 10 * -1), (int)(x + 15 + Math.cos(aimAngleRadians) * power), (int)(y + 5 + Math.sin(aimAngleRadians) * power * -1));
+            g.drawLine((int)(x + 45 - Math.cos(aimAngleRadians) * 10), (int)(y + 15 - Math.sin(aimAngleRadians) * 10 * -1), (int)(x + 45 + Math.cos(aimAngleRadians) * power), (int)(y + 15 + Math.sin(aimAngleRadians) * power * -1));
         }
     }
     void update(double windX, double windY){
