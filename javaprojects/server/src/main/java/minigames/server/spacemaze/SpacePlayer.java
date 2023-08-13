@@ -1,7 +1,9 @@
 package minigames.server.spacemaze;
 
 /*
- *   Basic player class
+ *   Basic player class to represent the player.
+ *
+ *   @author Nikolas Olins
  */
 public class SpacePlayer {
     private int currentX;
@@ -23,18 +25,16 @@ public class SpacePlayer {
         currentY = newY;
     }
     // method for calculating the score, could update on the UI (reduce as game progesses) or be called at the end.
-    public double calculateScore(int timeTaken, int initialSCore) {
-        double reductionFactor = 50;
-
-        return initialSCore - (reductionFactor*timeTaken);
+    public int calculateScore(long timeTaken, int initialSCore) {
+        int reductionFactor = 50;
+        return (int)(initialSCore - (reductionFactor*timeTaken));
     }
 
-    public int checkNumberOfKeys(){
+    public int checkNumberOfKeys() {
         return numKeys;
     }
 
-    public void addKey()
-    {
+    public void addKey() {
         numKeys++;
     }
 

@@ -81,7 +81,7 @@ public class MazeControl {
     public void unlockExit(SpacePlayer player)
     {
         // Check player has correct number of keys to unlock exit
-        if (player.CheckNumberOfKeys() == numKeysToUnlock)
+        if (player.checkNumberOfKeys() == numKeysToUnlock)
         {
             exitUnlocked = true;
         }

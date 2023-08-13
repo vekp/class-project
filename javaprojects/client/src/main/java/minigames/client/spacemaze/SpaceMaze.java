@@ -1,4 +1,4 @@
-package minigames.client.muddletext;
+package minigames.client.spacemaze;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -48,7 +48,7 @@ public class SpaceMaze implements GameClient {
     
     JPanel commandPanel;
 
-    public MuddleText() {
+    public SpaceMaze() {
         /*
         textArea = new JTextArea();
         textArea.setEditable(false);
@@ -74,10 +74,13 @@ public class SpaceMaze implements GameClient {
         for (Component c : new Component[] { north, south, east, west, userCommand, send }) {
             commandPanel.add(c);
         }
-        */
+        
        // Listen for all key presses whenever focus is in the UI
        KeyEventDispatcher thisKeyEventDispatcher = new DefaultFocusManager();
        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(myKeyEventDispatcher);
+       */
+
+      
     }
 
     /** 
@@ -99,38 +102,12 @@ public class SpaceMaze implements GameClient {
      */
     @Override
     public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {
-        this.mnClient = mnClient;
-        this.gm = game;
-        this.player = player;
-
-        // Add our components to the north, south, east, west, or centre of the main window's BorderLayout
-        mnClient.getMainWindow().addCenter(textArea);
-        mnClient.getMainWindow().addSouth(commandPanel);   
-
-        textArea.append("Starting...");
-
-        // Don't forget to call pack - it triggers the window to resize and repaint itself
-        mnClient.getMainWindow().pack();     
+         
     }
 
     @Override
     public void execute(GameMetadata game, JsonObject command) {
-        this.gm = game;
-
-        // We should only be receiving messages that our game understands
-        // Note that this uses the -> version of case statements, not the : version
-        // (which means we don't nead to say "break;" at the end of our cases)
-        switch (command.getString("command")) {
-            case "clearText" -> textArea.setText("");
-            case "appendText" -> textArea.setText(textArea.getText() + command.getString("text"));
-            case "setDirections" -> {
-                String directions = command.getString("directions");
-                north.setEnabled(directions.contains("N"));
-                south.setEnabled(directions.contains("S"));
-                east.setEnabled(directions.contains("E"));
-                west.setEnabled(directions.contains("W"));
-            }
-        }
+        
         
     }
 

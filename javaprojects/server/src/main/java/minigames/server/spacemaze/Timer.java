@@ -47,6 +47,13 @@ public class Timer {
     }
 
     /**
+     * Lets you check if the timer is running
+     */
+    public boolean getIsTimerRunning() {
+        return timerRunning;
+    }
+
+    /**
      * Lets you pause the timer
      */
     public void pauseTimer() {
