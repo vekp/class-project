@@ -30,7 +30,6 @@ public class ShufflingFrameworkTest {
         for (int i = 0; i < controlDeck.length; i++) {
             assertTrue(controlDeck[i].equals(deckOfCards[i]));
         }
-
     }
 
     @Test
@@ -53,5 +52,4 @@ public class ShufflingFrameworkTest {
 
         assertArrayEquals(fullDeckControl, fullDeckCards);        
     }
-
 }

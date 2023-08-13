@@ -32,6 +32,14 @@ public class DeckOfCardsTest {
         }
     }
 
+    @Test
+    @DisplayName("Pair constructor throws error for odd numbers")
+    public void testPairException(){
+        assertThrows(RuntimeException.class, () -> {
+            PlayingCard[] pairDeck = new DeckOfCards(5,true).getCards();
+        });
+    }
+
 /**
  * This test will check to see if building a deck with pairs works
  * I anticipate this test to fail right now because I have not overridden the default implementation of clone

@@ -92,8 +92,7 @@ public class DeckOfCards {
         Random rand = new Random();
         cardStack = new PlayingCard[numberOfCards];
         if (numberOfCards % 2 == 1 && pairs == true) {
-            System.out.println("If you want pairs please enter an even number");
-            System.exit(-2);
+            throw new IllegalArgumentException("Deck of pairs cannot be constructed", new Throwable("If pairs == true, number of cards % 2 must == 0"));
         }
         if (pairs == true) {
             for (int i = 0; i < numberOfCards; i+=2) {
@@ -109,7 +108,10 @@ public class DeckOfCards {
             }
         }
     }
-
+    /*
+     * This returns the array which honestly probably violates some OOP principal
+     * I could have it return a copy of the array
+     */
     public PlayingCard[] getCards(){
         return this.cardStack;
     }
