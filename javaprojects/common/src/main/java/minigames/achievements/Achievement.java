@@ -26,4 +26,6 @@ public record Achievement(
                 obj.getString("mediaFileName"),
                 obj.getBoolean("hidden"));
     }
+
+
 }

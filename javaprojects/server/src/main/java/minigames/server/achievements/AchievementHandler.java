@@ -5,8 +5,9 @@ import minigames.achievements.Achievement;
 import java.util.*;
 
 /**
- * A class holding registered achievements for a game server. Also, currently stores the unlock state for a player
- * for this game's achievements (which can be moved to a more appropriate place once user accounts are in)
+ * A class holding registered achievements for a game server. This class acts as a middleman to interact with the
+ * database (which for now is just another class), but also provides functionality for unlocking achievements
+ * (manually, or using a watcher)
  */
 public class AchievementHandler {
 
@@ -32,22 +33,24 @@ public class AchievementHandler {
         handlerID = gameName;
     }
 
+    /**
+     * A method that provides access to the achievement database to add achievements to it. Will check to make sure that
+     * the achievement is not a duplicate and throw an error if so.
+     * @param achievement the achievement to register
+     */
     public void registerAchievement(Achievement achievement) {
-        if (database.getAchievement(handlerID, achievement.name()) != null) {
-            //todo exception? cannot register duplicate achievements
-            return;
+        if (!database.addAchievement(handlerID, achievement)) {
+            //todo probably throw an exception if we tried to add a duplicate achievement
         }
-        database.addAchievement(handlerID, achievement.name(), achievement);
     }
 
     /**
-     * Returns a list of all achievements available for the current game
+     * Returns a list of all achievements available for this handler
      *
      * @return An ArrayList containing all available achievements
      */
-    public ArrayList<Achievement> getAllAchievements() {
-        //todo implement
-        return new ArrayList<>();
+    public List<Achievement> getAllAchievements() {
+        return database.getAchievementsByGame(handlerID);
     }
 
     /**
