@@ -108,6 +108,7 @@ public class DeckOfCards {
             }
         }
     }
+
     /* 
      * This returns the array which honestly probably violates some OOP principal
      * I think for our purposes this implementation is fine but in a more 'real-world' scenario

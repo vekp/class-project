@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import minigames.server.solitaireOrMemory.DeckOfCards;
-import minigames.server.solitaireOrMemory.DeckOfCards.PlayingCard;
+import minigames.server.memory.DeckOfCards;
+import minigames.server.memory.DeckOfCards.PlayingCard;
 
 public class DeckOfCardsTest {
 
