@@ -5,7 +5,6 @@ public class PeggleUI {
     // TODO: Decide on game colours
     private static final String gameName = "Peggle";
     private static JFrame mainWindow = null;
-    private static JPanel titleScreen = null;
     private static final String titleFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/titlecard.png;
     private static final String iconFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/gameicon.png;
 
@@ -31,7 +30,7 @@ public class PeggleUI {
         mainWindow.setIconImage(icon.getImage());
 
         //Initialise game with start screen
-        titleScreen = generateTitleScreen();
+        JPanel titleScreen = generateTitleScreen();
         mainWindow.setContentPane(titleScreen);
         mainWindow.pack();
         mainWindow.setVisible(true);
@@ -44,8 +43,13 @@ public class PeggleUI {
         JPanel titleScreen = new JPanel(new GridLayout(0,3,10,10));
         titleScreen.setBackground(mainColour);
 
+        //Padding at bottom of buttons showing title
         titleScreen.add(generateMenuHeader());
+
+        //Menu interaction buttons plus top and bottom headers
         titleScreen.add(generateMenuButtons());
+
+        //Padding at bottom of buttons showing title
         titleScreen.add(generateMenuHeader());
 
         return titleScreen;
@@ -60,6 +64,7 @@ public class PeggleUI {
 
         //Get UI details from UI class depending on response
         JButton startGameButton = new JButton("Start Game");
+        JButton instructionsButton = new JButton("How to Play");
         JButton leaderboardButton = new JButton("Leaderboard (In Development)");
         JButton achievementsButton = new JButton("Achievements (In Development)");
         JButton settingsButton = new JButton("Settings (In Development)");
@@ -68,6 +73,10 @@ public class PeggleUI {
         startGameButton.setBackground(accentColour);
         startGameButton.setForeground(textColour);
         startGameButton.addActionListener(e -> startGame());
+
+        instructionsButton.setBackground(accentColour);
+        instructionsButton.setForeground(textColour);
+        instructionsButton.addActionListener(e -> listInstructions());
 
         leaderboardButton.setBackground(accentColour);
         leaderboardButton.setForeground(textColour);
@@ -81,15 +90,18 @@ public class PeggleUI {
         settingsButton.setForeground(textColour);
         settingsButton.addActionListener(e -> checkSettings());
 
+
+        //Padding at top of buttons showing title
         buttonGrid.add(generateMenuHeader());
 
         //Add buttons
         buttonGrid.add(startGameButton);
+        buttonGrid.add(instructionsButton);
         buttonGrid.add(leaderboardButton);
         buttonGrid.add(achievementsButton);
         buttonGrid.add(settingsButton);
 
-
+        //Padding at bottom of buttons showing title
         buttonGrid.add(generateMenuHeader());
 
         return buttonGrid;
@@ -108,9 +120,18 @@ public class PeggleUI {
         return menuHeader;
     }
 
+
     private static void startGame(){
-        System.out.println("Starting game");
-        generateGameSession();
+        InGameUI gameSession = new InGameUI();
+        mainWindow.setContentPane(gameSession);
+        mainWindow.revalidate();
+    }
+
+    private static void listInstructions() {
+        System.out.println("Listing Instructions");
+        InstructionsUI instructionsSession = new InstructionsUI(mainWindow);
+        mainWindow.setContentPane(instructionsSession);
+        mainWindow.revalidate();
     }
 
     private static void checkLeaderboard(){
@@ -128,12 +149,6 @@ public class PeggleUI {
     private void pauseMenu(){
         System.out.println("Pause Menu");
     }
-
-
-    private static void generateGameSession(){
-        System.out.println("Doing Stuff");
-    }
-
 
 
 }
