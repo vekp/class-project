@@ -59,8 +59,8 @@ public class KrumGame implements GameClient {
 
     public KrumGame() {
         players = new KrumPlayer[2];
-        players[0] = new KrumPlayer(220, 190, imgDir + "dog_m.png", 8, 31);
-        players[1] = new KrumPlayer(600, 386, imgDir + "bearded_m.png", 8, 31);
+        players[0] = new KrumPlayer(220, 190, imgDir + "kangaroo_bazooka.png", 8, 31);
+        players[1] = new KrumPlayer(600, 386, imgDir + "kangaroo_bazooka.png", 8, 31);
         playerTurn = 0;
         File backgroundFile = new File(imgDir + "chameleon.png");
         //System.out.println(backgroundFile.canRead());
