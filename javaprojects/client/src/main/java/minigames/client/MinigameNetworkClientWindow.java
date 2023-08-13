@@ -240,12 +240,13 @@ public class MinigameNetworkClientWindow {
     /**
      * Display a popup notification at the top of the screen, on top of other content in the frame.
      * @param content the component with content to display in the popup.
+     * @param alignment a float representing desired horizontal alignment. Use Component alignment constants.
      */
-    public void showNotification (Component content) {
+    public void showNotification (Component content, float alignment) {
         JLayeredPane layeredPane = frame.getLayeredPane();
         JPanel panel = new JPanel();
         panel.add(content);
-        // Add a close button to the right of the
+        // Add a close button to the right of the content
         JButton closeButton = new JButton("❌");
         closeButton.addActionListener(e -> {
             layeredPane.remove(panel);
@@ -253,12 +254,21 @@ public class MinigameNetworkClientWindow {
         });
         panel.add(closeButton);
         panel.setBorder(BorderFactory.createEtchedBorder());
-        // Use size of panel to determine positioning.
+        // Use size of panel to determine positioning
         int width = (int) panel.getPreferredSize().getWidth();
         int height = (int) panel.getPreferredSize().getHeight();
-        int posX = 400 - width / 2;
+        int maxX = frame.getWidth() - width;
+        int posX = (int) (alignment * maxX);
         panel.setBounds(posX, 0, width, height);
         layeredPane.add(panel, JLayeredPane.POPUP_LAYER);
         pack();
+    }
+
+    /**
+     * Calls showNotification with a default center alignment (0.5f)
+     * @param content the content to show in notification
+     */
+    public void showNotification (Component content) {
+        showNotification(content, Component.CENTER_ALIGNMENT);
     }
 }
