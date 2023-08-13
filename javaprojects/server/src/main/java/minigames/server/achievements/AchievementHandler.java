@@ -1,6 +1,7 @@
 package minigames.server.achievements;
 
 import minigames.achievements.Achievement;
+import minigames.server.GameServer;
 
 import java.util.*;
 
@@ -27,20 +28,23 @@ public class AchievementHandler {
     /**
      * Constructor
      *
-     * @param gameName the game/server name this handler will manage achievements for.
+     * @param type the Game server type/class for which this handler should be managing achievements.
+     *             Multiple handlers can share the same type - they will access the same entries in the database
      */
-    public AchievementHandler(String gameName) {
-        handlerID = gameName;
+    public AchievementHandler(Class<GameServer> type) {
+        handlerID = type.getName();
     }
 
     /**
      * A method that provides access to the achievement database to add achievements to it. Will check to make sure that
      * the achievement is not a duplicate and throw an error if so.
+     *
      * @param achievement the achievement to register
      */
     public void registerAchievement(Achievement achievement) {
         if (!database.addAchievement(handlerID, achievement)) {
-            //todo probably throw an exception if we tried to add a duplicate achievement
+            throw new IllegalArgumentException("Duplicate Achievement! Achievement - " + achievement.name() +
+                    "has already been registered for handler ID: " + handlerID);
         }
     }
 
@@ -60,13 +64,16 @@ public class AchievementHandler {
      * @param achievementID The ID of the achievement
      */
     public void unlockAchievement(String playerID, String achievementID) {
+        //make a new player profile if needed
         if (!playerUnlockList.containsKey(playerID))
             playerUnlockList.put(playerID, new HashSet<>());
 
+        //we will throw an error if we try to unlock an achievement that does not exist
         if (database.getAchievement(handlerID, achievementID) != null) {
             playerUnlockList.get(playerID).add(achievementID);
         } else {
-            //todo throw exception? Cannot unlock nonexistant achievement
+            throw new IllegalArgumentException("Achievement with ID: " + achievementID +
+                    "does not exist for handler: " + handlerID);
         }
     }
 
