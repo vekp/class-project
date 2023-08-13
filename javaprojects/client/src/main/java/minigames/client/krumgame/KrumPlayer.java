@@ -85,7 +85,7 @@ public class KrumPlayer {
         //System.out.println(mx);
         //System.out.println(my);
         //System.out.println(aimAngleRadians);
-        projectile = new KrumProjectile((int)x + 15, (int)y + 5, Math.cos(aimAngleRadians) * power, Math.sin(aimAngleRadians) * power * -1);
+        projectile = new KrumProjectile((int)x + 50, (int)y + 18, Math.cos(aimAngleRadians) * power, Math.sin(aimAngleRadians) * power * -1);
     }
     public void setMouseOffsets(int x, int y) {
         this.xoff = x;
