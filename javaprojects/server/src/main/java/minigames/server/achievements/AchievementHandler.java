@@ -37,6 +37,10 @@ public class AchievementHandler {
         handlerID = type.getName();
     }
 
+    public String getHandlerID() {
+        return handlerID;
+    }
+
     /**
      * A method that provides access to the achievement database to add achievements to it. Will check to make sure that
      * the achievement is not a duplicate and throw an error if so.
