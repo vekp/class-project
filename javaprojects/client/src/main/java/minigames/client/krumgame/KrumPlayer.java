@@ -186,16 +186,16 @@ public class KrumPlayer {
         setDirection(direction, level);
     }
     void draw(Graphics2D g){
+        int mx = MouseInfo.getPointerInfo().getLocation().x - xoff;
+        int my = MouseInfo.getPointerInfo().getLocation().y - yoff;
         if (flashFramesLeft <= 0 || flashFramesLeft % 4 == 0) {
             g.drawImage(sprite, null, (int)xpos, (int)ypos);
         }        
         if (firing) {
-            int mx = MouseInfo.getPointerInfo().getLocation().x - xoff;
-            int my = MouseInfo.getPointerInfo().getLocation().y - yoff;
             aimAngleRadians = Math.atan2(ypos - my, mx - xpos);
             long power = System.nanoTime() - fireStart;
             power /= 10000000;
-            g.drawLine((int)(xpos + 45 - Math.cos(aimAngleRadians) * 10), (int)(ypos + 15 - Math.sin(aimAngleRadians) * 10 * -1), (int)(xpos + 45 + Math.cos(aimAngleRadians) * power), (int)(ypos + 15 + Math.sin(aimAngleRadians) * power * -1));
+            g.drawLine((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * 35), (int)(ypos + sprite.getWidth()/2 - Math.sin(aimAngleRadians) * 35), (int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * (power + 35)), (int)(ypos + sprite.getWidth()/2 - Math.sin(aimAngleRadians) * (35 + power)));
         }
     }
     void update(double windX, double windY, WritableRaster levelRaster){
@@ -445,8 +445,8 @@ public class KrumPlayer {
         aimAngleRadians = Math.atan2(ypos - my, mx - xpos);
         //////System.out.println(mx);
         //////System.out.println(my);
-        //////System.out.println(aimAngleRadians);
-        projectile = new KrumProjectile((int)xpos + 50, (int)ypos + 18, Math.cos(aimAngleRadians) * power + xvel, Math.sin(aimAngleRadians) * power * -1 + yvel);
+        //////System.out.println(aimAngleRadians);        
+        projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * 35), (int)(ypos + sprite.getHeight() / 2 - Math.sin(aimAngleRadians) * 35), Math.cos(aimAngleRadians) * power + xvel, Math.sin(aimAngleRadians) * power * -1 + yvel);
     }
     public void setMouseOffsets(int x, int y) {
         this.xoff = x;
