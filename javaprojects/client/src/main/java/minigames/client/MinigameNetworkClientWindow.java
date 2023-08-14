@@ -9,7 +9,6 @@ import minigames.rendering.GameServerDetails;
 
 import java.awt.*;
 
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
@@ -248,7 +247,7 @@ public class MinigameNetworkClientWindow {
         JPanel panel = new JPanel();
         panel.add(content);
         // Add a close button to the right of the content
-        JButton closeButton = new JButton("X");
+        JButton closeButton = new JButton("❌");
         closeButton.addActionListener(e -> {
             layeredPane.remove(panel);
             pack();
@@ -256,36 +255,6 @@ public class MinigameNetworkClientWindow {
         panel.add(closeButton);
         panel.setBorder(BorderFactory.createEtchedBorder());
         // Use size of panel to determine positioning
-        int width = (int) panel.getPreferredSize().getWidth();
-        int height = (int) panel.getPreferredSize().getHeight();
-        int maxX = frame.getWidth() - width;
-        int posX = (int) (alignment * maxX);
-        panel.setBounds(posX, 0, width, height);
-        layeredPane.add(panel, JLayeredPane.POPUP_LAYER);
-        pack();
-    }
-
-    /**
-     * Method overload for displaying a popup notification with the optional time parameter
-     * @param content The component with content to be displayed in the popup
-     * @param alignment A floating point number representing the desired horizontal alignment
-     * @param time An int for the amount of time to display the popup in milliseconds
-     */
-    public void showNotification (Component content, float alignment, int time) {
-        JLayeredPane layeredPane = frame.getLayeredPane();
-        JPanel panel = new JPanel();
-        panel.add(content);
-        panel.setBorder(BorderFactory.createEtchedBorder());
-
-        // This is the bit with the timer
-        new Timer(time, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                layeredPane.remove(panel);
-                pack();
-            }
-        });
-
         int width = (int) panel.getPreferredSize().getWidth();
         int height = (int) panel.getPreferredSize().getHeight();
         int maxX = frame.getWidth() - width;
