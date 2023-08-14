@@ -1,19 +1,30 @@
 package minigames.server.battleship;
 
 import io.vertx.core.Future;
+import minigames.achievements.Achievement;
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.GameServerDetails;
 import minigames.rendering.RenderingPackage;
 import minigames.server.ClientType;
 import minigames.server.GameServer;
+import minigames.server.achievements.AchievementHandler;
 
 import java.util.HashMap;
 import java.util.Random;
 
-public class BattleshipServer implements GameServer {
+enum Achievements{
+    FOUR_CORNERS,
+}
 
+public class BattleshipServer implements GameServer {
     static final String chars = "abcdefghijklmopqrstuvwxyz";
+    AchievementHandler achievementHandler;
+
+    public BattleshipServer(){
+        achievementHandler = new AchievementHandler(BattleshipServer.class);
+        Achievement fourCorners
+    }
 
     // A random name. We could do with something more memorable, like Docker has
     static String randomName() {
