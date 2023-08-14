@@ -130,7 +130,7 @@ public class Board {
                 if (j==0 && i!=0) gridStrings.append(" ").append(chars.charAt(i-1)).append(" ");
                 if (i>0) {
                     gridStrings.append(grid[i-1][j].getCellTypeString()).append(" ");
-                    System.out.print(grid[i-1][j].getCellTypeString());
+                    //System.out.print(grid[i-1][j].getCellTypeString());
                 }
             }
             if (i<10) gridStrings.append("\n");
