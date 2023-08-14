@@ -98,25 +98,25 @@ public class SpaceMazeGame {
             case "up":
                 if (mazeControl.validMove(x, y-1)) {
                     player.updateLocation(x, y-1);
-                    mazeControl.updatePlayerLocation(x, y-1);
+                    mazeControl.updatePlayerLocationMaze(player, x, y-1);
                 }
                 break;
             case "down":
                 if (mazeControl.validMove(x, y+1)) {
                     player.updateLocation(x, y+1);
-                    mazeControl.updatePlayerLocation(x, y+1);
+                    mazeControl.updatePlayerLocationMaze(player, x, y+1);
                 }
                 break;
             case "left":
                 if (mazeControl.validMove(x-1, y)) {
                     player.updateLocation(x-1, y);
-                    mazeControl.updatePlayerLocation(x-1, y);
+                    mazeControl.updatePlayerLocationMaze(player, x-1, y);
                 }
                 break;
             case "right":
                 if (mazeControl.validMove(x+1, y)) {
                     player.updateLocation(x+1, y);
-                    mazeControl.updatePlayerLocation(x+1, y);
+                    mazeControl.updatePlayerLocationMaze(player, x+1, y);
                 }
                 break;
         }
