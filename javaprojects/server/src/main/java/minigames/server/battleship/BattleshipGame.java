@@ -33,20 +33,22 @@ public class BattleshipGame {
     //  ("Patrol Boat", 3);
 
     /** Uniquely identifies this game */
-    String name;
+    String gameName;
+    static String playerName;
 
     AchievementHandler achievementHandler;
 
-    public BattleshipGame(String name) {
-        this.name = name;
+    public BattleshipGame(String gameName, String playerName) {
+        this.gameName = gameName;
         this.achievementHandler = new AchievementHandler(BattleshipServer.class);
+        this.playerName = playerName;
     }
 
     static String welcomeMessage = "Good evening Captain! Enter 'Ready' to start conquering the seas!\nUse arrow keys to move ships" +
             " around the grid. Press 'Tab' to switch vessel and 'Space' to rotate.\n...";
 
     //TODO: having two set players will likely not work for multiplayer and will need to be fixed - Names should also not be fixed values
-    static Board player1 = new Board("Mitcho", welcomeMessage);
+    static Board player1 = new Board(playerName, welcomeMessage);
     static Board player2 = new Board("Craig", welcomeMessage);
     HashMap<String, Board> players = new HashMap<>();
 
@@ -58,12 +60,16 @@ public class BattleshipGame {
         return players.keySet().toArray(String[]::new);
     }
 
+    public String getPlayerName(){return this.playerName;}
+
+    public String returnGameName(){return this.gameName;}
+
     /**
      * Return the meta-data for the in-progress game
      * @return a GameMetadata Object containing the information for the current game
      */
     public GameMetadata gameMetadata() {
-        return new GameMetadata("Battleship", name, getPlayerNames(), true);
+        return new GameMetadata("Battleship", gameName, getPlayerNames(), true);
     }
 
     /**
@@ -181,12 +187,13 @@ public class BattleshipGame {
         Cell[][] grid = player.getGrid();
         // Get cell type of player's coordinate
         CellType currentState = grid[x][y].getCellType();
+        System.out.println(gameName);
         // If player hit ocean or missed set CellType to Miss and return false
         if (currentState.equals(CellType.OCEAN)) {
             player.setGridCell(x, y, CellType.MISS);
             return false;
         } else if (currentState.equals(CellType.MISS)){
-            achievementHandler.unlockAchievement(name, SLOW_LEARNER.toString());
+            achievementHandler.unlockAchievement(playerName, SLOW_LEARNER.toString());
             return false;
         } else {
             player.setGridCell(x, y, CellType.HIT);
@@ -290,7 +297,7 @@ public class BattleshipGame {
             players.put(playerName, p);
 
             ArrayList<JsonObject> renderingCommands = new ArrayList<>();
-            renderingCommands.add(new LoadClient("Battleship", "Battleship", name, playerName).toJson());
+            renderingCommands.add(new LoadClient("Battleship", "Battleship", gameName, playerName).toJson());
             renderingCommands.add(new JsonObject().put("command", "clearText"));
             renderingCommands.add(new JsonObject().put("command", "updateHistory").put("history", messageHistory(p)));
             renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, player1.defaultGrid())));

@@ -112,8 +112,8 @@ public class BattleshipServer implements GameServer {
      */
     @Override
     public Future<RenderingPackage> newGame(String playerName) {
-        BattleshipGame g = new BattleshipGame(randomName());
-        games.put(g.name, g);
+        BattleshipGame g = new BattleshipGame(randomName(), playerName);
+        games.put(g.returnGameName(), g);
         return Future.succeededFuture(g.joinGame(playerName));
     }
 
