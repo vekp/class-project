@@ -19,15 +19,14 @@ public class AchievementUI extends JPanel {
 
     /**
      * Creates a new JPanel containing a user interface for viewing achievements.
+     *
      * @param networkClient the MinigameNetworkClient to be used for communicating with server.
-     * @param returnAction an ActionListener for returning to the previous screen.
+     * @param returnAction  an ActionListener for returning to the previous screen.
      */
     public AchievementUI(MinigameNetworkClient networkClient, ActionListener returnAction) {
         this.setPreferredSize(new Dimension(800, 600));
         this.setLayout(new BorderLayout());
 
-        //todo obtain username from login / user system when able
-        List<String> usernames = AchievementTestData.getNames();
 
         // Title
         JLabel title = new JLabel(TITLE);
@@ -39,13 +38,23 @@ public class AchievementUI extends JPanel {
         // Selection menu items on the left
         JPanel selectorPanel = new JPanel();
         selectorPanel.setLayout(new BoxLayout(selectorPanel, BoxLayout.Y_AXIS));
-        JList<String> usernameJList = new JList<>(usernames.toArray(new String[0]));
-        usernameJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        selectorPanel.add(generateScrollPane("Username:", usernameJList));
-        usernameJList.addListSelectionListener(e -> {
-            String selectedUsername = usernameJList.getSelectedValue();
-            networkClient.getPlayerAchievements(this, selectedUsername);
+
+        //Getting usernames from server
+        //todo obtain username from login / user system when able
+        networkClient.getPlayerNames().onSuccess((resp) -> {
+            String[] names = resp.replace("[","").replace("]","").split(",");
+//            List<String> usernames = AchievementTestData.getNames();
+//            JList<String> usernameJList = new JList<>(usernames.toArray(new String[0]));
+            JList<String> usernameJlist = new JList<>(names);
+            usernameJlist.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            selectorPanel.add(generateScrollPane("Username:", usernameJlist));
+            usernameJlist.addListSelectionListener(e -> {
+                String selectedUsername = usernameJlist.getSelectedValue();
+                networkClient.getPlayerAchievements(this, selectedUsername);
+            });
+            networkClient.getMainWindow().pack();
         });
+
 
         selectorPanel.setBorder(new EmptyBorder(0, 0, 0, 15));
         this.add(selectorPanel, BorderLayout.WEST);
@@ -53,7 +62,7 @@ public class AchievementUI extends JPanel {
         // Achievement list on the right in a scroll pane
         JPanel achievementPanel = new JPanel();
         achievementPanel.setLayout(new BoxLayout(achievementPanel, BoxLayout.Y_AXIS));
-        achievementPanel.add(Box.createRigidArea(new Dimension(0,20)));
+        achievementPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         JLabel achievementPanelLabel = new JLabel("Achievements:");
         achievementPanelLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         achievementPanel.add(achievementPanelLabel);
@@ -98,39 +107,40 @@ public class AchievementUI extends JPanel {
     }
 
     /**
-     *
-     * @param label a label to place at the top of the pane
+     * @param label       a label to place at the top of the pane
      * @param selectItems the JList containing the selectable items
      * @return a JScrollPane with selectable items
      */
-    private JPanel generateScrollPane(String label, JList<String> selectItems){
+    private JPanel generateScrollPane(String label, JList<String> selectItems) {
         JScrollPane scrollPane = new JScrollPane(selectItems);
         // Set preferred size so that scrolling is only needed if window is shrunk.
-        scrollPane.setPreferredSize(new Dimension(150, selectItems.getModel().getSize()*18));
+        scrollPane.setPreferredSize(new Dimension(150, selectItems.getModel().getSize() * 18));
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         SwingUtilities.invokeLater(() -> scrollPane.getViewport().setViewPosition(new Point(0, 0)));
 
         JLabel instructionLabel = new JLabel(label);
         instructionLabel.setAlignmentX(0);
         JPanel itemsPanel = new JPanel();
-        itemsPanel.setLayout(new BoxLayout(itemsPanel,BoxLayout.Y_AXIS));
-        itemsPanel.add(Box.createRigidArea(new Dimension(0,20)));
+        itemsPanel.setLayout(new BoxLayout(itemsPanel, BoxLayout.Y_AXIS));
+        itemsPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         itemsPanel.add(instructionLabel);
         scrollPane.setAlignmentX(0);
         itemsPanel.add(scrollPane);
         return itemsPanel;
     }
 
-     /** This will be called when the server responds to an achievement data request. The player achievement record
+    /**
+     * This will be called when the server responds to an achievement data request. The player achievement record
      * contains the ID of the player that we requested info for, and the list of achievements they have unlocked/have
      * yet to unlock
+     *
      * @param data the achievement data for a single player
      */
-    public void populateAchievementPanel(PlayerAchievementRecord data){
+    public void populateAchievementPanel(PlayerAchievementRecord data) {
         JPanel achievementPanel = new JPanel();
         achievementPanel.setLayout(new BoxLayout(achievementPanel, BoxLayout.Y_AXIS));
         System.out.println("I have received some player data for " + data.playerID());
-        for (GameAchievementState state: data.gameAchievements()) {
+        for (GameAchievementState state : data.gameAchievements()) {
             String gameID = state.gameID();
             JLabel gameLabel = new JLabel(gameID);
             gameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
