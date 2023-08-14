@@ -59,6 +59,7 @@ public class AchievementUI extends JPanel {
         achievementPanel.add(achievementPanelLabel);
         achievementScrollPane = new JScrollPane();
         achievementScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        achievementScrollPane.getVerticalScrollBar().setUnitIncrement(20);
         SwingUtilities.invokeLater(() -> achievementScrollPane.getViewport().setViewPosition(new Point(0, 0)));
         achievementScrollPane.setAlignmentX(0);
         achievementPanel.add(achievementScrollPane);
