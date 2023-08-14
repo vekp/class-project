@@ -9,21 +9,57 @@ import minigames.rendering.RenderingPackage;
 import minigames.server.ClientType;
 import minigames.server.GameServer;
 import minigames.server.achievements.AchievementHandler;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.HashMap;
 import java.util.Random;
 
-enum Achievements{
-    FOUR_CORNERS,
+import static minigames.server.battleship.achievements.FOUR_CORNERS;
+
+/**
+ * An enum containing all Achievements to be passed to the AchievementHandler for tracking
+ */
+enum achievements{
+    FOUR_CORNERS, COSY_CONVOY, YOU_GOT_HIM, SLOW_LEARNER, C_120, DOUBLE_TAP;
+
+    /**
+     * Sorry Nathan I'm not sure if this is the format needed by the handler
+     * @return
+     */
+    @Override
+    public String toString(){
+        switch(this) {
+            case FOUR_CORNERS:  return "Four Corners";
+            case COSY_CONVOY:   return "Cosy Convoy";
+            case YOU_GOT_HIM:   return "I Think You Got Him!";
+            case SLOW_LEARNER:  return "Slow Learner";
+            case C_120:         return "COSC-120";
+            case DOUBLE_TAP:    return "Double Tap";
+            default:            return "Unknown Achievement";
+        }
+    }
 }
 
 public class BattleshipServer implements GameServer {
     static final String chars = "abcdefghijklmopqrstuvwxyz";
-    AchievementHandler achievementHandler;
+    AchievementHandler achievementHandler;    // Nathan's Handler for implementing achievement features
 
     public BattleshipServer(){
         achievementHandler = new AchievementHandler(BattleshipServer.class);
-        Achievement fourCorners
+        // Create the achievements and give them to the handler
+        achievementHandler.registerAchievement(new Achievement(achievements.FOUR_CORNERS.toString(),
+                "Place a ship at each corner of the game board.", 25, "", false));
+        achievementHandler.registerAchievement(new Achievement(achievements.COSY_CONVOY.toString(),
+                "Have each of your ships be touching at least one other ship.", 25, "", false));
+        achievementHandler.registerAchievement(new Achievement(achievements.YOU_GOT_HIM.toString(),
+                "Fire at a square containing an enemy ship that you have already hit.", 10, "", true));
+        achievementHandler.registerAchievement(new Achievement(achievements.SLOW_LEARNER.toString(),
+                "Fire at a square that you've fired at already that contains nothing.", 10, "", true));
+        achievementHandler.registerAchievement(new Achievement(achievements.C_120.toString(),
+                "Crack a blue can of V. (Enter C120 as a target coordinate).", 50, "", true));
+        achievementHandler.registerAchievement(new Achievement(achievements.DOUBLE_TAP.toString(),
+                "Fire on an already destroyed vessel.", 10, "", false));
+
     }
 
     // A random name. We could do with something more memorable, like Docker has
