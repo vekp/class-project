@@ -13,8 +13,7 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.*;
 import minigames.rendering.NativeCommands.LoadClient;
 
-import static minigames.server.battleship.achievements.SLOW_LEARNER;
-import static minigames.server.battleship.achievements.YOU_GOT_HIM;
+import static minigames.server.battleship.achievements.*;
 
 /**
  *
@@ -50,7 +49,7 @@ public class BattleshipGame {
 
     //TODO: having two set players will likely not work for multiplayer and will need to be fixed - Names should also not be fixed values
     static Board player1 = new Board(playerName, welcomeMessage);
-    static Board player2 = new Board("Craig", welcomeMessage);
+    static Board player2 = new Board("CPU", welcomeMessage);
     HashMap<String, Board> players = new HashMap<>();
 
     /**
@@ -95,6 +94,10 @@ public class BattleshipGame {
      * @return true if the coordinate is valid, false if not
      */
     private boolean validate(String coordinates) {
+        // If the player enters C120 as the coordinates give them the COSC120 inside joke achievement
+        if(coordinates.equals("C120")){
+            achievementHandler.unlockAchievement(playerName, C_120.toString());
+        }
         // Craig's code split off and moved here by Mitch
         // Regex to check that the coordinate string is valid
         String regex = "^[A-J][0-9]$";
@@ -189,10 +192,11 @@ public class BattleshipGame {
         // Get cell type of player's coordinate
         CellType currentState = grid[x][y].getCellType();
         System.out.println("Cell Type: "+ currentState.toString());
-        // If player hit ocean or missed set CellType to Miss and return false
+        // If player hit ocean set CellType to Miss and return false
         if (currentState.equals(CellType.OCEAN)) {
             player.setGridCell(x, y, CellType.MISS);
             return false;
+        // If the Cell is a MISS cell, return false and check for Slow Learner Achievement
         } else if (currentState.equals(CellType.MISS)) {
             // If the player has not earned the Slow Learner Achievement, award it to them
             if (!(achievementHandler.playerHasEarnedAchievement(playerName, SLOW_LEARNER.toString()))) {
