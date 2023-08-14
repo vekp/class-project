@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import minigames.server.achievements.AchievementHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,8 +33,11 @@ public class BattleshipGame {
     /** Uniquely identifies this game */
     String name;
 
-    public BattleshipGame(String name) {
+    AchievementHandler achievementHandler;
+
+    public BattleshipGame(String name, AchievementHandler achievementHandler) {
         this.name = name;
+        this.achievementHandler = achievementHandler;
     }
 
     static String welcomeMessage = "Good evening Captain! Enter 'Ready' to start conquering the seas!\nUse arrow keys to move ships" +
