@@ -85,6 +85,7 @@ public class MazeControl {
         if (player.checkNumberOfKeys() == numKeysToUnlock)
         {
             exitUnlocked = true;
+            mazeArray[exitLocation.x][exitLocation.y] = "U";
         }
     }
 
@@ -102,18 +103,19 @@ public class MazeControl {
     }
 
     // validMove function - checks if potential move coord is not a wall or locked exit
-    public Boolean validMove(int x, int y)
+    public Boolean validMove(Point posMove)
     {
-        Point posMove = new Point(x, y);    // temporarily set (x, y) to Point object
+        //Point posMove = new Point(x, y);    // temporarily set (x, y) to Point object
         // Check if (x, y) is a wall, or if (x, y) are out of bounds (< 0, or > mazeWidth/mazeHeight)
-        if (mazeArray[x][y] == 'W' || (x < 0) || (y < 0) || (x > mazeWidth) || (y > mazeHeight))
+        if (mazeArray[posMove.x][posMove.y] == 'W' || (posMove.x < 0) || (posMove.y < 0) 
+            || (posMove.x > mazeWidth) || (posMove.y > mazeHeight))
         {
            return false;
         }
         else
         {
-            // Check if (x, y) is the exit
-            if (mazeArray[x][y] == 'E' || posMove.equals(exitLocation))
+            // Check if posMove is the exit
+            if (posMove.equals(exitLocation))
             {
                 // Check if exit is unlocked
                 if (exitUnlocked == true)
@@ -142,18 +144,18 @@ public class MazeControl {
 
     // updatePlayerLocationMaze function - takes (x, y) coords, checks if move is valid, then
     //                                 updates playerLocation and mazeArray
-    public void updatePlayerLocationMaze(SpacePlayer player, int x, int y)
+    public void updatePlayerLocationMaze(SpacePlayer player, Point newMove)
     {
         // Assume move is valid --  should have been checked via SpaceMazeGame
         
         // Set previous player location (temp object)
         Point prevMove = new Point(playerLocation);
         // Update playerLocation in mazeArray to newMove
-        playerLocation = new Point(x, y);
-        //playerLocation = new Point(newMove);
+        //playerLocation = new Point(x, y);
+        playerLocation = new Point(newMove);
         // Set (x, y) to 'P'
-        mazeArray[x][y] = 'P';
-        //mazeArray[newMove.x][newMove.y] = 'P';
+        //mazeArray[x][y] = 'P';
+        mazeArray[newMove.x][newMove.y] = 'P';
         // Set previous player location to '.'
         mazeArray[prevMove.x][prevMove.y] = '.';
         
