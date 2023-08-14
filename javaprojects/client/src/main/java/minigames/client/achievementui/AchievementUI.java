@@ -69,16 +69,29 @@ public class AchievementUI extends JPanel {
         JButton backButton = new JButton("Back");
         backButton.addActionListener(returnAction);
         buttonPanel.add(backButton, BorderLayout.EAST);
-        // Add demo popup button
+        // Add demo popup button TODO: Remove when not required
         AchievementPresenter testAchievement = new AchievementPresenter(new Achievement(
                 "Popup tester",
                 "Congratulations, you have opened a popup notification!",
                 0, "",
                 false
         ), true);
-        JButton popup = new JButton("Demo popup");
-        popup.addActionListener(e -> networkClient.getMainWindow().showNotification(testAchievement.smallAchievementPanel(false)));
+        JButton popup = new JButton("Demo achievement popup");
+        popup.addActionListener(e -> {
+            JPanel popupDemoPanel = testAchievement.smallAchievementPanel(false);
+            popupDemoPanel.setBorder(null);
+            networkClient.getMainWindow().showNotification(popupDemoPanel);
+        });
         buttonPanel.add(popup, BorderLayout.WEST);
+        // Another popup demo button TODO: Remove this
+        JButton popup2 = new JButton("Demo text popup");
+        popup2.addActionListener(e -> {
+            JButton leftPopup = new JButton("<html>This is another popup example.<br>It uses Component.RIGHT_ALIGNMENT (1.0f)<br>Click me for another popup.");
+            leftPopup.addActionListener(e1 -> networkClient.getMainWindow().showNotification(new JLabel("This one is on the left, with Component.LEFT_ALIGNMENT"), Component.LEFT_ALIGNMENT));
+
+            networkClient.getMainWindow().showNotification(leftPopup, Component.RIGHT_ALIGNMENT);
+        });
+        buttonPanel.add(popup2);
 
         this.add(buttonPanel, BorderLayout.SOUTH);
     }

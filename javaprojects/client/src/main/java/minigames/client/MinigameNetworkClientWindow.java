@@ -264,24 +264,30 @@ public class MinigameNetworkClientWindow {
      * @param content the component with content to display in the popup.
      * @param alignment a float representing desired horizontal alignment. Use Component alignment constants.
      */
-    public void showNotification (Component content, float alignment) {
+    public void showNotification (JComponent content, float alignment) {
         JLayeredPane layeredPane = frame.getLayeredPane();
-        JPanel panel = new JPanel();
+        FlowLayout flow = new FlowLayout(FlowLayout.LEFT, 0, 0);
+        JPanel panel = new JPanel(flow);
         panel.add(content);
-        // Add a close button to the right of the content
-        JButton closeButton = new JButton("❌");
+        // Make a close button to the right of the content
+        JButton closeButton = new JButton("X");
+        closeButton.setForeground(Color.RED);
         closeButton.addActionListener(e -> {
             layeredPane.remove(panel);
             pack();
         });
+        // Set button dimensions to width 30, and height to match content
+        closeButton.setPreferredSize(new Dimension(30, content.getPreferredSize().height));
         panel.add(closeButton);
         panel.setBorder(BorderFactory.createEtchedBorder());
+        System.out.println(panel.getBounds());
         // Use size of panel to determine positioning
         int width = (int) panel.getPreferredSize().getWidth();
         int height = (int) panel.getPreferredSize().getHeight();
-        int maxX = frame.getWidth() - width;
-        int posX = (int) (alignment * maxX);
-        panel.setBounds(posX, 0, width, height);
+        int maxX = frame.getWidth() - width - 5;
+        int minX = 5;
+        int posX = minX + (int) (alignment * (maxX - minX));
+        panel.setBounds(posX, 5, width, height);
         layeredPane.add(panel, JLayeredPane.POPUP_LAYER);
         pack();
     }
@@ -290,7 +296,7 @@ public class MinigameNetworkClientWindow {
      * Calls showNotification with a default center alignment (0.5f)
      * @param content the content to show in notification
      */
-    public void showNotification (Component content) {
+    public void showNotification (JComponent content) {
         showNotification(content, Component.CENTER_ALIGNMENT);
     }
 }
