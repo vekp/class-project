@@ -14,12 +14,14 @@ public class AchievementHandler {
 
     //This acts as our pseudo-database for registered achievements (may switch to a database system if one is
     //implemented later)
-    static AchievementDatabase database = new AchievementDatabase();
+    private final static AchievementDatabase database = new AchievementDatabase();
 
-    //Keyed by player ID, the hashset within contains the set of Achievement IDs for this handler that
+    //Keyed by player ID, the hashset within contains the set of Achievement IDs keyed to this handler that
     //a particular player has unlocked.
     //todo replace this with a player profile or some sort of player database
-    private final Map<String, HashSet<String>> playerUnlockList = new HashMap<>();
+    private final static Map<String, Map<String, String>> playerUnlockList = new HashMap<>();
+
+    private final static PlayerAchievementProfileManager playerManager = new PlayerAchievementProfileManager();
 
     //the game server name associated with this handler. It is unique for each game server (though multiple
     //handlers can have this same id - they just access and handle achievements for the same server)
@@ -64,17 +66,15 @@ public class AchievementHandler {
      * @param achievementID The ID of the achievement
      */
     public void unlockAchievement(String playerID, String achievementID) {
-        //make a new player profile if needed
-        if (!playerUnlockList.containsKey(playerID))
-            playerUnlockList.put(playerID, new HashSet<>());
+        //this will either add the player, or they were already there
+        playerManager.addPlayer(playerID);
 
-        //we will throw an error if we try to unlock an achievement that does not exist
-        if (database.getAchievement(handlerID, achievementID) != null) {
-            playerUnlockList.get(playerID).add(achievementID);
-        } else {
-            throw new IllegalArgumentException("Achievement with ID: " + achievementID +
-                    "does not exist for handler: " + handlerID);
+        PlayerAchievementProfile player = playerManager.getPlayer(playerID);
+        if(!player.hasEarnedAchievement(handlerID, achievementID)){
+            //todo if this is first time player has earned achievement, we can do a notification /popup
         }
+        //this won't add duplicates if player already has achievement
+        player.addAchievement(handlerID, achievementID);
     }
 
     /**
@@ -85,22 +85,8 @@ public class AchievementHandler {
      * @return Whether the achievement has been unlocked by the player
      */
     public boolean playerHasEarnedAchievement(String playerID, String achievementID) {
-        if (playerUnlockList.containsKey(playerID))
-            return playerUnlockList.get(playerID).contains(achievementID);
+        PlayerAchievementProfile player = playerManager.getPlayer(playerID);
+        if(player != null) return player.hasEarnedAchievement(handlerID, achievementID);
         else return false;
     }
-
-    /**
-     * Get a list of all achievements unlocked by a certain player
-     *
-     * @param playerID String representing player's ID
-     * @return the set of unlocked achievements for the given playerID
-     */
-    public HashSet<String> getPlayerUnlockList(String playerID) {
-        if (playerUnlockList.containsKey(playerID))
-            return new HashSet<>(playerUnlockList.get(playerID));
-
-        return new HashSet<>();
-    }
-
 }

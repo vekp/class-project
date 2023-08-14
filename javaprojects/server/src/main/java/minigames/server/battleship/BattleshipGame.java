@@ -20,7 +20,9 @@ import static minigames.server.battleship.achievements.*;
  */
 public class BattleshipGame {
 
-    /** A logger for logging output */
+    /**
+     * A logger for logging output
+     */
     private static final Logger logger = LogManager.getLogger(BattleshipGame.class);
 
     static String player = "Nautical Map";
@@ -32,7 +34,9 @@ public class BattleshipGame {
     //  ("Submarine", 4);
     //  ("Patrol Boat", 3);
 
-    /** Uniquely identifies this game */
+    /**
+     * Uniquely identifies this game
+     */
     String gameName;
     static String playerName;
 
@@ -54,18 +58,24 @@ public class BattleshipGame {
 
     /**
      * Returns the names of the players currently playing the game
+     *
      * @return An array containing the names of current players
      */
     public String[] getPlayerNames() {
         return players.keySet().toArray(String[]::new);
     }
 
-    public String getPlayerName(){return this.playerName;}
+    public String getPlayerName() {
+        return this.playerName;
+    }
 
-    public String returnGameName(){return this.gameName;}
+    public String returnGameName() {
+        return this.gameName;
+    }
 
     /**
      * Return the meta-data for the in-progress game
+     *
      * @return a GameMetadata Object containing the information for the current game
      */
     public GameMetadata gameMetadata() {
@@ -74,6 +84,7 @@ public class BattleshipGame {
 
     /**
      * Returns the current state of the requested player, takes a BattleShipPlayer Object as a parameter
+     *
      * @param p The player whose state is to be described
      * @return The String to be displayed to the player
      */
@@ -90,6 +101,7 @@ public class BattleshipGame {
 
     /**
      * This function is responsible for validating user input
+     *
      * @param coordinates The raw coordinate string that the user has entered into the console
      * @return true if the coordinate is valid, false if not
      */
@@ -111,6 +123,7 @@ public class BattleshipGame {
 
     /**
      * Format the user input for better readability
+     *
      * @param input String input from the console
      * @return formatted string
      */
@@ -123,8 +136,9 @@ public class BattleshipGame {
 
     /**
      * Function to return an appropriate message to the player after their input
-     * @param player player - not sure if this will be needed yet
-     * @param gameState player's current game state
+     *
+     * @param player     player - not sure if this will be needed yet
+     * @param gameState  player's current game state
      * @param coordinate coordinate of enemy
      * @return formatted response string
      */
@@ -181,9 +195,10 @@ public class BattleshipGame {
     /**
      * Function to determine whether the player's input has hit a ship. Sets the CellType accordingly and returns
      * true or false. The boolean value is used in another function to determine the response
+     *
      * @param player current player - Board object
-     * @param x horizontal coordinate
-     * @param y vertical coordinate
+     * @param x      horizontal coordinate
+     * @param y      vertical coordinate
      * @return true if player has hit a ship, false if player hit water or previously missed cell
      */
     private boolean shotOutcome(Board player, int x, int y) {
@@ -198,19 +213,13 @@ public class BattleshipGame {
             return false;
         // If the Cell is a MISS cell, return false and check for Slow Learner Achievement
         } else if (currentState.equals(CellType.MISS)) {
-            // If the player has not earned the Slow Learner Achievement, award it to them
-            if (!(achievementHandler.playerHasEarnedAchievement(playerName, SLOW_LEARNER.toString()))) {
-                achievementHandler.unlockAchievement(playerName, SLOW_LEARNER.toString());
-            } else {
-                System.out.println("\n\n\nTried to award "+playerName+" the Slow Learner achievement, but they already had it.\n\n\n");
-            }
+            //no need to check for already unlocked as handler will do that
+            System.out.println("Slow Learner Achievement - Requirements met for " + playerName);
+            achievementHandler.unlockAchievement(playerName, SLOW_LEARNER.toString());
             return false;
-        } else if (currentState.equals(CellType.HIT)){
-            if (!(achievementHandler.playerHasEarnedAchievement(playerName, YOU_GOT_HIM.toString()))) {
-                achievementHandler.unlockAchievement(playerName, YOU_GOT_HIM.toString());
-            } else {
-                System.out.println("\n\n\nTried to award "+playerName+" the I Think You Got Him Achievement, but they already had it.\n\n\n");
-            }
+        } else if (currentState.equals(CellType.HIT)) {
+            System.out.println("You Got Him Achievement - Requirements met for " + playerName);
+            achievementHandler.unlockAchievement(playerName, YOU_GOT_HIM.toString());
             return true;
         } else {
             player.setGridCell(x, y, CellType.HIT);
@@ -220,8 +229,9 @@ public class BattleshipGame {
 
     /**
      * Function to determine what to do with user input based on the current game state
+     *
      * @param player current player - Board object
-     * @param input user input from the console
+     * @param input  user input from the console
      */
     private void calcUserInput(Board player, String input) {
         //TODO: This is pretty messy and wants cleaning up - the whole process probably wants refactoring
@@ -273,6 +283,7 @@ public class BattleshipGame {
 
     /**
      * Run the commands received from the BattleshipServer class
+     *
      * @param cp The CommandPackage Object containing the commands to be run
      * @return The information to render in the client
      */
@@ -297,6 +308,7 @@ public class BattleshipGame {
      * Joins an in-progress game taking the player name as a parameter. Returns the rendering package to display the
      * game in its current state
      * NOTE: We'll be adding in some logic to check the number of players and other conditions to not open / join a game
+     *
      * @param playerName The name of the player making the request to join a game
      * @return The RenderingPackage for the game in its current (or new) state
      */
@@ -305,7 +317,7 @@ public class BattleshipGame {
         if (players.containsKey(playerName)) {
             return new RenderingPackage(
                     gameMetadata(),
-                    Arrays.stream(new RenderingCommand[] {
+                    Arrays.stream(new RenderingCommand[]{
                             new NativeCommands.ShowMenuError("That name's not available")
                     }).map((r) -> r.toJson()).toList()
             );

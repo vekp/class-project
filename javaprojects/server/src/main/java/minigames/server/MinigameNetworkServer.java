@@ -13,9 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import minigames.achievements.AchievementTestData;
-import minigames.achievements.PlayerAchievementRecord;
-import minigames.server.achievements.AchievementHandler;
+import minigames.achievements.*;
+import minigames.server.achievements.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -82,12 +81,28 @@ public class MinigameNetworkServer {
 
         // Respond to request from AchievementUI client
         router.get("/achievement/:player").handler((ctx) -> {
-            String playerId = ctx.pathParam("player");
-            PlayerAchievementRecord record = AchievementTestData.getPlayerTestData(playerId);
+            String playerID = ctx.pathParam("player");
+            // PlayerAchievementRecord record = AchievementTestData.getPlayerTestData(playerID);
+            List<GameAchievementState> gameStates = new ArrayList<>();
             for (GameServer server : Main.gameRegistry.getAllGameServers()) {
+                System.out.println("Class is = " + server.getClass());
                 AchievementHandler handler = new AchievementHandler(server.getClass());
-            }
+                List<Achievement> gameAchievements = handler.getAllAchievements();
+                if (gameAchievements.size() == 0) continue;
 
+                List<Achievement> unlocked = new ArrayList<>();
+                List<Achievement> locked = new ArrayList<>();
+                for (Achievement current : gameAchievements) {
+                    if (handler.playerHasEarnedAchievement(playerID, current.name())) {
+                        unlocked.add(current);
+                    } else {
+                        locked.add(current);
+                    }
+                }
+                GameAchievementState state = new GameAchievementState(server.getDetails().name(), unlocked, locked);
+                gameStates.add(state);
+            }
+            PlayerAchievementRecord record = new PlayerAchievementRecord(playerID, gameStates);
             ctx.response().end(record.toJSON());
         });
 
