@@ -1,5 +1,6 @@
 package minigames.server;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Arrays;
@@ -35,5 +36,14 @@ public class GameRegistry {
             .filter((gs) -> Arrays.asList(gs.getSupportedClients()).contains(platform))
             .toList();
     }
-    
+
+    /**
+     * Gets all of the game servers, regardless of platform. Used by achievement system to find every
+     * registered achievement
+     * @return a list of all game servers registered.
+     */
+    public List<GameServer> getAllGameServers(){
+        return gameServers.values().stream().toList();
+    }
+
 }

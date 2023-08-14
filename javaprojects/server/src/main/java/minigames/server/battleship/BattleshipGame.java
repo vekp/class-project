@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import minigames.server.achievements.AchievementHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -12,12 +13,16 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.*;
 import minigames.rendering.NativeCommands.LoadClient;
 
+import static minigames.server.battleship.achievements.*;
+
 /**
  *
  */
 public class BattleshipGame {
 
-    /** A logger for logging output */
+    /**
+     * A logger for logging output
+     */
     private static final Logger logger = LogManager.getLogger(BattleshipGame.class);
 
     static String player = "Nautical Map";
@@ -29,39 +34,57 @@ public class BattleshipGame {
     //  ("Submarine", 4);
     //  ("Patrol Boat", 3);
 
-    /** Uniquely identifies this game */
-    String name;
+    /**
+     * Uniquely identifies this game
+     */
+    String gameName;
+    static String playerName;
 
-    public BattleshipGame(String name) {
-        this.name = name;
+    AchievementHandler achievementHandler;
+
+    public BattleshipGame(String gameName, String playerName) {
+        this.gameName = gameName;
+        this.achievementHandler = new AchievementHandler(BattleshipServer.class);
+        this.playerName = playerName;
     }
 
     static String welcomeMessage = "Good evening Captain! Enter 'Ready' to start conquering the seas!\nUse arrow keys to move ships" +
             " around the grid. Press 'Tab' to switch vessel and 'Space' to rotate.\n...";
 
     //TODO: having two set players will likely not work for multiplayer and will need to be fixed - Names should also not be fixed values
-    static Board player1 = new Board("Mitcho", welcomeMessage);
-    static Board player2 = new Board("Craig", welcomeMessage);
+    static Board player1 = new Board(playerName, welcomeMessage);
+    static Board player2 = new Board("CPU", welcomeMessage);
     HashMap<String, Board> players = new HashMap<>();
 
     /**
      * Returns the names of the players currently playing the game
+     *
      * @return An array containing the names of current players
      */
     public String[] getPlayerNames() {
         return players.keySet().toArray(String[]::new);
     }
 
+    public String getPlayerName() {
+        return this.playerName;
+    }
+
+    public String returnGameName() {
+        return this.gameName;
+    }
+
     /**
      * Return the meta-data for the in-progress game
+     *
      * @return a GameMetadata Object containing the information for the current game
      */
     public GameMetadata gameMetadata() {
-        return new GameMetadata("Battleship", name, getPlayerNames(), true);
+        return new GameMetadata("Battleship", gameName, getPlayerNames(), true);
     }
 
     /**
      * Returns the current state of the requested player, takes a BattleShipPlayer Object as a parameter
+     *
      * @param p The player whose state is to be described
      * @return The String to be displayed to the player
      */
@@ -78,10 +101,15 @@ public class BattleshipGame {
 
     /**
      * This function is responsible for validating user input
+     *
      * @param coordinates The raw coordinate string that the user has entered into the console
      * @return true if the coordinate is valid, false if not
      */
     private boolean validate(String coordinates) {
+        // If the player enters C120 as the coordinates give them the COSC120 inside joke achievement
+        if(coordinates.equals("C120")){
+            achievementHandler.unlockAchievement(playerName, C_120.toString());
+        }
         // Craig's code split off and moved here by Mitch
         // Regex to check that the coordinate string is valid
         String regex = "^[A-J][0-9]$";
@@ -95,6 +123,7 @@ public class BattleshipGame {
 
     /**
      * Format the user input for better readability
+     *
      * @param input String input from the console
      * @return formatted string
      */
@@ -107,8 +136,9 @@ public class BattleshipGame {
 
     /**
      * Function to return an appropriate message to the player after their input
-     * @param player player - not sure if this will be needed yet
-     * @param gameState player's current game state
+     *
+     * @param player     player - not sure if this will be needed yet
+     * @param gameState  player's current game state
      * @param coordinate coordinate of enemy
      * @return formatted response string
      */
@@ -165,9 +195,10 @@ public class BattleshipGame {
     /**
      * Function to determine whether the player's input has hit a ship. Sets the CellType accordingly and returns
      * true or false. The boolean value is used in another function to determine the response
+     *
      * @param player current player - Board object
-     * @param x horizontal coordinate
-     * @param y vertical coordinate
+     * @param x      horizontal coordinate
+     * @param y      vertical coordinate
      * @return true if player has hit a ship, false if player hit water or previously missed cell
      */
     private boolean shotOutcome(Board player, int x, int y) {
@@ -175,10 +206,21 @@ public class BattleshipGame {
         Cell[][] grid = player.getGrid();
         // Get cell type of player's coordinate
         CellType currentState = grid[x][y].getCellType();
-        // If player hit ocean or missed set CellType to Miss and return false
-        if (currentState.equals(CellType.OCEAN) || currentState.equals(CellType.MISS)) {
+        System.out.println("Cell Type: "+ currentState.toString());
+        // If player hit ocean set CellType to Miss and return false
+        if (currentState.equals(CellType.OCEAN)) {
             player.setGridCell(x, y, CellType.MISS);
             return false;
+        // If the Cell is a MISS cell, return false and check for Slow Learner Achievement
+        } else if (currentState.equals(CellType.MISS)) {
+            //no need to check for already unlocked as handler will do that
+            System.out.println("Slow Learner Achievement - Requirements met for " + playerName);
+            achievementHandler.unlockAchievement(playerName, SLOW_LEARNER.toString());
+            return false;
+        } else if (currentState.equals(CellType.HIT)) {
+            System.out.println("You Got Him Achievement - Requirements met for " + playerName);
+            achievementHandler.unlockAchievement(playerName, YOU_GOT_HIM.toString());
+            return true;
         } else {
             player.setGridCell(x, y, CellType.HIT);
             return true;
@@ -187,8 +229,9 @@ public class BattleshipGame {
 
     /**
      * Function to determine what to do with user input based on the current game state
+     *
      * @param player current player - Board object
-     * @param input user input from the console
+     * @param input  user input from the console
      */
     private void calcUserInput(Board player, String input) {
         //TODO: This is pretty messy and wants cleaning up - the whole process probably wants refactoring
@@ -240,6 +283,7 @@ public class BattleshipGame {
 
     /**
      * Run the commands received from the BattleshipServer class
+     *
      * @param cp The CommandPackage Object containing the commands to be run
      * @return The information to render in the client
      */
@@ -264,6 +308,7 @@ public class BattleshipGame {
      * Joins an in-progress game taking the player name as a parameter. Returns the rendering package to display the
      * game in its current state
      * NOTE: We'll be adding in some logic to check the number of players and other conditions to not open / join a game
+     *
      * @param playerName The name of the player making the request to join a game
      * @return The RenderingPackage for the game in its current (or new) state
      */
@@ -272,7 +317,7 @@ public class BattleshipGame {
         if (players.containsKey(playerName)) {
             return new RenderingPackage(
                     gameMetadata(),
-                    Arrays.stream(new RenderingCommand[] {
+                    Arrays.stream(new RenderingCommand[]{
                             new NativeCommands.ShowMenuError("That name's not available")
                     }).map((r) -> r.toJson()).toList()
             );
@@ -281,7 +326,7 @@ public class BattleshipGame {
             players.put(playerName, p);
 
             ArrayList<JsonObject> renderingCommands = new ArrayList<>();
-            renderingCommands.add(new LoadClient("Battleship", "Battleship", name, playerName).toJson());
+            renderingCommands.add(new LoadClient("Battleship", "Battleship", gameName, playerName).toJson());
             renderingCommands.add(new JsonObject().put("command", "clearText"));
             renderingCommands.add(new JsonObject().put("command", "updateHistory").put("history", messageHistory(p)));
             renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, player1.defaultGrid())));
