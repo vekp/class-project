@@ -33,10 +33,10 @@ public class AchievementTestData {
         for (int i = 0; i < 10; i++) {
             //adds a numbered achievement to test data. The last 2 achievements will be hidden
             list1.add(new Achievement("Achievement Number " + i,
-                    "Some Generic Achievement", "", (i > 7)));
+                    "Some Generic Achievement", 0, "", (i > 7)));
             //same as for list 1, but first 2 achievements are hidden
             list2.add(new Achievement("Super Achievement! Number " + i,
-                    "This is a SPECIAL achievement (not really)", "", i < 2));
+                    "This is a SPECIAL achievement (not really)", 0, "", i < 2));
         }
         List<GameAchievementState> gameList = new ArrayList<>();
         gameList.add(new GameAchievementState("Game 1", list1, list2));

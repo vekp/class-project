@@ -19,11 +19,11 @@ public class PlayerAchievementRecordTests {
         //Some random test data to fill out the record
         List<Achievement> list1 = new ArrayList<>();
         List<Achievement> list2 = new ArrayList<>();
-        list1.add(new Achievement("Ach 1", "My Achievement", "None", false));
-        list1.add(new Achievement("Achieve 1", "My Other Achievement", "None", false));
-        list2.add(new Achievement("Achievement 2", "My Also another Achievement", "None", false));
-        list2.add(new Achievement("Ach 2", "My First Achievement", "None", false));
-        list2.add(new Achievement("Achieve 2", "My Second Achievement", "None", false));
+        list1.add(new Achievement("Ach 1", "My Achievement", 0, "None", false));
+        list1.add(new Achievement("Achieve 1", "My Other Achievement", 0, "None", false));
+        list2.add(new Achievement("Achievement 2", "My Also another Achievement", 0, "None", false));
+        list2.add(new Achievement("Ach 2", "My First Achievement", 0, "None", false));
+        list2.add(new Achievement("Achieve 2", "My Second Achievement", 0, "None", false));
 
         List<GameAchievementState> gameList = new ArrayList<>();
         gameList.add(new GameAchievementState("Game 1", list1, list2));
@@ -53,11 +53,11 @@ public class PlayerAchievementRecordTests {
     public void gameAchievementStateFromJSON(){
         List<Achievement> list1 = new ArrayList<>();
         List<Achievement> list2 = new ArrayList<>();
-        list1.add(new Achievement("Ach 1", "My Achievement", "None", false));
-        list1.add(new Achievement("Achieve 1", "My Other Achievement", "None", false));
-        list2.add(new Achievement("Achievement 2", "My Also another Achievement", "None", false));
-        list2.add(new Achievement("Ach 2", "My First Achievement", "None", false));
-        list2.add(new Achievement("Achieve 2", "My Second Achievement", "None", false));
+        list1.add(new Achievement("Ach 1", "My Achievement", 0, "None", false));
+        list1.add(new Achievement("Achieve 1", "My Other Achievement", 0, "None", false));
+        list2.add(new Achievement("Achievement 2", "My Also another Achievement", 0, "None", false));
+        list2.add(new Achievement("Ach 2", "My First Achievement", 0, "None", false));
+        list2.add(new Achievement("Achieve 2", "My Second Achievement", 0, "None", false));
 
         GameAchievementState state = new GameAchievementState("Test Game ABCD", list1, list2);
 
@@ -72,7 +72,7 @@ public class PlayerAchievementRecordTests {
     /** Testing the conversion of Achievement data to/from JSON */
     @Test
     public void achievementFromJSON(){
-        Achievement testAchievement = new Achievement("Tadpole", "ABCD", "", true);
+        Achievement testAchievement = new Achievement("Tadpole", "ABCD", 0, "", true);
 
         String json = testAchievement.toJSON();
         Achievement fromJSON = Achievement.fromJSON(json);

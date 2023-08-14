@@ -4,7 +4,6 @@ import minigames.achievements.Achievement;
 
 import minigames.server.GameServer;
 import org.junit.jupiter.api.*;
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,7 +17,7 @@ public class AchievementTests {
      */
     @BeforeAll
     public static void setup(){
-        Achievement a = new Achievement("Achievement 1", "Description", "someMedia", false);
+        Achievement a = new Achievement("Achievement 1", "Description", 0, "someMedia", false);
         AchievementHandler handler = new AchievementHandler(GameServer.class);
         handler.registerAchievement(a);
     }
@@ -31,8 +30,8 @@ public class AchievementTests {
     @Test
     public void handlerRejectsDuplicateAchievement() {
         //achievements are considered the same if they share the same ID (name). Achievement names should be unique
-        Achievement b = new Achievement("Achievement 1", "A different description", "blah", true);
-        Achievement c = new Achievement("Different Achievement", "A description", "", true);
+        Achievement b = new Achievement("Achievement 1", "A different description", 0, "blah", true);
+        Achievement c = new Achievement("Different Achievement", "A description", 0, "", true);
 
         AchievementHandler handler = new AchievementHandler(GameServer.class);
 
@@ -45,7 +44,7 @@ public class AchievementTests {
     /** Checks that an achievement will error if we try to unlock a nonexistant achievement */
     @Test
     public void handlerNonexistentAchievementUnlock(){
-        Achievement b = new Achievement("Test 2", "A different description", "blah", true);
+        Achievement b = new Achievement("Test 2", "A different description", 0, "blah", true);
         AchievementHandler handler = new AchievementHandler(GameServer.class);
         //we did not add this achievement so it should fail to unlock
         assertThrows(IllegalArgumentException.class, ()-> handler.unlockAchievement("Player1", b.name()));

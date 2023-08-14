@@ -73,7 +73,7 @@ public class AchievementUI extends JPanel {
         AchievementPresenter testAchievement = new AchievementPresenter(new Achievement(
                 "Popup tester",
                 "Congratulations, you have opened a popup notification!",
-                "",
+                0, "",
                 false
         ), true);
         JButton popup = new JButton("Demo popup");
