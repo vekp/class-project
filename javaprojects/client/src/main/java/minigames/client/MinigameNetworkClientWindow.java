@@ -265,12 +265,18 @@ public class MinigameNetworkClientWindow {
         pack();
     }
 
+    /**
+     * Method overload for displaying a popup notification with the optional time parameter
+     * @param content The component with content to be displayed in the popup
+     * @param alignment A floating point number representing the desired horizontal alignment
+     * @param time An int for the amount of time to display the popup in milliseconds
+     */
     public void showNotification (Component content, float alignment, int time) {
         JLayeredPane layeredPane = frame.getLayeredPane();
         JPanel panel = new JPanel();
         panel.add(content);
         panel.setBorder(BorderFactory.createEtchedBorder());
-        
+
         // This is the bit with the timer
         new Timer(time, new ActionListener() {
             @Override
