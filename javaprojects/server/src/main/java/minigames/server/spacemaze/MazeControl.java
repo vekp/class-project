@@ -15,7 +15,7 @@ import java.awt.Point;
 
 public class MazeControl {
         
-    // Map info
+    // Map info -- hard coded for now
     private int mazeWidth = 25;
     private int mazeHeight = 25;
     //private char[][] mazeArray = new char[mazeWidth][mazeHeight];
@@ -94,6 +94,7 @@ public class MazeControl {
         {
             gameFinished = true;
             // Could also have a print message of game over
+
         }
     }
 
@@ -101,8 +102,8 @@ public class MazeControl {
     public Boolean validMove(int x, int y)
     {
         Point posMove = new Point(x, y);    // temporarily set (x, y) to Point object
-        // Check if (x, y) is a wall
-        if (mazeArray[x][y] == 'W')
+        // Check if (x, y) is a wall, or if (x, y) are out of bounds (< 0, or > mazeWidth/mazeHeight)
+        if (mazeArray[x][y] == 'W' || (x < 0) || (y < 0) || (x > mazeWidth) || (y > mazeHeight))
         {
            return false;
         }
@@ -129,25 +130,28 @@ public class MazeControl {
         }
     }
 
-    // getPlayerLocation function - returns player's current location
+    // getPlayerLocationInMaze function - returns player's current location
     // ??? return Point object or int[][]
+    public Point getPlayerLocationInMaze(SpacePlayer player)
+    {
+        return playerLocation;
+    }
 
     // updatePlayerLocation function - takes (x, y) coords, checks if move is valid, then
     //                                 updates playerLocation and mazeArray
-    public void updatePlayerLocation(int x, int y)
+    public void updatePlayerLocationMazeArray(int x, int y)
     {
-        // Check if move is valid
-        if (validMove(x, y))
-        {
-            // Set previous player location (temp object)
-            Point prevMove = new Point(playerLocation);
-            // Update playerLocation
-            playerLocation = new Point(x, y);
-            // Set (x, y) to 'P'
-            mazeArray[x][y] = 'P';
-            // Set previous player location to '.'
-            mazeArray[prevMove.x][prevMove.y] = '.';
-        }
+        // Assume move is valid --  should have been checked via SpaceMazeGame
+        
+        // Set previous player location (temp object)
+        Point prevMove = new Point(playerLocation);
+        // Update playerLocation in mazeArray
+        playerLocation = new Point(x, y);
+        // Set (x, y) to 'P'
+        mazeArray[x][y] = 'P';
+        // Set previous player location to '.'
+        mazeArray[prevMove.x][prevMove.y] = '.';
+        
         // Check if game is over
         checkGameOver();
     }
