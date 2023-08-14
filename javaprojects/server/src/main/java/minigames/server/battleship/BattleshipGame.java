@@ -14,6 +14,7 @@ import minigames.rendering.*;
 import minigames.rendering.NativeCommands.LoadClient;
 
 import static minigames.server.battleship.achievements.SLOW_LEARNER;
+import static minigames.server.battleship.achievements.YOU_GOT_HIM;
 
 /**
  *
@@ -187,14 +188,26 @@ public class BattleshipGame {
         Cell[][] grid = player.getGrid();
         // Get cell type of player's coordinate
         CellType currentState = grid[x][y].getCellType();
-        System.out.println(gameName);
+        System.out.println("Cell Type: "+ currentState.toString());
         // If player hit ocean or missed set CellType to Miss and return false
         if (currentState.equals(CellType.OCEAN)) {
             player.setGridCell(x, y, CellType.MISS);
             return false;
-        } else if (currentState.equals(CellType.MISS)){
-            achievementHandler.unlockAchievement(playerName, SLOW_LEARNER.toString());
+        } else if (currentState.equals(CellType.MISS)) {
+            // If the player has not earned the Slow Learner Achievement, award it to them
+            if (!(achievementHandler.playerHasEarnedAchievement(playerName, SLOW_LEARNER.toString()))) {
+                achievementHandler.unlockAchievement(playerName, SLOW_LEARNER.toString());
+            } else {
+                System.out.println("\n\n\nTried to award "+playerName+" the Slow Learner achievement, but they already had it.\n\n\n");
+            }
             return false;
+        } else if (currentState.equals(CellType.HIT)){
+            if (!(achievementHandler.playerHasEarnedAchievement(playerName, YOU_GOT_HIM.toString()))) {
+                achievementHandler.unlockAchievement(playerName, YOU_GOT_HIM.toString());
+            } else {
+                System.out.println("\n\n\nTried to award "+playerName+" the I Think You Got Him Achievement, but they already had it.\n\n\n");
+            }
+            return true;
         } else {
             player.setGridCell(x, y, CellType.HIT);
             return true;
