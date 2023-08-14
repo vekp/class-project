@@ -248,7 +248,7 @@ public class MinigameNetworkClientWindow {
         JPanel panel = new JPanel();
         panel.add(content);
         // Add a close button to the right of the content
-        JButton closeButton = new JButton("❌");
+        JButton closeButton = new JButton("X");
         closeButton.addActionListener(e -> {
             layeredPane.remove(panel);
             pack();
