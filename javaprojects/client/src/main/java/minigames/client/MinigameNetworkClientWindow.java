@@ -9,6 +9,7 @@ import minigames.rendering.GameServerDetails;
 
 import java.awt.*;
 
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
@@ -255,6 +256,30 @@ public class MinigameNetworkClientWindow {
         panel.add(closeButton);
         panel.setBorder(BorderFactory.createEtchedBorder());
         // Use size of panel to determine positioning
+        int width = (int) panel.getPreferredSize().getWidth();
+        int height = (int) panel.getPreferredSize().getHeight();
+        int maxX = frame.getWidth() - width;
+        int posX = (int) (alignment * maxX);
+        panel.setBounds(posX, 0, width, height);
+        layeredPane.add(panel, JLayeredPane.POPUP_LAYER);
+        pack();
+    }
+
+    public void showNotification (Component content, float alignment, int time) {
+        JLayeredPane layeredPane = frame.getLayeredPane();
+        JPanel panel = new JPanel();
+        panel.add(content);
+        panel.setBorder(BorderFactory.createEtchedBorder());
+        
+        // This is the bit with the timer
+        new Timer(time, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                layeredPane.remove(panel);
+                pack();
+            }
+        });
+
         int width = (int) panel.getPreferredSize().getWidth();
         int height = (int) panel.getPreferredSize().getHeight();
         int maxX = frame.getWidth() - width;
