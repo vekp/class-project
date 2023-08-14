@@ -19,6 +19,7 @@ public class KrumProjectile {
     static final double GRAVITY = 0.05;
     static final double AIR_RES_FACTOR = 0.99;
     final double OPACITY_THRESHOLD = 0.4;
+    static final long SHOT_INVULNERABILITY_TIME = 500000000;
     KrumProjectile(int xpos, int ypos, double xvel, double yvel) {
         this.x = xpos;
         this.y = ypos;
@@ -76,6 +77,7 @@ public class KrumProjectile {
         int n = -1;
         double z[] = {0};
         for (KrumPlayer p : players) {
+            if (System.nanoTime() - p.lastShotTime < SHOT_INVULNERABILITY_TIME) continue;
             n++;
             if (x + PROJ_RADIUS >= p.xpos && x - PROJ_RADIUS <= p.xpos + p.sprite.getWidth() && y + PROJ_RADIUS >= p.ypos && y - PROJ_RADIUS <= p.ypos + p.sprite.getHeight()) {
                 for (int i = (int)x - PROJ_RADIUS; i < x + PROJ_RADIUS; i++) {

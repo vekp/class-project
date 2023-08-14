@@ -48,6 +48,7 @@ public class KrumPlayer {
     final double OPACITY_THRESHOLD = 0.4;
     static final double WALK_SPEED = 1;
     static final int WALK_CLIMB = 5;
+    static final int psd = 20;
     boolean walkedOffEdge;
     AffineTransform originalAffineTransform;
     WritableRaster levelRaster;
@@ -61,6 +62,8 @@ public class KrumPlayer {
     int jumpType;
     boolean firstJumpFrame = false;
     boolean deferredLanding;
+    long lastShotTime;
+    
     KrumPlayer(int xpos, int ypos, String spriteFileName, int panelX, int panelY, boolean direction, WritableRaster level) {
         topEdgeLeft = -1;
         topEdgeRight = -1;
@@ -184,6 +187,7 @@ public class KrumPlayer {
         ////System.out.println(bottomEdgeRight);
         ////System.out.println("e");
         setDirection(direction, level);
+        lastShotTime = System.nanoTime();
     }
     void draw(Graphics2D g){
         int mx = MouseInfo.getPointerInfo().getLocation().x - xoff;
@@ -195,7 +199,7 @@ public class KrumPlayer {
             aimAngleRadians = Math.atan2(ypos - my, mx - xpos);
             long power = System.nanoTime() - fireStart;
             power /= 10000000;
-            g.drawLine((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * 35), (int)(ypos + sprite.getWidth()/2 - Math.sin(aimAngleRadians) * 35), (int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * (power + 35)), (int)(ypos + sprite.getWidth()/2 - Math.sin(aimAngleRadians) * (35 + power)));
+            g.drawLine((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * psd), (int)(ypos + sprite.getWidth()/2 - Math.sin(aimAngleRadians) * psd), (int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * (power + psd)), (int)(ypos + sprite.getWidth()/2 - Math.sin(aimAngleRadians) * (psd + power)));
         }
     }
     void update(double windX, double windY, WritableRaster levelRaster){
@@ -446,7 +450,8 @@ public class KrumPlayer {
         //////System.out.println(mx);
         //////System.out.println(my);
         //////System.out.println(aimAngleRadians);        
-        projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * 35), (int)(ypos + sprite.getHeight() / 2 - Math.sin(aimAngleRadians) * 35), Math.cos(aimAngleRadians) * power + xvel, Math.sin(aimAngleRadians) * power * -1 + yvel);
+        projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(aimAngleRadians) * psd), Math.cos(aimAngleRadians) * power + xvel, Math.sin(aimAngleRadians) * power * -1 + yvel);
+        lastShotTime = System.nanoTime();
     }
     public void setMouseOffsets(int x, int y) {
         this.xoff = x;

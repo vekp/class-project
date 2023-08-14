@@ -103,6 +103,8 @@ public class KrumGame implements GameClient {
                 }                    
             }
         }
+        players[0].airborne = true;
+        players[1].airborne = true;
         windX = (rand.nextDouble() - 0.5) / 25;
         windString = "Wind: ";
         windString += windX > 0 ? "right " : "left ";
