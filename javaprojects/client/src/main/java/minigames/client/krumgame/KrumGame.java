@@ -30,6 +30,8 @@ import java.util.Random;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
+import javax.swing.SwingWorker;
+
 
 public class KrumGame implements GameClient {
 
@@ -186,12 +188,20 @@ public class KrumGame implements GameClient {
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(panel);
         mnClient.getMainWindow().pack();
-        Thread gameThread = new Thread() {
-            public void run(){
+        // Thread gameThread = new Thread() {
+        //     public void run(){
+        //         startGame();
+        //     }
+        // };
+        // gameThread.start();
+        class LoopThread extends SwingWorker<String, Object> {
+            @Override
+            public String doInBackground() {
                 startGame();
+                return "done";
             }
-        };
-        gameThread.start();
+        }
+        (new LoopThread()).execute();
     }
 
     @Override
