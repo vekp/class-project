@@ -169,6 +169,7 @@ public class MinigameNetworkClientWindow {
         clearAll();
 
         JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         List<JPanel> serverPanels = servers.stream().map((gsd) -> {
             JPanel p = new JPanel();
             JLabel l = new JLabel(String.format("<html><h1>%s</h1><p>%s</p></html>", gsd.name(), gsd.description()));
@@ -178,7 +179,6 @@ public class MinigameNetworkClientWindow {
                 networkClient.getGameMetadata(gsd.name())
                         .onSuccess((list) -> showGames(gsd.name(), list));
             });
-
             p.add(l);
             p.add(newG);
             return p;
