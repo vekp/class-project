@@ -19,6 +19,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.imageio.ImageIO;
+import javax.swing.DefaultFocusManager;
 import javax.swing.JFrame;
 
 import java.awt.Font;
@@ -29,6 +30,10 @@ import java.util.Random;
 
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 
 
 public class KrumGame implements GameClient {
@@ -42,6 +47,7 @@ public class KrumGame implements GameClient {
     
     final int TARGET_FRAMERATE = 60;
     final long TARGET_FRAMETIME = 1000000000 / TARGET_FRAMERATE;
+    final double OPACITY_THRESHOLD = 0.4;
     final String imgDir = "javaprojects/client/src/main/java/minigames/client/krumgame/";
     KrumPlayer players[];
     int playerTurn;
@@ -55,13 +61,10 @@ public class KrumGame implements GameClient {
     String windString;
     boolean firstRun;
     boolean running = true;
-    private static final Logger logger = LogManager.getLogger(MinigameNetworkClient.class);
+    //KeyEventDispatcher dispatcher = new DefaultFocusManager();   
 
     public KrumGame() {
-        players = new KrumPlayer[2];
-        players[0] = new KrumPlayer(220, 190, imgDir + "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31);
-        players[1] = new KrumPlayer(600, 386, imgDir + "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31);
-        playerTurn = 0;
+        
         File backgroundFile = new File(imgDir + "chameleon.png");
         //System.out.println(backgroundFile.canRead());
         try {
@@ -81,6 +84,11 @@ public class KrumGame implements GameClient {
         rand = new Random();
         windString = "Wind: left 2.00";
         firstRun = true;
+        //KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(dispatcher);
+        players = new KrumPlayer[2];
+        players[0] = new KrumPlayer(235, 0, imgDir + "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, true, alphaRaster);
+        players[1] = new KrumPlayer(600, 0, imgDir + "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, false, alphaRaster);
+        playerTurn = 0;
     }
 
     void explode(int x, int y) {
@@ -103,7 +111,7 @@ public class KrumGame implements GameClient {
     }
     void update() {
         for (KrumPlayer p : players) {
-            p.update(windX, windY);
+            p.update(windX, windY, alphaRaster);
             if (p.projectile != null) {
                 if(p.projectile.collisionCheck(alphaRaster)) {
                     explode((int)p.projectile.x, (int)p.projectile.y);
@@ -157,6 +165,29 @@ public class KrumGame implements GameClient {
     void mouseUp(MouseEvent e) {
         players[playerTurn].endFire(e);
     }
+    void keyDown(KeyEvent e) {
+        //System.out.println(e);
+        if (e.getKeyCode() == KeyEvent.VK_SPACE) { // Spacebar
+            players[playerTurn].startJump(0);
+        }     
+        // else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) { // backspace
+        //     players[playerTurn].startJump(1);
+        // }     
+        else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+            players[playerTurn].setDirection(false, alphaRaster);
+        }
+        else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            players[playerTurn].setDirection(true, alphaRaster);
+        }
+    }
+    void keyUp(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_SPACE) { // Spacebar
+            players[playerTurn].endJump(0);
+        }  
+        else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) { // backspace
+            players[playerTurn].endJump(1);
+        } 
+    }
 
     /** 
      * Sends a command to the game at the server.
@@ -182,7 +213,7 @@ public class KrumGame implements GameClient {
                     System.out.println(panel.getLocationOnScreen());
                 }
             }
-        });
+        });        
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(panel);
         mnClient.getMainWindow().pack();
@@ -203,6 +234,138 @@ public class KrumGame implements GameClient {
     @Override
     public void closeGame() {
                
+    }
+
+    public MinigameNetworkClient getMnClient() {
+        return mnClient;
+    }
+
+    public void setMnClient(MinigameNetworkClient mnClient) {
+        this.mnClient = mnClient;
+    }
+
+    public GameMetadata getGm() {
+        return gm;
+    }
+
+    public void setGm(GameMetadata gm) {
+        this.gm = gm;
+    }
+
+    public String getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(String player) {
+        this.player = player;
+    }
+
+    public int getTARGET_FRAMERATE() {
+        return TARGET_FRAMERATE;
+    }
+
+    public long getTARGET_FRAMETIME() {
+        return TARGET_FRAMETIME;
+    }
+
+    public String getImgDir() {
+        return imgDir;
+    }
+
+    public KrumPlayer[] getPlayers() {
+        return players;
+    }
+
+    public void setPlayers(KrumPlayer[] players) {
+        this.players = players;
+    }
+
+    public int getPlayerTurn() {
+        return playerTurn;
+    }
+
+    public void setPlayerTurn(int playerTurn) {
+        this.playerTurn = playerTurn;
+    }
+
+    public double getWindX() {
+        return windX;
+    }
+
+    public void setWindX(double windX) {
+        this.windX = windX;
+    }
+
+    public double getWindY() {
+        return windY;
+    }
+
+    public void setWindY(double windY) {
+        this.windY = windY;
+    }
+
+    public BufferedImage getBackground() {
+        return background;
+    }
+
+    public void setBackground(BufferedImage background) {
+        this.background = background;
+    }
+
+    public WritableRaster getAlphaRaster() {
+        return alphaRaster;
+    }
+
+    public void setAlphaRaster(WritableRaster alphaRaster) {
+        this.alphaRaster = alphaRaster;
+    }
+
+    public KrumPanel getPanel() {
+        return panel;
+    }
+
+    public void setPanel(KrumPanel panel) {
+        this.panel = panel;
+    }
+
+    public long getLastFrameTime() {
+        return lastFrameTime;
+    }
+
+    public void setLastFrameTime(long lastFrameTime) {
+        this.lastFrameTime = lastFrameTime;
+    }
+
+    public Random getRand() {
+        return rand;
+    }
+
+    public void setRand(Random rand) {
+        this.rand = rand;
+    }
+
+    public String getWindString() {
+        return windString;
+    }
+
+    public void setWindString(String windString) {
+        this.windString = windString;
+    }
+
+    public boolean isFirstRun() {
+        return firstRun;
+    }
+
+    public void setFirstRun(boolean firstRun) {
+        this.firstRun = firstRun;
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
     }
     
 }

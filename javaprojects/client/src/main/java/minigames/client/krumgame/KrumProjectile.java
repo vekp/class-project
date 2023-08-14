@@ -18,6 +18,7 @@ public class KrumProjectile {
     static final int PROJ_RADIUS = 8;
     static final double GRAVITY = 0.05;
     static final double AIR_RES_FACTOR = 0.99;
+    final double OPACITY_THRESHOLD = 0.4;
     KrumProjectile(int xpos, int ypos, double xvel, double yvel) {
         this.x = xpos;
         this.y = ypos;
@@ -63,7 +64,7 @@ public class KrumProjectile {
                 if (j >= ground.getHeight()) break;
                 if (java.lang.Math.sqrt(xr * xr + yr * yr) <= PROJ_RADIUS) {
                     //System.out.println(ground.getPixel(i, j, z));
-                    if(ground.getPixel(i, j, z)[0] > 0.1) {
+                    if(ground.getPixel(i, j, z)[0] > OPACITY_THRESHOLD) {
                         return true;
                     }
                 }
@@ -76,18 +77,18 @@ public class KrumProjectile {
         double z[] = {0};
         for (KrumPlayer p : players) {
             n++;
-            if (x + PROJ_RADIUS >= p.x && x - PROJ_RADIUS <= p.x + p.sprite.getWidth() && y + PROJ_RADIUS >= p.y && y - PROJ_RADIUS <= p.y + p.sprite.getHeight()) {
+            if (x + PROJ_RADIUS >= p.xpos && x - PROJ_RADIUS <= p.xpos + p.sprite.getWidth() && y + PROJ_RADIUS >= p.ypos && y - PROJ_RADIUS <= p.ypos + p.sprite.getHeight()) {
                 for (int i = (int)x - PROJ_RADIUS; i < x + PROJ_RADIUS; i++) {
-                    if (i < p.x) continue;
-                    if (i >= p.x + p.sprite.getWidth()) break;
+                    if (i < (int)p.xpos) continue;
+                    if (i >= (int)p.xpos + p.sprite.getWidth()) break;
                     int xr = i - (int)x;
                     for (int j = (int)y - PROJ_RADIUS; j < y + PROJ_RADIUS; j++) {
                         int yr = j - (int)y;                
-                        if (j < p.y) continue;
-                        if (j >= p.y + p.sprite.getHeight()) break;
+                        if (j < (int)p.ypos) continue;
+                        if (j >= (int)p.ypos + p.sprite.getHeight()) break;
                         if (java.lang.Math.sqrt(xr * xr + yr * yr) <= PROJ_RADIUS) {
                             //System.out.println(ground.getPixel(i, j, z));
-                            if(p.alphaRaster.getPixel(i - (int)p.x, j - (int)p.y, z)[0] > 0.1) {
+                            if(p.alphaRaster.getPixel(i - (int)p.xpos, j - (int)p.ypos, z)[0] > OPACITY_THRESHOLD) {
                                 return n;
                             }
                         }
