@@ -31,7 +31,7 @@ public class AchievementHandler {
      * @param type the Game server type/class for which this handler should be managing achievements.
      *             Multiple handlers can share the same type - they will access the same entries in the database
      */
-    public AchievementHandler(Class<GameServer> type) {
+    public AchievementHandler(Class<? extends GameServer> type) {
         handlerID = type.getName();
     }
 
