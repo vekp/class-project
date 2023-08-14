@@ -1,3 +1,5 @@
+package minigames.client.krumgame;
+
 import java.sql.*;
 
 //This code is run any time a new user enters their username. We use that username to source the XP on file and

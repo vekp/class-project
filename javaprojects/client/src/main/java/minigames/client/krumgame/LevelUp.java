@@ -1,3 +1,4 @@
+package minigames.client.krumgame;
 
 public class LevelUp {
 
