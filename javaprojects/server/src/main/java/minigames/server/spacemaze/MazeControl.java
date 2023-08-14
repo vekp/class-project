@@ -67,15 +67,16 @@ public class MazeControl {
         }
     }
 
-    // updateKeyStatus function - updates keyStatus
-    public void updateKeyStatus(Point keyLoc, Boolean collected)
+    // updateKeyStatus function - updates keyStatus if player's location is at key's location
+    public void updateKeyStatus(SpacePlayer player, Point playerLoc)
     {
-        if (keyStatus.containsKey(keyLoc))
+        if (keyStatus.containsKey(playerLoc))
         {
-            keyStatus.put(keyLoc, collected);    
+            keyStatus.put(playerLoc, true); 
+            player.addKey();   
         }
     }  
-    
+
     // unlockExit function - unlocks exit if player has correct number of keys
     //   ** Can update function to require player to be near exit before unlocking
     public void unlockExit(SpacePlayer player)
@@ -86,6 +87,8 @@ public class MazeControl {
             exitUnlocked = true;
         }
     }
+
+    
 
     // gameOver function - checks if player is at exit
     public void checkGameOver()
@@ -137,21 +140,25 @@ public class MazeControl {
         return playerLocation;
     }
 
-    // updatePlayerLocation function - takes (x, y) coords, checks if move is valid, then
+    // updatePlayerLocationMaze function - takes (x, y) coords, checks if move is valid, then
     //                                 updates playerLocation and mazeArray
-    public void updatePlayerLocationMazeArray(int x, int y)
+    public void updatePlayerLocationMaze(SpacePlayer player, int x, int y)
     {
         // Assume move is valid --  should have been checked via SpaceMazeGame
         
         // Set previous player location (temp object)
         Point prevMove = new Point(playerLocation);
-        // Update playerLocation in mazeArray
+        // Update playerLocation in mazeArray to newMove
         playerLocation = new Point(x, y);
+        //playerLocation = new Point(newMove);
         // Set (x, y) to 'P'
         mazeArray[x][y] = 'P';
+        //mazeArray[newMove.x][newMove.y] = 'P';
         // Set previous player location to '.'
         mazeArray[prevMove.x][prevMove.y] = '.';
         
+        // Check if player location picks up a key
+        updateKeyStatus(player, playerLocation);
         // Check if game is over
         checkGameOver();
     }
