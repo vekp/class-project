@@ -13,6 +13,8 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.*;
 import minigames.rendering.NativeCommands.LoadClient;
 
+import static minigames.server.battleship.achievements.SLOW_LEARNER;
+
 /**
  *
  */
@@ -35,9 +37,9 @@ public class BattleshipGame {
 
     AchievementHandler achievementHandler;
 
-    public BattleshipGame(String name, AchievementHandler achievementHandler) {
+    public BattleshipGame(String name) {
         this.name = name;
-        this.achievementHandler = achievementHandler;
+        this.achievementHandler = new AchievementHandler(BattleshipServer.class);
     }
 
     static String welcomeMessage = "Good evening Captain! Enter 'Ready' to start conquering the seas!\nUse arrow keys to move ships" +
@@ -180,8 +182,11 @@ public class BattleshipGame {
         // Get cell type of player's coordinate
         CellType currentState = grid[x][y].getCellType();
         // If player hit ocean or missed set CellType to Miss and return false
-        if (currentState.equals(CellType.OCEAN) || currentState.equals(CellType.MISS)) {
+        if (currentState.equals(CellType.OCEAN)) {
             player.setGridCell(x, y, CellType.MISS);
+            return false;
+        } else if (currentState.equals(CellType.MISS)){
+            achievementHandler.unlockAchievement(name, SLOW_LEARNER.toString());
             return false;
         } else {
             player.setGridCell(x, y, CellType.HIT);
