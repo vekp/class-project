@@ -175,12 +175,12 @@ public class KrumGame implements GameClient {
         //     players[playerTurn].startJump(1);
         // }     
         else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-            players[playerTurn].setDirection(false, alphaRaster);
             players[playerTurn].walking = true;
+            players[playerTurn].setDirection(false, alphaRaster);
         }
         else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            players[playerTurn].setDirection(true, alphaRaster);
             players[playerTurn].walking = true;
+            players[playerTurn].setDirection(true, alphaRaster);            
         }
     }
     void keyUp(KeyEvent e) {

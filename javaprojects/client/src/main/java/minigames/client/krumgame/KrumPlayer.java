@@ -47,7 +47,7 @@ public class KrumPlayer {
     static final int HITBOX_Y_F = 37;
     final double OPACITY_THRESHOLD = 0.4;
     static final double WALK_SPEED = 1;
-    static final int WALK_CLIMB = 5;
+    static final int WALK_CLIMB = 6;
     static final int psd = 20;
     boolean walkedOffEdge;
     AffineTransform originalAffineTransform;
@@ -74,19 +74,19 @@ public class KrumPlayer {
         rightEdgeBottom = -1;
         rightEdgeTop = -1;
         walkedOffEdge = false;
-        ////System.out.println("hxs " + HITBOX_X_S);
+        //////System.out.println("hxs " + HITBOX_X_S);
         this.xpos = xpos;
         this.ypos = ypos;
         this.active = false;
         this.aimAngleRadians = 0;
         this.hp = 100;
         File spriteFile = new File(spriteFileName);
-        //////System.out.println(spriteFile.canRead());
+        ////////System.out.println(spriteFile.canRead());
         try {
             sprite = ImageIO.read(spriteFile);
         }
         catch (IOException e) {
-            ////System.out.println("error reading sprite image");
+            //////System.out.println("error reading sprite image");
             System.err.println(e.getMessage());
             e.printStackTrace();
         }
@@ -108,9 +108,9 @@ public class KrumPlayer {
         facingRight = true;
         deferredLanding = false;
         walking = false;
-        ////System.out.println("let s " + leftEdgeTop);
+        //////System.out.println("let s " + leftEdgeTop);
         for (int y = HITBOX_Y_S; y <= HITBOX_Y_F; y++) {
-            ////System.out.println("Y " + y);
+            //////System.out.println("Y " + y);
             int x = HITBOX_X_S;
             while (x < HITBOX_X_F && alphaRaster.getPixel(x,y,empty)[0] <= OPACITY_THRESHOLD) {
                 x++;
@@ -118,7 +118,7 @@ public class KrumPlayer {
             if (alphaRaster.getPixel(x,y,empty)[0] > OPACITY_THRESHOLD) {
                 if (leftEdgeTop < 0) {
                     leftEdgeTop = y;
-                    ////System.out.println("let " + leftEdgeTop);
+                    //////System.out.println("let " + leftEdgeTop);
                 }
                 leftEdgeBottom = y;
             }
@@ -174,18 +174,18 @@ public class KrumPlayer {
         for (int i = 0; i < topEdge.length; i++) {
             topEdgeFlipped[i] = topEdge[topEdge.length - 1 - i];
             bottomEdgeFlipped[i] = bottomEdge[bottomEdge.length - 1 - i];
-            ////System.out.println(bottomEdge[i]);
+            //////System.out.println(bottomEdge[i]);
         }
-        ////System.out.println("s");
-        ////System.out.println(leftEdgeTop);
-        ////System.out.println(leftEdgeBottom);
-        ////System.out.println(rightEdgeTop);
-        ////System.out.println(rightEdgeBottom);
-        ////System.out.println(topEdgeLeft);
-        ////System.out.println(topEdgeRight);
-        ////System.out.println(bottomEdgeLeft);
-        ////System.out.println(bottomEdgeRight);
-        ////System.out.println("e");
+        //////System.out.println("s");
+        //////System.out.println(leftEdgeTop);
+        //////System.out.println(leftEdgeBottom);
+        //////System.out.println(rightEdgeTop);
+        //////System.out.println(rightEdgeBottom);
+        //////System.out.println(topEdgeLeft);
+        //////System.out.println(topEdgeRight);
+        //////System.out.println(bottomEdgeLeft);
+        //////System.out.println(bottomEdgeRight);
+        //////System.out.println("e");
         setDirection(direction, level);
         lastShotTime = System.nanoTime();
     }
@@ -203,7 +203,7 @@ public class KrumPlayer {
         }
     }
     void update(double windX, double windY, WritableRaster levelRaster){
-        //////System.out.println(MouseInfo.getPointerInfo().getLocation());
+        ////////System.out.println(MouseInfo.getPointerInfo().getLocation());
         if (projectile != null) {
             projectile.update(windX, windY);
         }
@@ -248,30 +248,45 @@ public class KrumPlayer {
                     return;
                 }
             }
-            if (collision){
-                int inc = (xvel > 3 || yvel > 3) ? 50 : 20;
-                while (collisionCheck(levelRaster, -1)) { // any direction
-                    ypos -= yvel / inc;
-                    xpos -= xvel / inc;
-                    //System.out.println("collision loop");
-                }
-            }
+
             // if ((l || r) && !deferredLanding && land) {
             //     deferredLanding = true;
             //     land = false;
             // }
+            if ((l && xvel < 0) || (r && xvel > 0)) {                
+                double mag = Math.max(Math.abs(xvel) * -0.1, 0.2);
+                double xv = xvel > 0 ? -mag : mag;
+                xpos += xv * 25;
+            }
+            if (collision){
+                int inc = (xvel > 3 || yvel > 3) ? 50 : 20;
+                if (collisionCheck(levelRaster, 3)) {
+                    for (int i = 0; i < inc; i ++) {
+                        ypos -= WALK_CLIMB / inc;
+                        if(!collisionCheck(levelRaster, 3)) break;
+                    }
+                }                
+                while (collisionCheck(levelRaster, -3)) {
+                    ypos -= yvel / inc;
+                    xpos -= xvel / inc;
+                    ////System.out.println("collision loop");
+                }
+                
+            }
             if ((l && xvel < 0) || (r && xvel > 0)) {
                 double mag = Math.max(Math.abs(xvel) * -0.1, 0.2);
                 //xvel *= (jumpType == 1 ? -1 : -0.1);
                 xvel = xvel > 0 ? -mag : mag;
+                //xpos += xvel * 5;
                 //xpos += xvel * 7;
                 if (land && !deferredLanding) {
                     land = false;   
                     deferredLanding = true;
-                    //System.out.println("def");
+                    ////System.out.println("def");
                 }               
-                //System.out.println("xvel " + xvel + " def " + deferredLanding);
+                ////System.out.println("xvel " + xvel + " def " + deferredLanding);
             }
+            
             if (ud && (land || !deferredLanding)) {
                 yvel = 0;
             }
@@ -281,24 +296,33 @@ public class KrumPlayer {
                 airborne = false;
                 walkedOffEdge = false;
             }
-            ////System.out.println(xvel + ", " + yvel);
+            //////System.out.println(xvel + ", " + yvel);
         }
         if (walking && (!airborne || walkedOffEdge)) {
             double origX = xpos;
             double origY = ypos;
             xpos += WALK_SPEED * (facingRight ? 1 : -1);
             if (collisionCheck(levelRaster, (facingRight ? 1 : 0))) {
+                //System.out.println("asdf");
                 for (int i = 0; i < WALK_CLIMB; i++) {
                     ypos--;
-                    if (!collisionCheck(levelRaster, -3)) break;
+                    if (!collisionCheck(levelRaster, -3)) {
+                        //System.out.println("clear a");
+                        break;
+                    }
                 }            
                 if (collisionCheck(levelRaster, -3)) {
+                    ypos = origY;
                     for (int i = 0; i < WALK_CLIMB; i++) {
                         ypos++;
-                        if (!collisionCheck(levelRaster, -3)) break;
+                        if (!collisionCheck(levelRaster, -3)) {
+                            //System.out.println("clear b");
+                            break;
+                        }
                     }  
                 }   
                 if (collisionCheck(levelRaster, -3)) {
+                    //System.out.println("asdfasdfasdfsa");
                     xpos = origX;
                     ypos = origY;
                 } 
@@ -322,54 +346,54 @@ public class KrumPlayer {
             for (int i = (facingRight ? leftEdgeTop : rightEdgeTop) + 1; i < (facingRight ? leftEdgeBottom : rightEdgeBottom) - (yvel < 0 || direction == -2 ? 20 : 1); i++) {
                 if (ypos + i < 0) continue;
                 if (ypos + i >= levelRaster.getHeight()) break;
-                if ((int)xpos >= 0 && (int)xpos < levelRaster.getWidth()) {
+                if ((int)xpos >= 0 && (int)xpos + sprite.getWidth() < levelRaster.getWidth()) {
                     int x = facingRight ? leftEdge[i] : alphaRaster.getWidth() - 1 - rightEdge[i];
-                    //////System.out.println("x: " + x);
+                    ////System.out.println("x: " + x + ", i: " + i);
                     if (alphaRaster.getPixel(x, i, empty)[0] > OPACITY_THRESHOLD && levelRaster.getPixel((int)xpos + x, (int)ypos + i, empty)[0] > OPACITY_THRESHOLD) {
-                        //System.out.println("left");
+                        ////System.out.println("left");
                         return true;
                     }
                 }
             }
         }
-        else if (direction == 1 || (direction == -1 && xvel > 0) || direction == -2 || direction == -3) { // right
+        if (direction == 1 || (direction == -1 && xvel > 0) || direction == -2 || direction == -3) { // right
             for (int i = (facingRight ? rightEdgeTop : leftEdgeTop) + 1; i < (facingRight ? rightEdgeBottom : leftEdgeBottom) - (yvel < 0 || direction == -2 ? 20 : 1); i++) {
                 if (ypos + i < 0) continue;
                 if (ypos + i >= levelRaster.getHeight()) break;
-                if ((int)xpos + sprite.getWidth() - 2 >= 0 && (int)xpos + sprite.getWidth() - 2 < levelRaster.getWidth()) {
+                if ((int)xpos >= 0 && (int)xpos + sprite.getWidth() < levelRaster.getWidth()) {
                     int x = facingRight ? rightEdge[i] : alphaRaster.getWidth() - 1 - leftEdge[i];
-                    //////System.out.println("xr: " + x);
+                    ////System.out.println("xr: " + x + ", ir: " + i);
                     if (alphaRaster.getPixel(x, i, empty)[0] > OPACITY_THRESHOLD && levelRaster.getPixel((int)xpos + x, (int)ypos + i, empty)[0] > OPACITY_THRESHOLD) {
-                        //System.out.println("right " + x + ", " + i);
+                        ////System.out.println("right " + x + ", " + i + "; yvel " + yvel);
                         return true;
                     }
                 }
             }
         }
-        else if (direction == 2 || (direction == -1 && yvel <= 0) || direction == -2 || direction == -3) { // up
+        if (direction == 2 || (direction == -1 && yvel <= 0) || direction == -2 || direction == -3) { // up
             for (int i = (facingRight ? topEdgeLeft + 1 : sprite.getWidth() - topEdgeRight); i < (facingRight ? topEdgeRight - 1 : sprite.getWidth() - topEdgeLeft - 2); i++) {
                 if (xpos + i < 0) continue;
                 if (xpos + i >= levelRaster.getWidth()) break;
                 if ((int)ypos >= 0 && (int)ypos < levelRaster.getHeight()) {
                     int y = facingRight ? topEdge[i] : topEdgeFlipped[i];
                     if (alphaRaster.getPixel(i, y, empty)[0] > OPACITY_THRESHOLD && levelRaster.getPixel((int)xpos + i, (int)ypos + y, empty)[0] > OPACITY_THRESHOLD) {
-                        //System.out.println("up " + i + ", " +y);
+                        ////System.out.println("up " + i + ", " +y);
                         return true;
                     }
                 }
             }
         }
-        else if (direction == 3 || (direction == -1 && yvel >= 0) || direction == -2) { // down
+        if (direction == 3 || (direction == -1 && yvel >= 0) || direction == -2) { // down
             int hits = 0;
             for (int i = (facingRight ? HITBOX_X_S + 1 : sprite.getWidth() - HITBOX_X_F - 1); i < (facingRight ? HITBOX_X_F : sprite.getWidth() - HITBOX_X_S - 1); i++) {
                 if (xpos + i < 0) continue;
                 if (xpos + i >= levelRaster.getWidth()) break;
                 if ((int)ypos >= 0 && (int)ypos + sprite.getHeight() < levelRaster.getHeight()) {
                     int y = facingRight ? bottomEdge[i] : bottomEdgeFlipped[i];
-                    ////System.out.println("d " + i + ", " + y);
+                    //////System.out.println("d " + i + ", " + y);
                     if (alphaRaster.getPixel(i, y, empty)[0] > OPACITY_THRESHOLD && levelRaster.getPixel((int)xpos + i, (int)ypos + y, empty)[0] > OPACITY_THRESHOLD) {
-                        //System.out.println("down");
-                        //System.out.println("dc " + i + ", " + y);
+                        ////System.out.println("down");
+                        ////System.out.println("dc " + i + ", " + y);
                         hits++;
                         if (hits > 1) return true;
                         //return true;
@@ -377,11 +401,11 @@ public class KrumPlayer {
                 }
             }
         }
-        //System.out.println("none");
+        ////System.out.println("none");
         return false;
     }
     void setDirection(boolean right, WritableRaster levelRaster) {
-        ////System.out.println(right + ", " + facingRight);
+        //////System.out.println(right + ", " + facingRight);
         if (right == facingRight) return;
         facingRight = right;
         //AffineTransform tx = (right ? AffineTransform.getScaleInstance(1, 1) : AffineTransform.getScaleInstance(-1, 1)); 
@@ -390,11 +414,12 @@ public class KrumPlayer {
         AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);        
         sprite = op.filter(sprite, null);
         alphaRaster = sprite.getAlphaRaster();
-        if (collisionCheck(levelRaster, -2)) {
-            ////System.out.println("X");
+        if (collisionCheck(levelRaster, (facingRight ? 1 : 0))) {
+            //////System.out.println("X");
             facingRight = !facingRight;                  
             sprite = op.filter(sprite, null);
             alphaRaster = sprite.getAlphaRaster();
+            walking = false;
         }
     }
     void startJump(int type) {
@@ -412,12 +437,12 @@ public class KrumPlayer {
         jump(System.nanoTime() - jumpStart);
     }
     void jump(long power) {
-        //System.out.println(power);
+        ////System.out.println(power);
         power /= 100000000;
-        //System.out.println(power);
+        ////System.out.println(power);
         double p = (double)power;
         p /= 2.5;
-        //////System.out.println(p);
+        ////////System.out.println(p);
         if (jumpType == 0) {
             xvel += p * Math.cos(facingRight ? JUMP_ANGLE : Math.PI - JUMP_ANGLE);
             yvel -= p * Math.sin(facingRight ? JUMP_ANGLE : Math.PI - JUMP_ANGLE);
@@ -427,7 +452,7 @@ public class KrumPlayer {
             yvel -= p * Math.sin(facingRight ? Math.PI - JUMP_ANGLE_TWO : JUMP_ANGLE_TWO);
         }
 
-        //////System.out.println(xvel + ", " + yvel);
+        ////////System.out.println(xvel + ", " + yvel);
         airborne = true;
         firstJumpFrame = true;
         deferredLanding = false;
@@ -441,15 +466,15 @@ public class KrumPlayer {
         shoot(System.nanoTime() - fireStart);
     }
     void shoot(long power) {
+        ////////System.out.println(power);
         //////System.out.println(power);
-        ////System.out.println(power);
         power /= 100000000;
         int mx = MouseInfo.getPointerInfo().getLocation().x - xoff;
         int my = MouseInfo.getPointerInfo().getLocation().y - yoff;
         aimAngleRadians = Math.atan2(ypos - my, mx - xpos);
-        //////System.out.println(mx);
-        //////System.out.println(my);
-        //////System.out.println(aimAngleRadians);        
+        ////////System.out.println(mx);
+        ////////System.out.println(my);
+        ////////System.out.println(aimAngleRadians);        
         projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(aimAngleRadians) * psd), Math.cos(aimAngleRadians) * power + xvel, Math.sin(aimAngleRadians) * power * -1 + yvel);
         lastShotTime = System.nanoTime();
     }
