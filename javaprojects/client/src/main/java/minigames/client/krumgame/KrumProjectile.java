@@ -25,7 +25,7 @@ public class KrumProjectile {
         this.xvel = xvel;
         this.yvel = yvel;
         exploding = false;   
-        File spriteFile = new File("javaprojects/client/src/main/java/minigames/client/krumgame/carrot_s.png");
+        File spriteFile = new File("client/src/main/java/minigames/client/krumgame/carrot_s.png");
         //System.out.println(spriteFile.canRead());
         try {
             sprite = ImageIO.read(spriteFile);

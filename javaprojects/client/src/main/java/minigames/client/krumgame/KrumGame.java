@@ -48,7 +48,7 @@ public class KrumGame implements GameClient {
     final int TARGET_FRAMERATE = 60;
     final long TARGET_FRAMETIME = 1000000000 / TARGET_FRAMERATE;
     final double OPACITY_THRESHOLD = 0.4;
-    final String imgDir = "javaprojects/client/src/main/java/minigames/client/krumgame/";
+    final String imgDir = "client/src/main/java/minigames/client/krumgame/";
     KrumPlayer players[];
     int playerTurn;
     double windX;
@@ -90,7 +90,6 @@ public class KrumGame implements GameClient {
         players[1] = new KrumPlayer(600, 0, imgDir + "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, false, alphaRaster);
         playerTurn = 0;
     }
-
     void explode(int x, int y) {
         double z[] = {0};
         for (int i = -20; i < 20; i++) {
@@ -175,9 +174,11 @@ public class KrumGame implements GameClient {
         // }     
         else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
             players[playerTurn].setDirection(false, alphaRaster);
+            players[playerTurn].walking = true;
         }
         else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
             players[playerTurn].setDirection(true, alphaRaster);
+            players[playerTurn].walking = true;
         }
     }
     void keyUp(KeyEvent e) {
@@ -187,6 +188,12 @@ public class KrumGame implements GameClient {
         else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) { // backspace
             players[playerTurn].endJump(1);
         } 
+        else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+            players[playerTurn].walking = false;
+        }
+        else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            players[playerTurn].walking = false;
+        }
     }
 
     /** 

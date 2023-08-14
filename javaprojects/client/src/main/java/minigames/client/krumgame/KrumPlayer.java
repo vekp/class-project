@@ -36,6 +36,7 @@ public class KrumPlayer {
     boolean jumping;
     long jumpStart;
     boolean facingRight;
+    boolean walking;
     static final double GRAVITY = 0.05;
     static final double AIR_RES_FACTOR = 0.99;
     static final double JUMP_ANGLE = Math.PI/3.0;
@@ -45,6 +46,9 @@ public class KrumPlayer {
     static final int HITBOX_Y_S = 1;
     static final int HITBOX_Y_F = 37;
     final double OPACITY_THRESHOLD = 0.4;
+    static final double WALK_SPEED = 1;
+    static final int WALK_CLIMB = 5;
+    boolean walkedOffEdge;
     AffineTransform originalAffineTransform;
     WritableRaster levelRaster;
     int leftEdge[];
@@ -66,6 +70,7 @@ public class KrumPlayer {
         leftEdgeTop = -1;
         rightEdgeBottom = -1;
         rightEdgeTop = -1;
+        walkedOffEdge = false;
         ////System.out.println("hxs " + HITBOX_X_S);
         this.xpos = xpos;
         this.ypos = ypos;
@@ -99,6 +104,7 @@ public class KrumPlayer {
         bottomEdgeFlipped = new int[alphaRaster.getWidth()];
         facingRight = true;
         deferredLanding = false;
+        walking = false;
         ////System.out.println("let s " + leftEdgeTop);
         for (int y = HITBOX_Y_S; y <= HITBOX_Y_F; y++) {
             ////System.out.println("Y " + y);
@@ -269,13 +275,46 @@ public class KrumPlayer {
                 yvel = 0;
                 xvel = 0;
                 airborne = false;
+                walkedOffEdge = false;
             }
             ////System.out.println(xvel + ", " + yvel);
+        }
+        if (walking && (!airborne || walkedOffEdge)) {
+            double origX = xpos;
+            double origY = ypos;
+            xpos += WALK_SPEED * (facingRight ? 1 : -1);
+            if (collisionCheck(levelRaster, (facingRight ? 1 : 0))) {
+                for (int i = 0; i < WALK_CLIMB; i++) {
+                    ypos--;
+                    if (!collisionCheck(levelRaster, -3)) break;
+                }            
+                if (collisionCheck(levelRaster, -3)) {
+                    for (int i = 0; i < WALK_CLIMB; i++) {
+                        ypos++;
+                        if (!collisionCheck(levelRaster, -3)) break;
+                    }  
+                }   
+                if (collisionCheck(levelRaster, -3)) {
+                    xpos = origX;
+                    ypos = origY;
+                } 
+            }            
+            if (!collisionCheck(levelRaster, 3)) {
+                for (int i = 0; i < WALK_CLIMB; i++) {
+                    ypos++;
+                    if (collisionCheck(levelRaster, 3)) break;
+                }
+                if (!collisionCheck(levelRaster, 3)) {
+                    ypos -= WALK_CLIMB;
+                    airborne = true;
+                    walkedOffEdge = true;
+                }                
+            }
         }
     }
     boolean collisionCheck(WritableRaster levelRaster, int direction){ 
         int empty[] = null;
-        if (direction == 0 || (direction == -1 && xvel < 0) || direction == -2) { // left
+        if (direction == 0 || (direction == -1 && xvel < 0) || direction == -2 || direction == -3) { // left
             for (int i = (facingRight ? leftEdgeTop : rightEdgeTop) + 1; i < (facingRight ? leftEdgeBottom : rightEdgeBottom) - (yvel < 0 || direction == -2 ? 20 : 1); i++) {
                 if (ypos + i < 0) continue;
                 if (ypos + i >= levelRaster.getHeight()) break;
@@ -289,7 +328,7 @@ public class KrumPlayer {
                 }
             }
         }
-        else if (direction == 1 || (direction == -1 && xvel > 0) || direction == -2) { // right
+        else if (direction == 1 || (direction == -1 && xvel > 0) || direction == -2 || direction == -3) { // right
             for (int i = (facingRight ? rightEdgeTop : leftEdgeTop) + 1; i < (facingRight ? rightEdgeBottom : leftEdgeBottom) - (yvel < 0 || direction == -2 ? 20 : 1); i++) {
                 if (ypos + i < 0) continue;
                 if (ypos + i >= levelRaster.getHeight()) break;
@@ -303,7 +342,7 @@ public class KrumPlayer {
                 }
             }
         }
-        else if (direction == 2 || (direction == -1 && yvel <= 0) || direction == -2) { // up
+        else if (direction == 2 || (direction == -1 && yvel <= 0) || direction == -2 || direction == -3) { // up
             for (int i = (facingRight ? topEdgeLeft + 1 : sprite.getWidth() - topEdgeRight); i < (facingRight ? topEdgeRight - 1 : sprite.getWidth() - topEdgeLeft - 2); i++) {
                 if (xpos + i < 0) continue;
                 if (xpos + i >= levelRaster.getWidth()) break;
@@ -356,19 +395,22 @@ public class KrumPlayer {
     }
     void startJump(int type) {
         if (airborne || jumping) return;
-        jumpType = type;
-        jumping = true;
         jumpStart = System.nanoTime();
+        jumpType = type;
+        jumping = true;        
     }
     void endJump(int type) {
-        if (airborne || type != jumpType) return;
+        if (!jumping || airborne || type != jumpType) {
+            jumpStart = System.nanoTime();
+            return;
+        }
         jumping = false;
         jump(System.nanoTime() - jumpStart);
     }
     void jump(long power) {
-        //////System.out.println(power);
+        //System.out.println(power);
         power /= 100000000;
-        //////System.out.println(power);
+        //System.out.println(power);
         double p = (double)power;
         p /= 2.5;
         //////System.out.println(p);
