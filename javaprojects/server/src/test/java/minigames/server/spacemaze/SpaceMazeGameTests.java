@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.*;
+import java.awt.Point;
 
 /**
  * Class for testing the server side game classes
@@ -27,10 +28,10 @@ public class SpaceMazeGameTests {
         assertTrue(timer.getIsTimerRunning());
     }
 
-    int playerX = 0;
-    int playerY = 0;
+    
     // Player class tests
-    private SpacePlayer player = new SpacePlayer(playerX,playerY);
+    Point startLocation = new Point(0,0);
+    private SpacePlayer player = new SpacePlayer(startLocation);
 
     @DisplayName("Check the player constructor")
     @Test
@@ -38,8 +39,8 @@ public class SpaceMazeGameTests {
         int[] cLoc = player.getLocation();
         int numKeys = player.checkNumberOfKeys();
 
-        assertEquals(playerX, cLoc[0]);
-        assertEquals(playerY, cLoc[1]);
+        assertEquals(startLocation.x, cLoc[0]);
+        assertEquals(startLocation.y, cLoc[1]);
         assertEquals(0, numKeys);
         
         
@@ -48,25 +49,24 @@ public class SpaceMazeGameTests {
     @DisplayName("Check player getLocation")
     @Test
     public void testPlayerGetLocation() {
-        int[] cLoc = player.getLocation();
+        Point cLoc = player.getLocation();
 
-        assertEquals(playerX, cLoc[0]);
-        assertEquals(playerY, cLoc[1]);
+        assertEquals(startLocation.x, cLoc.x);
+        assertEquals(startLocation.y, cLoc.y);
 
     }
 
     @DisplayName("Check player updateLocation")
     @Test
     public void testPlayerUpdateLocation() {
-        int playerXNew = 2;
-        int playerYNew = 3;
+        Point newLocation = Point(2,3);
 
-        player.updateLocation(playerXNew,playerYNew);
+        player.updateLocation(newLocation);
 
-        int[] cLoc = player.getLocation();
+        Point cLoc = player.getLocation();
 
-        assertEquals(playerXNew, cLoc[0]);
-        assertEquals(playerYNew, cLoc[1]);
+        assertEquals(newLocation.x, cLoc.x);
+        assertEquals(newLocation.y, cLoc.y);
 
     }
     /*
