@@ -33,8 +33,7 @@ public class KrumPanel extends JPanel {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                //System.out.println(e);
-                g.keyDown(e);
+                 g.keyDown(e);
             }
 
             @Override
@@ -42,6 +41,13 @@ public class KrumPanel extends JPanel {
                 g.keyUp(e);
             }
         });
+
+        // Ensure keyboard events reach this panel
+        /*
+         * I don't fully understand this code, but without it the keyboard 
+         * events seem to be absorbed somewhere earlier in the hierarchy, and  
+         * the key listener on this panel doesn't do anything
+         */
         JPanel t = this;
         KeyboardFocusManager focusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
         focusManager.addKeyEventDispatcher(new KeyEventDispatcher() {
@@ -52,17 +58,18 @@ public class KrumPanel extends JPanel {
                 else return false;
             }
         });
+               
         this.setFocusable(true);
+        
         this.game = g;        
     }    
 
     public Dimension getPreferredSize() {
-        return new Dimension(800,600);
+        return new Dimension(KrumC.RES_X,KrumC.RES_Y);
     }
 
     @Override
     public void paintComponent(Graphics g) {
-        //System.out.println("PAINT");
         super.paintComponent(g);     
         game.draw((Graphics2D)g);
     } 

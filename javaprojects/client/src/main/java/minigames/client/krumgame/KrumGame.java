@@ -1,53 +1,32 @@
 package minigames.client.krumgame;
 
-import java.util.Collections;
-
+import java.awt.event.MouseEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.KeyEvent;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
+import java.io.File;
+import java.io.IOException;
 import io.vertx.core.json.JsonObject;
+import java.util.Random;
+import javax.imageio.ImageIO;
+import javax.swing.SwingUtilities;
+import java.util.Collections;
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
 import minigames.rendering.GameMetadata;
 import minigames.commands.CommandPackage;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
-import java.io.File;
-import java.io.IOException;
-
-import javax.swing.SwingUtilities;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import javax.imageio.ImageIO;
-import javax.swing.DefaultFocusManager;
-import javax.swing.JFrame;
-
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.event.MouseEvent;
-
-import java.util.Random;
-
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.KeyEventDispatcher;
-import java.awt.KeyboardFocusManager;
-
-
+/**
+ * The state of each running game will be represented by an instance of KrumGame on the server and an instance on each participating client
+ */
 public class KrumGame implements GameClient {
-
     MinigameNetworkClient mnClient;
-
     GameMetadata gm;
-
-    String player;
-
-    
-    final int TARGET_FRAMERATE = 60;
-    final long TARGET_FRAMETIME = 1000000000 / TARGET_FRAMERATE;
-    final double OPACITY_THRESHOLD = 0.4;
+    String player;   
     final String imgDir = "client/src/main/java/minigames/client/krumgame/";
     KrumPlayer players[];
     int playerTurn;
@@ -61,12 +40,9 @@ public class KrumGame implements GameClient {
     String windString;
     boolean firstRun;
     boolean running = true;
-    //KeyEventDispatcher dispatcher = new DefaultFocusManager();   
 
-    public KrumGame() {
-        
+    public KrumGame() {        
         File backgroundFile = new File(imgDir + "chameleon.png");
-        //System.out.println(backgroundFile.canRead());
         try {
             background = ImageIO.read(backgroundFile);
         }
@@ -84,12 +60,18 @@ public class KrumGame implements GameClient {
         rand = new Random();
         windString = "Wind: left 2.00";
         firstRun = true;
-        //KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(dispatcher);
         players = new KrumPlayer[2];
         players[0] = new KrumPlayer(235, 0, imgDir + "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, true, alphaRaster);
         players[1] = new KrumPlayer(600, 0, imgDir + "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, false, alphaRaster);
         playerTurn = 0;
     }
+
+    /**
+     * Call this to explode part of the level.
+     * 
+     * @param x x-coordinate of the centre of the explosion
+     * @param y y-coordinate of the centre of the explosion
+     */
     void explode(int x, int y) {
         double z[] = {0};
         for (int i = -20; i < 20; i++) {
@@ -97,7 +79,7 @@ public class KrumGame implements GameClient {
             if (i + x < 0) continue;
             for (int j = -20; j < 20; j++) {
                 if (j + y < 0) continue;
-                if (j + y >= 600) break;
+                if (j + y >= KrumC.RES_Y) break;
                 if (java.lang.Math.sqrt(i * i + j * j) <= 20) {
                     alphaRaster.setPixel(i + x, j + y, z);
                 }                    
@@ -110,6 +92,10 @@ public class KrumGame implements GameClient {
         windString += windX > 0 ? "right " : "left ";
         windString += Math.round(windX * 10000.0) / 100.0;
     }
+
+    /**
+     * Called once per frame to update game state
+     */
     void update() {
         for (KrumPlayer p : players) {
             p.update(windX, windY, alphaRaster);
@@ -129,6 +115,11 @@ public class KrumGame implements GameClient {
             }
         }
     }
+
+    /**
+     * Draw loop triggered indirectly by a call to repaint() 
+     * @param g
+     */
     void draw(Graphics2D g) {
         g.drawImage(background, null, 0, 0);
         for (KrumPlayer p : players) {
@@ -138,28 +129,23 @@ public class KrumGame implements GameClient {
         g.setFont(new Font("Courier New", 1, 24));
         g.drawString(windString, 300, 25);
     }
-    /*void start(){
-        //if (!SwingUtilities.isEventDispatchThread())
-        logger.info("GUI " + (SwingUtilities.isEventDispatchThread() ? "" : "not ") + "created on EDT");
-        //JFrame f = new JFrame("arty");
-        //f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
-        //f.add(panel);
-        //f.pack();
-        //f.setVisible(true);  
-        System.out.println(panel.getLocationOnScreen());        
-    }*/
+
+    /**
+     * Main game loop
+     */
     void startGame(){
-        //if (!SwingUtilities.isEventDispatchThread())
         System.out.println("game " + (SwingUtilities.isEventDispatchThread() ? "" : "not ") + "created on EDT");
         lastFrameTime = System.nanoTime();
         while (running) {
-            if (System.nanoTime() - lastFrameTime >= TARGET_FRAMETIME) {
+            if (System.nanoTime() - lastFrameTime >= KrumC.TARGET_FRAMETIME) {
                 lastFrameTime = System.nanoTime();
                 update();
                 panel.repaint();                
             }            
         }
     }
+
+    // mouse and key Down/Up functions are triggered via the listeners in KrumPanel
     void mouseDown(MouseEvent e){
         players[playerTurn].startFire(e);
     }
@@ -167,13 +153,9 @@ public class KrumGame implements GameClient {
         players[playerTurn].endFire(e);
     }
     void keyDown(KeyEvent e) {
-        //System.out.println(e);
         if (e.getKeyCode() == KeyEvent.VK_SPACE) { // Spacebar
             players[playerTurn].startJump(0);
-        }     
-        // else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) { // backspace
-        //     players[playerTurn].startJump(1);
-        // }     
+        }   
         else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
             players[playerTurn].walking = true;
             players[playerTurn].setDirection(false, alphaRaster);
@@ -203,14 +185,15 @@ public class KrumGame implements GameClient {
      */
     public void sendCommand(String weapon, double angle, double power) {
         JsonObject json = new JsonObject().put("weapon", weapon).put("angle", angle).put("power", power);
-
         // Collections.singletonList() is a quick way of getting a "list of one item"
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
     }
- 
+
+    /**
+     * Called when our client is loaded into the main screen
+     */ 
     @Override
     public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {
-
         this.mnClient = mnClient;
         this.gm = game;
         this.player = player;
@@ -242,9 +225,11 @@ public class KrumGame implements GameClient {
 
     @Override
     public void closeGame() {
-               
+        // todo: make sure we don't leave any mess
+        // should probably remove the component listener we added to the main jframe?
     }
 
+    //Getters and setters:
     public MinigameNetworkClient getMnClient() {
         return mnClient;
     }
@@ -267,14 +252,6 @@ public class KrumGame implements GameClient {
 
     public void setPlayer(String player) {
         this.player = player;
-    }
-
-    public int getTARGET_FRAMERATE() {
-        return TARGET_FRAMERATE;
-    }
-
-    public long getTARGET_FRAMETIME() {
-        return TARGET_FRAMETIME;
     }
 
     public String getImgDir() {

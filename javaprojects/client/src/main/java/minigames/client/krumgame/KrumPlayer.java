@@ -22,36 +22,32 @@ public class KrumPlayer {
     double ypos;
     double xvel;
     double yvel;
+
     boolean active;
     double aimAngleRadians;
+
     BufferedImage sprite;
+    WritableRaster alphaRaster; // alpha values (opacities) of player sprite pixels
+    WritableRaster levelRaster; // alpha values of level pixels
+
     boolean firing;
     long fireStart;
-    int xoff;
-    int yoff;
+    int xoff; // accounts for position of window on user's screen. reset when window is moved
+    int yoff; // accounts for position of window on user's screen. reset when window is moved
+
     KrumProjectile projectile = null;
-    WritableRaster alphaRaster;
+    
     int flashFramesLeft = 0;
+
     boolean airborne;
     boolean jumping;
     long jumpStart;
     boolean facingRight;
     boolean walking;
-    static final double GRAVITY = 0.05;
-    static final double AIR_RES_FACTOR = 0.99;
-    static final double JUMP_ANGLE = Math.PI/3.0;
-    static final double JUMP_ANGLE_TWO = Math.PI/2.5;
-    static final int HITBOX_X_S = 11;
-    static final int HITBOX_X_F = 33;
-    static final int HITBOX_Y_S = 1;
-    static final int HITBOX_Y_F = 37;
-    final double OPACITY_THRESHOLD = 0.4;
-    static final double WALK_SPEED = 1;
-    static final int WALK_CLIMB = 6;
-    static final int psd = 20;
     boolean walkedOffEdge;
+
     AffineTransform originalAffineTransform;
-    WritableRaster levelRaster;
+    
     int leftEdge[];
     int rightEdge[];
     int topEdge[];
@@ -59,11 +55,23 @@ public class KrumPlayer {
     int topEdgeFlipped[];
     int bottomEdgeFlipped[];
     int topEdgeLeft, topEdgeRight, bottomEdgeLeft, bottomEdgeRight, leftEdgeBottom, leftEdgeTop, rightEdgeBottom, rightEdgeTop;
+    
     int jumpType;
     boolean firstJumpFrame = false;
     boolean deferredLanding;
+
     long lastShotTime;
     
+    /**
+     * 
+     * @param xpos          starting position x
+     * @param ypos          starting position y (will fall down to next piece of solid ground)
+     * @param spriteFileName
+     * @param panelX        used to set xoff
+     * @param panelY        used to set yoff
+     * @param direction     true = pleyer faces right at beginning of fame
+     * @param level         alpha raster of level
+     */
     KrumPlayer(int xpos, int ypos, String spriteFileName, int panelX, int panelY, boolean direction, WritableRaster level) {
         topEdgeLeft = -1;
         topEdgeRight = -1;
@@ -74,60 +82,59 @@ public class KrumPlayer {
         rightEdgeBottom = -1;
         rightEdgeTop = -1;
         walkedOffEdge = false;
-        //////System.out.println("hxs " + HITBOX_X_S);
         this.xpos = xpos;
         this.ypos = ypos;
         this.active = false;
         this.aimAngleRadians = 0;
         this.hp = 100;
+
         File spriteFile = new File(spriteFileName);
-        ////////System.out.println(spriteFile.canRead());
         try {
             sprite = ImageIO.read(spriteFile);
         }
         catch (IOException e) {
-            //////System.out.println("error reading sprite image");
             System.err.println(e.getMessage());
             e.printStackTrace();
         }
+        alphaRaster = sprite.getAlphaRaster();
+
         firing = false;
         this.xoff = panelX;
         this.yoff = panelY;
-        alphaRaster = sprite.getAlphaRaster();
+        
         airborne = true;
         jumping = false;
-        jumpStart = 0;
+        jumpStart = 0;        
+        int empty[] = null; // dummy array for use when calling getPixel
+
+        facingRight = true;
+        deferredLanding = false;
+        walking = false;
         
-        int empty[] = null;
+        //  determine outline of player for use in directional collision detection
         leftEdge = new int[alphaRaster.getHeight()];
         rightEdge = new int[alphaRaster.getHeight()];
         topEdge = new int[alphaRaster.getWidth()];
         bottomEdge = new int[alphaRaster.getWidth()];
         topEdgeFlipped = new int[alphaRaster.getWidth()];
-        bottomEdgeFlipped = new int[alphaRaster.getWidth()];
-        facingRight = true;
-        deferredLanding = false;
-        walking = false;
-        //////System.out.println("let s " + leftEdgeTop);
-        for (int y = HITBOX_Y_S; y <= HITBOX_Y_F; y++) {
-            //////System.out.println("Y " + y);
-            int x = HITBOX_X_S;
-            while (x < HITBOX_X_F && alphaRaster.getPixel(x,y,empty)[0] <= OPACITY_THRESHOLD) {
+        bottomEdgeFlipped = new int[alphaRaster.getWidth()];     
+        for (int y = KrumC.HITBOX_Y_S; y <= KrumC.HITBOX_Y_F; y++) {
+            int x = KrumC.HITBOX_X_S;
+            while (x < KrumC.HITBOX_X_F && alphaRaster.getPixel(x,y,empty)[0] <= KrumC.OPACITY_THRESHOLD) {
                 x++;
             }
-            if (alphaRaster.getPixel(x,y,empty)[0] > OPACITY_THRESHOLD) {
+            if (alphaRaster.getPixel(x,y,empty)[0] > KrumC.OPACITY_THRESHOLD) {
                 if (leftEdgeTop < 0) {
                     leftEdgeTop = y;
-                    //////System.out.println("let " + leftEdgeTop);
                 }
                 leftEdgeBottom = y;
             }
             leftEdge[y] = x;
-            x = HITBOX_X_F;
-            while (x > HITBOX_X_S && alphaRaster.getPixel(x,y,empty)[0] <= OPACITY_THRESHOLD) {
+            x = KrumC.HITBOX_X_F;
+            while (x > KrumC.HITBOX_X_S && alphaRaster.getPixel(x,y,empty)[0] <= KrumC.OPACITY_THRESHOLD) {
                 x--;
             }
-            if (alphaRaster.getPixel(x,y,empty)[0] > OPACITY_THRESHOLD) {
+            if (alphaRaster.getPixel(x,y,empty)[0] > KrumC.OPACITY_THRESHOLD) {
                 if (rightEdgeTop < 0) {
                     rightEdgeTop = y;
                 }
@@ -135,12 +142,12 @@ public class KrumPlayer {
             }
             rightEdge[y] = x;
         }
-        for (int x = HITBOX_X_S; x <= HITBOX_X_F; x++) {
-            int y = HITBOX_Y_S;
-            while (y < HITBOX_Y_F && alphaRaster.getPixel(x,y,empty)[0] <= OPACITY_THRESHOLD) {
+        for (int x = KrumC.HITBOX_X_S; x <= KrumC.HITBOX_X_F; x++) {
+            int y = KrumC.HITBOX_Y_S;
+            while (y < KrumC.HITBOX_Y_F && alphaRaster.getPixel(x,y,empty)[0] <= KrumC.OPACITY_THRESHOLD) {
                 y++;
             }
-            if (alphaRaster.getPixel(x,y,empty)[0] > OPACITY_THRESHOLD) {
+            if (alphaRaster.getPixel(x,y,empty)[0] > KrumC.OPACITY_THRESHOLD) {
                 if (topEdgeLeft < 0) {
                     topEdgeLeft = x;
                 }
@@ -151,13 +158,12 @@ public class KrumPlayer {
             }
             else {
                 topEdge[x] = 0;
-                //topEdge[x] = y;
             }            
-            y = HITBOX_Y_F;
-            while (y > HITBOX_Y_S && alphaRaster.getPixel(x,y,empty)[0] <= OPACITY_THRESHOLD) {
+            y = KrumC.HITBOX_Y_F;
+            while (y > KrumC.HITBOX_Y_S && alphaRaster.getPixel(x,y,empty)[0] <= KrumC.OPACITY_THRESHOLD) {
                 y--;
             }
-            if (alphaRaster.getPixel(x,y,empty)[0] > OPACITY_THRESHOLD) {
+            if (alphaRaster.getPixel(x,y,empty)[0] > KrumC.OPACITY_THRESHOLD) {
                 if (bottomEdgeLeft < 0) {
                     bottomEdgeLeft = x;
                 }
@@ -168,27 +174,22 @@ public class KrumPlayer {
             }
             else {
                 bottomEdge[x] = 0;
-                //topEdge[x] = y;
             } 
         }
         for (int i = 0; i < topEdge.length; i++) {
             topEdgeFlipped[i] = topEdge[topEdge.length - 1 - i];
             bottomEdgeFlipped[i] = bottomEdge[bottomEdge.length - 1 - i];
-            //////System.out.println(bottomEdge[i]);
         }
-        //////System.out.println("s");
-        //////System.out.println(leftEdgeTop);
-        //////System.out.println(leftEdgeBottom);
-        //////System.out.println(rightEdgeTop);
-        //////System.out.println(rightEdgeBottom);
-        //////System.out.println(topEdgeLeft);
-        //////System.out.println(topEdgeRight);
-        //////System.out.println(bottomEdgeLeft);
-        //////System.out.println(bottomEdgeRight);
-        //////System.out.println("e");
-        setDirection(direction, level);
+
+        setDirection(direction, level); // this could modify alphaRaster, so keep it below the outline-determining code, which assumes it's acting on a right-facing sprite
+        
         lastShotTime = System.nanoTime();
     }
+
+    /**
+     * called by KrumGame.draw() every time a frame is painted
+     * @param g
+     */
     void draw(Graphics2D g){
         int mx = MouseInfo.getPointerInfo().getLocation().x - xoff;
         int my = MouseInfo.getPointerInfo().getLocation().y - yoff;
@@ -199,11 +200,17 @@ public class KrumPlayer {
             aimAngleRadians = Math.atan2(ypos - my, mx - xpos);
             long power = System.nanoTime() - fireStart;
             power /= 10000000;
-            g.drawLine((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * psd), (int)(ypos + sprite.getWidth()/2 - Math.sin(aimAngleRadians) * psd), (int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * (power + psd)), (int)(ypos + sprite.getWidth()/2 - Math.sin(aimAngleRadians) * (psd + power)));
+            g.drawLine((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * KrumC.psd), (int)(ypos + sprite.getWidth()/2 - Math.sin(aimAngleRadians) * KrumC.psd), (int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * (power + KrumC.psd)), (int)(ypos + sprite.getWidth()/2 - Math.sin(aimAngleRadians) * (KrumC.psd + power)));
         }
     }
+
+    /**
+     * called by KrumGame.update() every frame     * 
+     * @param windX
+     * @param windY
+     * @param levelRaster
+     */
     void update(double windX, double windY, WritableRaster levelRaster){
-        ////////System.out.println(MouseInfo.getPointerInfo().getLocation());
         if (projectile != null) {
             projectile.update(windX, windY);
         }
@@ -211,9 +218,9 @@ public class KrumPlayer {
         if (airborne) {
             double oldx = xpos;
             double oldy = ypos;
-            yvel += GRAVITY;
-            yvel *= AIR_RES_FACTOR;
-            xvel *= AIR_RES_FACTOR;
+            yvel += KrumC.GRAVITY;
+            yvel *= KrumC.AIR_RES_FACTOR;
+            xvel *= KrumC.AIR_RES_FACTOR;
             xpos += xvel;
             ypos += yvel; 
             boolean land = false;
@@ -248,11 +255,6 @@ public class KrumPlayer {
                     return;
                 }
             }
-
-            // if ((l || r) && !deferredLanding && land) {
-            //     deferredLanding = true;
-            //     land = false;
-            // }
             if ((l && xvel < 0) || (r && xvel > 0)) {                
                 double mag = Math.max(Math.abs(xvel) * -0.1, 0.2);
                 double xv = xvel > 0 ? -mag : mag;
@@ -262,29 +264,22 @@ public class KrumPlayer {
                 int inc = (xvel > 3 || yvel > 3) ? 50 : 20;
                 if (collisionCheck(levelRaster, 3)) {
                     for (int i = 0; i < inc; i ++) {
-                        ypos -= WALK_CLIMB / inc;
+                        ypos -= KrumC.WALK_CLIMB / inc;
                         if(!collisionCheck(levelRaster, 3)) break;
                     }
                 }                
                 while (collisionCheck(levelRaster, -3)) {
                     ypos -= yvel / inc;
                     xpos -= xvel / inc;
-                    ////System.out.println("collision loop");
-                }
-                
+                }                
             }
             if ((l && xvel < 0) || (r && xvel > 0)) {
                 double mag = Math.max(Math.abs(xvel) * -0.1, 0.2);
-                //xvel *= (jumpType == 1 ? -1 : -0.1);
                 xvel = xvel > 0 ? -mag : mag;
-                //xpos += xvel * 5;
-                //xpos += xvel * 7;
                 if (land && !deferredLanding) {
                     land = false;   
                     deferredLanding = true;
-                    ////System.out.println("def");
                 }               
-                ////System.out.println("xvel " + xvel + " def " + deferredLanding);
             }
             
             if (ud && (land || !deferredLanding)) {
@@ -296,50 +291,53 @@ public class KrumPlayer {
                 airborne = false;
                 walkedOffEdge = false;
             }
-            //////System.out.println(xvel + ", " + yvel);
         }
         if (walking && (!airborne || walkedOffEdge)) {
             double origX = xpos;
             double origY = ypos;
-            xpos += WALK_SPEED * (facingRight ? 1 : -1);
+            xpos += KrumC.WALK_SPEED * (facingRight ? 1 : -1);
             if (collisionCheck(levelRaster, (facingRight ? 1 : 0))) {
-                //System.out.println("asdf");
-                for (int i = 0; i < WALK_CLIMB; i++) {
+                for (int i = 0; i < KrumC.WALK_CLIMB; i++) {
                     ypos--;
                     if (!collisionCheck(levelRaster, -3)) {
-                        //System.out.println("clear a");
                         break;
                     }
                 }            
                 if (collisionCheck(levelRaster, -3)) {
                     ypos = origY;
-                    for (int i = 0; i < WALK_CLIMB; i++) {
+                    for (int i = 0; i < KrumC.WALK_CLIMB; i++) {
                         ypos++;
                         if (!collisionCheck(levelRaster, -3)) {
-                            //System.out.println("clear b");
                             break;
                         }
                     }  
                 }   
                 if (collisionCheck(levelRaster, -3)) {
-                    //System.out.println("asdfasdfasdfsa");
                     xpos = origX;
                     ypos = origY;
                 } 
             }            
             if (!collisionCheck(levelRaster, 3)) {
-                for (int i = 0; i < WALK_CLIMB; i++) {
+                for (int i = 0; i < KrumC.WALK_CLIMB; i++) {
                     ypos++;
                     if (collisionCheck(levelRaster, 3)) break;
                 }
                 if (!collisionCheck(levelRaster, 3)) {
-                    ypos -= WALK_CLIMB;
+                    ypos -= KrumC.WALK_CLIMB;
                     airborne = true;
                     walkedOffEdge = true;
                 }                
             }
         }
     }
+
+    /**
+     * tests for collision between player and ground (todo: also test for collision with other player)
+     * direction determines which side(s) of the sprite we test (see details below)
+     * @param levelRaster
+     * @param direction 0 -> left, 1 -> right, 2 -> up, 3 -> down. -1 -> only the directions we're moving toward. -2 -> every direction. -3 -> all directions except down.
+     * @return true if collision detected
+     */
     boolean collisionCheck(WritableRaster levelRaster, int direction){ 
         int empty[] = null;
         if (direction == 0 || (direction == -1 && xvel < 0) || direction == -2 || direction == -3) { // left
@@ -348,9 +346,7 @@ public class KrumPlayer {
                 if (ypos + i >= levelRaster.getHeight()) break;
                 if ((int)xpos >= 0 && (int)xpos + sprite.getWidth() < levelRaster.getWidth()) {
                     int x = facingRight ? leftEdge[i] : alphaRaster.getWidth() - 1 - rightEdge[i];
-                    ////System.out.println("x: " + x + ", i: " + i);
-                    if (alphaRaster.getPixel(x, i, empty)[0] > OPACITY_THRESHOLD && levelRaster.getPixel((int)xpos + x, (int)ypos + i, empty)[0] > OPACITY_THRESHOLD) {
-                        ////System.out.println("left");
+                    if (alphaRaster.getPixel(x, i, empty)[0] > KrumC.OPACITY_THRESHOLD && levelRaster.getPixel((int)xpos + x, (int)ypos + i, empty)[0] > KrumC.OPACITY_THRESHOLD) {
                         return true;
                     }
                 }
@@ -362,9 +358,7 @@ public class KrumPlayer {
                 if (ypos + i >= levelRaster.getHeight()) break;
                 if ((int)xpos >= 0 && (int)xpos + sprite.getWidth() < levelRaster.getWidth()) {
                     int x = facingRight ? rightEdge[i] : alphaRaster.getWidth() - 1 - leftEdge[i];
-                    ////System.out.println("xr: " + x + ", ir: " + i);
-                    if (alphaRaster.getPixel(x, i, empty)[0] > OPACITY_THRESHOLD && levelRaster.getPixel((int)xpos + x, (int)ypos + i, empty)[0] > OPACITY_THRESHOLD) {
-                        ////System.out.println("right " + x + ", " + i + "; yvel " + yvel);
+                    if (alphaRaster.getPixel(x, i, empty)[0] > KrumC.OPACITY_THRESHOLD && levelRaster.getPixel((int)xpos + x, (int)ypos + i, empty)[0] > KrumC.OPACITY_THRESHOLD) {
                         return true;
                     }
                 }
@@ -376,8 +370,7 @@ public class KrumPlayer {
                 if (xpos + i >= levelRaster.getWidth()) break;
                 if ((int)ypos >= 0 && (int)ypos < levelRaster.getHeight()) {
                     int y = facingRight ? topEdge[i] : topEdgeFlipped[i];
-                    if (alphaRaster.getPixel(i, y, empty)[0] > OPACITY_THRESHOLD && levelRaster.getPixel((int)xpos + i, (int)ypos + y, empty)[0] > OPACITY_THRESHOLD) {
-                        ////System.out.println("up " + i + ", " +y);
+                    if (alphaRaster.getPixel(i, y, empty)[0] > KrumC.OPACITY_THRESHOLD && levelRaster.getPixel((int)xpos + i, (int)ypos + y, empty)[0] > KrumC.OPACITY_THRESHOLD) {
                         return true;
                     }
                 }
@@ -385,49 +378,57 @@ public class KrumPlayer {
         }
         if (direction == 3 || (direction == -1 && yvel >= 0) || direction == -2) { // down
             int hits = 0;
-            for (int i = (facingRight ? HITBOX_X_S + 1 : sprite.getWidth() - HITBOX_X_F - 1); i < (facingRight ? HITBOX_X_F : sprite.getWidth() - HITBOX_X_S - 1); i++) {
+            for (int i = (facingRight ? KrumC.HITBOX_X_S + 1 : sprite.getWidth() - KrumC.HITBOX_X_F - 1); i < (facingRight ? KrumC.HITBOX_X_F : sprite.getWidth() - KrumC.HITBOX_X_S - 1); i++) {
                 if (xpos + i < 0) continue;
                 if (xpos + i >= levelRaster.getWidth()) break;
                 if ((int)ypos >= 0 && (int)ypos + sprite.getHeight() < levelRaster.getHeight()) {
                     int y = facingRight ? bottomEdge[i] : bottomEdgeFlipped[i];
-                    //////System.out.println("d " + i + ", " + y);
-                    if (alphaRaster.getPixel(i, y, empty)[0] > OPACITY_THRESHOLD && levelRaster.getPixel((int)xpos + i, (int)ypos + y, empty)[0] > OPACITY_THRESHOLD) {
-                        ////System.out.println("down");
-                        ////System.out.println("dc " + i + ", " + y);
+                    if (alphaRaster.getPixel(i, y, empty)[0] > KrumC.OPACITY_THRESHOLD && levelRaster.getPixel((int)xpos + i, (int)ypos + y, empty)[0] > KrumC.OPACITY_THRESHOLD) {
                         hits++;
                         if (hits > 1) return true;
-                        //return true;
                     }
                 }
             }
         }
-        ////System.out.println("none");
         return false;
     }
+
+    /**
+     * change the direction we're facing, if we can do so without colliding with the level
+     * @param right true -> face right. false -> face left
+     * @param levelRaster
+     */
     void setDirection(boolean right, WritableRaster levelRaster) {
-        //////System.out.println(right + ", " + facingRight);
         if (right == facingRight) return;
         facingRight = right;
-        //AffineTransform tx = (right ? AffineTransform.getScaleInstance(1, 1) : AffineTransform.getScaleInstance(-1, 1)); 
         AffineTransform tx = AffineTransform.getScaleInstance(-1, 1); 
         tx.translate(-sprite.getWidth(null), 0);        
         AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);        
         sprite = op.filter(sprite, null);
         alphaRaster = sprite.getAlphaRaster();
         if (collisionCheck(levelRaster, (facingRight ? 1 : 0))) {
-            //////System.out.println("X");
             facingRight = !facingRight;                  
             sprite = op.filter(sprite, null);
             alphaRaster = sprite.getAlphaRaster();
             walking = false;
         }
     }
+
+    /**
+     * called when jump key is pressed
+     * @param type currently unused -- was for distinguishing between forward jump and backflip
+     */
     void startJump(int type) {
         if (airborne || jumping) return;
         jumpStart = System.nanoTime();
         jumpType = type;
         jumping = true;        
     }
+
+    /**
+     * called when jump key is released
+     * @param type currently unused -- was for distinguishing between forward jump and backflip
+     */
     void endJump(int type) {
         if (!jumping || airborne || type != jumpType) {
             jumpStart = System.nanoTime();
@@ -436,53 +437,73 @@ public class KrumPlayer {
         jumping = false;
         jump(System.nanoTime() - jumpStart);
     }
+
+    /**
+     * called by endJump to actually make the player jump
+     * @param power number of nanoseconds the jump key was held for
+     */
     void jump(long power) {
-        ////System.out.println(power);
         power /= 100000000;
-        ////System.out.println(power);
         double p = (double)power;
         p /= 2.5;
-        ////////System.out.println(p);
         if (jumpType == 0) {
-            xvel += p * Math.cos(facingRight ? JUMP_ANGLE : Math.PI - JUMP_ANGLE);
-            yvel -= p * Math.sin(facingRight ? JUMP_ANGLE : Math.PI - JUMP_ANGLE);
+            xvel += p * Math.cos(facingRight ? KrumC.JUMP_ANGLE : Math.PI - KrumC.JUMP_ANGLE);
+            yvel -= p * Math.sin(facingRight ? KrumC.JUMP_ANGLE : Math.PI - KrumC.JUMP_ANGLE);
         }
         else if (jumpType == 1) {
-            xvel += p * Math.cos(facingRight ? Math.PI - JUMP_ANGLE_TWO : JUMP_ANGLE_TWO);
-            yvel -= p * Math.sin(facingRight ? Math.PI - JUMP_ANGLE_TWO : JUMP_ANGLE_TWO);
+            xvel += p * Math.cos(facingRight ? Math.PI - KrumC.JUMP_ANGLE_TWO : KrumC.JUMP_ANGLE_TWO);
+            yvel -= p * Math.sin(facingRight ? Math.PI - KrumC.JUMP_ANGLE_TWO : KrumC.JUMP_ANGLE_TWO);
         }
-
-        ////////System.out.println(xvel + ", " + yvel);
         airborne = true;
         firstJumpFrame = true;
         deferredLanding = false;
     }
+
+    /**
+     * called when the shoot button is pressed
+     * @param e
+     */
     void startFire(MouseEvent e) {
         firing = true;
         fireStart = System.nanoTime();
     }
+
+    /**
+     * called when the shoot button is released
+     * @param e
+     */
     void endFire(MouseEvent e) {
         firing = false;
         shoot(System.nanoTime() - fireStart);
     }
+
+    /**
+     * called by endFire to actually launch a projectile
+     * @param power
+     */
     void shoot(long power) {
-        ////////System.out.println(power);
-        //////System.out.println(power);
         power /= 100000000;
         int mx = MouseInfo.getPointerInfo().getLocation().x - xoff;
         int my = MouseInfo.getPointerInfo().getLocation().y - yoff;
-        aimAngleRadians = Math.atan2(ypos - my, mx - xpos);
-        ////////System.out.println(mx);
-        ////////System.out.println(my);
-        ////////System.out.println(aimAngleRadians);        
-        projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(aimAngleRadians) * psd), Math.cos(aimAngleRadians) * power + xvel, Math.sin(aimAngleRadians) * power * -1 + yvel);
+        aimAngleRadians = Math.atan2(ypos - my, mx - xpos);    
+        projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(aimAngleRadians) * KrumC.psd), Math.cos(aimAngleRadians) * power + xvel, Math.sin(aimAngleRadians) * power * -1 + yvel);
         lastShotTime = System.nanoTime();
     }
+
+    /**
+     * called when window is moved, to ensure mouse locations are accurately reported relative to our drawable area
+     * @param x
+     * @param y
+     */
     public void setMouseOffsets(int x, int y) {
         this.xoff = x;
         this.yoff = y;
     }
+
+    /**
+     * called when this player is hit by a projectile
+     */
     public void hit() {
-        flashFramesLeft += 30;
+        flashFramesLeft += 30; // currently just showing that the hit was registered by making the sprite flash
     }
 }
