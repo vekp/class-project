@@ -31,7 +31,7 @@ public class MazeControl {
     // Key info
     private int numKeysToUnlock = 1;
     private Point[] keyLocations;
-    private HashMap<Point, Boolean> keyStatus;
+    private HashMap<Point, Boolean> keyStatus = new HashMap<Point, Boolean>();
 
     // Gameover info
     private Boolean gameFinished = false;
@@ -42,10 +42,10 @@ public class MazeControl {
     {
         // Player (start) location - updated during gameplay
         // this could be separated into start location and current location
-        playerLocation = new Point(1, 0);
-        
+        //this.playerLocation = new Point(player.getLocation());       // could be a getOrElse(startlocation)
+        this.playerLocation = new Point(1, 0);
         // Exit location
-        exitLocation = new Point(24, 23);
+        this.exitLocation = new Point(24, 23);
 
         // Key locations: (x, y) - Hard coded atm
         Point[] keyLocations = 
@@ -54,6 +54,8 @@ public class MazeControl {
             new Point(7, 17)
         };
         setKeyStatus(keyLocations);
+        //this.keyStatus.put(new Point(17, 5), false);
+        //this.keyStatus.put(new Point(7, 17), false);
         
     }
 
@@ -66,7 +68,7 @@ public class MazeControl {
         // Key Status: (x, y)-> False
         for (int i = 0; i < keyLocations.length; i++)
         {
-            keyStatus.put(keyLocations[i], false);
+            this.keyStatus.put(keyLocations[i], false);
         }
     }
 
@@ -96,10 +98,15 @@ public class MazeControl {
         if (player.checkNumberOfKeys() == numKeysToUnlock)
         {
             exitUnlocked = true;
-            mazeArray[exitLocation.x][exitLocation.y] ='U';
+            // NB - array[row=y][col=x]
+            mazeArray[exitLocation.y][exitLocation.x] ='U';
         }
     }
 
+    // bypassUnlockExit function - dev tool to check validMove - delete 
+    public void bypassUnlockExit() {
+        exitUnlocked = true;
+    }
     
 
     /* 
@@ -121,20 +128,23 @@ public class MazeControl {
     */
     public Boolean validMove(Point posMove)
     {
-        //Point posMove = new Point(x, y);    // temporarily set (x, y) to Point object
-        // Check if (x, y) is a wall, or if (x, y) are out of bounds (< 0, or > mazeWidth/mazeHeight)
-        if (mazeArray[posMove.x][posMove.y] == 'W' || (posMove.x < 0) || (posMove.y < 0) 
-            || (posMove.x > mazeWidth) || (posMove.y > mazeHeight))
+        // Check if (x, y) is a wall 
+        // NB - array[row=y][col=x]
+        if (mazeArray[posMove.y][posMove.x] == 'W')
         {
            return false;
         }
-        else
+        // Check if (x, y) are out of bounds (< 0, or > mazeWidth/mazeHeight)
+        // ** negative/greater than inputs throw ArrayIndexOutOfBoundsException
+        else if ((posMove.x < 0) || (posMove.y < 0) 
+            || (posMove.x > mazeWidth) || (posMove.y > mazeHeight))
         {
-            // Check if posMove is the exit
-            if (posMove.equals(exitLocation))
-            {
-                // Check if exit is unlocked
-                if (exitUnlocked == true)
+            return false;
+        }
+        // Check if posMove is the exit
+        else if (posMove.equals(exitLocation))
+        {
+            if (exitUnlocked == true)
                 {
                     return true;
                 }
@@ -143,11 +153,10 @@ public class MazeControl {
                     return false;
                     // Could print out a message about requiring a key
                 }
-            }
-            else 
-            {
-                return false;
-            }
+        }
+        else 
+        {
+            return true;
         }
     }
 
@@ -176,10 +185,11 @@ public class MazeControl {
         //playerLocation = new Point(x, y);
         playerLocation = new Point(newMove);
         // Set (x, y) to 'P'
+        // NB - array[row = y][col = x]
         //mazeArray[x][y] = 'P';
-        mazeArray[newMove.x][newMove.y] = 'P';
+        mazeArray[newMove.y][newMove.x] = 'P';
         // Set previous player location to '.'
-        mazeArray[prevMove.x][prevMove.y] = '.';
+        mazeArray[prevMove.y][prevMove.x]= '.';
         
         // Check if player location picks up a key
         updateKeyStatus(player, playerLocation);

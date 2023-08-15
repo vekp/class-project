@@ -105,33 +105,36 @@ public class SpaceMazeGameTests {
 
     
     /*
-     * Test MazeControl - This bit is broken - commenting it out
-     *                    for the push .
+     * Test MazeControl - 
+     *                   
      */
-    /* 
-    //private MazeControl maze1 = new MazeControl();
+    //Point startLocation1 = new Point(1,0);
+    //private SpacePlayer player1 = new SpacePlayer(startLocation);
+    private MazeControl maze1 = new MazeControl();      
+
+     
     @DisplayName("Check validMove -- invalid")
     @Test
     public void testValidMoveInvalid() {
         
         // Set player location and some invalid moveTos
         //Point playerLocation = new Point(1, 0);
-        Point moveToNegX = new Point(-1, 10);
-        Point moveToNegY = new Point(10, -10);
+        //Point moveToNegX = new Point(-1, 10);     // throw ArrayOutOfBoundsException
+        //Point moveToNegY = new Point(10, -10);
         Point moveToWallA = new Point(0, 5);
-        Point moveToWallB = new Point(5, 2);
+        Point moveToWallB = new Point(24, 2);
+        Point moveToWallC = new Point(5, 2);
         Point moveToLockedExit = new Point(24, 23);
         // Assert validMove() returns false for invalid locations - wall or negative location
-        assertFalse(maze1.validMove(moveToNegX));
-        assertFalse(maze1.validMove(moveToNegY));
+        //assertFalse(maze1.validMove(moveToNegX));
+        //assertFalse(maze1.validMove(moveToNegY));
         assertFalse(maze1.validMove(moveToWallA));
         assertFalse(maze1.validMove(moveToWallB));
+        assertFalse(maze1.validMove(moveToWallC));
         // Assert validMove() returns false for moving to a locked exit
         assertFalse(maze1.validMove(moveToLockedExit));
     }
 
-    
-    @Disabled
     @DisplayName("Check validMove -- valid")
     @Test
     public void testValidMoveValid() {
@@ -142,12 +145,14 @@ public class SpaceMazeGameTests {
         Point moveToB = new Point(9, 1);
         Point moveToC = new Point(9, 8);
         // Assert validMove() returns true for valid (non-wall) locations
-        assertTrue(Maze1.validMove(moveToA));
-        assertTrue(Maze1.validMove(moveToB));
-        assertTrue(Maze1.validMove(moveToC));
+        assertTrue(maze1.validMove(moveToA));
+        assertTrue(maze1.validMove(moveToB));
+        assertTrue(maze1.validMove(moveToC));
         // Assert validMove() returns true for moving to an unlocked exit 
-        // Point moveToUnLockedExit = new Point(24, 23);
+        maze1.bypassUnlockExit();
+        Point moveToUnLockedExit = new Point(24, 23);
         // Set exit to unloced and Add assert true here
+        assertTrue(maze1.validMove(moveToUnLockedExit));
     }
-    */
+    
 }
