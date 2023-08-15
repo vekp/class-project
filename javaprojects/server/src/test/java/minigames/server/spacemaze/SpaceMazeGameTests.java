@@ -109,7 +109,7 @@ public class SpaceMazeGameTests {
      *                   
      */
     //Point startLocation1 = new Point(1,0);
-    //private SpacePlayer player1 = new SpacePlayer(startLocation);
+    private SpacePlayer player1 = new SpacePlayer(startLocation);
     private MazeControl maze1 = new MazeControl();      
 
      
@@ -138,7 +138,6 @@ public class SpaceMazeGameTests {
     @DisplayName("Check validMove -- valid")
     @Test
     public void testValidMoveValid() {
-        
         // Set player location to start and set some valid moveTos
         //Point playerLocation = new Point(1, 0);
         Point moveToA = new Point(1, 1);
@@ -149,10 +148,65 @@ public class SpaceMazeGameTests {
         assertTrue(maze1.validMove(moveToB));
         assertTrue(maze1.validMove(moveToC));
         // Assert validMove() returns true for moving to an unlocked exit 
-        maze1.bypassUnlockExit();
+        maze1.bypassUnlockExit(true);
         Point moveToUnLockedExit = new Point(24, 23);
         // Set exit to unloced and Add assert true here
         assertTrue(maze1.validMove(moveToUnLockedExit));
     }
     
+       
+    @DisplayName("Check updateKeyStatus")
+    @Test
+    public void testUpdateKeyStatus() {
+        // assert key status' are false upon initalisation 
+        // keyLocs = [new Point(17, 5), new Point(7, 17)];
+        
+        assertFalse(maze1.getKeyStatus().get(new Point(17, 5)));
+        assertFalse(maze1.getKeyStatus().get(new Point(7, 17)));
+        int playerCurrentKeys = player1.checkNumberOfKeys();
+        //System.out.print("playerCurrentKeys: " + playerCurrentKeys);
+        // update keyStatus and check
+        maze1.updateKeyStatus(player1, new Point(17, 5));
+        assertTrue(maze1.getKeyStatus().get(new Point(17, 5)));
+        int playerUpdatedKeys = player1.checkNumberOfKeys();
+        assertEquals((playerCurrentKeys+1), playerUpdatedKeys);
+    }
+
+    
+    @DisplayName("Check unlockExit")
+    @Test
+    public void testUnlockExit() {
+        maze1.bypassUnlockExit(false);  // reset exit lock
+        // check lockStatus
+        assertFalse(maze1.getExitUnLockedStatus());
+        // Give player1 a key and unlock exit
+        player1.addKey();
+        maze1.unlockExit(player1);
+        assertTrue(maze1.getExitUnLockedStatus());
+    }
+
+    @Disabled
+    @DisplayName("Check updatePlayerLocationMaze and getPlayerLocationInMaze")
+    @Test
+    public void testUpdatePlayerLocationMaze() {
+        // getPlayerLocationInMaze of player1
+
+        // check player1 location is registered in mazeArray
+
+        // Move player1
+
+        // getPlayerLocationInMaze of player1
+
+        // check player1 new location in mazeArray
+
+    }
+
+    @Disabled
+    @DisplayName("CheckGameOver/gameFinished") {
+        // check gameFinished value
+
+        // update player1 to have key/unlocked exit/location to exit
+
+        // check gameFinished value
+    }
 }

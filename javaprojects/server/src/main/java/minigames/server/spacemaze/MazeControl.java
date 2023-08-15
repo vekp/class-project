@@ -72,6 +72,15 @@ public class MazeControl {
         }
     }
 
+    /*
+     * getKeyStatus function - checks keyStatus
+     * @return keyStatus - returns hashmap of keys and their collected status
+     */
+    public HashMap<Point, Boolean> getKeyStatus()
+    {
+        return keyStatus;
+    }
+
     /* 
     * updateKeyStatus function - updates keyStatus if player's location is at key's location
     * @param player - SpacePlayer to update key status
@@ -95,7 +104,7 @@ public class MazeControl {
     public void unlockExit(SpacePlayer player)
     {
         // Check player has correct number of keys to unlock exit
-        if (player.checkNumberOfKeys() == numKeysToUnlock)
+        if (player.checkNumberOfKeys() >= numKeysToUnlock)
         {
             exitUnlocked = true;
             // NB - array[row=y][col=x]
@@ -104,10 +113,18 @@ public class MazeControl {
     }
 
     // bypassUnlockExit function - dev tool to check validMove - delete 
-    public void bypassUnlockExit() {
-        exitUnlocked = true;
+    public void bypassUnlockExit(Boolean status) {
+        exitUnlocked = status;
     }
     
+    /*
+     * getExitUnLockedStatus function - returns bool value -> unlocked == true
+     * @return exitUnlocked - bool
+     */
+    public Boolean getExitUnLockedStatus()
+    {
+        return exitUnlocked;
+    }
 
     /* 
     * gameOver function - checks if player is at exit - called in updatePlayerLocationMaze
@@ -193,6 +210,7 @@ public class MazeControl {
         
         // Check if player location picks up a key
         updateKeyStatus(player, playerLocation);
+
         // Check if game is over
         checkGameOver();
     }
