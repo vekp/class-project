@@ -5,15 +5,16 @@ import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
 import minigames.rendering.GameMetadata;
 import minigames.commands.CommandPackage;
+import minigames.rendering.GameServerDetails;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class Battleship implements GameClient {
 
@@ -23,18 +24,11 @@ public class Battleship implements GameClient {
     // Player name
     String player;
 
-    Font[] fonts = {
-            new Font("Lucida Sans Typewriter", Font.BOLD, 30),
-            new Font("Lucida Sans Typewriter", Font.PLAIN, 20),
-            new Font("Lucida Sans Typewriter", Font.BOLD, 18),
-            new Font("Lucida Sans Typewriter", Font.PLAIN, 16)
-    };
-
     // Background colour
     String bgColour = "#07222b";
     // Foreground colour
     String fgColour = "#ffffff";
-
+    Font[] fonts;
     JPanel mainPanel;
     JPanel heading;
     JLabel title;
@@ -55,9 +49,31 @@ public class Battleship implements GameClient {
     public Battleship() {
         //TODO: Add current player label functionality
 
+        System.out.println(System.getProperty("os.name"));
+        if (System.getProperty("os.name").contains("Windows")) {
+             fonts = new Font[]{
+                     new Font("Lucida Sans Typewriter", Font.BOLD, 30),
+                     new Font("Lucida Sans Typewriter", Font.PLAIN, 20),
+                     new Font("Lucida Sans Typewriter", Font.BOLD, 18),
+                     new Font("Lucida Sans Typewriter", Font.PLAIN, 16)
+             };
+        } else {
+            fonts = new Font[]{
+                    new Font("Andale Mono", Font.BOLD, 30),
+                    new Font("Andale Mono", Font.PLAIN, 20),
+                    new Font("Andale Mono", Font.BOLD, 18),
+                    new Font("Andale Mono", Font.PLAIN, 16)
+            };
+        }
+
         // Heading
         heading = new JPanel();  // Game title and current player
         heading.setLayout(new BorderLayout());
+
+//        JButton exit = new JButton("Exit");
+//        exit.addActionListener((evt) -> closeGame());
+//        heading.add(exit, BorderLayout.WEST);
+
         title = new JLabel("< BattleShip >");
         title.setFont(fonts[0]);
         title.setHorizontalAlignment(JLabel.CENTER);
@@ -113,7 +129,10 @@ public class Battleship implements GameClient {
 
         userCommand = new JTextField();  // User input
         userCommand.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), " "));
-        userCommand.addActionListener((evt) -> sendCommand(userCommand.getText()));
+        userCommand.addActionListener((evt) -> {
+            sendCommand(userCommand.getText());  // Send input to server
+            userCommand.setText("");             // Clear input field
+        });
         userCommand.setFont(fonts[3]);
         terminal.add(userCommand, BorderLayout.CENTER);
 
@@ -194,7 +213,6 @@ public class Battleship implements GameClient {
             }
             case "placePlayer1Board" -> nauticalText.setText(nauticalText.getText() + command.getString("text"));
             case "placePlayer2Board" -> targetText.setText(targetText.getText() + command.getString("text"));
-            case "clearInput" -> userCommand.setText("");
         }
 
     }
