@@ -259,7 +259,7 @@ public class KrumPlayer {
             if ((l && xvel < 0) || (r && xvel > 0)) {                
                 double mag = Math.max(Math.abs(xvel) * -0.1, 0.2);
                 double xv = xvel > 0 ? -mag : mag;
-                xpos += xv * 25;
+                xpos += xv * 35;
             }
             if (collision){
                 int inc = (xvel > 3 || yvel > 3) ? 50 : 20;
