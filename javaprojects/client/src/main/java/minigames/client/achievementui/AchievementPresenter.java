@@ -62,7 +62,41 @@ public class AchievementPresenter {
         imageIcon.setImage(scaledImage);
         return imageIcon;
     }
+    public JPanel tinyAchievementPanel(boolean isClickable) {
+        Border smallEmptyBorder = new EmptyBorder(4, 4, 4, 4);
+        Border largeEmptyBorder = new EmptyBorder(10, 10, 10, 10);
 
+        JLabel name = new JLabel(achievement.name());
+//        name.setBorder(new LineBorder(Color.BLACK));
+        Font currentFont = name.getFont();
+        Font boldFont = new Font(currentFont.getFontName(), Font.BOLD, currentFont.getSize());
+        name.setFont(boldFont);
+
+        JPanel panel = new JPanel();
+        JLabel image = new JLabel(achievementImage(20));
+        if (achievement.hidden() && isUnlocked) {
+            image.setBackground(Color.YELLOW);
+            image.setOpaque(true);
+            name.setForeground(hiddenUnlockedColour);
+        }
+        image.setBorder(smallEmptyBorder);
+        panel.add(image);
+        panel.add(Box.createRigidArea(new Dimension(10, 0)));
+        JPanel textPanel = new JPanel(new BorderLayout());
+        textPanel.add(name, BorderLayout.NORTH);
+        panel.add(textPanel);
+        if (!isUnlocked) {
+            name.setForeground(achievement.hidden()? hiddenLockedColour : lockedColour);
+        } //else if (achievement.hidden()) panel.setBackground(Color.YELLOW);
+
+        panel.setBorder(largeEmptyBorder);
+        Border mouseOverBorder = new CompoundBorder(new CompoundBorder(smallEmptyBorder,
+                new BevelBorder(BevelBorder.RAISED)), smallEmptyBorder);
+        Border mouseDownBorder = new CompoundBorder(new CompoundBorder(smallEmptyBorder,
+                new BevelBorder(BevelBorder.LOWERED)), smallEmptyBorder);
+
+        return panel;
+    }
 
     public JPanel smallAchievementPanel(boolean isClickable) {
         Border smallEmptyBorder = new EmptyBorder(4, 4, 4, 4);

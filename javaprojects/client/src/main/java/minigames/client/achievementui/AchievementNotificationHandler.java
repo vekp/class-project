@@ -54,7 +54,7 @@ public class AchievementNotificationHandler implements Tickable {
     void processAchievements(List<Achievement> unlocks) {
             for (Achievement unlock : unlocks) {
                 AchievementPresenter presenter = new AchievementPresenter(unlock, true);
-                JPanel popup = presenter.smallAchievementPanel(false);
+                JPanel popup = presenter.tinyAchievementPanel(false);
                 popup.setBorder(null);
                 popupManager.showNotification(popup);
             }
