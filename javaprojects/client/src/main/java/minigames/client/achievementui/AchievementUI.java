@@ -21,9 +21,8 @@ public class AchievementUI extends JPanel {
      * Creates a new JPanel containing a user interface for viewing achievements.
      *
      * @param networkClient the MinigameNetworkClient to be used for communicating with server.
-     * @param returnAction  an ActionListener for returning to the previous screen.
      */
-    public AchievementUI(MinigameNetworkClient networkClient, ActionListener returnAction) {
+    public AchievementUI(MinigameNetworkClient networkClient) {
         this.setPreferredSize(new Dimension(800, 600));
         this.setLayout(new BorderLayout());
 
@@ -43,9 +42,7 @@ public class AchievementUI extends JPanel {
         //todo obtain username from login / user system when able
         networkClient.getPlayerNames().onSuccess((resp) -> {
             String[] names = resp.replace("[","").replace("]","").split(",");
-//            List<String> usernames = AchievementTestData.getNames();
-//            JList<String> usernameJList = new JList<>(usernames.toArray(new String[0]));
-            JList<String> usernameJlist = new JList<>(names);
+           JList<String> usernameJlist = new JList<>(names);
             usernameJlist.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             selectorPanel.add(generateScrollPane("Username:", usernameJlist));
             usernameJlist.addListSelectionListener(e -> {
@@ -77,7 +74,7 @@ public class AchievementUI extends JPanel {
         JPanel buttonPanel = new JPanel(new BorderLayout());
         // Add a back button
         JButton backButton = new JButton("Back");
-        backButton.addActionListener(returnAction);
+        backButton.addActionListener(e -> networkClient.runMainMenuSequence());
         buttonPanel.add(backButton, BorderLayout.EAST);
         // Add demo popup button TODO: Remove when not required
         AchievementPresenter testAchievement = new AchievementPresenter(new Achievement(
