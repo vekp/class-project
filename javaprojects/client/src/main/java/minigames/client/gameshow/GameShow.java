@@ -1,4 +1,4 @@
-package minigames.client.GameShow;
+package minigames.client.gameshow;
 
 import java.awt.Color;
 import java.awt.Component;

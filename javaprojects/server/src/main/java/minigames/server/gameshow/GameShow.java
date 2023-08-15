@@ -1,4 +1,4 @@
-package minigames.server.muddle;
+package minigames.server.gameshow;
 
 import java.util.*;
 
@@ -11,17 +11,17 @@ import minigames.rendering.*;
 import minigames.rendering.NativeCommands.LoadClient;
 
 /**
- * Represents an actual Muddle game in progress
+ * Represents an actual GameShow game in progress
  */
 public class GameShow {
 
     /** A logger for logging output */
-    private static final Logger logger = LogManager.getLogger(MuddleGame.class);
+    private static final Logger logger = LogManager.getLogger(GameShow.class);
 
     static int WIDTH = 2;
     static int HEIGHT = 2;
 
-    record MuddlePlayer(
+    record GameShowPlayer(
         String name,
         int x, int y,
         List<String> inventory
@@ -31,7 +31,7 @@ public class GameShow {
     /** Uniquely identifies this game */
     String name;
 
-    public MuddleGame(String name) {
+    public GameShow(String name) {
         this.name = name;
     }
 
@@ -46,7 +46,7 @@ public class GameShow {
         }
     };
 
-    HashMap<String, MuddlePlayer> players = new HashMap<>();
+    HashMap<String, GameShowPlayer> players = new HashMap<>();
 
     /** The players currently playing this game */
     public String[] getPlayerNames() {
@@ -55,11 +55,11 @@ public class GameShow {
 
     /** Metadata for this game */
     public GameMetadata gameMetadata() {
-        return new GameMetadata("Muddle", name, getPlayerNames(), true);
+        return new GameMetadata("Game Show", name, getPlayerNames(), true);
     }
 
     /** Describes the state of a player */
-    private String describeState(MuddlePlayer p) {
+    private String describeState(GameShowPlayer p) {
         StringBuilder sb = new StringBuilder();
 
         sb.append(String.format("[%d,%d] \n\n", p.x, p.y));
@@ -81,7 +81,7 @@ public class GameShow {
 
     public RenderingPackage runCommands(CommandPackage cp) {
         logger.info("Received command package {}", cp);
-        MuddlePlayer p = players.get(cp.player());
+        GameShowPlayer p = players.get(cp.player());
 
         // FIXME: Need to actually run the commands!
 
@@ -103,11 +103,11 @@ public class GameShow {
                 }).map((r) -> r.toJson()).toList()
             );
         } else {
-            MuddlePlayer p = new MuddlePlayer(playerName, 0, 0, List.of());
+            GameShowPlayer p = new GameShowPlayer(playerName, 0, 0, List.of());
             players.put(playerName, p);
 
             ArrayList<JsonObject> renderingCommands = new ArrayList<>();
-            renderingCommands.add(new LoadClient("MuddleText", "Muddle", name, playerName).toJson());
+            renderingCommands.add(new LoadClient("Gameshow", "GameShow", name, playerName).toJson());
             renderingCommands.add(new JsonObject().put("command", "clearText"));
             renderingCommands.add(new JsonObject().put("command", "appendText").put("text", describeState(p)));
             renderingCommands.add(new JsonObject().put("command", "setDirections").put("directions", directions(p.x(), p.y())));

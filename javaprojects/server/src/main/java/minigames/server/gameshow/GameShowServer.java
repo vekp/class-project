@@ -1,4 +1,4 @@
-package minigames.server.muddle;
+package minigames.server.gameshow;
 
 import io.vertx.core.Future;
 import minigames.achievements.Achievement;
@@ -18,7 +18,7 @@ import java.util.Set;
  * Our MuddleServer holds GameShows.
  * When it receives a CommandPackage, it finds the GameShow and calls it.
  */
-public class GameShow implements GameServer {
+public class GameShowServer implements GameServer {
 
     static final String chars = "abcdefghijklmopqrstuvwxyz";
 
@@ -37,7 +37,7 @@ public class GameShow implements GameServer {
 
     @Override
     public GameServerDetails getDetails() {
-        return new GameServerDetails("Muddle", "It would be a MUD, but it's not really written yet");
+        return new GameServerDetails("GameShow", "It's a game show!");
     }
 
     @Override
@@ -48,7 +48,7 @@ public class GameShow implements GameServer {
     @Override
     public GameMetadata[] getGamesInProgress() {
         return games.keySet().stream().map((name) -> {
-            return new GameMetadata("Muddle", name, games.get(name).getPlayerNames(), true);
+            return new GameMetadata("GameShow", name, games.get(name).getPlayerNames(), true);
         }).toArray(GameMetadata[]::new);
     }
 

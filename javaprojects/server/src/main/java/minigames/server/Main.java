@@ -6,6 +6,8 @@ import minigames.server.battleship.BattleshipServer;
 import minigames.server.highscore.*;
 import minigames.server.muddle.MuddleServer;
 import minigames.server.telepathy.TelepathyServer;
+import minigames.server.gameshow.GameShowServer;
+
 import io.vertx.core.Launcher;
 
 import org.apache.logging.log4j.LogManager;
@@ -68,6 +70,7 @@ public class Main extends AbstractVerticle {
         gameRegistry.registerGameServer("Muddle", new MuddleServer());
         gameRegistry.registerGameServer("Battleship", new BattleshipServer());
         gameRegistry.registerGameServer("Telepathy", new TelepathyServer());
+        gameRegistry.registerGameServer("GameShow", new GameShowServer());
 
         // Initialize the HighScoreAPI
         HighScoreStorage highScoreStorage = new StubHighScoreStorage();
