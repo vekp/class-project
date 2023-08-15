@@ -14,7 +14,7 @@ import java.awt.Point;
  */
 public class SpaceMazeGameTests {
 
-    // Work in progress, just getting the directory/file up
+    // Timer class tests
     private Timer timer = new Timer();
 
     @DisplayName("Check timer constructor doesn't start the timing")

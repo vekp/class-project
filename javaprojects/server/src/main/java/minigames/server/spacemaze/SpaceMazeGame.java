@@ -72,15 +72,38 @@ public class SpaceMazeGame {
         String commandString = (String) cp.commands().get(0).getValue("command");
 
         if (commandString.startsWith("key")) {
-            String keyPressed = commandString.toLowerCase().replace("key", "");
+            String keyPressed = commandString;
             processKeyInput(keyPressed, p);
         }
 
-        //TODO Any other to be recieved by our server
+        if (commandString.startsWith("requestMaze")) {
+            JsonObject serializedMazeArray = new JsonObject()
+                    .put("command", "renderMaze")
+                    .put("mazeArray", serializeNestedCharArray(mazeControl.getMazeArray()));
+            renderingCommands.add(serializedMazeArray);
+        }
 
-        // Do we use quitToMenu() in common/rendering/NativeCommands.java?
+        // Move the timer client side and recieve the end game time here?
+        // Or on client request, send the current time?
+        if (commandString.startsWith("gameTimer")) {
+            // TODO
+        }
 
         return new RenderingPackage(this.gameMetadata(), renderingCommands);
+    }
+
+    /**
+     * Method to 'hopefully' break down a char[][] array to be sent as
+     * a JSON object
+     * @param mazeArray char[][]
+     * @return List of Strings for each row in the maze
+     */
+    private List<String> serializeNestedCharArray(char[][] mazeArray) {
+        List<String> serializedMaze = new ArrayList<>();
+        for (int i = 0; i < mazeArray.length; i++) {
+            serializedMaze.add(new String(mazeArray[i]));
+        }
+        return serializedMaze;
     }
 
     /**
@@ -89,11 +112,7 @@ public class SpaceMazeGame {
      * @param player the player that sent the key
      */
     private void processKeyInput(String keyPressed, SpacePlayer player) {
-        // Very verbose for now but it will get refactored a lot as the game develops
-        // validMove is essentailly being called twice, But we need to check the move is valid first
-        //int[] pLoc = player.getLocation();
-        //int x = pLoc[0];
-        //int y = pLoc[1];
+
         // Point locations to check
         Point ploc = new Point(player.getLocation());
         Point uploc = new Point(ploc.x, ploc.y-1);
