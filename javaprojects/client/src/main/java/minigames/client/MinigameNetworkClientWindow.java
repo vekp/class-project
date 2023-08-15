@@ -4,6 +4,7 @@ import javax.swing.*;
 
 import minigames.client.achievementui.AchievementUI;
 import minigames.client.backgrounds.Starfield;
+import minigames.client.notifications.NotificationManager;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.GameServerDetails;
 
@@ -23,6 +24,7 @@ import java.util.List;
 public class MinigameNetworkClientWindow {
 
     MinigameNetworkClient networkClient;
+    private final NotificationManager notificationManager;
 
     JFrame frame;
 
@@ -43,6 +45,7 @@ public class MinigameNetworkClientWindow {
 
         frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.notificationManager = new NotificationManager(networkClient, frame);
 
         parent = new JPanel(new BorderLayout());
 
@@ -298,5 +301,10 @@ public class MinigameNetworkClientWindow {
      */
     public void showNotification (JComponent content) {
         showNotification(content, Component.CENTER_ALIGNMENT);
+    }
+
+
+    public NotificationManager getNotificationManager() {
+        return notificationManager;
     }
 }

@@ -82,7 +82,7 @@ public class AchievementUI extends JPanel {
         // Add demo popup button TODO: Remove when not required
         AchievementPresenter testAchievement = new AchievementPresenter(new Achievement(
                 "Popup tester",
-                "Congratulations, you have opened a popup notification!",
+                "<html>Congratulations, you have opened a popup notification!<br>Click me to dismiss!</html>",
                 0, "",
                 false
         ), true);
@@ -90,7 +90,8 @@ public class AchievementUI extends JPanel {
         popup.addActionListener(e -> {
             JPanel popupDemoPanel = testAchievement.smallAchievementPanel(false);
             popupDemoPanel.setBorder(null);
-            networkClient.getMainWindow().showNotification(popupDemoPanel);
+            networkClient.getMainWindow().getNotificationManager().showNotification(popupDemoPanel);
+//            networkClient.getMainWindow().showNotification(popupDemoPanel);
         });
         buttonPanel.add(popup, BorderLayout.WEST);
         // Another popup demo button TODO: Remove this
