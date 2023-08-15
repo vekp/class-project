@@ -30,7 +30,7 @@ public class NotificationManager implements Tickable {
     // Speed in pixels to move per 16ms frame
     int animationSpeed = 4;
     // Duration to wait in fully displayed state, in milliseconds
-    int displayTime = 3000;
+    int displayTime = 5000;
     // Timer starts when notification is fully displayed
     long startTime;
 
@@ -124,7 +124,10 @@ public class NotificationManager implements Tickable {
             }
             // Wait for display time to elapse
             case FULLY_DISPLAYED -> {
-                if ((now - startTime) / 1000000 >= displayTime) status = Status.MOVING_UP;
+                if (displayTime > 0 && (now - startTime) / 1000000 >= displayTime) {
+                    System.out.println(displayTime);
+                    status = Status.MOVING_UP;
+                }
             }
             // Move back up until out of view
             case MOVING_UP -> {
@@ -142,7 +145,7 @@ public class NotificationManager implements Tickable {
     /**
      * Setter for changing the horizontal alignment of the notification.
      * This can be used if default value of Component.CENTER_ALIGNMENT (0.5f) could cause notifications to obstruct
-     * important gameplay UI elements.
+     * important gameplay UI elements. Use together with setMargins for precise control of positioning.
      * @param alignment a float representing desired horizontal alignment. Use Component alignment constants.
      */
     public void setAlignment(float alignment) {
@@ -162,7 +165,8 @@ public class NotificationManager implements Tickable {
 
     /**
      * Setter for changing duration of time the notification will remain in its fully displayed state, before
-     * it starts moving back up. Default value is 3000.
+     * it starts moving back up. Default value is 5000. If displayTime <= 0, the notification will stay
+     * on screen indefinitely until manually dismissed by clicking on it.
      * @param displayTime time in ms
      */
     public void setDisplayTime(int displayTime) {
@@ -181,4 +185,19 @@ public class NotificationManager implements Tickable {
         this.leftMargin = leftMargin;
         this.rightMargin = rightMargin;
     }
+
+    /**
+     * Dismiss the currently displayed notification if there is one.
+     */
+    public void dismissCurrentNotification() {
+        if (!status.equals(Status.IDLE)) status = Status.MOVING_UP;
+    }
+
+    /**
+     * Clear all notifications in the queue. Does not affect current notification.
+     */
+    public void clearNotificationQueue() {
+        queuedNotifications.clear();
+    }
+
 }
