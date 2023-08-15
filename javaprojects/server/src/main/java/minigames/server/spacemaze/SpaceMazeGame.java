@@ -9,6 +9,7 @@ import io.vertx.core.json.JsonObject;
 import minigames.commands.CommandPackage;
 import minigames.rendering.*;
 import minigames.rendering.NativeCommands.LoadClient;
+import java.awt.Point;
 
 /**
  * Represents an actual Space Maze game in progress
@@ -35,7 +36,7 @@ public class SpaceMazeGame {
     public SpaceMazeGame(String name) {
         this.name = name;
         this.mazeControl = new MazeControl();
-        this.player = new SpacePlayer(1,0);
+        this.player = new SpacePlayer(new Point(1,0));
         players.put(name, this.player);
     }
 
@@ -90,33 +91,39 @@ public class SpaceMazeGame {
     private void processKeyInput(String keyPressed, SpacePlayer player) {
         // Very verbose for now but it will get refactored a lot as the game develops
         // validMove is essentailly being called twice, But we need to check the move is valid first
-        int[] pLoc = player.getLocation();
-        int x = pLoc[0];
-        int y = pLoc[1];
+        //int[] pLoc = player.getLocation();
+        //int x = pLoc[0];
+        //int y = pLoc[1];
+        // Point locations to check
+        Point ploc = new Point(player.getLocation());
+        Point uploc = new Point(ploc.x, ploc.y-1);
+        Point downloc = new Point(ploc.x, ploc.y+1);
+        Point leftloc = new Point(ploc.x-1, ploc.y);
+        Point rightloc = new Point(ploc.x+1, ploc.y);
 
         switch (keyPressed) {
             case "up":
-                if (mazeControl.validMove(x, y-1)) {
-                    player.updateLocation(x, y-1);
-                    mazeControl.updatePlayerLocationMaze(player, x, y-1);
+                if (mazeControl.validMove(uploc)) {
+                    player.updateLocation(uploc);
+                    mazeControl.updatePlayerLocationMaze(player,uploc);
                 }
                 break;
             case "down":
-                if (mazeControl.validMove(x, y+1)) {
-                    player.updateLocation(x, y+1);
-                    mazeControl.updatePlayerLocationMaze(player, x, y+1);
+                if (mazeControl.validMove(downloc)) {
+                    player.updateLocation(downloc);
+                    mazeControl.updatePlayerLocationMaze(player, downloc);
                 }
                 break;
             case "left":
-                if (mazeControl.validMove(x-1, y)) {
-                    player.updateLocation(x-1, y);
-                    mazeControl.updatePlayerLocationMaze(player, x-1, y);
+                if (mazeControl.validMove(leftloc)) {
+                    player.updateLocation(leftloc);
+                    mazeControl.updatePlayerLocationMaze(player, leftloc);
                 }
                 break;
             case "right":
-                if (mazeControl.validMove(x+1, y)) {
-                    player.updateLocation(x+1, y);
-                    mazeControl.updatePlayerLocationMaze(player, x+1, y);
+                if (mazeControl.validMove(rightloc)) {
+                    player.updateLocation(rightloc);
+                    mazeControl.updatePlayerLocationMaze(player, rightloc);
                 }
                 break;
         }
@@ -138,7 +145,7 @@ public class SpaceMazeGame {
             );
         } else {
             // Create the new player with starting position
-            SpacePlayer p = new SpacePlayer(1, 0);
+            SpacePlayer p = new SpacePlayer(new Point(1, 0));
             players.put(playerName, p);
 
             ArrayList<JsonObject> renderingCommands = new ArrayList<>();

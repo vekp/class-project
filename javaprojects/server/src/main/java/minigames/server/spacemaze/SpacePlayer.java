@@ -16,7 +16,7 @@ public class SpacePlayer {
         this.numKeys = 0;
     }
     // get the current location
-    public int[] getLocation() {
+    public Point getLocation() {
         return location;
     }
     // update the current location - assuming two integers for input
