@@ -70,22 +70,23 @@ public class TelepathyGame {
     public RenderingPackage joinGame(String name) {
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
 
-        // Need to add verification for player name on the server (duplicates, etc)
         if(this.players[0].name.equals("Empty")){
             this.players[0] = new Player(name);
             renderingCommands.add(new JsonObject().put("command", "joinedGameSuccess"));
         } else{
             if(this.players[0].name.equals(name)){ // Name taken
-                renderingCommands.add(new JsonObject().put("command", "joinedGameFail").put("message", "Unable to join game, name has already been taken."));
+                renderingCommands.add(new JsonObject().put("command", "joinedGameFail").put("message", "Name taken"));
             }
             else if(!this.players[1].name.equals("Empty")){ // Spot already taken
-            renderingCommands.add(new JsonObject().put("command", "joinedGameFail").put("message", "Unable to join game, no spots available."));
+            renderingCommands.add(new JsonObject().put("command", "joinedGameFail").put("message", "No spots available"));
             } else{
                 this.players[1] = new Player(name);
+                renderingCommands.add(new JsonObject().put("command", "joinedGameSuccess"));
             }
         }
         
-        // NOTE: The rendering commands used are temporary and can be changed in the future        
+        // NOTE: The rendering commands used are temporary and can be changed in the future   
+        // Possibly use an enum to represent the value to assign commands?     
         return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
     }
 
