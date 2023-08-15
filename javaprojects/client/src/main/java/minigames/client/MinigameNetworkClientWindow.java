@@ -2,6 +2,7 @@ package minigames.client;
 
 import javax.swing.*;
 
+import minigames.client.achievementui.AchievementNotificationHandler;
 import minigames.client.achievementui.AchievementUI;
 import minigames.client.backgrounds.Starfield;
 import minigames.client.notifications.NotificationManager;
@@ -25,6 +26,7 @@ public class MinigameNetworkClientWindow {
 
     MinigameNetworkClient networkClient;
     private final NotificationManager notificationManager;
+    private final AchievementNotificationHandler achievementPopups;
 
     JFrame frame;
 
@@ -46,6 +48,7 @@ public class MinigameNetworkClientWindow {
         frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.notificationManager = new NotificationManager(networkClient, frame);
+        this.achievementPopups = new AchievementNotificationHandler(this.notificationManager, networkClient);
 
         parent = new JPanel(new BorderLayout());
 
@@ -216,7 +219,7 @@ public class MinigameNetworkClientWindow {
      * TODO: Prettify!
      *
      * @param gameServer
-     * @param  inProgress
+     * @param inProgress
      */
     public void showGames(String gameServer, List<GameMetadata> inProgress) {
         clearAll();
@@ -264,10 +267,11 @@ public class MinigameNetworkClientWindow {
 
     /**
      * Display a popup notification at the top of the screen, on top of other content in the frame.
-     * @param content the component with content to display in the popup.
+     *
+     * @param content   the component with content to display in the popup.
      * @param alignment a float representing desired horizontal alignment. Use Component alignment constants.
      */
-    public void showNotification (JComponent content, float alignment) {
+    public void showNotification(JComponent content, float alignment) {
         JLayeredPane layeredPane = frame.getLayeredPane();
         FlowLayout flow = new FlowLayout(FlowLayout.LEFT, 0, 0);
         JPanel panel = new JPanel(flow);
@@ -297,9 +301,10 @@ public class MinigameNetworkClientWindow {
 
     /**
      * Calls showNotification with a default center alignment (0.5f)
+     *
      * @param content the content to show in notification
      */
-    public void showNotification (JComponent content) {
+    public void showNotification(JComponent content) {
         showNotification(content, Component.CENTER_ALIGNMENT);
     }
 

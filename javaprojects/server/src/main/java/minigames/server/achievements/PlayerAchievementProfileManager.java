@@ -1,7 +1,6 @@
 package minigames.server.achievements;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 //todo merge this with user account profiles when implemented
 /** Simple wrapper class to act as a 'database' for player profiles, for achievements only
@@ -9,7 +8,6 @@ import java.util.Set;
  */
 public class PlayerAchievementProfileManager {
     private final Set<PlayerAchievementProfile> playerProfiles = new HashSet<>();
-
 
     /**
      * Adds a player to the register.

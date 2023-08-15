@@ -4,6 +4,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -108,6 +109,22 @@ public class MinigameNetworkServer {
             //prepare a record package to convert to JSON for sending to client
             PlayerAchievementRecord record = new PlayerAchievementRecord(playerID, gameStates);
             ctx.response().end(record.toJSON());
+        });
+
+        //respond to request to get the most recently unlocked achievements
+        router.get("/achievementUnlocks").respond((ctx) ->{
+            List<Achievement> recentUnlocks = AchievementHandler.getRecentUnlocks();
+            return Future.succeededFuture(recentUnlocks);
+//            if(recentUnlocks.size() == 0){
+//                //we have no recent unlocks so just send back null/no data
+//                ctx.response().end("");
+//            } else {
+//                StringBuilder sb = new StringBuilder();
+//                for (Achievement current : recentUnlocks) {
+//                    sb.append("," + current.toJSON());
+//                }
+//                ctx.response().end(sb.toString());
+//            }
         });
 
         //todo this will need to pull from the user login system when implemented
