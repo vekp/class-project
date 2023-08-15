@@ -57,8 +57,11 @@ public class MazeControl {
         
     }
 
-    // setKeysStatus functions - inputs keyLocations into a map and defaults collected bool value to false
-    public void setKeyStatus(Point[] keyLocations)
+    /* 
+    * setKeysStatus function - inputs keyLocations into a map and defaults collected bool value to false
+    * @param keyLocations - Point object array of key locations in mazeArray
+    */
+    private void setKeyStatus(Point[] keyLocations)
     {
         // Key Status: (x, y)-> False
         for (int i = 0; i < keyLocations.length; i++)
@@ -67,7 +70,11 @@ public class MazeControl {
         }
     }
 
-    // updateKeyStatus function - updates keyStatus if player's location is at key's location
+    /* 
+    * updateKeyStatus function - updates keyStatus if player's location is at key's location
+    * @param player - SpacePlayer to update key status
+    * @param playerLoc - Point object of player's location
+    */
     public void updateKeyStatus(SpacePlayer player, Point playerLoc)
     {
         if (keyStatus.containsKey(playerLoc))
@@ -77,21 +84,27 @@ public class MazeControl {
         }
     }  
 
-    // unlockExit function - unlocks exit if player has correct number of keys
-    //   ** Can update function to require player to be near exit before unlocking
+    /*
+    * unlockExit function - unlocks exit if player has correct number of keys 
+    * @param player - SpacePlayer to unlock exit
+    * 
+    * Can update function to require player to be near exit before unlocking
+    */   
     public void unlockExit(SpacePlayer player)
     {
         // Check player has correct number of keys to unlock exit
         if (player.checkNumberOfKeys() == numKeysToUnlock)
         {
             exitUnlocked = true;
-            mazeArray[exitLocation.x][exitLocation.y] = "U";
+            mazeArray[exitLocation.x][exitLocation.y] ='U';
         }
     }
 
     
 
-    // gameOver function - checks if player is at exit
+    /* 
+    * gameOver function - checks if player is at exit - called in updatePlayerLocationMaze
+    */
     public void checkGameOver()
     {
         if (playerLocation == exitLocation)
@@ -102,7 +115,10 @@ public class MazeControl {
         }
     }
 
-    // validMove function - checks if potential move coord is not a wall or locked exit
+    /* 
+    * validMove function - checks if potential move coord is not a wall or locked exit
+    * @param posMove - Point object of possible (player) move
+    */
     public Boolean validMove(Point posMove)
     {
         //Point posMove = new Point(x, y);    // temporarily set (x, y) to Point object
@@ -135,15 +151,21 @@ public class MazeControl {
         }
     }
 
-    // getPlayerLocationInMaze function - returns player's current location
-    // ??? return Point object or int[][]
+    /* 
+    * getPlayerLocationInMaze function - returns player's current location
+    * @param player - SpacePlayer to return location for
+    */
     public Point getPlayerLocationInMaze(SpacePlayer player)
     {
         return playerLocation;
     }
 
-    // updatePlayerLocationMaze function - takes (x, y) coords, checks if move is valid, then
-    //                                 updates playerLocation and mazeArray
+    /*
+    * updatePlayerLocationMaze function - takes a SpacePlayer and Point(x, y) coords updates playerLocation and mazeArray,
+    *              and updates keyStatus and checks if game is over. 
+    * @param player - SpacePlayer to update Maze for
+    * @param newMove - player's new move to update maze with
+    */ 
     public void updatePlayerLocationMaze(SpacePlayer player, Point newMove)
     {
         // Assume move is valid --  should have been checked via SpaceMazeGame
@@ -165,13 +187,19 @@ public class MazeControl {
         checkGameOver();
     }
 
-    // getMazeArray function - returns 2D char array
+    /*
+     * getMazeArray function - returns 2D char array
+     * @return mazeArray - char[][]
+     */ 
     public char[][] getMazeArray()
     {
         return mazeArray;
     }
 
-    // setMazeArray - hard coded for now
+    /*
+     * MazeArray - hard coded for now as a private char[][]
+     */
+    
     private char[][] mazeArray = {
         {'W','P','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W'},
         {'W','.','.','.','.','.','.','.','.','.','.','.','.','.','W','.','.','.','W','.','.','.','.','.','W'},
