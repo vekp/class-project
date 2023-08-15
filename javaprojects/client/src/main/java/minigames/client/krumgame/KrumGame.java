@@ -133,6 +133,9 @@ public class KrumGame implements GameClient {
      * Main game loop
      */
     void startGame(){
+        for (KrumPlayer p : players) {
+            p.setMouseOffsets(panel.getLocationOnScreen().x, panel.getLocationOnScreen().y);
+        }
         System.out.println("game " + (SwingUtilities.isEventDispatchThread() ? "" : "not ") + "created on EDT");
         lastFrameTime = System.nanoTime();
         while (running) {
@@ -199,9 +202,7 @@ public class KrumGame implements GameClient {
         mnClient.getMainWindow().getFrame().addComponentListener(new ComponentAdapter() {
             public void componentMoved(ComponentEvent e) {
                 for (KrumPlayer p : players) {
-                    p.xoff = panel.getLocationOnScreen().x;
-                    p.yoff = panel.getLocationOnScreen().y;
-                    System.out.println(panel.getLocationOnScreen());
+                    p.setMouseOffsets(panel.getLocationOnScreen().x, panel.getLocationOnScreen().y);
                 }
             }
         });        

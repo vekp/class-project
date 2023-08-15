@@ -183,7 +183,6 @@ public class KrumPlayer {
         }
 
         setDirection(direction, level); // this could modify alphaRaster, so keep it below the outline-determining code, which assumes it's acting on a right-facing sprite
-        
         lastShotTime = System.nanoTime();
     }
 
@@ -198,10 +197,10 @@ public class KrumPlayer {
             g.drawImage(sprite, null, (int)xpos, (int)ypos);
         }        
         if (firing) {
-            aimAngleRadians = Math.atan2(ypos - my, mx - xpos);
+            aimAngleRadians = Math.atan2(ypos + (sprite.getHeight() / 2) - my, mx - (xpos + sprite.getWidth() / 2)); 
             long power = System.nanoTime() - fireStart;
             power /= 10000000;
-            g.drawLine((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * KrumC.psd), (int)(ypos + sprite.getWidth()/2 - Math.sin(aimAngleRadians) * KrumC.psd), (int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * (power + KrumC.psd)), (int)(ypos + sprite.getWidth()/2 - Math.sin(aimAngleRadians) * (KrumC.psd + power)));
+            g.drawLine((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * KrumC.psd), (int)(ypos + sprite.getHeight()/2 - Math.sin(aimAngleRadians) * KrumC.psd), (int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * (power + KrumC.psd)), (int)(ypos + sprite.getHeight()/2 - Math.sin(aimAngleRadians) * (KrumC.psd + power)));
         }
     }
 
@@ -486,13 +485,13 @@ public class KrumPlayer {
         power /= 100000000;
         int mx = MouseInfo.getPointerInfo().getLocation().x - xoff;
         int my = MouseInfo.getPointerInfo().getLocation().y - yoff;
-        aimAngleRadians = Math.atan2(ypos - my, mx - xpos);    
+        aimAngleRadians = Math.atan2(ypos + (sprite.getHeight() / 2) - my, mx - (xpos + sprite.getWidth() / 2));    
         projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(aimAngleRadians) * KrumC.psd), Math.cos(aimAngleRadians) * power + xvel, Math.sin(aimAngleRadians) * power * -1 + yvel);
         lastShotTime = System.nanoTime();
     }
 
     /**
-     * called when window is moved, to ensure mouse locations are accurately reported relative to our drawable area
+     * called at start and when window is moved, to ensure mouse locations are accurately reported relative to our drawable area
      * @param x
      * @param y
      */
