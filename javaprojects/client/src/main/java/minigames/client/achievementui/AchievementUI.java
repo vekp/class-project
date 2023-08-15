@@ -12,6 +12,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class AchievementUI extends JPanel {
     public static final String TITLE = "Achievements";
@@ -79,7 +80,7 @@ public class AchievementUI extends JPanel {
         // Add demo popup button TODO: Remove when not required
         AchievementPresenter testAchievement = new AchievementPresenter(new Achievement(
                 "Popup tester",
-                "<html>Congratulations, you have opened a popup notification!<br>Click me to dismiss!</html>",
+                "<html>Congratulations, you have opened a popup notification!<br>Click me to dismiss! It uses random alignment</html>",
                 0, "",
                 false
         ), true);
@@ -87,18 +88,24 @@ public class AchievementUI extends JPanel {
         popup.addActionListener(e -> {
             JPanel popupDemoPanel = testAchievement.smallAchievementPanel(false);
             popupDemoPanel.setBorder(null);
+            float x = new Random().nextFloat();
+            networkClient.getMainWindow().getNotificationManager().setAlignment(x);
             networkClient.getMainWindow().getNotificationManager().showNotification(popupDemoPanel);
-//            networkClient.getMainWindow().showNotification(popupDemoPanel);
+            networkClient.getMainWindow().getNotificationManager().setAlignment(0.5f);
         });
         buttonPanel.add(popup, BorderLayout.WEST);
         // Another popup demo button TODO: Remove this
         JButton popup2 = new JButton("Demo text popup");
         popup2.addActionListener(e -> {
-            JButton leftPopup = new JButton("<html>This is another popup example.<br>It uses Component.RIGHT_ALIGNMENT (1.0f)<br>Click me for another popup.");
-            leftPopup.addActionListener(e1 -> networkClient.getMainWindow().showNotification(new JLabel("This one is on the left, with Component.LEFT_ALIGNMENT"), Component.LEFT_ALIGNMENT));
+            JButton leftPopup = new JButton("<html>This is another popup example.<br>Click me for another popup.");
+            leftPopup.addActionListener(e1 -> {
+                networkClient.getMainWindow().getNotificationManager().setAlignment(0f);
+                networkClient.getMainWindow().getNotificationManager().showNotification(new JLabel("This one is on the left, with Component.LEFT_ALIGNMENT"));
+            });
 
-            networkClient.getMainWindow().showNotification(leftPopup, Component.RIGHT_ALIGNMENT);
+            networkClient.getMainWindow().getNotificationManager().showNotification(leftPopup, false);
         });
+        networkClient.getMainWindow().getNotificationManager().setAlignment(1.0f);
         buttonPanel.add(popup2);
 
         this.add(buttonPanel, BorderLayout.SOUTH);
