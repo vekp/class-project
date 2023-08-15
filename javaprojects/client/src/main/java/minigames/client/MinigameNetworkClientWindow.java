@@ -25,7 +25,7 @@ import java.util.List;
 public class MinigameNetworkClientWindow {
 
     MinigameNetworkClient networkClient;
-    private final NotificationManager notificationManager;
+    private NotificationManager notificationManager;
     private final AchievementNotificationHandler achievementPopups;
 
     JFrame frame;
@@ -47,7 +47,7 @@ public class MinigameNetworkClientWindow {
 
         frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.notificationManager = new NotificationManager(networkClient, frame);
+
         this.achievementPopups = new AchievementNotificationHandler(this.notificationManager, networkClient);
 
         parent = new JPanel(new BorderLayout());
@@ -172,6 +172,7 @@ public class MinigameNetworkClientWindow {
      */
     public void showGameServers(List<GameServerDetails> servers) {
         frame.setTitle("COSC220 2023 Minigame Collection");
+        this.notificationManager = new NotificationManager(networkClient, frame);
         clearAll();
 
         JPanel panel = new JPanel();
