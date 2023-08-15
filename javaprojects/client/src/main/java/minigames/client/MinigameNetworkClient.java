@@ -175,7 +175,9 @@ public class MinigameNetworkClient {
         return webClient.get(port, host, "/achievementUnlocks")
                 .send()
                 .onSuccess((resp) -> {
-                    logger.info(resp.bodyAsString());
+                    //disabling this for now because this is requested periodically from the animator - it will spam
+                    //the console if we log this
+                    //  logger.info(resp.bodyAsString());
                 })
                 .map((resp) ->
                         resp.bodyAsJsonArray()
@@ -186,15 +188,6 @@ public class MinigameNetworkClient {
                 .onFailure((resp) -> {
                     logger.error("Failed: {} ", resp.getMessage());
                 });
-//        return webClient.get(port, host, "/achievementUnlocks")
-//                .send()
-//                .onSuccess((resp)->{
-//                    logger.info(resp.bodyAsString());
-//                })
-//                .map((resp) -> resp.bodyAsString())
-//                .onFailure((resp) -> {
-//                    logger.error("Failed: {} ", resp.getMessage());
-//                });
     }
 
     /**

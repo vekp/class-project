@@ -20,7 +20,7 @@ public class AchievementHandler {
     private final static PlayerAchievementProfileManager playerManager = new PlayerAchievementProfileManager();
 
     //This stores recently unlocked achievements, so that notifications can be played on the client.
-    private static final Queue<Achievement> recentUnlocks = new PriorityQueue<>();
+    private static final List<Achievement> recentUnlocks = new ArrayList<>();
 
     //the game server name associated with this handler. It is unique for each game server (though multiple
     //handlers can have this same id - they just access and handle achievements for the same server)

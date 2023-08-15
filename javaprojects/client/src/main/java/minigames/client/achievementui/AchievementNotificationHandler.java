@@ -8,6 +8,7 @@ import minigames.client.MinigameNetworkClientWindow;
 import minigames.client.Tickable;
 import minigames.client.notifications.NotificationManager;
 
+import javax.swing.*;
 import java.util.List;
 
 /**
@@ -21,6 +22,7 @@ public class AchievementNotificationHandler implements Tickable {
     int tickInterval = 10; //how many frames we wait between achievement checks
     int tickTimer = 0; //how many ticks have passed since last check
 
+    Animator anim;
     /**
      * Constructor
      *
@@ -30,8 +32,8 @@ public class AchievementNotificationHandler implements Tickable {
         //we want the notification manager attached to our client window
         this.popupManager = popupManager;
         this.client = mnClient;
-
-        mnClient.getAnimator().requestTick(this);
+        this.anim = mnClient.getAnimator();
+        anim.requestTick(this);
     }
 
     @Override
@@ -43,15 +45,20 @@ public class AchievementNotificationHandler implements Tickable {
 
             //ask the server for the list of achievements that were unlocked since last time we asked
             //these will be added in-order to the NotificationManager's queue to pop up achievement alerts
-         //   client.getRecentAchievements().onSuccess(this::processAchievements);
+            client.getRecentAchievements().onSuccess(this::processAchievements);
         } else {
             al.requestTick(this);
         }
     }
 
     void processAchievements(List<Achievement> unlocks) {
-        if(unlocks.size() !=0){
-            System.out.println(unlocks);
-        }
+            for (Achievement unlock : unlocks) {
+                AchievementPresenter presenter = new AchievementPresenter(unlock, true);
+                JPanel popup = presenter.smallAchievementPanel(false);
+                popup.setBorder(null);
+                popupManager.showNotification(popup);
+            }
+
+        anim.requestTick(this);
     }
 }
