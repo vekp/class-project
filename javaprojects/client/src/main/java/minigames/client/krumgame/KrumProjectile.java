@@ -21,14 +21,20 @@ public class KrumProjectile {
         this.xvel = xvel;
         this.yvel = yvel;
         exploding = false;   
-        File spriteFile = new File("client/src/main/java/minigames/client/krumgame/carrot_s.png");
+        File spriteFile = new File(KrumC.imgDir + "carrot_s.png");
         try {
             sprite = ImageIO.read(spriteFile);
         }
         catch (IOException e) {
-            System.out.println("error reading sprite image");
-            System.err.println(e.getMessage());
-            e.printStackTrace();
+            try {
+                spriteFile = new File(KrumC.altImgDir + "carrot_s.png");
+                sprite = ImageIO.read(spriteFile);
+            }
+            catch (IOException e2) {
+                System.out.println("error reading sprite image");
+                System.err.println(e2.getMessage());
+                e.printStackTrace();
+            }
         }
     }
     void draw(Graphics2D g) {

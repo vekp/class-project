@@ -4,13 +4,14 @@ package minigames.client.krumgame;
  * Static constants for use in other classes
  */
 public class KrumC {
+    static final String imgDir = "client/src/main/java/minigames/client/krumgame/";
+    static final String altImgDir = "javaprojects/client/src/main/java/minigames/client/krumgame/";
+
     static final int TARGET_FRAMERATE = 60;
     static final long TARGET_FRAMETIME = 1000000000 / TARGET_FRAMERATE; // nanoseconds
 
     // pixels less opaque than this are ignored in collision and hit detection (0.0 = transparent, 1.0 = opaque)
     static final double OPACITY_THRESHOLD = 0.4;
-
-    static final String imgDir = "client/src/main/java/minigames/client/krumgame/";
 
     static final double GRAVITY = 0.05; // downward acceleration in pixels per frame
     static final double AIR_RES_FACTOR = 0.99; // movement in air of projectiles and players is multiplied by this factor every frame

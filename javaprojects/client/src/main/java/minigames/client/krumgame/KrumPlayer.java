@@ -88,13 +88,20 @@ public class KrumPlayer {
         this.aimAngleRadians = 0;
         this.hp = 100;
 
-        File spriteFile = new File(spriteFileName);
+        File spriteFile = new File(KrumC.imgDir + spriteFileName);
         try {
             sprite = ImageIO.read(spriteFile);
         }
         catch (IOException e) {
-            System.err.println(e.getMessage());
-            e.printStackTrace();
+            try {
+                System.out.println("trying alternate sprite path");
+                spriteFile = new File(KrumC.altImgDir + spriteFileName);
+                sprite = ImageIO.read(spriteFile);
+            }
+            catch (IOException e2) {            
+                System.err.println(e.getMessage());
+                e.printStackTrace();
+            }
         }
         alphaRaster = sprite.getAlphaRaster();
 

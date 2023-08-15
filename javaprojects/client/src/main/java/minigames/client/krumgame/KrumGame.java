@@ -27,7 +27,6 @@ public class KrumGame implements GameClient {
     MinigameNetworkClient mnClient;
     GameMetadata gm;
     String player;   
-    final String imgDir = "client/src/main/java/minigames/client/krumgame/";
     KrumPlayer players[];
     int playerTurn;
     double windX;
@@ -42,14 +41,21 @@ public class KrumGame implements GameClient {
     boolean running = true;
 
     public KrumGame() {        
-        File backgroundFile = new File(imgDir + "chameleon.png");
+        File backgroundFile = new File(KrumC.imgDir + "chameleon.png");
         try {
             background = ImageIO.read(backgroundFile);
         }
         catch (IOException e) {
-            System.out.println("error reading background image");
-            System.err.println(e.getMessage());
-            e.printStackTrace();
+            System.out.println("error reading background image. trying alternate path");
+            try {
+                backgroundFile = new File(KrumC.altImgDir + "chameleon.png");
+                background = ImageIO.read(backgroundFile);
+            }
+            catch (IOException e2) {
+                System.out.println("error reading background image from alternate path");
+                System.err.println(e2.getMessage());
+                e.printStackTrace();
+            }           
         }
         alphaRaster = background.getAlphaRaster();
         panel = new KrumPanel(this);
@@ -61,8 +67,8 @@ public class KrumGame implements GameClient {
         windString = "Wind: left 2.00";
         firstRun = true;
         players = new KrumPlayer[2];
-        players[0] = new KrumPlayer(235, 0, imgDir + "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, true, alphaRaster);
-        players[1] = new KrumPlayer(600, 0, imgDir + "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, false, alphaRaster);
+        players[0] = new KrumPlayer(235, 0, "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, true, alphaRaster);
+        players[1] = new KrumPlayer(600, 0, "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, false, alphaRaster);
         playerTurn = 0;
     }
 
@@ -252,10 +258,6 @@ public class KrumGame implements GameClient {
 
     public void setPlayer(String player) {
         this.player = player;
-    }
-
-    public String getImgDir() {
-        return imgDir;
     }
 
     public KrumPlayer[] getPlayers() {
