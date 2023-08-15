@@ -23,7 +23,11 @@ public class TelepathyTests {
         TelepathyGame game = new TelepathyGame(testGameName);
 
         assertTrue(game.getName().equals(testGameName));
-        assertTrue(game.getPlayers().size() == 0);
+        TelepathyGame.Player[] gamePlayers = game.getPlayers();
+        
+        assertTrue(gamePlayers.length == 2);
+        assertTrue(gamePlayers[0].name().equals("Empty"));
+        assertTrue(gamePlayers[1].name().equals("Empty"));
     }
 
     @Test
@@ -37,7 +41,7 @@ public class TelepathyTests {
         assertTrue(metadata.gameServer().equals("Telepathy"));
         assertTrue(metadata.name().equals(testGameName));
 
-        assertTrue(metadata.players().length == 0);
+        assertTrue(metadata.players().length == 2);
         // Check that game is joinable to start
         assertTrue(metadata.joinable());
     }
@@ -48,7 +52,7 @@ public class TelepathyTests {
         TelepathyGame game = new TelepathyGame("TestGame");
 
         game.joinGame("Bob");
-        assertTrue(game.getPlayers().size() == 1);
+        assertTrue(game.getPlayers()[0].name().equals("Bob"));
 
         // Test the response returned from joinGame() when coded in
     }
@@ -92,11 +96,11 @@ public class TelepathyTests {
         // Assert that Alice is in Bob's game
         GameMetadata[] games = server.getGamesInProgress();
         boolean inGame = false;
+        
         for(GameMetadata g : games){
-            if(g.name().equals("Bob's game")){
-                for(String name : games[0].players()){
-                    if(name.equals("Alice")) inGame = true;
-                }
+            System.out.println(g.players()[0] + g.players()[1]);
+            for(String name : g.players()){
+                if(name.equals("Alice")) inGame = true;
             }
         }
         assertTrue(inGame);

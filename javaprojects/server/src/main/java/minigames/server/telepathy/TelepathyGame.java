@@ -75,18 +75,17 @@ public class TelepathyGame {
             this.players[0] = new Player(name);
             renderingCommands.add(new JsonObject().put("command", "joinedGameSuccess"));
         } else{
-            if(this.players[0].name.equals(name)){
-                // Name taken
+            if(this.players[0].name.equals(name)){ // Name taken
                 renderingCommands.add(new JsonObject().put("command", "joinedGameFail").put("message", "Unable to join game, name has already been taken."));
             }
-            else if(!this.players[1].name.equals("Empty")){ 
-            // Spot already taken
+            else if(!this.players[1].name.equals("Empty")){ // Spot already taken
             renderingCommands.add(new JsonObject().put("command", "joinedGameFail").put("message", "Unable to join game, no spots available."));
+            } else{
+                this.players[1] = new Player(name);
             }
         }
         
-        // TODO Create rendering commands for the package
-        
+        // NOTE: The rendering commands used are temporary and can be changed in the future        
         return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
     }
 
