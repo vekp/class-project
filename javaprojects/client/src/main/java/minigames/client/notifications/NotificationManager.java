@@ -74,7 +74,9 @@ public class NotificationManager implements Tickable {
         // create a panel to contain component
         notificationPanel = new JPanel();
         notificationPanel.add(component);
-        notificationPanel.setBorder(BorderFactory.createEtchedBorder());
+        if (component instanceof JComponent jc && jc.getBorder() == null) {
+            notificationPanel.setBorder(BorderFactory.createEtchedBorder());
+        }
         // make dismissible
         if (isDismissible) {
             notificationPanel.addMouseListener(new MouseAdapter() {
