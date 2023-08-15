@@ -93,15 +93,9 @@ public class KrumPlayer {
             sprite = ImageIO.read(spriteFile);
         }
         catch (IOException e) {
-            try {
-                System.out.println("trying alternate sprite path");
-                spriteFile = new File(KrumC.altImgDir + spriteFileName);
-                sprite = ImageIO.read(spriteFile);
-            }
-            catch (IOException e2) {            
-                System.err.println(e.getMessage());
-                e.printStackTrace();
-            }
+            System.out.println("can't load sprite");          
+            System.err.println(e.getMessage());
+            e.printStackTrace();
         }
         alphaRaster = sprite.getAlphaRaster();
 

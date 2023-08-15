@@ -5,7 +5,6 @@ package minigames.client.krumgame;
  */
 public class KrumC {
     static final String imgDir = "client/src/main/java/minigames/client/krumgame/";
-    static final String altImgDir = "javaprojects/client/src/main/java/minigames/client/krumgame/";
 
     static final int TARGET_FRAMERATE = 60;
     static final long TARGET_FRAMETIME = 1000000000 / TARGET_FRAMERATE; // nanoseconds

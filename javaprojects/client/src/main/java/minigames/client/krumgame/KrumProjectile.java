@@ -26,15 +26,9 @@ public class KrumProjectile {
             sprite = ImageIO.read(spriteFile);
         }
         catch (IOException e) {
-            try {
-                spriteFile = new File(KrumC.altImgDir + "carrot_s.png");
-                sprite = ImageIO.read(spriteFile);
-            }
-            catch (IOException e2) {
-                System.out.println("error reading sprite image");
-                System.err.println(e2.getMessage());
-                e.printStackTrace();
-            }
+            System.out.println("error reading sprite image");
+            System.err.println(e.getMessage());
+            e.printStackTrace();
         }
     }
     void draw(Graphics2D g) {

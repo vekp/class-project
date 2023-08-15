@@ -46,16 +46,9 @@ public class KrumGame implements GameClient {
             background = ImageIO.read(backgroundFile);
         }
         catch (IOException e) {
-            System.out.println("error reading background image. trying alternate path");
-            try {
-                backgroundFile = new File(KrumC.altImgDir + "chameleon.png");
-                background = ImageIO.read(backgroundFile);
-            }
-            catch (IOException e2) {
-                System.out.println("error reading background image from alternate path");
-                System.err.println(e2.getMessage());
-                e.printStackTrace();
-            }           
+            System.out.println("error reading background image");
+            System.err.println(e.getMessage());
+            e.printStackTrace();                     
         }
         alphaRaster = background.getAlphaRaster();
         panel = new KrumPanel(this);
