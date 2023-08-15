@@ -11,21 +11,34 @@ import java.awt.event.MouseEvent;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * A class for managing popup notifications to display to players without disrupting gameplay.
+ */
 public class NotificationManager implements Tickable {
     private final JFrame frame;
     private final JLayeredPane layeredPane;
     private final Animator animator;
     private final List<Component> queuedNotifications;
     JPanel notificationPanel;
-    final int topMargin = 5, leftMargin = 5, rightMargin = 5;
+    // Margins to leave between frame edge and notification
+    int topMargin = 5, leftMargin = 5, rightMargin = 5;
+    // Size of notification panel
+    float alignment = Component.CENTER_ALIGNMENT;
     int width, height;
+    // Panel's position
     int currentX, currentY;
-    int movementSpeed = 4; // pixels to move per 16ms frame
-    int displayTime = 3000; // in milliseconds
+    // Speed in pixels to move per 16ms frame
+    int animationSpeed = 4;
+    // Duration to wait in fully displayed state, in milliseconds
+    int displayTime = 3000;
+    // Timer starts when notification is fully displayed
     long startTime;
 
+    /**
+     * Status enum defines the current state of the notification panel
+     */
     enum Status {
-        SHOW, HIDE, DISPLAY, IDLE
+        IDLE, MOVING_DOWN, FULLY_DISPLAYED, MOVING_UP
     }
     private Status status = Status.IDLE;
 
@@ -36,31 +49,49 @@ public class NotificationManager implements Tickable {
         this.queuedNotifications = new LinkedList<>();
     }
 
-    public void showNotification(Component component) {
+    /**
+     * Display a dismissible popup notification on top of the frame's other contents that slides down from the top
+     * of the frame, pauses, and slides back up off the frame.
+     * @param component the Component to display
+     */
+    public void showNotification (Component component) {
+        showNotification(component, true);
+    }
+
+    /**
+     * Display a popup notification on top of the frame's other contents that slides down from the top of the frame,
+     * pauses, and slides back up off the frame.
+     * @param component     the Component to display in the notification
+     * @param isDismissible if the user should be able to click on it to dismiss it.
+     */
+    public void showNotification(Component component, boolean isDismissible) {
         // If something already in progress, add it to the queue and stop
         if (!status.equals(Status.IDLE)) {
             queuedNotifications.add(component);
             return;
         }
-
-        status = Status.SHOW;
-        // do stuff to show notification
+        status = Status.MOVING_DOWN;
+        // create a panel to contain component
         notificationPanel = new JPanel();
         notificationPanel.add(component);
         notificationPanel.setBorder(BorderFactory.createEtchedBorder());
         // make dismissible
-        notificationPanel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                status = Status.HIDE;
-            }
-        });
+        if (isDismissible) {
+            notificationPanel.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    status = Status.MOVING_UP;
+                }
+            });
+        }
         // get panel dimensions
         width = (int) notificationPanel.getPreferredSize().getWidth();
         height = (int) notificationPanel.getPreferredSize().getHeight();
         // calculate start position
-        currentX = (frame.getWidth() - width) / 2;
-        currentY = -height;
+        int maxX = frame.getWidth() - width - rightMargin;
+        int minX = leftMargin;
+        currentX = minX + (int) (alignment * (maxX - minX));
+        currentY = - height;
         // set bounds, add to layer
         notificationPanel.setBounds(currentX, currentY, width, height);
         layeredPane.add(notificationPanel, JLayeredPane.POPUP_LAYER);
@@ -81,21 +112,21 @@ public class NotificationManager implements Tickable {
                 return;
             }
             // Move down from the top
-            case SHOW -> {
-                currentY = Math.min(topMargin, currentY + movementSpeed);
+            case MOVING_DOWN -> {
+                currentY = Math.min(topMargin, currentY + animationSpeed);
                 notificationPanel.setLocation(currentX, currentY);
                 if (currentY == topMargin) {
                     startTime = now;
-                    status = Status.DISPLAY;
+                    status = Status.FULLY_DISPLAYED;
                 }
             }
             // Wait for display time to elapse
-            case DISPLAY -> {
-                if ((now - startTime) / 1000000 >= displayTime) status = Status.HIDE;
+            case FULLY_DISPLAYED -> {
+                if ((now - startTime) / 1000000 >= displayTime) status = Status.MOVING_UP;
             }
             // Move back up until out of view
-            case HIDE -> {
-                currentY = (currentY - movementSpeed);
+            case MOVING_UP -> {
+                currentY = (currentY - animationSpeed);
                 notificationPanel.setLocation(currentX, currentY);
                 if (currentY <= -height) {
                     status = Status.IDLE;
@@ -104,5 +135,48 @@ public class NotificationManager implements Tickable {
             }
         }
         al.requestTick(this);
+    }
+
+    /**
+     * Setter for changing the horizontal alignment of the notification.
+     * This can be used if default value of Component.CENTER_ALIGNMENT (0.5f) could cause notifications to obstruct
+     * important gameplay UI elements.
+     * @param alignment a float representing desired horizontal alignment. Use Component alignment constants.
+     */
+    public void setAlignment(float alignment) {
+        if (alignment < 0) this.alignment = 0f;
+        else if (alignment > 1) this.alignment = 1.0f;
+        else this.alignment = alignment;
+    }
+
+    /**
+     * Setter for changing the speed at which the notification slides up and down.
+     * The default value is 4.
+     * @param animationSpeed speed in pixels per 16ms tick.
+     */
+    public void setAnimationSpeed(int animationSpeed) {
+        this.animationSpeed = animationSpeed;
+    }
+
+    /**
+     * Setter for changing duration of time the notification will remain in its fully displayed state, before
+     * it starts moving back up. Default value is 3000.
+     * @param displayTime time in ms
+     */
+    public void setDisplayTime(int displayTime) {
+        this.displayTime = displayTime;
+    }
+
+    /**
+     * Setter for altering the margins between edge of the frame and the notification panel at its fully displayed
+     * state. Can be used together with alignment setter for precise positioning. Default values are 5.
+     * @param topMargin   distance from top of frame
+     * @param leftMargin  distance from left of frame
+     * @param rightMargin distance from right of frame
+     */
+    public void setMargins(int topMargin, int leftMargin, int rightMargin) {
+        this.topMargin = topMargin;
+        this.leftMargin = leftMargin;
+        this.rightMargin = rightMargin;
     }
 }
