@@ -3,16 +3,14 @@ package minigames.client.battleship;
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
-import minigames.rendering.GameMetadata;
 import minigames.commands.CommandPackage;
-import minigames.rendering.GameServerDetails;
+import minigames.rendering.GameMetadata;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -106,6 +104,11 @@ public class Battleship implements GameClient {
         targetText.setEditable(false);
         targetMap.add(targetText);
         maps.add(targetMap);
+
+        // Back button. Sorry about the placement! TODO: Put in a better place.
+        JButton backButton = new JButton("Back");
+        backButton.addActionListener(e -> mnClient.runMainMenuSequence());
+        maps.add(backButton);
 
         // Terminal - Messages and input area
         terminal = new JPanel();
