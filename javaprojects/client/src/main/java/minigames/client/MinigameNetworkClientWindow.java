@@ -198,13 +198,9 @@ public class MinigameNetworkClientWindow {
 
         // Create a button for the Achievement UI.
         JButton achievementsButton = new JButton("Achievements");
-        // Create action listener to use as back button action.
-        ActionListener returnAction = (a) -> {
-            showGameServers(servers);
-        };
         achievementsButton.addActionListener(e -> {
             clearAll();
-            JPanel achievements = new AchievementUI(networkClient, returnAction);
+            JPanel achievements = new AchievementUI(networkClient);
             frame.setTitle(AchievementUI.TITLE);
             center.add(achievements);
             pack();
