@@ -166,7 +166,6 @@ public class Telepathy implements GameClient {
     public void execute(GameMetadata game, JsonObject command) {
         this.gm = game;
 
-        
     }
 
     @Override
@@ -174,4 +173,6 @@ public class Telepathy implements GameClient {
         // Nothing to do        
     }
     
+    
+
 }

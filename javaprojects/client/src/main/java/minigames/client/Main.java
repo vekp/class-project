@@ -30,8 +30,8 @@ public class Main extends AbstractVerticle {
      */
     private static void doWiring() {
         clientRegistry.registerGameClient("MuddleText", new MuddleText());
-        clientRegistry.registerGameClient("Battleship", new Battleship()");
-        clientRegistry.registerGameClient("Telepathy", new Telepathy()");
+        clientRegistry.registerGameClient("Battleship", new Battleship());
+        clientRegistry.registerGameClient("Telepathy", new Telepathy());
     }
 
     public static void main(String... args) {
