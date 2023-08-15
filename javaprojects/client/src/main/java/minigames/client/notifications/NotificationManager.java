@@ -12,27 +12,24 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class NotificationManager implements Tickable {
-    private final MinigameNetworkClient mnClient;
     private final JFrame frame;
     private final JLayeredPane layeredPane;
     private final Animator animator;
     private final List<Component> queuedNotifications;
     JPanel notificationPanel;
-    int topMargin, leftMargin, rightMargin = 5;
+    final int topMargin = 5, leftMargin = 5, rightMargin = 5;
     int width, height;
     int currentX, currentY;
-    final int targetY = 5;
-    float movementSpeed = 1.5f; // pixels to move per 16ms frame
+    int movementSpeed = 4; // pixels to move per 16ms frame
     int displayTime = 3000; // in milliseconds
     long startTime;
 
     enum Status {
-        SHOW, HIDE, DISPLAY, IDLE;
+        SHOW, HIDE, DISPLAY, IDLE
     }
     private Status status = Status.IDLE;
 
     public NotificationManager(MinigameNetworkClient mnClient, JFrame frame) {
-        this.mnClient = mnClient;
         this.frame = frame;
         this.layeredPane = frame.getLayeredPane();
         this.animator = mnClient.getAnimator();
@@ -51,6 +48,7 @@ public class NotificationManager implements Tickable {
         notificationPanel = new JPanel();
         notificationPanel.add(component);
         notificationPanel.setBorder(BorderFactory.createEtchedBorder());
+        // make dismissible
         notificationPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -70,6 +68,7 @@ public class NotificationManager implements Tickable {
         animator.requestTick(this);
     }
 
+    // Animate the notification panel depending on its current status
     @Override
     public void tick(Animator al, long now, long delta) {
         switch (status) {
@@ -81,21 +80,22 @@ public class NotificationManager implements Tickable {
                 // No more animation required, end here
                 return;
             }
+            // Move down from the top
             case SHOW -> {
-                System.out.println("Current:"+ currentY + " Target: " + targetY);
-                currentY = (int) Math.min(targetY, currentY + movementSpeed);
+                currentY = Math.min(topMargin, currentY + movementSpeed);
                 notificationPanel.setLocation(currentX, currentY);
-                if (currentY == targetY) {
+                if (currentY == topMargin) {
                     startTime = now;
                     status = Status.DISPLAY;
                 }
             }
+            // Wait for display time to elapse
             case DISPLAY -> {
-                // calculate time elapsed since start
                 if ((now - startTime) / 1000000 >= displayTime) status = Status.HIDE;
             }
+            // Move back up until out of view
             case HIDE -> {
-                currentY = (int) (currentY - movementSpeed);
+                currentY = (currentY - movementSpeed);
                 notificationPanel.setLocation(currentX, currentY);
                 if (currentY <= -height) {
                     status = Status.IDLE;
@@ -103,7 +103,6 @@ public class NotificationManager implements Tickable {
                 }
             }
         }
-
         al.requestTick(this);
     }
 }
