@@ -9,6 +9,9 @@ import minigames.server.telepathy.TelepathyServer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.List;
+import io.vertx.core.json.JsonObject;
+
 /**
  * Tests for the Telepathy server side code
  */
@@ -54,7 +57,37 @@ public class TelepathyTests {
         game.joinGame("Bob");
         assertTrue(game.getPlayers()[0].name().equals("Bob"));
 
-        // Test the response returned from joinGame() when coded in
+        // Check that another Bob cannot join
+        RenderingPackage renderingPackage = game.joinGame("Bob");
+        for(JsonObject command : renderingPackage.renderingCommands()){
+            System.out.println(command.getString("command"));
+            assertTrue(command.getString("command").equals("joinedGameFail"));
+            
+            TelepathyGame.Player players[] = game.getPlayers();
+            assertTrue(players[0].name().equals("Bob"));
+            assertTrue(players[1].name().equals("Empty"));
+        }
+
+        // Check another player can join a game with a free spot
+        renderingPackage = game.joinGame("Alice");
+        for(JsonObject command : renderingPackage.renderingCommands()){
+            System.out.println(command.getString("command"));
+            assertTrue(command.getString("command").equals("joinedGameSuccess"));
+            
+            TelepathyGame.Player players[] = game.getPlayers();
+            assertTrue(players[0].name().equals("Bob"));
+            assertTrue(players[1].name().equals("Alice"));
+        }
+
+        // Check that a player cannot join a full game
+        renderingPackage = game.joinGame("Fred");
+        for(JsonObject command : renderingPackage.renderingCommands()){
+            assertTrue(command.getString("command").equals("joinedGameFail"));
+
+            TelepathyGame.Player players[] = game.getPlayers();
+            assertTrue(players[0].name().equals("Bob"));
+            assertTrue(players[1].name().equals("Alice"));
+        }
     }
 
     /* Tests for TelepathyServer */
