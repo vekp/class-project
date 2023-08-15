@@ -40,6 +40,12 @@ public class SpaceMaze implements GameClient {
     /** A text area for showing room descriptions, etc */
     //JTextArea textArea; 
 
+    //For testing purpose
+    JTextArea sampleText;
+
+    //For testing purpose
+    JButton sampleButton;
+
     /** Direction commands */
     //JButton north, south, east, west;
     //JTextField userCommand;
@@ -79,6 +85,22 @@ public class SpaceMaze implements GameClient {
        KeyEventDispatcher thisKeyEventDispatcher = new DefaultFocusManager();
        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(myKeyEventDispatcher);
        */
+      sampleText = new JTextArea();
+      sampleText.setText("Space Maze Game");
+      sampleText.setEditable(false);
+      sampleText.setPreferredSize(new Dimension(800, 600));
+      sampleText.setForeground(Color.GREEN);
+      sampleText.setBackground(Color.BLACK);
+      sampleText.setFont(new Font("Monospaced", Font.PLAIN, 18));
+
+      sampleButton = new JButton("My Button");
+      //sampleButton.addActionListener((evt) -> sendCommand("command"));
+
+      commandPanel = new JPanel();
+      for (Component c: new Component[] {sampleText, sampleButton}){
+        commandPanel.add(c);
+      }
+    
 
       
     }
@@ -102,12 +124,25 @@ public class SpaceMaze implements GameClient {
      */
     @Override
     public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {
-         
+         this.mnClient = mnClient;
+         this.gm = game;
+         this.player = player;
+
+         mnClient.getMainWindow().addCenter(commandPanel);
+         mnClient.getMainWindow().addSouth(sampleText);
+
+         sampleText.append("Starting...");
+         mnClient.getMainWindow().pack();
     }
 
     @Override
     public void execute(GameMetadata game, JsonObject command) {
         
+        this.gm = game;
+        
+        switch(command.getString("command")){
+            case "command" -> sampleText.setText("Program running");
+        }
         
     }
 
@@ -117,3 +152,4 @@ public class SpaceMaze implements GameClient {
     }
     
 }
+

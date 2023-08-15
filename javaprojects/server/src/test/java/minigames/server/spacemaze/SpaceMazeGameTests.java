@@ -202,7 +202,8 @@ public class SpaceMazeGameTests {
     }
 
     @Disabled
-    @DisplayName("CheckGameOver/gameFinished") {
+    @DisplayName("CheckGameOver/gameFinished") 
+    public void testCheckGameOver() {
         // check gameFinished value
 
         // update player1 to have key/unlocked exit/location to exit

@@ -152,7 +152,7 @@ public class SpaceMazeGame {
 
             // TODO Any commands when a second player joins
 
-            renderingCommands.add(new LoadClient("SpaceMazeGame", "SpaceMaze", name, playerName).toJson());
+            renderingCommands.add(new LoadClient("SpaceMaze", "SpaceMaze", name, playerName).toJson());
             return new RenderingPackage(gameMetadata(), renderingCommands);
         }
     }
