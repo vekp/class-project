@@ -16,10 +16,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.*;
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-
-import org.apache.logging.log4j.*;
 
 /**
  * COSC220 Assessment 3
@@ -61,8 +58,8 @@ public class Memory implements GameClient, ActionListener, MouseListener {
     public Memory() {
         headingPanel = new JPanel();
         headingPanel.setLayout(new GridLayout(1, 1));
-        title = new JLabel("Memory");
-        title.setFont(new Font("Arial", Font.BOLD, 25));
+        title = new JLabel("Pair Up - A memory game");
+        title.setFont(new Font("Comic Sans MS", Font.BOLD, 25));
         title.setHorizontalAlignment(JLabel.CENTER);
         headingPanel.add(title);
 
@@ -207,14 +204,17 @@ public class Memory implements GameClient, ActionListener, MouseListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == newGameButton) {
             //TODO
-            System.out.println("Testing...");
+            mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(new JsonObject().put("command", "newGame"))));
+            System.out.println("New game started");
         }
         if (e.getSource() == restartLevelButton) {
             //TODO
-            System.out.println("Testing...");
+           mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(new JsonObject().put("command", "restartLevel"))));
+            System.out.println("Level Restarted...");
         }
         if (e.getSource() == exitButton) {
             //TODO
+            closeGame();
             System.out.println("Testing...");
         }
 
