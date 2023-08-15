@@ -74,7 +74,7 @@ public class KrumGame implements GameClient {
     void explode(int x, int y) {
         double z[] = {0};
         for (int i = -20; i < 20; i++) {
-            if (i + x >= 800) break;
+            if (i + x >= KrumC.RES_X) break;
             if (i + x < 0) continue;
             for (int j = -20; j < 20; j++) {
                 if (j + y < 0) continue;
