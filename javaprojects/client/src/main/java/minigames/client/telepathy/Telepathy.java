@@ -86,6 +86,15 @@ public class Telepathy implements GameClient {
         board.setBorder(new EmptyBorder(10, 10, 10, 10));
 
 
+        //temporary panel to display xy button coordinates
+        JPanel gridCheck = new JPanel();
+        gridCheck.setLayout(new BorderLayout());
+        JLabel label = new JLabel("xy button coordinates: (y, x)");
+        JTextField xyCheck = new JTextField();
+        gridCheck.add(label, BorderLayout.NORTH);
+        gridCheck.add(xyCheck, BorderLayout.SOUTH);
+
+
         //FIXME: the action listener accesses coordinates: but no current functionality
         //also need to implement switch code somewhere - i.e. 0,0 == A,1; 0,1 == A,2 etc
         ActionListener buttonListener = evt -> {
@@ -95,7 +104,7 @@ public class Telepathy implements GameClient {
             for (int row = 0; row < buttonGrid.length; row++) {
                 for (int col = 0; col < buttonGrid[row].length; col++) {
                     if (buttonGrid[row][col] == selectedBtn) {
-                        System.out.printf("Selected row and column: %d %d%n", row, col);
+                         xyCheck.setText(Integer.toString(row) + ", " + Integer.toString(col));
                     }
                 }
             }
@@ -110,7 +119,8 @@ public class Telepathy implements GameClient {
             }
         }
 
-        // add components to the telepathyBoard panel
+        // added components to the telepathyBoard panel
+        telepathyBoard.add(gridCheck, BorderLayout.SOUTH); //temporary panel
         telepathyBoard.add(gridIndexWest, BorderLayout.WEST, SwingConstants. CENTER);
         telepathyBoard.add(gridIndexNorth, BorderLayout.NORTH, SwingConstants.CENTER);
         telepathyBoard.add(board, BorderLayout.CENTER);
