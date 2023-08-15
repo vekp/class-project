@@ -21,6 +21,7 @@ public class Coordinate {
         this.horizontal = horizontal;
     }
 
+    // Getters
     /**
      * Get the vertical coordinate from the Coordinate object
      * @return A String containing the vertical position (A - J)
@@ -36,6 +37,23 @@ public class Coordinate {
     public Integer getHorizontal() {
         return horizontal;
     }
+
+    // Setters
+    /**
+     * Sets the vertical value to the user's input
+     * @param vertical A string value from the user
+     */
+    public void setVertical(String vertical) {
+        this.vertical = vertical;
+    }
+    /**
+     * Sets the horizontal value to the user's input
+     * @param horizontal an int value from the user
+     */
+    public void setHorizontal(Integer horizontal) {
+        this.horizontal = horizontal;
+    }
+
 
     // Create a method to compare if two coordinates are the same?
 }
