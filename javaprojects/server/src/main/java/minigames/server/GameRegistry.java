@@ -37,4 +37,13 @@ public class GameRegistry {
             .toList();
     }
 
+    /**
+     * Gets all of the game servers, regardless of platform. Used by achievement system to find every
+     * registered achievement
+     * @return a list of all game servers registered.
+     */
+    public List<GameServer> getAllGameServers(){
+        return gameServers.values().stream().toList();
+    }
+
 }

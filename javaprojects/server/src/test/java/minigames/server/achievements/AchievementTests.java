@@ -51,4 +51,22 @@ public class AchievementTests {
         //we already registered Achievement 1 in setup, this unlock request should be valid
         assertDoesNotThrow(()-> handler.unlockAchievement("Player1", "Achievement 1"));
     }
+
+    /** checks a player profile will register an achievement and recognise that it has it */
+    @Test
+    public void playerProfileAchievementRegisters(){
+        PlayerAchievementProfile profile = new PlayerAchievementProfile("James");
+        profile.addAchievement("Test Game", "Test Achievement");
+        assertTrue(profile.hasEarnedAchievement("Test Game", "Test Achievement"));
+    }
+
+    /** tests that player profile manager cant add duplicate players. This is mostly testing the hashcode and equals
+     * overrides for player profile work correctly
+     */
+    @Test
+    public void playerRegisterRejectsDuplicates(){
+        PlayerAchievementProfileManager manager = new PlayerAchievementProfileManager();
+        manager.addPlayer("Amy");
+        assertFalse(manager.addPlayer("Amy"));
+    }
 }
