@@ -74,6 +74,8 @@ public class AchievementPresenter {
 
         JPanel panel = new JPanel();
         JLabel image = new JLabel(achievementImage(20));
+        image.setPreferredSize(new Dimension(20, 20));
+
         if (achievement.hidden() && isUnlocked) {
             image.setBackground(Color.YELLOW);
             image.setOpaque(true);
@@ -116,6 +118,7 @@ public class AchievementPresenter {
         JPanel panel = new JPanel();
 //        panel.setBorder(new LineBorder(Color.BLACK));
         JLabel image = new JLabel(achievementImage(50));
+        image.setPreferredSize(new Dimension(50, 50));
         if (achievement.hidden() && isUnlocked) {
             image.setBackground(Color.YELLOW);
             image.setOpaque(true);

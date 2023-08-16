@@ -56,7 +56,7 @@ public class BattleshipServer implements GameServer {
         achievementHandler.registerAchievement(new Achievement(achievements.SLOW_LEARNER.toString(),
                 "Fire at a square that you've fired at already that contains nothing.", 10, "", true));
         achievementHandler.registerAchievement(new Achievement(achievements.C_120.toString(),
-                "Crack a blue can of V. (Enter C120 as a target coordinate).", 50, "", true));
+                "Crack a blue can of V. (Enter C120 as a target coordinate).", 50, "blue can", true));
         achievementHandler.registerAchievement(new Achievement(achievements.DOUBLE_TAP.toString(),
                 "Fire on an already destroyed vessel.", 10, "", false));
 
