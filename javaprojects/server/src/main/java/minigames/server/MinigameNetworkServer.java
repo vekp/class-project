@@ -100,7 +100,16 @@ public class MinigameNetworkServer {
                     if (handler.playerHasEarnedAchievement(playerID, current.name())) {
                         unlocked.add(current);
                     } else {
-                        locked.add(current);
+                        //If player hasn't unlocked it, and it's a hidden achievement, we do not send the 'real'
+                        //achievement but instead make a dummy 'hidden' achievement - keeps it secret but still shows
+                        // the player that there is something to unlock
+                        if (current.hidden()) {
+                            Achievement hiddenAchievement = new Achievement(current.name(), "his is a secret " +
+                                    "achievement, play the game to unlock it", 0, "", false);
+                            locked.add(hiddenAchievement);
+                        } else {
+                            locked.add(current);
+                        }
                     }
                 }
                 GameAchievementState state = new GameAchievementState(server.getDetails().name(), unlocked, locked);
@@ -112,7 +121,7 @@ public class MinigameNetworkServer {
         });
 
         //respond to request to get the most recently unlocked achievements
-        router.get("/achievementUnlocks").respond((ctx) ->{
+        router.get("/achievementUnlocks").respond((ctx) -> {
             List<Achievement> recentUnlocks = AchievementHandler.getRecentUnlocks();
             return Future.succeededFuture(recentUnlocks);
 //            if(recentUnlocks.size() == 0){
