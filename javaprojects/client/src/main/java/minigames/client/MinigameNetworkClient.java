@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import javax.swing.JLabel;
 
+import minigames.achievements.Achievement;
 import minigames.achievements.PlayerAchievementRecord;
 import minigames.client.achievementui.AchievementUI;
 import minigames.client.notifications.NotificationManager;
@@ -163,6 +164,38 @@ public class MinigameNetworkClient {
                 }).map((resp) -> resp.bodyAsString());
     }
 
+    //this may need to be modified to only request achievements for the current player on the client?
+
+    /**
+     * Asks the server for a list of achievements that have just been unlocked.
+     *
+     * @return
+     */
+    public Future<List<Achievement>> getRecentAchievements() {
+        return webClient.get(port, host, "/achievementUnlocks")
+                .send()
+                .onSuccess((resp) -> {
+                    //disabling this for now because this is requested periodically from the animator - it will spam
+                    //the console if we log this
+                    //  logger.info(resp.bodyAsString());
+                })
+                .map((resp) ->
+                        resp.bodyAsJsonArray()
+                                .stream()
+                                .map((j) -> ((JsonObject) j).mapTo(Achievement.class))
+                                .toList()
+                )
+                .onFailure((resp) -> {
+                    logger.error("Failed: {} ", resp.getMessage());
+                });
+    }
+
+    /**
+     * Sends a request to get the names of players currently registered on the server
+     * Temporary until player accounts are in
+     *
+     * @return a list of players on the server, separated by a ","
+     */
     public Future<String> getPlayerNames() {
         return webClient.get(port, host, "/playerList")
                 .send()
