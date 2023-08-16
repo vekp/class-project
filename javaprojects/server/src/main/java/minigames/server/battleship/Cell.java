@@ -10,13 +10,17 @@ public class Cell {
     // Fields
     private boolean shotAt;
     private CellType cellType;
+    private int horizontalCoord;
+    private int verticalCoord;
 
     // Constructor
 
     /**
      * Default constructor, each Cell is initialised as an OCEAN Cell and is changed as needed
      */
-    public Cell() {
+    public Cell(int horizontalCoord, int verticalCoord) {
+        this.horizontalCoord = horizontalCoord;
+        this.verticalCoord = verticalCoord;
         this.shotAt = false;
         this.cellType = CellType.OCEAN;
     }
@@ -38,6 +42,18 @@ public class Cell {
         return cellType.toString();
     }
 
+    public int getHorizontalCoord() {
+        return horizontalCoord;
+    }
+
+    public int getVerticalCoordInt() {
+        return verticalCoord;
+    }
+    public String getVerticalCoordString() {
+        String chars = "ABCDEFGHIJ";
+        return String.valueOf(chars.charAt(verticalCoord));
+    }
+
     // Setters
     /**
      * Change the CellType of the current Cell
@@ -46,5 +62,13 @@ public class Cell {
     public void setCellType(CellType cellType) {
         this.cellType = cellType;
         this.shotAt = true;
+    }
+
+    public void setHorizontalCoord(int horizontalCoord) {
+        this.horizontalCoord = horizontalCoord;
+    }
+
+    public void setVerticalCoord(int verticalCoord) {
+        this.verticalCoord = verticalCoord;
     }
 }
