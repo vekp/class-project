@@ -132,11 +132,7 @@ public class AchievementPresenter {
         if (!isUnlocked) {
             name.setForeground(achievement.hidden()? hiddenLockedColour : lockedColour);
             description.setForeground(achievement.hidden()? hiddenLockedColour : lockedColour);
-            if (achievement.hidden()) {
-                description.setText(makeRandomText(achievement.description()));
-            }
-
-        } //else if (achievement.hidden()) panel.setBackground(Color.YELLOW);
+        }
 
         panel.setBorder(largeEmptyBorder);
         Border mouseOverBorder = new CompoundBorder(new CompoundBorder(smallEmptyBorder,
@@ -205,18 +201,4 @@ public class AchievementPresenter {
 
         return panel;
     }
-    private String makeRandomText(String text) {
-        StringBuilder randomText = new StringBuilder();
-        Random random = new Random();
-        for (int i = 0; i < text.length(); i++) {
-            char c;
-            if (Character.isUpperCase(text.charAt(i))) c = (char)(random.nextInt(26) + 'A');
-            else if (Character.isLowerCase(text.charAt(i))) c = (char)(random.nextInt(26) + 'a');
-            else if (Character.isDigit(text.charAt(i))) c = (char) (random.nextInt(10) + '0');
-            else c = text.charAt(i);
-            randomText.append(c);
-        }
-        return randomText.toString();
-    }
-
 }
