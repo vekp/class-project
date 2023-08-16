@@ -10,6 +10,13 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JLabel;
+import javax.swing.BoxLayout;
+import java.awt.Insets;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import javax.swing.JComponent;
+import javax.swing.Box;
 
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
@@ -34,74 +41,83 @@ public class SpaceMaze implements GameClient {
     /** We hold on to this because we'll need it when sending commands to the server */
     GameMetadata gm;
 
-    /** Your name */    
+    /** Your name */
     String player;
 
-    /** A text area for showing room descriptions, etc */
-    //JTextArea textArea; 
+    //Header Section
+    JPanel headerPanel;
+    JLabel headerText;
 
-    //For testing purpose
-    JTextArea sampleText;
-
-    //For testing purpose
-    JButton sampleButton;
-
-    /** Direction commands */
-    //JButton north, south, east, west;
-    //JTextField userCommand;
-
-    //JButton send;
+    //Menu Section
+    JPanel mainMenuPanel; 
+    JPanel buttonsPanel;  
+    JButton startGameButton; //Start Game Button
+    JButton highScoreButton; //High Score Button
+    JButton mainMenuButton;  //Main Menu Button
+    JButton exitButton;      //Exit Button
     
-    JPanel commandPanel;
+    //Main Container
+    JLabel developerCredits;
+
 
     public SpaceMaze() {
-        /*
-        textArea = new JTextArea();
-        textArea.setEditable(false);
-        textArea.setPreferredSize(new Dimension(800, 600));
-        textArea.setForeground(Color.GREEN);
-        textArea.setBackground(Color.BLACK);
-        textArea.setFont(new Font("Monospaced", Font.PLAIN, 18));
 
-        north = new JButton("NORTH");
-        north.addActionListener((evt) -> sendCommand("NORTH"));
-        south = new JButton("SOUTH");
-        south.addActionListener((evt) -> sendCommand("SOUTH"));
-        east = new JButton("EAST");
-        east.addActionListener((evt) -> sendCommand("EAST"));
-        west = new JButton("WEST");
-        west.addActionListener((evt) -> sendCommand("WEST"));
+        //Menu Header Section
+        headerPanel = new JPanel();
+        headerPanel.setPreferredSize(new Dimension(600, 200));
+        headerPanel.setBackground(Color.BLACK);
+        headerPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
 
-        userCommand = new JTextField(20);
-        send = new JButton(">");
-        send.addActionListener((evt) -> sendCommand(userCommand.getText()));
+        headerText = new JLabel("Space Maze");
+        headerText.setForeground(Color.WHITE);
+        headerText.setFont(new Font("Monospaced", Font.PLAIN, 32));
+        headerPanel.add(headerText, gbc);
 
-        commandPanel = new JPanel();
-        for (Component c : new Component[] { north, south, east, west, userCommand, send }) {
-            commandPanel.add(c);
+        //Menu Section
+        mainMenuPanel = new JPanel();
+        mainMenuPanel.setLayout(new GridBagLayout());
+        mainMenuPanel.setPreferredSize(new Dimension(600, 600));
+        mainMenuPanel.setBackground(Color.BLACK);
+
+        //Buttons panel inside menu section
+        buttonsPanel = new JPanel();
+        buttonsPanel.setBackground(Color.BLACK);
+        buttonsPanel.setPreferredSize(new Dimension(200,200));
+        buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS)); //Box layout with items arranged vertically.
+
+        startGameButton = new JButton("Start Game");
+        startGameButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        startGameButton.addActionListener((evt) -> sendCommand("START"));
+
+        highScoreButton = new JButton("High Score");
+        highScoreButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        highScoreButton.addActionListener((evt) -> sendCommand("SCORE"));
+
+        mainMenuButton = new JButton("Main Menu");
+        mainMenuButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainMenuButton.addActionListener((evt) -> sendCommand("MENU"));
+
+        exitButton = new JButton("Exit");
+        exitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        exitButton.addActionListener((evt) -> sendCommand("EXIT"));
+
+        //Adding buttons to the buttons panel
+        for (Component c : new Component[] { startGameButton, highScoreButton, mainMenuButton, exitButton }) {
+            buttonsPanel.add(c);
+            buttonsPanel.add(Box.createRigidArea(new Dimension(10,10)));
+
         }
-        
-       // Listen for all key presses whenever focus is in the UI
-       KeyEventDispatcher thisKeyEventDispatcher = new DefaultFocusManager();
-       KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(myKeyEventDispatcher);
-       */
-      sampleText = new JTextArea();
-      sampleText.setText("Space Maze Game");
-      sampleText.setEditable(false);
-      sampleText.setPreferredSize(new Dimension(800, 600));
-      sampleText.setForeground(Color.GREEN);
-      sampleText.setBackground(Color.BLACK);
-      sampleText.setFont(new Font("Monospaced", Font.PLAIN, 18));
 
-      sampleButton = new JButton("My Button");
-      //sampleButton.addActionListener((evt) -> sendCommand("command"));
+        //Using GridBagLayout to position buttons panel inside menu section
+        gbc.gridx = 0;
+        gbc.gridy = 0; 
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(-200, 0, 0, 0);
+        mainMenuPanel.add(buttonsPanel, gbc);
 
-      commandPanel = new JPanel();
-      for (Component c: new Component[] {sampleText, sampleButton}){
-        commandPanel.add(c);
-      }
-    
-
+        //Credit Section
+        developerCredits = new JLabel("Developed by: Andy, Nik, Natasha, Niraj");
       
     }
 
@@ -124,26 +140,26 @@ public class SpaceMaze implements GameClient {
      */
     @Override
     public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {
-         this.mnClient = mnClient;
-         this.gm = game;
-         this.player = player;
+        this.mnClient = mnClient;
+        this.gm = game;
+        this.player = player;
 
-         mnClient.getMainWindow().addCenter(commandPanel);
-         mnClient.getMainWindow().addSouth(sampleText);
-
-         sampleText.append("Starting...");
-         mnClient.getMainWindow().pack();
+        mnClient.getMainWindow().addCenter(mainMenuPanel);
+        mnClient.getMainWindow().addSouth(developerCredits); 
+        mnClient.getMainWindow().addNorth(headerPanel);
+        mnClient.getMainWindow().pack();
     }
 
     @Override
     public void execute(GameMetadata game, JsonObject command) {
         
         this.gm = game;
-        
+
+      /*  
         switch(command.getString("command")){
             case "command" -> sampleText.setText("Program running");
         }
-        
+        */
     }
 
     @Override
