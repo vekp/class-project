@@ -106,8 +106,8 @@ public class MinigameNetworkServer {
                         //achievement but instead make a dummy 'hidden' achievement - keeps it secret but still shows
                         // the player that there is something to unlock
                         if (current.hidden()) {
-                            Achievement hiddenAchievement = new Achievement(current.name(), "his is a secret " +
-                                    "achievement, play the game to unlock it", 0, "", false);
+                            Achievement hiddenAchievement = new Achievement(current.name(), "This is a secret " +
+                                    "achievement, play the game to unlock it", 0, "", true);
                             hiddenLocked.add(hiddenAchievement);
                         } else {
                             locked.add(current);
