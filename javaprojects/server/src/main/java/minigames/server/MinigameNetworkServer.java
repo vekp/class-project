@@ -94,7 +94,9 @@ public class MinigameNetworkServer {
 
                 List<Achievement> unlocked = new ArrayList<>();
                 List<Achievement> locked = new ArrayList<>();
-
+                //hidden achievements that have not yet been unlocked should be shown at the END of the list of locked
+                //achievements
+                List<Achievement> hiddenLocked = new ArrayList<>();
                 //the list used depends on whether the player has this achievement or not
                 for (Achievement current : gameAchievements) {
                     if (handler.playerHasEarnedAchievement(playerID, current.name())) {
@@ -106,12 +108,15 @@ public class MinigameNetworkServer {
                         if (current.hidden()) {
                             Achievement hiddenAchievement = new Achievement(current.name(), "his is a secret " +
                                     "achievement, play the game to unlock it", 0, "", false);
-                            locked.add(hiddenAchievement);
+                            hiddenLocked.add(hiddenAchievement);
                         } else {
                             locked.add(current);
                         }
                     }
                 }
+                //once we are done sorting through achievments, add any hidden locked achievements to the end of the
+                // locked list to show up at the bottom.
+                locked.addAll(hiddenLocked);
                 GameAchievementState state = new GameAchievementState(server.getDetails().name(), unlocked, locked);
                 gameStates.add(state);
             }
