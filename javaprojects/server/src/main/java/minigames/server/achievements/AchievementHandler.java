@@ -37,6 +37,10 @@ public class AchievementHandler {
         handlerID = type.getName();
     }
 
+    public String getHandlerID() {
+        return handlerID;
+    }
+
     /**
      * A method that provides access to the achievement database to add achievements to it. Will check to make sure that
      * the achievement is not a duplicate and throw an error if so.
@@ -66,6 +70,11 @@ public class AchievementHandler {
      * @param achievementID The ID of the achievement
      */
     public void unlockAchievement(String playerID, String achievementID) {
+        //throw an error if we try to unlock an achievement that either doesnt exist, or isnt ours
+        if(database.getAchievement(handlerID, achievementID) == null){
+            throw new IllegalArgumentException("Achievement { " +achievementID + " } does not exist for this game { " +
+                    handlerID + " }. Please ensure all achievements are registered before trying to use");
+        }
         //this will either add the player, or they were already there
         playerManager.addPlayer(playerID);
 

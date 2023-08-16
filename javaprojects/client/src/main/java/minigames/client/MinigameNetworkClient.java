@@ -8,6 +8,7 @@ import javax.swing.JLabel;
 
 import minigames.achievements.PlayerAchievementRecord;
 import minigames.client.achievementui.AchievementUI;
+import minigames.client.notifications.NotificationManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -6,6 +6,12 @@ import io.vertx.core.json.JsonObject;
 import java.util.*;
 
 
+/** Represents the current achievement 'state' for a particular player, for a particular game.
+ * Passed to the client to show the list of both unlocked, and locked achievements for the player for this game.
+ * @param gameID The game the achievements are for
+ * @param unlocked the list of this game's achievements that the player has unlocked
+ * @param locked the list of this game's achievements that the player has not yet earned.
+ */
 public record GameAchievementState(
         String gameID,
         List<Achievement> unlocked,

@@ -9,9 +9,7 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import minigames.achievements.*;
 import minigames.server.achievements.*;
@@ -82,8 +80,11 @@ public class MinigameNetworkServer {
         // Respond to request from AchievementUI client
         router.get("/achievement/:player").handler((ctx) -> {
             String playerID = ctx.pathParam("player");
-            // PlayerAchievementRecord record = AchievementTestData.getPlayerTestData(playerID);
+
             List<GameAchievementState> gameStates = new ArrayList<>();
+            //we check all the currently registered servers. Their class acts as their Achievement database key.
+            //For any servers that have achievements, we need 2 lists, one of achievements the player has unlocked, and
+            //one for the remaining (yet to be earned) achievements
             for (GameServer server : Main.gameRegistry.getAllGameServers()) {
                 System.out.println("Class is = " + server.getClass());
                 AchievementHandler handler = new AchievementHandler(server.getClass());
@@ -92,6 +93,8 @@ public class MinigameNetworkServer {
 
                 List<Achievement> unlocked = new ArrayList<>();
                 List<Achievement> locked = new ArrayList<>();
+
+                //the list used depends on whether the player has this achievement or not
                 for (Achievement current : gameAchievements) {
                     if (handler.playerHasEarnedAchievement(playerID, current.name())) {
                         unlocked.add(current);
@@ -102,6 +105,7 @@ public class MinigameNetworkServer {
                 GameAchievementState state = new GameAchievementState(server.getDetails().name(), unlocked, locked);
                 gameStates.add(state);
             }
+            //prepare a record package to convert to JSON for sending to client
             PlayerAchievementRecord record = new PlayerAchievementRecord(playerID, gameStates);
             ctx.response().end(record.toJSON());
         });
