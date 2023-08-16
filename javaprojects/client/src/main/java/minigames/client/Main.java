@@ -4,7 +4,6 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import minigames.client.battleship.Battleship;
 import minigames.client.muddletext.MuddleText;
-import minigames.client.survey.Survey;
 import io.vertx.core.Launcher;
 
 import org.apache.logging.log4j.LogManager;
@@ -31,7 +30,6 @@ public class Main extends AbstractVerticle {
     private static void doWiring() {
         clientRegistry.registerGameClient("MuddleText", new MuddleText());
         clientRegistry.registerGameClient("Battleship", new Battleship());
-        clientRegistry.registerGameClient("Survey", new Survey());
     }
 
     public static void main(String... args) {

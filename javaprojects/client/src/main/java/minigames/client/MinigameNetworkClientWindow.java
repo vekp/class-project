@@ -3,6 +3,7 @@ package minigames.client;
 import javax.swing.*;
 
 import minigames.client.achievementui.AchievementUI;
+import minigames.client.survey.Survey;
 import minigames.client.backgrounds.Starfield;
 import minigames.client.notifications.NotificationManager;
 import minigames.rendering.GameMetadata;
@@ -207,6 +208,17 @@ public class MinigameNetworkClientWindow {
             pack();
         });
         south.add(achievementsButton);
+
+        // // Create a button for the Achievement UI.
+        JButton surveyButton = new JButton("Survey");
+        surveyButton.addActionListener(e -> {
+            clearAll();
+            Survey survey = new Survey();
+            center.add(survey);
+            pack();
+        });
+        south.add(surveyButton);
+
         pack();
     }
 
