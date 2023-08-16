@@ -175,6 +175,7 @@ public class MinigameNetworkClientWindow {
     public void showGameServers(List<GameServerDetails> servers) {
         frame.setTitle("COSC220 2023 Minigame Collection");
         clearAll();
+        getNotificationManager().resetToDefaultSettings();
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));

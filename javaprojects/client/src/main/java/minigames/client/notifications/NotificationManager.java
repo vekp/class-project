@@ -21,16 +21,16 @@ public class NotificationManager implements Tickable {
     private final List<Component> queuedNotifications;
     JPanel notificationPanel;
     // Margins to leave between frame edge and notification
-    int topMargin = 5, leftMargin = 5, rightMargin = 5;
+    int topMargin, leftMargin, rightMargin;
     // Size of notification panel
-    float alignment = Component.CENTER_ALIGNMENT;
+    float alignment;
     int width, height;
     // Panel's position
     int currentX, currentY;
     // Speed in pixels to move per 16ms frame
-    int animationSpeed = 4;
+    int animationSpeed;
     // Duration to wait in fully displayed state, in milliseconds
-    int displayTime = 5000;
+    int displayTime;
     // Timer starts when notification is fully displayed
     long startTime;
 
@@ -47,6 +47,7 @@ public class NotificationManager implements Tickable {
         this.layeredPane = frame.getLayeredPane();
         this.animator = mnClient.getAnimator();
         this.queuedNotifications = new LinkedList<>();
+        resetToDefaultSettings();
     }
 
     /**
@@ -200,4 +201,13 @@ public class NotificationManager implements Tickable {
         queuedNotifications.clear();
     }
 
+    /**
+     * Reset settings to their default values.
+     */
+    public void resetToDefaultSettings() {
+        setAlignment(0.5f);
+        setAnimationSpeed(4);
+        setDisplayTime(5000);
+        setMargins(5, 5, 5);
+    }
 }
