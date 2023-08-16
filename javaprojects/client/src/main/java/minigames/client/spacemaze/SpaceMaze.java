@@ -1,5 +1,11 @@
 package minigames.client.spacemaze;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -20,6 +26,7 @@ import javax.swing.Box;
 
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
+import minigames.client.spacemaze.MazeDisplay;
 import minigames.client.MinigameNetworkClient;
 import minigames.rendering.GameMetadata;
 import minigames.commands.CommandPackage;
@@ -35,6 +42,8 @@ import minigames.commands.CommandPackage;
  *   (e.g. { "command": "setDirections", "directions": "NS" } would enable only N and S) 
  */
 public class SpaceMaze implements GameClient {
+    private static final Logger logger = LogManager.getLogger(SpaceMaze.class);
+
 
     MinigameNetworkClient mnClient;
 
@@ -59,9 +68,14 @@ public class SpaceMaze implements GameClient {
     //Main Container
     JLabel developerCredits;
 
+    JPanel mazePanel;
+    JPanel elementPanel;
+
+    MazeDisplay maze;
+    int time = 120;
 
     public SpaceMaze() {
-
+        
         //Menu Header Section
         headerPanel = new JPanel();
         headerPanel.setPreferredSize(new Dimension(600, 200));
@@ -129,7 +143,6 @@ public class SpaceMaze implements GameClient {
      */
     public void sendCommand(String command) {
         JsonObject json = new JsonObject().put("command", command);
-
         // Collections.singletonList() is a quick way of getting a "list of one item"
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
     }
@@ -152,19 +165,59 @@ public class SpaceMaze implements GameClient {
 
     @Override
     public void execute(GameMetadata game, JsonObject command) {
-        
         this.gm = game;
-
-      /*  
+        logger.info("my command: {}", command.getString("command"));
         switch(command.getString("command")){
-            case "command" -> sampleText.setText("Program running");
+            
+            //To Do -  Uncomment and remove line 1 below
+            //case "startGame" -> sendCommand("requestMaze");
+            //case "renderMaze" -> loadMaze(jsonArray);
+
+            case "startGame" -> loadMaze();  //this is line 1
+            case "viewHighScore" -> headerText.setText("View High Score");
+            case "mainMenu" -> headerText.setText("Go to Main Menu");
+            case "exit" -> closeGame();
+            case "updateTime" -> updateTime(); //Dummy Timer
         }
-        */
     }
 
     @Override
     public void closeGame() {
         // Nothing to do        
+    }
+
+    //Modify to accept json array for maze as parameter?
+    public void loadMaze(){
+        //Start Dummy Timer
+        startTimer();
+
+        mnClient.getMainWindow().clearAll();
+        //Create maze object with the Json? 
+        maze = new MazeDisplay();
+
+        mazePanel = maze.mazePanel();
+        elementPanel = maze.elementPanel();
+
+        mnClient.getMainWindow().addCenter(mazePanel);
+        mnClient.getMainWindow().addSouth(elementPanel);
+        mnClient.getMainWindow().pack();
+        
+    }
+
+    //Dummy Timer
+    public void updateTime(){
+        maze.updateTimer(time);
+        time-= 1;
+    }
+
+    public void startTimer(){
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                sendCommand("gameTimer");
+            }
+        }, 0, 1000);
     }
     
 }

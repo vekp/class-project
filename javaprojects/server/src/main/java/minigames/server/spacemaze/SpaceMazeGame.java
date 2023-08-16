@@ -71,6 +71,15 @@ public class SpaceMazeGame {
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         String commandString = (String) cp.commands().get(0).getValue("command");
 
+        switch (commandString){
+            case "START" -> renderingCommands.add(new JsonObject().put("command", "startGame"));
+            case "SCORE" -> renderingCommands.add(new JsonObject().put("command", "viewHighScore"));
+            case "MENU"  -> renderingCommands.add(new JsonObject().put("command", "mainMenu"));
+            case "EXIT" ->  renderingCommands.add(new JsonObject().put("command", "exit"));
+            case "gameTimer" -> renderingCommands.add(new JsonObject().put("command", "updateTime")); //Dummy Timer Request
+
+        }
+
         if (commandString.startsWith("key")) {
             String keyPressed = commandString;
             processKeyInput(keyPressed, p);
