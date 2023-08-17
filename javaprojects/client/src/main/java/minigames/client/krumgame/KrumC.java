@@ -10,13 +10,14 @@ public class KrumC {
     static final long TARGET_FRAMETIME = 1000000000 / TARGET_FRAMERATE; // nanoseconds
 
     // pixels less opaque than this are ignored in collision and hit detection (0.0 = transparent, 1.0 = opaque)
-    static final double OPACITY_THRESHOLD = 0.4;
+    static final double OPACITY_THRESHOLD = 0.7;
 
-    static final double GRAVITY = 0.05; // downward acceleration in pixels per frame
+    static final double GRAVITY = 0.08; // downward acceleration in pixels per frame
     static final double AIR_RES_FACTOR = 0.99; // movement in air of projectiles and players is multiplied by this factor every frame
+    static final double ROPE_RES_FACTOR = 0.95;
 
-    static final double JUMP_ANGLE = Math.PI/3.0;
-    static final double JUMP_ANGLE_TWO = Math.PI/2.5; // currently unused, but was for an alternate jump like the worms backflip
+    static final double JUMP_ANGLE = Math.PI/3.0; // angle of spacebar jump (flipped in the x-axis when facing left)
+    static final double JUMP_ANGLE_TWO = Math.PI/2; // angle of backspace jump
 
     // player sprite pixels outside this rectangle are ignored in movement collision detection (but not ignored in projectile hit detection)
     // todo: different values for each sprite
@@ -43,4 +44,9 @@ public class KrumC {
     // dimensions of our drawable area
     static final int RES_X = 800;
     static final int RES_Y = 600;
+
+    static final double ROPE_SPEED = 10;
+    static final double ROPE_KEY_ACCEL = 0.06;
+    static final double ROPE_LENGTH_SPEED = 1.0;
+    static final double ROPE_LENGTH_ACCEL_FACTOR = 1.1;
 }
