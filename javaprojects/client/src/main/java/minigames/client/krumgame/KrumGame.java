@@ -197,6 +197,12 @@ public class KrumGame implements GameClient {
         else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             players[playerTurn].enterKeyPressed();
         }
+        else if (e.getKeyCode() == KeyEvent.VK_UP) {
+            players[playerTurn].upArrowKeyDown = true;
+        }
+        else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+            players[playerTurn].downArrowKeyDown = true;
+        }
     }
     void keyUp(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) { // Spacebar
@@ -215,6 +221,12 @@ public class KrumGame implements GameClient {
         }
         else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             players[playerTurn].enterKeyReleased();
+        }
+        else if (e.getKeyCode() == KeyEvent.VK_UP) {
+            players[playerTurn].upArrowKeyDown = false;
+        }
+        else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+            players[playerTurn].downArrowKeyDown = false;
         }
     }
 

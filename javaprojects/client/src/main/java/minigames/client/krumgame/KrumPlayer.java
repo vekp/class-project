@@ -76,6 +76,8 @@ public class KrumPlayer {
     boolean wasOnRope;
     boolean leftKeyDown = false;
     boolean rightKeyDown = false;
+    boolean upArrowKeyDown = false;
+    boolean downArrowKeyDown = false;
 
     int empty[];
     
@@ -399,6 +401,14 @@ public class KrumPlayer {
         }
         else if (onRope) {    
             ropeAngleRadians = Math.atan2(ypos + sprite.getHeight() / 2 - ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 1).y,  ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 1).x - xpos - sprite.getWidth() / 2);
+            if (upArrowKeyDown) {
+                ropeLength -= KrumC.ROPE_LENGTH_SPEED;
+                xpos += Math.cos(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED;
+            }
+            if (downArrowKeyDown) {
+                ropeLength += KrumC.ROPE_LENGTH_SPEED;
+                xpos -= Math.cos(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED;
+            }
             //System.out.println("RAR: " + ropeAngleRadians + ", " + xpos + ", " + ypos + ", " + ropeAttachmentPoints.get(ropeAttachmentPoints.size() -1).x + ", " + ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 1).y);
             double oldx = xpos;
             double oldy = ypos;
@@ -409,8 +419,7 @@ public class KrumPlayer {
             double velDir = Math.atan2(-yvel, xvel);
             double ropeVelMag = Math.abs(Math.sin(ropeAngleRadians - velDir)) * velMag;
             boolean clockwise = true;
-            double ropeVelDir;
-            
+            double ropeVelDir;            
             while (ropeAngleRadians >= 2*Math.PI) ropeAngleRadians -= 2*Math.PI;
             while (ropeAngleRadians < 0) ropeAngleRadians += 2*Math.PI;
             while (velDir >= 2*Math.PI) velDir -= 2*Math.PI;
@@ -427,13 +436,17 @@ public class KrumPlayer {
             else {
                 ropeVelDir = ropeAngleRadians - Math.PI / 2;                
             }
+            double racc = KrumC.ROPE_KEY_ACCEL;
+            if (upArrowKeyDown) racc *= KrumC.ROPE_LENGTH_ACCEL_FACTOR;
+            if (downArrowKeyDown) racc /= KrumC.ROPE_LENGTH_ACCEL_FACTOR;
             if (leftKeyDown) {                          
                 double dir = ropeVelDir;
                 if (Math.sin(ropeAngleRadians) > 0) {   
                     if (Math.cos(ropeVelDir) > 0) dir += Math.PI;
                 }
                 System.out.println(ropeVelDir + ", " + dir);
-                double[] res = addVectors(ropeVelDir, ropeVelMag, dir, KrumC.ROPE_KEY_ACCEL);
+
+                double[] res = addVectors(ropeVelDir, ropeVelMag, dir, racc);
                 ropeVelDir = res[0];
                 ropeVelMag = res[1];
             } 
