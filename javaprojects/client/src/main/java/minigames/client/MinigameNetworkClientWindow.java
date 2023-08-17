@@ -50,7 +50,7 @@ public class MinigameNetworkClientWindow {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         this.notificationManager = new NotificationManager(networkClient, frame);
-        this.achievementPopups = new AchievementNotificationHandler(this.notificationManager, networkClient);
+        this.achievementPopups = new AchievementNotificationHandler(networkClient);
 
         parent = new JPanel(new BorderLayout());
 
