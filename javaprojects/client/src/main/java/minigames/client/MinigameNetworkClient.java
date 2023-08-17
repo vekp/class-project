@@ -93,6 +93,13 @@ public class MinigameNetworkClient {
     }
 
     /**
+     * Get a reference to the notification manager
+     */
+    public NotificationManager getNotificationManager() {
+        return this.mainWindow.getNotificationManager();
+    }
+
+    /**
      * Sends a ping to the server and logs the response
      */
     public Future<String> ping() {
