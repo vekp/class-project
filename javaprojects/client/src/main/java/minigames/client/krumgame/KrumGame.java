@@ -87,10 +87,10 @@ public class KrumGame implements GameClient {
             }
         }
         for (int i = 0; i < players.length; i++) {
+            if (p != null) players[i].knockback(p);  
             if (!players[i].onRope) {
                 players[i].airborne = true;                
-            } 
-            if (p != null) players[i].knockback(p);            
+            }                       
         }
         
         windX = (rand.nextDouble() - 0.5) / 10;
