@@ -15,20 +15,20 @@ import java.awt.Point;
 public class SpaceMazeGameTests {
 
     // Timer class tests
-    private Timer timer = new Timer();
+    private GameTimer gameTimer = new GameTimer();
 
     @DisplayName("Check timer constructor doesn't start the timing")
     @Test
     public void testTimerConstructor(){
-        assertFalse(timer.getIsTimerRunning());
+        assertFalse(gameTimer.getIsTimerRunning());
     }
 
     @DisplayName("Check startTimer starts the timer")
     @Test
     public void testTimerStarts(){
-        assertFalse(timer.getIsTimerRunning());
-        timer.startTimer();
-        assertTrue(timer.getIsTimerRunning());
+        assertFalse(gameTimer.getIsTimerRunning());
+        gameTimer.startTimer();
+        assertTrue(gameTimer.getIsTimerRunning());
     }
     Point startLocation = new Point(0,0);
     // Bot class tests

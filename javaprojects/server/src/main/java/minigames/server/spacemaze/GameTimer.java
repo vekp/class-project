@@ -1,7 +1,7 @@
 package minigames.server.spacemaze;
 
 /**
- * Timer class to track the elapsed time in a given game
+ * GameTimer class to track the elapsed time in a given game
  *
  * @author Andrew McKenzie
  */
@@ -10,7 +10,7 @@ package minigames.server.spacemaze;
 *  I can adjust for that if needed but I think to recieve a score the game
 *  should end from a running state.
 * */
-public class Timer {
+public class GameTimer {
 
     // Time when timer was started
     private long startTime;
@@ -29,7 +29,7 @@ public class Timer {
     /**
      * Constructor for a timer
      */
-    public Timer(){
+    public GameTimer(){
         this.timerWasUsed = false;
         this.prePausedTime = 0;
         this.timerRunning = false;
