@@ -79,6 +79,8 @@ public class KrumPlayer {
     boolean upArrowKeyDown = false;
     boolean downArrowKeyDown = false;
 
+    ArrayList<Double> ropeSegmentLengths;
+
     int empty[];
     
     /**
@@ -134,6 +136,7 @@ public class KrumPlayer {
         walking = false;
 
         ropeAttachmentPoints = new ArrayList<Point2D.Double>();
+        ropeSegmentLengths = new ArrayList<Double>();
         
         //  determine outline of player for use in directional collision detection
         leftEdge = new int[alphaRaster.getHeight()];
@@ -252,7 +255,8 @@ public class KrumPlayer {
         }
         if (onRope) {
             Point2D.Double o = playerCentre();
-            for (Point2D.Double p : ropeAttachmentPoints) {
+            for (int i = 0; i < ropeAttachmentPoints.size(); i++) {
+                Point2D.Double p = ropeAttachmentPoints.get(ropeAttachmentPoints.size()-i-1);
                 g.drawLine((int)o.x, (int)o.y, (int)p.x, (int)p.y);
                 o = p;
             }
@@ -387,7 +391,7 @@ public class KrumPlayer {
         }
         if (shootingRope) {
             ropeLength += KrumC.ROPE_SPEED;
-            Point2D.Double collisionPoint = ropeCollisionTest();
+            Point2D.Double collisionPoint = ropeCollisionTest(0);
             if (collisionPoint != null) {
                 shootingRope = false;
                 onRope = true;
@@ -505,6 +509,22 @@ public class KrumPlayer {
             yvel = Math.sin(ropeVelDir) * ropeVelMag * -1;
             //System.out.println(xvel + ", " + yvel + ", " + ropeVelDir + ", " + ropeVelMag);
             velDir = Math.atan2(-yvel, xvel);
+            Point2D.Double newAttachPoint = ropeCollisionTest(1);
+            if (newAttachPoint != null) {
+                double ls = ropeLength;
+                ropeAttachmentPoints.add(newAttachPoint);
+                ropeLength = Math.sqrt((newAttachPoint.x - ropeOrigin().x) * (newAttachPoint.x - ropeOrigin().x) + (newAttachPoint.y - ropeOrigin().y) * (newAttachPoint.y - ropeOrigin().y));
+                ropeSegmentLengths.add(ls - ropeLength);
+            }
+            if (ropeAttachmentPoints.size() > 1) {
+                while (ropeAttachmentPoints.size() > 1 && ropeCollisionTest(2) == null) {
+                    double len = distanceBetween(ropeAttachmentPoints.get(ropeAttachmentPoints.size()-1).x, ropeAttachmentPoints.get(ropeAttachmentPoints.size()-1).y, ropeAttachmentPoints.get(ropeAttachmentPoints.size()-2).x, ropeAttachmentPoints.get(ropeAttachmentPoints.size()-2).y);
+                    ropeAttachmentPoints.remove(ropeAttachmentPoints.size()-1);                    
+                    ropeLength += ropeSegmentLengths.get(ropeSegmentLengths.size()-1);
+                    ropeSegmentLengths.remove(ropeSegmentLengths.size()-1);
+                }
+
+            }
             return;
         }
     }
@@ -540,12 +560,32 @@ public class KrumPlayer {
         return false;
     }
 
-    Point2D.Double ropeCollisionTest() {
+    double distanceBetween(double ax, double ay, double bx, double by) {
+        return Math.sqrt((ax - bx)*(ax-bx)+(ay-by)*(ay-by));
+    }
+
+    double angleBetween(double ax, double ay, double bx, double by) {
+        return Math.atan2(ay - by, bx - ax);
+    }
+
+    Point2D.Double ropeCollisionTest(int t) {
         Point2D.Double p = ropeOrigin();
-        double l = ropeLength;
-        for (int i = 0; i < ropeLength - 1; i++) {
+        double len = ropeLength;
+        double ang = ropeAngleRadians;
+        if (t == 1) {
+            len -= 2;
+            if (len <= 0) return null;
+        }
+        if (t == 2) {
+            if (ropeAttachmentPoints.size() < 2) return null;
+            len = distanceBetween(ropeOrigin().x, ropeOrigin().y, ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 2).x, ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 2).y) - 1;
+            if (len <= 0) return null;
+            ang = angleBetween(ropeOrigin().x, ropeOrigin().y, ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 2).x, ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 2).y);
+        }
+        double l = len;
+        for (int i = 0; i < len - 1; i++) {
             l -= 1;
-            p = addVectorToCoords(p.x, p.y, ropeAngleRadians, 1);
+            p = addVectorToCoords(p.x, p.y, ang, 1);
             if ((int)p.x < 0 || (int)p.x >= levelRaster.getWidth() || (int)p.y < 0 || (int)p.y >= levelRaster.getHeight()) {
                 shootingRope = false;
                 return null;
@@ -554,7 +594,7 @@ public class KrumPlayer {
                 return p;
             }
         }
-        p = addVectorToCoords(p.x, p.y, ropeAngleRadians, l);
+        p = addVectorToCoords(p.x, p.y, ang, l);
         if ((int)p.x < 0 || (int)p.x >= levelRaster.getWidth() || (int)p.y < 0 || (int)p.y >= levelRaster.getHeight()) {
             shootingRope = false;
             return null;

@@ -43,7 +43,7 @@ public class KrumGame implements GameClient {
 
     public KrumGame() {        
         File backgroundFile = new File(KrumC.imgDir + "chameleon.png");
-        //backgroundFile = new File(KrumC.imgDir + "ropetestmap.png");
+        backgroundFile = new File(KrumC.imgDir + "ropetestmap.png");
         try {
             background = ImageIO.read(backgroundFile);
         }
