@@ -77,23 +77,25 @@ public class SpaceMazeGame {
             case "MENU"  -> renderingCommands.add(new JsonObject().put("command", "mainMenu"));
             case "EXIT" ->  renderingCommands.add(new JsonObject().put("command", "exit"));
             case "gameTimer" -> renderingCommands.add(new JsonObject().put("command", "updateTime")); //Dummy Timer Request
-
         }
 
+        // Temporarily sending the whole maze array back after key input
         if (commandString.startsWith("key")) {
             String keyPressed = commandString;
             processKeyInput(keyPressed, p);
+            JsonObject serializedMazeArray = new JsonObject()
+                    .put("command", "renderMaze")
+                    .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()));
+            renderingCommands.add(serializedMazeArray);
         }
 
         if (commandString.startsWith("requestMaze")) {
             JsonObject serializedMazeArray = new JsonObject()
                     .put("command", "renderMaze")
-                    .put("mazeArray", serializeNestedCharArray(mazeControl.getMazeArray()));
+                    .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()));
             renderingCommands.add(serializedMazeArray);
         }
 
-        // Move the timer client side and recieve the end game time here?
-        // Or on client request, send the current time?
         if (commandString.startsWith("gameTimer")) {
             // TODO
         }
@@ -102,17 +104,17 @@ public class SpaceMazeGame {
     }
 
     /**
-     * Method to 'hopefully' break down a char[][] array to be sent as
+     * Method to break down a char[][] array to be sent as
      * a JSON object
      * @param mazeArray char[][]
      * @return List of Strings for each row in the maze
      */
-    private List<String> serializeNestedCharArray(char[][] mazeArray) {
-        List<String> serializedMaze = new ArrayList<>();
+    private List<String> serialiseNestedCharArray(char[][] mazeArray) {
+        List<String> serialisedMaze = new ArrayList<>();
         for (int i = 0; i < mazeArray.length; i++) {
-            serializedMaze.add(new String(mazeArray[i]));
+            serialisedMaze.add(new String(mazeArray[i]));
         }
-        return serializedMaze;
+        return serialisedMaze;
     }
 
     /**
@@ -130,29 +132,21 @@ public class SpaceMazeGame {
         Point rightloc = new Point(ploc.x+1, ploc.y);
 
         switch (keyPressed) {
-            case "up":
-                if (mazeControl.validMove(uploc)) {
-                    player.updateLocation(uploc);
-                    mazeControl.updatePlayerLocationMaze(player,uploc);
-                }
+            case "keyup":
+                player.updateLocation(uploc);
+                mazeControl.updatePlayerLocationMaze(player,uploc);
                 break;
-            case "down":
-                if (mazeControl.validMove(downloc)) {
-                    player.updateLocation(downloc);
-                    mazeControl.updatePlayerLocationMaze(player, downloc);
-                }
+            case "keydown":
+                player.updateLocation(downloc);
+                mazeControl.updatePlayerLocationMaze(player, downloc);
                 break;
-            case "left":
-                if (mazeControl.validMove(leftloc)) {
-                    player.updateLocation(leftloc);
-                    mazeControl.updatePlayerLocationMaze(player, leftloc);
-                }
+            case "keyleft":
+                player.updateLocation(leftloc);
+                mazeControl.updatePlayerLocationMaze(player, leftloc);
                 break;
-            case "right":
-                if (mazeControl.validMove(rightloc)) {
-                    player.updateLocation(rightloc);
-                    mazeControl.updatePlayerLocationMaze(player, rightloc);
-                }
+            case "keyright":
+                player.updateLocation(rightloc);
+                mazeControl.updatePlayerLocationMaze(player, rightloc);
                 break;
         }
     }

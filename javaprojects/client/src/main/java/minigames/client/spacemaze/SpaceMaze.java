@@ -6,6 +6,10 @@ import org.apache.logging.log4j.Logger;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import java.util.List;
+import io.vertx.core.json.JsonArray;
+import java.awt.Point;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -32,18 +36,13 @@ import minigames.rendering.GameMetadata;
 import minigames.commands.CommandPackage;
 
 /**
- * A very simple interface for a text-based game.
- * 
- * It understands three commands:
- * { "command": "clearText" } to clear the contents of the text area
- * { "command": "appendText", "text": text } to add contents to the text area
- * { "command": "setDirections", "directions": directions} to enable/disable the N, S, E, W buttons
- *   depending on whether the directions string contains "N", "S", "E", "W"
- *   (e.g. { "command": "setDirections", "directions": "NS" } would enable only N and S) 
+ * Class to set up the window, communicate with server and
+ * handle client-side processes
+ *
+ * @author Niraj Rana Bhat
  */
 public class SpaceMaze implements GameClient {
     private static final Logger logger = LogManager.getLogger(SpaceMaze.class);
-
 
     MinigameNetworkClient mnClient;
 
@@ -72,8 +71,13 @@ public class SpaceMaze implements GameClient {
     JPanel elementPanel;
 
     MazeDisplay maze;
+
+    ClientControl controller;
     int time = 120;
 
+    /**
+     * Constructor
+     */
     public SpaceMaze() {
         
         //Menu Header Section
@@ -132,7 +136,7 @@ public class SpaceMaze implements GameClient {
 
         //Credit Section
         developerCredits = new JLabel("Developed by: Andy, Nik, Natasha, Niraj");
-      
+
     }
 
     /** 
@@ -146,10 +150,13 @@ public class SpaceMaze implements GameClient {
         // Collections.singletonList() is a quick way of getting a "list of one item"
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
     }
- 
+
 
     /**
      * What we do when our client is loaded into the main screen
+     * @param mnClient
+     * @param game
+     * @param player
      */
     @Override
     public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {
@@ -163,47 +170,82 @@ public class SpaceMaze implements GameClient {
         mnClient.getMainWindow().pack();
     }
 
+    /**
+     *
+     * @param game
+     * @param command
+     */
     @Override
     public void execute(GameMetadata game, JsonObject command) {
         this.gm = game;
         logger.info("my command: {}", command.getString("command"));
         switch(command.getString("command")){
-            
-            //To Do -  Uncomment and remove line 1 below
-            //case "startGame" -> sendCommand("requestMaze");
-            //case "renderMaze" -> loadMaze(jsonArray);
 
-            case "startGame" -> loadMaze();  //this is line 1
+            case "startGame" -> sendCommand("requestMaze");
+            case "renderMaze" -> {
+                JsonArray serialisedArray = command.getJsonArray("mazeArray");
+                loadMaze(serialisedArray);
+            }
             case "viewHighScore" -> headerText.setText("View High Score");
             case "mainMenu" -> headerText.setText("Go to Main Menu");
             case "exit" -> closeGame();
-            case "updateTime" -> updateTime(); //Dummy Timer
+            //case "updateTime" -> updateTime(); //Dummy Timer
         }
     }
 
+
+    /**
+     *
+     */
     @Override
     public void closeGame() {
         // Nothing to do        
     }
 
-    //Modify to accept json array for maze as parameter?
-    public void loadMaze(){
+    /**
+     *
+     * @param jsonArray
+     */
+    public void loadMaze(JsonArray jsonArray){
         //Start Dummy Timer
-        startTimer();
+        //startTimer();
 
         mnClient.getMainWindow().clearAll();
-        //Create maze object with the Json? 
-        maze = new MazeDisplay();
 
-        mazePanel = maze.mazePanel();
+        List<String> mazeList = jsonArray.getList();
+        char[][] mazeMap = deserialiseJsonMaze(mazeList);
+
+        Point playerStartPos = new Point(1,0);
+
+        maze = new MazeDisplay(mazeMap, playerStartPos);
+        controller = new ClientControl(maze, this);
+
+        mazePanel = maze.mazePanel(mazeMap);
         elementPanel = maze.elementPanel();
 
         mnClient.getMainWindow().addCenter(mazePanel);
         mnClient.getMainWindow().addSouth(elementPanel);
         mnClient.getMainWindow().pack();
-        
+
+        // Trying to get the key focus on the maze?
+        maze.requestFocusInWindow();
     }
 
+    /**
+     * Method to rebuild the char[][] array sent from the server
+     * @param serialisedMaze
+     * @return char[][] mazeArray
+     */
+    private char[][] deserialiseJsonMaze(List<String> serialisedMaze) {
+        int rows = serialisedMaze.size();
+        char[][] mazeArray = new char[rows][];
+        for (int i = 0; i < rows; i++) {
+            mazeArray[i] = serialisedMaze.get(i).toCharArray();
+        }
+        return mazeArray;
+    }
+
+    /*
     //Dummy Timer
     public void updateTime(){
         maze.updateTimer(time);
@@ -218,7 +260,7 @@ public class SpaceMaze implements GameClient {
                 sendCommand("gameTimer");
             }
         }, 0, 1000);
-    }
+    }*/
     
 }
 

@@ -6,6 +6,11 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.util.Collections;
 
+import java.awt.Point;
+
+import java.util.List;
+import io.vertx.core.json.JsonArray;
+
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -24,7 +29,12 @@ import minigames.client.MinigameNetworkClient;
 import minigames.rendering.GameMetadata;
 import minigames.commands.CommandPackage;
 
-public class MazeDisplay{
+/**
+ *
+ *
+ * @authors Niraj Rana Bhat, Andrew McKenzie
+ */
+public class MazeDisplay extends JPanel {
 
     JPanel mazePanel;
     JPanel elementPanel;
@@ -32,16 +42,79 @@ public class MazeDisplay{
     JLabel countdownTimer;
     JLabel score;
 
-    public JPanel mazePanel(){
+    // The players position (if we go two player, does this work?)
+    private Point playerPos;
+    private char[][] mazeMap;
+
+    /**
+     * Constructor for MazeDisplay
+     * @param mazeArray a nested char array for the map of the maze
+     */
+    public MazeDisplay (char[][] mazeArray, Point playerStartPos) {
+        this.mazeMap = mazeArray;
+        this.playerPos = playerStartPos;
+        this.setFocusable(true);
+        this.requestFocusInWindow();
+    }
+
+    /**
+     * Renders the maze
+     * @param mazeMap Nested char array to display as the maze
+     * @return Jpanel with the maze
+     */
+    public JPanel mazePanel(char[][] mazeMap){
+
+        int jPanelWidth = 800;
+        int jPanelHeight = 600;
+
         mazePanel = new JPanel();
-        mazePanel.setPreferredSize(new Dimension(800, 600));
-        mazePanel.setBackground(Color.BLACK);
+        mazePanel.setPreferredSize(new Dimension(jPanelWidth, jPanelHeight));
+        mazePanel.setLayout(new GridBagLayout());
 
-        //Deserialize Maze here.
+        int tileWidth = jPanelWidth / mazeMap[0].length;
+        int tileHeight = jPanelHeight / mazeMap.length;
 
+        // Each Grid bag component associates an instance of this
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        for (int r = 0; r < mazeMap.length; r++) {
+            for (int c = 0; c < mazeMap[r].length; c++) {
+                JLabel mazeTile = new JLabel();
+                // Abstract this out at some point
+                switch(mazeMap[r][c]) {
+                    case 'W':
+                        mazeTile.setBackground(Color.BLACK);
+                        break;
+                    case '.':
+                        mazeTile.setBackground(Color.WHITE);
+                        break;
+                    case 'K':
+                        mazeTile.setBackground(Color.YELLOW);
+                        break;
+                    case 'P':
+                        mazeTile.setBackground(Color.BLUE);
+                        break;
+                    case 'E':
+                        mazeTile.setBackground(Color.RED);
+                        break;
+                    case 'U':
+                        mazeTile.setBackground(Color.GREEN);
+                        break;
+                }
+                mazeTile.setOpaque(true);
+                mazeTile.setPreferredSize(new Dimension(tileWidth, tileHeight));
+                gbc.gridx = c;
+                gbc.gridy = r;
+                mazePanel.add(mazeTile, gbc);
+            }
+        }
         return mazePanel;
     }
 
+    /**
+     * Panel below the maze for holding maze information
+     * @return Jpanel with components
+     */
     public JPanel elementPanel(){
         elementPanel = new JPanel();
         elementPanel.setPreferredSize(new Dimension(800, 200));
@@ -71,5 +144,12 @@ public class MazeDisplay{
         } else {
             countdownTimer.setText("Game Over!");
         }
+    }
+
+    /**
+     * @return A nested char array of the maze map
+     */
+    public char[][] getMazeMap() {
+        return this.mazeMap;
     }
 }
