@@ -21,18 +21,18 @@ public class NotificationManager implements Tickable {
     private final List<Component> queuedNotifications;
     JPanel notificationPanel;
     // Margins to leave between frame edge and notification
-    int topMargin, leftMargin, rightMargin;
+    private int topMargin, leftMargin, rightMargin;
     // Size of notification panel
-    float alignment;
-    int width, height;
+    private float alignment;
+    private int height;
     // Panel's position
-    int currentX, currentY;
+    private int currentX, currentY;
     // Speed in pixels to move per 16ms frame
-    int animationSpeed;
+    private int animationSpeed;
     // Duration to wait in fully displayed state, in milliseconds
-    int displayTime;
+    private int displayTime;
     // Timer starts when notification is fully displayed
-    long startTime;
+    private long startTime;
 
     /**
      * Status enum defines the current state of the notification panel
@@ -41,6 +41,12 @@ public class NotificationManager implements Tickable {
         IDLE, MOVING_DOWN, FULLY_DISPLAYED, MOVING_UP
     }
     private Status status = Status.IDLE;
+
+    /**
+     * C
+     * @param mnClient
+     * @param frame
+     */
 
     public NotificationManager(MinigameNetworkClient mnClient, JFrame frame) {
         this.frame = frame;
@@ -88,7 +94,7 @@ public class NotificationManager implements Tickable {
             });
         }
         // get panel dimensions
-        width = (int) notificationPanel.getPreferredSize().getWidth();
+        int width = (int) notificationPanel.getPreferredSize().getWidth();
         height = (int) notificationPanel.getPreferredSize().getHeight();
         // calculate start position
         int maxX = frame.getWidth() - width - rightMargin;
@@ -157,7 +163,6 @@ public class NotificationManager implements Tickable {
 
     /**
      * Setter for changing the speed at which the notification slides up and down.
-     * The default value is 4.
      * @param animationSpeed speed in pixels per 16ms tick.
      */
     public void setAnimationSpeed(int animationSpeed) {
@@ -166,8 +171,8 @@ public class NotificationManager implements Tickable {
 
     /**
      * Setter for changing duration of time the notification will remain in its fully displayed state, before
-     * it starts moving back up. Default value is 5000. If displayTime <= 0, the notification will stay
-     * on screen indefinitely until manually dismissed by clicking on it.
+     * it starts moving back up. If displayTime <= 0, the notification will stay on screen indefinitely until
+     * manually dismissed by clicking on it.
      * @param displayTime time in ms
      */
     public void setDisplayTime(int displayTime) {
@@ -176,7 +181,7 @@ public class NotificationManager implements Tickable {
 
     /**
      * Setter for altering the margins between edge of the frame and the notification panel at its fully displayed
-     * state. Can be used together with alignment setter for precise positioning. Default values are 5.
+     * state. Can be used together with alignment setter for precise positioning.
      * @param topMargin   distance from top of frame
      * @param leftMargin  distance from left of frame
      * @param rightMargin distance from right of frame
@@ -202,10 +207,14 @@ public class NotificationManager implements Tickable {
     }
 
     /**
-     * Reset settings to their default values.
+     * Reset settings to their default values. Default values are: <br>
+     * alignment     :   Component.RIGHT_ALIGNMENT (1.0f)<br>
+     * animationSpeed:   4 <br>
+     * displayTime   :   5000 <br>
+     * margins       :   5
      */
     public void resetToDefaultSettings() {
-        setAlignment(1.0f);
+        setAlignment(Component.RIGHT_ALIGNMENT);
         setAnimationSpeed(4);
         setDisplayTime(5000);
         setMargins(5, 5, 5);
