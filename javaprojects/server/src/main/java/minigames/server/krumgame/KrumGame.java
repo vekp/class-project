@@ -21,12 +21,10 @@ public class KrumGame{
     // This is for game instance name
     private String name;
     private String currentPlayerTurn;
-    private CommandProcessor commandProcessor;
     private String playerName;
 
     public KrumGame(String name){
         this.name = name;
-        this.commandProcessor = new CommandProcessor(this);
     }
 
     public String[] getPlayerNames(){
@@ -89,10 +87,9 @@ public class KrumGame{
         }
 
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
-        renderingCommands.add(new JsonObject().put("command", "addPlayer").put("name", p.name)
-                        .put("type", p.playerType).put("xPosition", p.xPosition)
-                        .put("yPosition", p.yPosition).put("health", p.health));
+
         renderingCommands.add(new LoadClient("KrumGame", "KrumGame", name, playerName).toJson());
+        
         return new RenderingPackage(gameMetadata(), renderingCommands);
     }
 
@@ -106,15 +103,12 @@ public class KrumGame{
             return sendErrorMsg("The game is in an invalidState");
         }
 
-        for (JsonObject command : cp.commands()){
-            processPlayerCommand(command, p);
-        }
-
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
 
-        renderingCommands.add(new JsonObject().put("command", "updatePlayer").put("name", p.name).put("xPosition", p.xPosition)    
-                                       .put("yPosition", p.yPosition).put("health", p.health).put("turn", this.currentPlayerTurn));
-   
+        for (JsonObject command : cp.commands()){
+            processPlayerCommand(command, p, renderingCommands);
+        }
+
         // Change the turn
         this.changeTurn();
         return new RenderingPackage(gameMetadata(), renderingCommands);
@@ -131,7 +125,22 @@ public class KrumGame{
     }
 
 
-    public void processPlayerCommand(JsonObject command, GameCharacter player){
-        commandProcessor.processCommand(command, player);
+    public void processPlayerCommand(JsonObject command, GameCharacter player, List<JsonObject> renderingCommands){
+        String commandType = command.getString("commandType");
+        GameCommand gameCommand;
+
+        switch(commandType){
+            case "move":
+                int x = command.getInteger("x");
+                int y = command.getInteger("y");
+                gameCommand = new MoveCommand(x, y);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown Command type: " + commandType);
+
+        }
+
+        JsonObject renderingCommand = gameCommand.execute(player, this);
+        renderingCommands.add(renderingCommand);
     }   
 }
