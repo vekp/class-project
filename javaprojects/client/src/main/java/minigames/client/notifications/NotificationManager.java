@@ -43,13 +43,12 @@ public class NotificationManager implements Tickable {
     private Status status = Status.IDLE;
 
     /**
-     * C
+     * Constructor for
      * @param mnClient
-     * @param frame
      */
 
-    public NotificationManager(MinigameNetworkClient mnClient, JFrame frame) {
-        this.frame = frame;
+    public NotificationManager(MinigameNetworkClient mnClient) {
+        this.frame = mnClient.getMainWindow().getFrame();
         this.layeredPane = frame.getLayeredPane();
         this.animator = mnClient.getAnimator();
         this.queuedNotifications = new LinkedList<>();

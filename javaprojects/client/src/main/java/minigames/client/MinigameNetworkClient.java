@@ -58,6 +58,7 @@ public class MinigameNetworkClient {
     Animator animator;
 
     Optional<GameClient> gameClient;
+    NotificationManager notificationManager;
 
     public MinigameNetworkClient(Vertx vertx) {
         this.vertx = vertx;
@@ -68,6 +69,7 @@ public class MinigameNetworkClient {
         vertx.setPeriodic(16, (id) -> animator.tick());
 
         mainWindow = new MinigameNetworkClientWindow(this);
+        notificationManager = new NotificationManager(this);
         mainWindow.show();
     }
 
@@ -96,7 +98,7 @@ public class MinigameNetworkClient {
      * Get a reference to the notification manager
      */
     public NotificationManager getNotificationManager() {
-        return this.mainWindow.getNotificationManager();
+        return this.notificationManager;
     }
 
     /**
