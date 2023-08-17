@@ -152,7 +152,6 @@ public class Battleship implements GameClient {
             c.setForeground(Color.decode(fgColour));
             c.setBackground(Color.decode(bgColour));
         }
-
     }
 
     /**
@@ -190,6 +189,8 @@ public class Battleship implements GameClient {
 
         // Don't forget to call pack - it triggers the window to resize and repaint itself
         mnClient.getMainWindow().pack();
+        mnClient.getMainWindow().getNotificationManager().setMargins(15, 10, 10);
+
     }
 
     /**

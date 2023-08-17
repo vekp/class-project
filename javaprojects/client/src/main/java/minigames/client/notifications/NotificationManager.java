@@ -205,7 +205,7 @@ public class NotificationManager implements Tickable {
      * Reset settings to their default values.
      */
     public void resetToDefaultSettings() {
-        setAlignment(0.5f);
+        setAlignment(1.0f);
         setAnimationSpeed(4);
         setDisplayTime(5000);
         setMargins(5, 5, 5);
