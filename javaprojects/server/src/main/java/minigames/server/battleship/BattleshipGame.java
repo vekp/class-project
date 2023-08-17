@@ -196,6 +196,19 @@ public class BattleshipGame {
     }
 
     /**
+     * Test function to print the current user's name to see if it could be implemented into the login framework
+     */
+    public void printUsername(){
+        // "USER" is where the user's name is stored for UNIX based systems
+        String username = System.getenv("USER");
+        // For Windows the above query will return null, as on windows the variable for the user is USERNAME
+        if (username == null) {
+            username = System.getenv("USERNAME");
+        }
+        System.out.println("Username: " + username);
+    }
+
+    /**
      * Function to determine whether the player's input has hit a ship. Sets the CellType accordingly and returns
      * true or false. The boolean value is used in another function to determine the response
      *
@@ -205,6 +218,9 @@ public class BattleshipGame {
      * @return true if player has hit a ship, false if player hit water or previously missed cell
      */
     private boolean shotOutcome(Board player, int x, int y) {
+
+        // TODO Remove this after showing Nathan
+        printUsername(); // test call to printUsername function
         // Get players current grid
         Cell[][] grid = player.getGrid();
         // Get cell type of player's coordinate
