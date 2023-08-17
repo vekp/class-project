@@ -23,7 +23,7 @@ public class KrumProjectile {
         this.xvel = xvel;
         this.yvel = yvel;
         exploding = false;   
-        knockbackDistance = 30;
+        knockbackDistance = 40;
         knockbackPower = 5;
         File spriteFile = new File(KrumC.imgDir + "carrot_s.png");
         try {

@@ -419,6 +419,10 @@ public class KrumPlayer {
                     ypos += Math.sin(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED;
                     cancelRopeLengthChange = true;
                 }
+                // else {
+                //     xvel += Math.cos(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED * KrumC.ROPE_LENGTH_ACCEL_FACTOR;
+                //     yvel -= Math.sin(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED * KrumC.ROPE_LENGTH_ACCEL_FACTOR;
+                // }
             }
             if (downArrowKeyDown) {
                 ropeLength += KrumC.ROPE_LENGTH_SPEED;
@@ -430,6 +434,10 @@ public class KrumPlayer {
                     ypos -= Math.sin(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED;
                     cancelRopeLengthChange = true;
                 }
+                // else {
+                //     xvel -= Math.cos(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED * KrumC.ROPE_LENGTH_ACCEL_FACTOR;
+                //     yvel += Math.sin(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED * KrumC.ROPE_LENGTH_ACCEL_FACTOR;
+                // }
             }
             //System.out.println("RAR: " + ropeAngleRadians + ", " + xpos + ", " + ypos + ", " + ropeAttachmentPoints.get(ropeAttachmentPoints.size() -1).x + ", " + ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 1).y);
             double oldx = xpos;
