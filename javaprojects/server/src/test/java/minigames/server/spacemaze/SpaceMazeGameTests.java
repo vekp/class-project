@@ -30,10 +30,87 @@ public class SpaceMazeGameTests {
         timer.startTimer();
         assertTrue(timer.getIsTimerRunning());
     }
-
-    
-    // Player class tests
     Point startLocation = new Point(0,0);
+    // Bot class tests
+    private SpaceBot bot = new SpaceBot(startLocation);
+    @DisplayName("Check the bot constructor")
+    @Test
+    public void testBotConstructor() {
+        Point cLoc = bot.getLocation();
+        
+        assertEquals(startLocation.x, cLoc.x);
+        assertEquals(startLocation.y, cLoc.y);
+
+    }
+
+    @DisplayName("Check the bot movement up")
+    @Test
+    public void testBotMoveUp() {
+        Point cLoc = bot.getLocation(); 
+        Point moveUp = bot.getMoveAttempt(0);
+        
+        assertEquals(cLoc.x, moveUp.x);
+        assertEquals((cLoc.y-1), moveUp.y);
+        
+    }
+
+    @DisplayName("Check the bot movement right")
+    @Test
+    public void testBotMoveRight() {
+        Point cLoc = bot.getLocation();
+        Point moveRight = bot.getMoveAttempt(1);
+       
+        assertEquals((cLoc.x+1), moveRight.x);
+        assertEquals(cLoc.y, moveRight.y);
+
+    }
+
+    @DisplayName("Check the bot movement down")
+    @Test
+    public void testBotMoveDown() {
+        Point cLoc = bot.getLocation();
+        Point moveDown = bot.getMoveAttempt(2);
+       
+        assertEquals(cLoc.x, moveDown.x);
+        assertEquals((cLoc.y+1), moveDown.y);
+
+    }
+
+    @DisplayName("Check the bot movement left")
+    @Test
+    public void testBotMoveLeft() {
+        Point cLoc = bot.getLocation();
+        Point moveLeft = bot.getMoveAttempt(3);
+       
+        assertEquals((cLoc.x-1), moveLeft.x);
+        assertEquals(cLoc.y, moveLeft.y);
+
+    }
+
+    @DisplayName("Check for legal move commands")
+    @Test
+    public void testBotMoveCommand() {
+
+        // up, right, down, left
+        assertDoesNotThrow(() -> { bot.getMoveAttempt(0); });
+        assertDoesNotThrow(() -> { bot.getMoveAttempt(1); });
+        assertDoesNotThrow(() -> { bot.getMoveAttempt(2); });
+        assertDoesNotThrow(() -> { bot.getMoveAttempt(3); });
+
+    }
+
+    @DisplayName("Check for illegal move commands")
+    @Test
+    public void testIllegalBotMoveCommand() {
+
+       // a command not between 0 - 3 inclusive
+       assertThrows(RuntimeException.class, () -> { bot.getMoveAttempt(4); });
+    }
+
+
+
+    // Player class tests
+    
     private SpacePlayer player = new SpacePlayer(startLocation);
 
     @DisplayName("Check the player constructor")
@@ -49,7 +126,7 @@ public class SpaceMazeGameTests {
         
     }
 
-    @DisplayName("Check player getLocation")
+    @DisplayName("Check player and bot superclass - getLocation")
     @Test
     public void testPlayerGetLocation() {
         Point cLoc = player.getLocation();
@@ -59,7 +136,7 @@ public class SpaceMazeGameTests {
 
     }
 
-    @DisplayName("Check player updateLocation")
+    @DisplayName("Check player and bot superclass - updateLocation")
     @Test
     public void testPlayerUpdateLocation() {
         Point newLocation = new Point(2,3);
