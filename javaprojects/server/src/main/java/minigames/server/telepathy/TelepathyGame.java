@@ -1,12 +1,16 @@
 package minigames.server.telepathy;
 
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import io.vertx.core.json.JsonObject;
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
+import minigames.rendering.NativeCommands;
 import minigames.rendering.RenderingPackage;
+
+import minigames.telepathy.TelepathyCommands;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,24 +68,25 @@ public class TelepathyGame {
      * Adds a player to the game and makes up a RenderPackage with instructions
      * for the client.
      * 
-     * @param name: Name of the player wanting to join.
+     * @param playerName: Name of the player wanting to join.
      * @return RenderingPackage with instructions for the client.
      */
-    public RenderingPackage joinGame(String name) {
+    public RenderingPackage joinGame(String playerName) {
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
 
         if(this.players[0].name.equals("Empty")){
-            this.players[0] = new Player(name);
-            renderingCommands.add(new JsonObject().put("command", "joinedGameSuccess"));
+            this.players[0] = new Player(playerName);
+            renderingCommands.add(new NativeCommands.LoadClient("Telepathy", "Telepathy", this.name, playerName).toJson());
+            renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMESUCCESS));
         } else{
-            if(this.players[0].name.equals(name)){ // Name taken
-                renderingCommands.add(new JsonObject().put("command", "joinedGameFail").put("message", "Name taken"));
+            if(this.players[0].name.equals(playerName)){ // Name taken
+                renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMEFAIL).put("message", "Name taken"));
             }
             else if(!this.players[1].name.equals("Empty")){ // Spot already taken
-            renderingCommands.add(new JsonObject().put("command", "joinedGameFail").put("message", "No spots available"));
+            renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMEFAIL).put("message", "No spots available"));
             } else{
-                this.players[1] = new Player(name);
-                renderingCommands.add(new JsonObject().put("command", "joinedGameSuccess"));
+                this.players[1] = new Player(playerName);
+                renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMESUCCESS));
             }
         }
         
