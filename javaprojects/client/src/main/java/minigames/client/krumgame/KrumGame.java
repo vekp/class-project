@@ -4,6 +4,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -125,6 +126,8 @@ public class KrumGame implements GameClient {
             p.draw(g);
             if (p.projectile != null) p.projectile.draw(g);
         }        
+        g.setColor(Color.red);
+        if (windX > 0) g.setColor(Color.blue);        
         g.setFont(new Font("Courier New", 1, 24));
         g.drawString(windString, 300, 25);
     }
@@ -156,15 +159,43 @@ public class KrumGame implements GameClient {
     }
     void keyDown(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) { // Spacebar
-            players[playerTurn].startJump(0);
+            if (players[playerTurn].airborne) {
+                players[playerTurn].fireRope();
+            }
+            if (players[playerTurn].onRope) {
+                players[playerTurn].detachRope();
+            }
+            else {
+                players[playerTurn].startJump(0);
+            }            
         }   
+        else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) { // backspace
+            if (players[playerTurn].airborne) {
+                players[playerTurn].fireRope();
+            }
+             if (players[playerTurn].onRope) {
+                players[playerTurn].detachRope();
+            }
+            else {
+                players[playerTurn].startJump(1);
+            }   
+        }  
         else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-            players[playerTurn].walking = true;
+            players[playerTurn].leftKeyDown = true;
+            if (!players[playerTurn].airborne && !players[playerTurn].onRope) {
+                players[playerTurn].walking = true;                
+            }
             players[playerTurn].setDirection(false, alphaRaster);
         }
         else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            players[playerTurn].walking = true;
+            players[playerTurn].rightKeyDown = true;
+            if (!players[playerTurn].airborne && !players[playerTurn].onRope) {
+                players[playerTurn].walking = true;
+            }
             players[playerTurn].setDirection(true, alphaRaster);            
+        }
+        else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+            players[playerTurn].enterKeyPressed();
         }
     }
     void keyUp(KeyEvent e) {
@@ -176,9 +207,14 @@ public class KrumGame implements GameClient {
         } 
         else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
             players[playerTurn].walking = false;
+            players[playerTurn].leftKeyDown = false;
         }
         else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
             players[playerTurn].walking = false;
+             players[playerTurn].rightKeyDown = false;
+        }
+        else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+            players[playerTurn].enterKeyReleased();
         }
     }
 
