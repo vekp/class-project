@@ -139,19 +139,19 @@ public class SpaceMazeGame {
         Point rightloc = new Point(ploc.x+1, ploc.y);
 
         switch (keyPressed) {
-            case "keyup":
+            case "keyUp":
                 player.updateLocation(uploc);
                 mazeControl.updatePlayerLocationMaze(player,uploc);
                 break;
-            case "keydown":
+            case "keyDown":
                 player.updateLocation(downloc);
                 mazeControl.updatePlayerLocationMaze(player, downloc);
                 break;
-            case "keyleft":
+            case "keyLeft":
                 player.updateLocation(leftloc);
                 mazeControl.updatePlayerLocationMaze(player, leftloc);
                 break;
-            case "keyright":
+            case "keyRight":
                 player.updateLocation(rightloc);
                 mazeControl.updatePlayerLocationMaze(player, rightloc);
                 break;

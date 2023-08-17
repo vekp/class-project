@@ -121,7 +121,7 @@ public class MazeDisplay extends JPanel{
                 }
                 break;
             case KeyEvent.VK_DOWN:
-                    logger.info("Info Dwon:");
+                    logger.info("Info Down:");
                 if (isMoveValid(getMazeMap(), "down")){
                     spaceMaze.sendCommand("keyDown");
                 }
@@ -248,11 +248,13 @@ public class MazeDisplay extends JPanel{
         Point playerPos = new Point();
         Point moveTo = new Point();
 
-        for (int i = 0; i < mazeMap.length; i++) {
-            for (int j = 0; j < mazeMap[i].length; j++) {
-                if (mazeMap[i][j] == 'P') {
-                    playerPos.x = i;
-                    playerPos.y = j;
+        boolean isWallOrExit = true;
+
+        for (int r = 0; r < mazeMap.length; r++) {
+            for (int c = 0; c < mazeMap[r].length; c++) {
+                if (mazeMap[r][c] == 'P') {
+                    playerPos.x = c;
+                    playerPos.y = r;
                 }
             }
         }
@@ -260,25 +262,31 @@ public class MazeDisplay extends JPanel{
         switch(direction) {
             case "up":
                 moveTo.y = playerPos.y-1;
+                moveTo.x = playerPos.x;
                 break;
             case "down":
                 moveTo.y = playerPos.y+1;
+                moveTo.x = playerPos.x;
                 break;
             case "left":
                 moveTo.x = playerPos.x-1;
+                moveTo.y = playerPos.y;
                 break;
             case "right":
                 moveTo.x = playerPos.x+1;
+                moveTo.y = playerPos.y;
                 break;
             default:
                 return false;
         }
 
-        boolean inBounds = !(moveTo.x < 0 || moveTo.y < 0
+        boolean outOfBounds = (moveTo.x < 0 || moveTo.y < 0
                 || moveTo.y >= mazeMap.length || moveTo.x >= mazeMap[0].length);
 
-        boolean isNotWall = mazeMap[moveTo.x][moveTo.y] != 'W';
+        if (!outOfBounds) {
+            isWallOrExit = (mazeMap[moveTo.y][moveTo.x] == 'W' || mazeMap[moveTo.y][moveTo.x] == 'E');
+        }
 
-        return (inBounds && isNotWall);
+        return (!outOfBounds && !isWallOrExit);
     }
 }
