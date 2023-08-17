@@ -43,6 +43,7 @@ public class KrumGame implements GameClient {
 
     public KrumGame() {        
         File backgroundFile = new File(KrumC.imgDir + "chameleon.png");
+        //backgroundFile = new File(KrumC.imgDir + "ropetestmap.png");
         try {
             background = ImageIO.read(backgroundFile);
         }
@@ -85,9 +86,9 @@ public class KrumGame implements GameClient {
                 }                    
             }
         }
-        players[0].airborne = true;
-        players[1].airborne = true;
-        windX = (rand.nextDouble() - 0.5) / 25;
+        if (!players[0].onRope) players[0].airborne = true;
+        if (!players[1].onRope) players[1].airborne = true;
+        windX = (rand.nextDouble() - 0.5) / 10;
         windString = "Wind: ";
         windString += windX > 0 ? "right " : "left ";
         windString += Math.round(windX * 10000.0) / 100.0;
