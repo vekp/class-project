@@ -189,10 +189,18 @@ public class SpaceMaze implements GameClient {
             case "viewHighScore" -> headerText.setText("View High Score");
             case "mainMenu" -> headerText.setText("Go to Main Menu");
             case "exit" -> closeGame();
+            
+            //Update PLayer location in display maze.
+            //case "movePlayerToHere" -> updatePlayerLocation(newLocation);
+
             //case "updateTime" -> updateTime(); //Dummy Timer
         }
     }
 
+    //Method to update location of player in DisplayMaze? 
+    public void UpdatePlayerLocation(){
+        //Todo 
+    }
 
     /**
      *
@@ -217,8 +225,8 @@ public class SpaceMaze implements GameClient {
 
         Point playerStartPos = new Point(1,0);
 
-        maze = new MazeDisplay(mazeMap, playerStartPos);
-        controller = new ClientControl(maze, this);
+        maze = new MazeDisplay(mazeMap, playerStartPos, this);
+        //controller = new ClientControl(maze, this);
 
         mazePanel = maze.mazePanel(mazeMap);
         elementPanel = maze.elementPanel();
@@ -227,8 +235,7 @@ public class SpaceMaze implements GameClient {
         mnClient.getMainWindow().addSouth(elementPanel);
         mnClient.getMainWindow().pack();
 
-        // Trying to get the key focus on the maze?
-        maze.requestFocusInWindow();
+        maze.requestFocusInPanel();
     }
 
     /**

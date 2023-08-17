@@ -77,6 +77,13 @@ public class SpaceMazeGame {
             case "MENU"  -> renderingCommands.add(new JsonObject().put("command", "mainMenu"));
             case "EXIT" ->  renderingCommands.add(new JsonObject().put("command", "exit"));
             case "gameTimer" -> renderingCommands.add(new JsonObject().put("command", "updateTime")); //Dummy Timer Request
+
+            //Key Event Requests from client
+            //case "keyUp" -> renderingCommands.add(new JsonObject().put("command", "movePlayerToHere")); //calculate and send new position of player to server??? 
+            //case "keyDown" -> renderingCommands.add(new JsonObject().put("command", "movePlayerToHere"));
+            //case "keyLeft" -> renderingCommands.add(new JsonObject().put("command", "movePlayerToHere"));
+            //case "keyRight" -> renderingCommands.add(new JsonObject().put("command", "movePlayerToHere"));
+
         }
 
         // Temporarily sending the whole maze array back after key input

@@ -6,6 +6,14 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.util.Collections;
 
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.awt.event.KeyListener;
+import java.awt.event.KeyEvent;
 import java.awt.Point;
 
 import java.util.List;
@@ -34,10 +42,12 @@ import minigames.commands.CommandPackage;
  *
  * @authors Niraj Rana Bhat, Andrew McKenzie
  */
-public class MazeDisplay extends JPanel {
+public class MazeDisplay extends JPanel{
+    private static final Logger logger = LogManager.getLogger(MazeDisplay.class);
 
     JPanel mazePanel;
     JPanel elementPanel;
+    SpaceMaze spaceMaze;
 
     JLabel countdownTimer;
     JLabel score;
@@ -50,11 +60,85 @@ public class MazeDisplay extends JPanel {
      * Constructor for MazeDisplay
      * @param mazeArray a nested char array for the map of the maze
      */
-    public MazeDisplay (char[][] mazeArray, Point playerStartPos) {
+    public MazeDisplay (char[][] mazeArray, Point playerStartPos, SpaceMaze spaceMaze) {
         this.mazeMap = mazeArray;
         this.playerPos = playerStartPos;
-        this.setFocusable(true);
-        this.requestFocusInWindow();
+        this.spaceMaze = spaceMaze;
+        mazePanel = new JPanel();
+
+        //Focus Listener for Logging purposes
+        mazePanel.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                logger.info("MazeDisplay gained focus.");
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                logger.info("MazeDisplay lost focus.");
+            }
+        });
+
+        //Action Listener
+        mazePanel.addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                handleKeyPressed(e);
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+            }
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+        });
+
+
+    }
+
+    /**
+     * Handles key pressed and if the movement is valid, gets spaceMaze to send to server
+     * @param e the Event
+     */
+    public void requestFocusInPanel(){
+        //Have to set the focus on mazePanel inorder for the key presses to work
+        mazePanel.setFocusable(true);
+        mazePanel.requestFocusInWindow();
+    }
+
+    /**
+     * Handles key pressed and if the movement is valid, gets spaceMaze to send to server
+     * @param e the Event
+     */
+    public void handleKeyPressed(KeyEvent e) {
+        switch (e.getKeyCode()) {
+            case KeyEvent.VK_UP:
+                logger.info("Info KEYUP:");
+                if (isMoveValid(getMazeMap(), "up")){
+                    spaceMaze.sendCommand("keyUp");
+                }
+                break;
+            case KeyEvent.VK_DOWN:
+                    logger.info("Info Dwon:");
+                if (isMoveValid(getMazeMap(), "down")){
+                    spaceMaze.sendCommand("keyDown");
+                }
+                break;
+            case KeyEvent.VK_LEFT:
+                logger.info("Info left:");
+                if (isMoveValid(getMazeMap(), "left")){
+                    spaceMaze.sendCommand("keyLeft");
+                }
+                break;
+            case KeyEvent.VK_RIGHT:
+                logger.info("Info right:");
+                if (isMoveValid(getMazeMap(), "right")){
+                    spaceMaze.sendCommand("keyRight");
+                }
+                break;
+        }
     }
 
     /**
@@ -67,7 +151,6 @@ public class MazeDisplay extends JPanel {
         int jPanelWidth = 800;
         int jPanelHeight = 600;
 
-        mazePanel = new JPanel();
         mazePanel.setPreferredSize(new Dimension(jPanelWidth, jPanelHeight));
         mazePanel.setLayout(new GridBagLayout());
 
@@ -151,5 +234,51 @@ public class MazeDisplay extends JPanel {
      */
     public char[][] getMazeMap() {
         return this.mazeMap;
+    }
+
+/**
+     * Method to check whether a move is valid
+     * Used to save time by not sending invalid moves to the server
+     * @param mazeMap char[][] of the maze
+     * @param direction requested direction from key input
+     * @return boolean of true if valid or false if not a valid move
+     */
+    public boolean isMoveValid(char[][] mazeMap, String direction) {
+
+        Point playerPos = new Point();
+        Point moveTo = new Point();
+
+        for (int i = 0; i < mazeMap.length; i++) {
+            for (int j = 0; j < mazeMap[i].length; j++) {
+                if (mazeMap[i][j] == 'P') {
+                    playerPos.x = i;
+                    playerPos.y = j;
+                }
+            }
+        }
+
+        switch(direction) {
+            case "up":
+                moveTo.y = playerPos.y-1;
+                break;
+            case "down":
+                moveTo.y = playerPos.y+1;
+                break;
+            case "left":
+                moveTo.x = playerPos.x-1;
+                break;
+            case "right":
+                moveTo.x = playerPos.x+1;
+                break;
+            default:
+                return false;
+        }
+
+        boolean inBounds = !(moveTo.x < 0 || moveTo.y < 0
+                || moveTo.y >= mazeMap.length || moveTo.x >= mazeMap[0].length);
+
+        boolean isNotWall = mazeMap[moveTo.x][moveTo.y] != 'W';
+
+        return (inBounds && isNotWall);
     }
 }
