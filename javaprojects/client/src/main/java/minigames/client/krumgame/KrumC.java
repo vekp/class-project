@@ -49,4 +49,5 @@ public class KrumC {
     static final double ROPE_KEY_ACCEL = 0.06;
     static final double ROPE_LENGTH_SPEED = 1.0;
     static final double ROPE_LENGTH_ACCEL_FACTOR = 1.1;
+
 }

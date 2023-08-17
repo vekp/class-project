@@ -15,12 +15,16 @@ public class KrumProjectile {
     double yvel;
     boolean exploding;
     BufferedImage sprite;
+    double knockbackPower;
+    double knockbackDistance;
     KrumProjectile(int xpos, int ypos, double xvel, double yvel) {
         this.x = xpos;
         this.y = ypos;
         this.xvel = xvel;
         this.yvel = yvel;
         exploding = false;   
+        knockbackDistance = 30;
+        knockbackPower = 5;
         File spriteFile = new File(KrumC.imgDir + "carrot_s.png");
         try {
             sprite = ImageIO.read(spriteFile);

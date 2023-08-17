@@ -73,7 +73,7 @@ public class KrumGame implements GameClient {
      * @param x x-coordinate of the centre of the explosion
      * @param y y-coordinate of the centre of the explosion
      */
-    void explode(int x, int y) {
+    void explode(int x, int y, KrumProjectile p) {
         double z[] = {0};
         for (int i = -20; i < 20; i++) {
             if (i + x >= KrumC.RES_X) break;
@@ -86,8 +86,13 @@ public class KrumGame implements GameClient {
                 }                    
             }
         }
-        if (!players[0].onRope) players[0].airborne = true;
-        if (!players[1].onRope) players[1].airborne = true;
+        for (int i = 0; i < players.length; i++) {
+            if (!players[i].onRope) {
+                players[i].airborne = true;                
+            } 
+            if (p != null) players[i].knockback(p);            
+        }
+        
         windX = (rand.nextDouble() - 0.5) / 10;
         windString = "Wind: ";
         windString += windX > 0 ? "right " : "left ";
@@ -102,13 +107,13 @@ public class KrumGame implements GameClient {
             p.update(windX, windY, alphaRaster);
             if (p.projectile != null) {
                 if(p.projectile.collisionCheck(alphaRaster)) {
-                    explode((int)p.projectile.x, (int)p.projectile.y);
+                    explode((int)p.projectile.x, (int)p.projectile.y, p.projectile);
                     p.projectile = null;
                 }
                 if (p.projectile != null) {
                     int n = p.projectile.playerCollisionCheck(players);
                     if (n >= 0) {
-                        explode((int)p.projectile.x, (int)p.projectile.y);
+                        explode((int)p.projectile.x, (int)p.projectile.y, p.projectile);
                         p.projectile = null;
                         players[n].hit();
                     }

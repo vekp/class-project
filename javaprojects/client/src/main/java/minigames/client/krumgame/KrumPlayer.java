@@ -529,6 +529,17 @@ public class KrumPlayer {
         }
     }
 
+    void knockback(KrumProjectile p) {
+        double distance = distanceBetween(p.x, p.y, playerCentre().x, playerCentre().y);
+        double angle = angleBetween(p.x, p.y, playerCentre().x, playerCentre().y);
+        if (distance > p.knockbackDistance) return;
+        double power = p.knockbackPower - p.knockbackPower * distance / p.knockbackDistance;
+        xvel += power * Math.cos(angle);
+        double yp = (onRope || airborne) ? power * Math.sin(angle) : Math.max(Math.sin(angle), 0.3);
+        yvel -= yp;
+        System.out.println("kb: " + distance + ", " + power + ", " + angle);
+    }
+
     double[] addVectors(double dirA, double magA, double dirB, double magB) {        
         double xa = Math.cos(dirA) * magA;
         double ya = Math.sin(dirA) * magA;
