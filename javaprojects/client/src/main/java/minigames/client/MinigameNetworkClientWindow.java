@@ -2,16 +2,14 @@ package minigames.client;
 
 import javax.swing.*;
 
+import minigames.client.achievementui.AchievementNotificationHandler;
 import minigames.client.achievementui.AchievementUI;
 import minigames.client.survey.Survey;
 import minigames.client.backgrounds.Starfield;
-import minigames.client.notifications.NotificationManager;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.GameServerDetails;
 
 import java.awt.*;
-
-import java.awt.event.ActionListener;
 import java.util.List;
 
 /**
@@ -25,7 +23,7 @@ import java.util.List;
 public class MinigameNetworkClientWindow {
 
     MinigameNetworkClient networkClient;
-    private final NotificationManager notificationManager;
+    private final AchievementNotificationHandler achievementPopups;
 
     JFrame frame;
 
@@ -46,7 +44,8 @@ public class MinigameNetworkClientWindow {
 
         frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.notificationManager = new NotificationManager(networkClient, frame);
+
+        this.achievementPopups = new AchievementNotificationHandler(networkClient);
 
         parent = new JPanel(new BorderLayout());
 
@@ -171,11 +170,12 @@ public class MinigameNetworkClientWindow {
     public void showGameServers(List<GameServerDetails> servers) {
         frame.setTitle("COSC220 2023 Minigame Collection");
         clearAll();
+        networkClient.getNotificationManager().resetToDefaultSettings();
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         List<JPanel> serverPanels = servers.stream().map((gsd) -> {
-            JPanel p = new JPanel();
+            JPanel p = new JPanel(new BorderLayout());
             JLabel l = new JLabel(String.format("<html><h1>%s</h1><p>%s</p></html>", gsd.name(), gsd.description()));
             JButton newG = new JButton("Open games");
 
@@ -184,7 +184,7 @@ public class MinigameNetworkClientWindow {
                         .onSuccess((list) -> showGames(gsd.name(), list));
             });
             p.add(l);
-            p.add(newG);
+            p.add(newG, BorderLayout.EAST);
             return p;
         }).toList();
 
@@ -196,13 +196,9 @@ public class MinigameNetworkClientWindow {
 
         // Create a button for the Achievement UI.
         JButton achievementsButton = new JButton("Achievements");
-        // Create action listener to use as back button action.
-        ActionListener returnAction = (a) -> {
-            showGameServers(servers);
-        };
         achievementsButton.addActionListener(e -> {
             clearAll();
-            JPanel achievements = new AchievementUI(networkClient, returnAction);
+            JPanel achievements = new AchievementUI(networkClient);
             frame.setTitle(AchievementUI.TITLE);
             center.add(achievements);
             pack();
@@ -228,7 +224,7 @@ public class MinigameNetworkClientWindow {
      * TODO: Prettify!
      *
      * @param gameServer
-     * @param  inProgress
+     * @param inProgress
      */
     public void showGames(String gameServer, List<GameMetadata> inProgress) {
         clearAll();
@@ -275,48 +271,10 @@ public class MinigameNetworkClientWindow {
     }
 
     /**
-     * Display a popup notification at the top of the screen, on top of other content in the frame.
-     * @param content the component with content to display in the popup.
-     * @param alignment a float representing desired horizontal alignment. Use Component alignment constants.
+     * Return a reference to this window's frame
      */
-    public void showNotification (JComponent content, float alignment) {
-        JLayeredPane layeredPane = frame.getLayeredPane();
-        FlowLayout flow = new FlowLayout(FlowLayout.LEFT, 0, 0);
-        JPanel panel = new JPanel(flow);
-        panel.add(content);
-        // Make a close button to the right of the content
-        JButton closeButton = new JButton("X");
-        closeButton.setForeground(Color.RED);
-        closeButton.addActionListener(e -> {
-            layeredPane.remove(panel);
-            pack();
-        });
-        // Set button dimensions to width 30, and height to match content
-        closeButton.setPreferredSize(new Dimension(30, content.getPreferredSize().height));
-        panel.add(closeButton);
-        panel.setBorder(BorderFactory.createEtchedBorder());
-        System.out.println(panel.getBounds());
-        // Use size of panel to determine positioning
-        int width = (int) panel.getPreferredSize().getWidth();
-        int height = (int) panel.getPreferredSize().getHeight();
-        int maxX = frame.getWidth() - width - 5;
-        int minX = 5;
-        int posX = minX + (int) (alignment * (maxX - minX));
-        panel.setBounds(posX, 5, width, height);
-        layeredPane.add(panel, JLayeredPane.POPUP_LAYER);
-        pack();
+    public JFrame getFrame() {
+        return frame;
     }
 
-    /**
-     * Calls showNotification with a default center alignment (0.5f)
-     * @param content the content to show in notification
-     */
-    public void showNotification (JComponent content) {
-        showNotification(content, Component.CENTER_ALIGNMENT);
-    }
-
-
-    public NotificationManager getNotificationManager() {
-        return notificationManager;
-    }
 }
