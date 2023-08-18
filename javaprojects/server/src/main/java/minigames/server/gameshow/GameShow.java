@@ -35,17 +35,6 @@ public class GameShow {
         this.name = name;
     }
 
-    String[][] rooms = new String[][] {
-        {
-            "You are in a maze of twisting passages, all alike",
-            "You are in a maze of twisting passages that weren't so alike after all"
-        },
-        {
-            "You are standing in an open field west of a white house, with a boarded front door. There is a small mailbox here.",
-            "You wake up. The room is very gently spinning around your head. Or at least it would be if you could see it which you can't. It is pitch black."
-        }
-    };
-
     HashMap<String, GameShowPlayer> players = new HashMap<>();
 
     /** The players currently playing this game */
@@ -55,40 +44,19 @@ public class GameShow {
 
     /** Metadata for this game */
     public GameMetadata gameMetadata() {
-        return new GameMetadata("Game Show", name, getPlayerNames(), true);
+        return new GameMetadata("GameShow", name, getPlayerNames(), true);
     }
 
-    /** Describes the state of a player */
-    private String describeState(GameShowPlayer p) {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(String.format("[%d,%d] \n\n", p.x, p.y));
-        sb.append(rooms[p.x()][p.y()]);
-
-        return sb.toString();
-    }
-
-    private String directions(int x, int y) {
-        String d = "";
-        if (x > 0) d += "W";
-        if (y > 0) d += "N";
-        if (x < WIDTH - 1) d += "E";
-        if (x < HEIGHT - 1) d += "S";
-
-        return d;
-    }
 
 
     public RenderingPackage runCommands(CommandPackage cp) {
         logger.info("Received command package {}", cp);
         GameShowPlayer p = players.get(cp.player());
 
-        // FIXME: Need to actually run the commands!
-
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
-        renderingCommands.add(new JsonObject().put("command", "clearText"));
-        renderingCommands.add(new JsonObject().put("command", "appendText").put("text", describeState(p)));
-        renderingCommands.add(new JsonObject().put("command", "setDirections").put("directions", directions(p.x(), p.y())));
+
+         // Add buttons to the rendering commands
+         renderingCommands.add(new JsonObject().put("command", "imageGame"));
 
         return new RenderingPackage(this.gameMetadata(), renderingCommands);
     }
@@ -108,9 +76,7 @@ public class GameShow {
 
             ArrayList<JsonObject> renderingCommands = new ArrayList<>();
             renderingCommands.add(new LoadClient("GameShow", "GameShow", name, playerName).toJson());
-            renderingCommands.add(new JsonObject().put("command", "clearText"));
-            renderingCommands.add(new JsonObject().put("command", "appendText").put("text", describeState(p)));
-            renderingCommands.add(new JsonObject().put("command", "setDirections").put("directions", directions(p.x(), p.y())));
+            renderingCommands.add(new JsonObject().put("command", "imageGame"));
 
             return new RenderingPackage(gameMetadata(), renderingCommands);
         }

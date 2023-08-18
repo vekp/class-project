@@ -1,5 +1,6 @@
 package minigames.server.gameshow;
 
+import minigames.server.gameshow.GameShow;
 import io.vertx.core.Future;
 import minigames.achievements.Achievement;
 import minigames.commands.CommandPackage;
@@ -15,7 +16,7 @@ import java.util.Random;
 import java.util.Set;
 
 /**
- * Our MuddleServer holds GameShows.
+ * Our GameShowServer holds GameShows.
  * When it receives a CommandPackage, it finds the GameShow and calls it.
  */
 public class GameShowServer implements GameServer {

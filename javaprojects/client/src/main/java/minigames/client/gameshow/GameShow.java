@@ -1,15 +1,20 @@
 package minigames.client.gameshow;
 
+import minigames.client.gameshow.ImageGame;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.util.Collections;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+// import javax.swing.JTextArea;
+// import javax.swing.JTextField;
 
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
@@ -28,6 +33,7 @@ import minigames.commands.CommandPackage;
  *   (e.g. { "command": "setDirections", "directions": "NS" } would enable only N and S)
  */
 public class GameShow implements GameClient {
+    private static final Logger logger = Logger.getLogger(GameShow.class.getName());
 
     MinigameNetworkClient mnClient;
 
@@ -37,42 +43,22 @@ public class GameShow implements GameClient {
     /** Your name */
     String player;
 
-    /** A text area for showing room descriptions, etc */
-    JTextArea textArea;
+    JButton imageButton;
 
-    /** Direction commands */
-    JButton north, south, east, west;
-
-    JTextField userCommand;
-    JButton send;
 
     JPanel commandPanel;
 
     public GameShow() {
-        textArea = new JTextArea();
-        textArea.setEditable(false);
-        textArea.setPreferredSize(new Dimension(800, 600));
-        textArea.setForeground(Color.GREEN);
-        textArea.setBackground(Color.BLACK);
-        textArea.setFont(new Font("Monospaced", Font.PLAIN, 18));
 
-        north = new JButton("NORTH");
-        north.addActionListener((evt) -> sendCommand("NORTH"));
-        south = new JButton("SOUTH");
-        south.addActionListener((evt) -> sendCommand("SOUTH"));
-        east = new JButton("EAST");
-        east.addActionListener((evt) -> sendCommand("EAST"));
-        west = new JButton("WEST");
-        west.addActionListener((evt) -> sendCommand("WEST"));
-
-        userCommand = new JTextField(20);
-        send = new JButton(">");
-        send.addActionListener((evt) -> sendCommand(userCommand.getText()));
+        imageButton = new JButton("Image game");
+        imageButton.addActionListener((evt) -> sendCommand("imageGame")); // Replace with your desired action
 
         commandPanel = new JPanel();
-        for (Component c : new Component[] { north, south, east, west, userCommand, send }) {
+        for (Component c : new Component[] { imageButton }) {
             commandPanel.add(c);
         }
+        logger.log(Level.INFO, "GameShow instance created");
+
 
     }
 
@@ -86,7 +72,9 @@ public class GameShow implements GameClient {
         JsonObject json = new JsonObject().put("command", command);
 
         // Collections.singletonList() is a quick way of getting a "list of one item"
-        mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
+        logger.log(Level.INFO, "sendCommand called with command: {0}", command);
+        logger.log(Level.INFO, "Sending JSON: {0}", json.toString());
+        mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), this.player, Collections.singletonList(json)));
     }
 
 
@@ -100,31 +88,31 @@ public class GameShow implements GameClient {
         this.player = player;
 
         // Add our components to the north, south, east, west, or centre of the main window's BorderLayout
-        mnClient.getMainWindow().addCenter(textArea);
-        mnClient.getMainWindow().addSouth(commandPanel);
-
-        textArea.append("Starting...");
+        mnClient.getMainWindow().addCenter(commandPanel);
+        // mnClient.getMainWindow().addSouth(commandPanel);
 
         // Don't forget to call pack - it triggers the window to resize and repaint itself
         mnClient.getMainWindow().pack();
+        logger.log(Level.INFO, "load executed for player: {0}, game: {1}", new Object[]{player, game.name()});
+
     }
 
     @Override
     public void execute(GameMetadata game, JsonObject command) {
         this.gm = game;
+        logger.log(Level.INFO, "execute called with command: {0}", command.getString("command"));
 
         // We should only be receiving messages that our game understands
         // Note that this uses the -> version of case statements, not the : version
         // (which means we don't nead to say "break;" at the end of our cases)
         switch (command.getString("command")) {
-            case "clearText" -> textArea.setText("");
-            case "appendText" -> textArea.setText(textArea.getText() + command.getString("text"));
-            case "setDirections" -> {
-                String directions = command.getString("directions");
-                north.setEnabled(directions.contains("N"));
-                south.setEnabled(directions.contains("S"));
-                east.setEnabled(directions.contains("E"));
-                west.setEnabled(directions.contains("W"));
+            case "imageGame" -> {
+                ImageGame imageGame = new ImageGame();
+                JPanel imagePanel = imageGame.renderWindow();
+                mnClient.getMainWindow().clearAll();
+
+                mnClient.getMainWindow().addCenter(imagePanel);
+                mnClient.getMainWindow().pack();
             }
         }
 
