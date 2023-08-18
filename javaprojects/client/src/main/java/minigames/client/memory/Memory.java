@@ -49,6 +49,8 @@ public class Memory implements GameClient, ActionListener, MouseListener {
     JPanel gridContainerPanel; // Wraps the cardGridPanel
     JPanel cardGridPanel; // Sets the grid for the playing cards
 
+    ImageIcon cardBack = new ImageIcon(getClass().getResource("/memory/images/playing_cards/card_back_black.png"));
+        
     JTextArea textArea;
 
     // Game variable
@@ -73,7 +75,7 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         playerPanel = new JPanel();
         playerPanel.setLayout(new GridLayout(1, 1));
         playerPanel.setPreferredSize(new Dimension(800,30));
-        playerPanel.setBackground(Color .decode("#B2C6B2"));
+        //playerPanel.setBackground(Color .decode("#B2C6B2"));
         playerName = new JLabel("Player: " + player); // Placeholder text for player name
         playerName.setFont(new Font("Arial", Font.BOLD, 16));
         playerPanel.add(playerName);
@@ -94,18 +96,16 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         gameMenuPanel.add(playerPanel);
         gameMenuPanel.add(gameOptionsPanel);
 
-        // Create placeholder for card grid
+        // Create card grid and add JButtons with the cardBack images
         cardGridPanel = new JPanel();
         cardGridPanel.setLayout(new GridLayout(4, 4, 0, 0)); // 4x4 grid for placeholders
-        cardGridPanel.addMouseListener(this); // Add mouse listener to the card grid
-
-        // Create the card placeholders
+        //cardGridPanel.addMouseListener(this); // Add mouse listener to the card grid //I don't think this is necesary with the JButtons
         for (int i = 0; i < 16; i++) {
-            JLabel cardLabel = new JLabel("Card " + (i + 1)); // Placeholder text for cards
-            cardLabel.setHorizontalAlignment(JLabel.CENTER);
-            cardLabel.setVerticalAlignment(JLabel.CENTER);
-            cardLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-            cardGridPanel.add(cardLabel);
+            JButton cardButton = new JButton(resizeImageIcon(cardBack,60,-1)); // Placeholder text for cards
+            cardButton.setHorizontalAlignment(JLabel.CENTER);
+            cardButton.setVerticalAlignment(JLabel.CENTER);
+            cardButton.setFont(new Font("Arial", Font.PLAIN, 16));
+            cardGridPanel.add(cardButton);
         }
 
         // Container for the card grid
@@ -133,7 +133,7 @@ public class Memory implements GameClient, ActionListener, MouseListener {
 
         for (Component c:  new Component[] {title, headingPanel, playerName, newGameButton, restartLevelButton, exitButton,
                 cardGridPanel, commandPanel, textArea, gameMenuPanel, playerPanel, gridContainerPanel, mainPanel})
-            c.setBackground(Color.decode("#B2C6B2"));
+            //c.setBackground(Color.decode("#B2C6B2"));
 
         // Add ActionListeners to the buttons
         newGameButton.addActionListener(this);
@@ -190,10 +190,6 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         }
     }
 
-    @Override
-    public void closeGame() {
-        // Nothing to do        
-    }
 
     /**
      * Invoked when an action occurs.
@@ -270,4 +266,25 @@ public class Memory implements GameClient, ActionListener, MouseListener {
     public void mouseExited(MouseEvent e) {
 
     }
+    /**
+     * a method to resize the ImageIcon's image and return the resized ImageIcon
+     * @param originalImageIcon the original ImageIcon to be resized
+     * @param targetWidth required width of the resized ImageIcon (cannot be 0. If value is negative, then a value is
+     *                    substituted to maintain the aspect ratio of the original image dimensions)
+     * @param targetHeight required height of the resized ImageIcon (cannot be 0. If value is negative, then a value is
+     *      *             substituted to maintain the aspect ratio of the original image dimensions)
+     * @return resized ImageIcon
+     */
+    public ImageIcon resizeImageIcon(ImageIcon originalImageIcon, int targetWidth, int targetHeight){
+    Image resizedImage = originalImageIcon.getImage().getScaledInstance(targetWidth,targetHeight,Image.SCALE_SMOOTH);
+    return new ImageIcon(resizedImage);
+    }
+
+    @Override
+    public void closeGame() {
+        // Nothing to do        
+    }
+
 }
+
+
