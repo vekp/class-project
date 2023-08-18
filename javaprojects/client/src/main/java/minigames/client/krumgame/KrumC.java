@@ -32,7 +32,7 @@ public class KrumC {
     static final int WALK_CLIMB = 6; // height climbable in one step
 
     // projectile starting distance: distance from centre of player sprite (todo: make this origin of gun rather than centre of player) that the projectile spawns
-    static final int psd = 20;
+    static final int psd = 10;
 
     // projectie radius in pixels. todo: different values for different projectiles
     static final int PROJ_RADIUS = 8; 
@@ -50,4 +50,5 @@ public class KrumC {
     static final double ROPE_LENGTH_SPEED = 1.2;
     //static final double ROPE_LENGTH_ACCEL_FACTOR = 1;
 
+    static final double GRENADE_BOUNCE_FACTOR = 0.95;
 }

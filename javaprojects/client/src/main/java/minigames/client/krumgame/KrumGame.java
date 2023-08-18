@@ -74,14 +74,15 @@ public class KrumGame implements GameClient {
      * @param y y-coordinate of the centre of the explosion
      */
     void explode(int x, int y, KrumProjectile p) {
+        System.out.println("Ex " + p.explosionRadius);
         double z[] = {0};
-        for (int i = -20; i < 20; i++) {
+        for (int i = -(p.explosionRadius); i < p.explosionRadius; i++) {
             if (i + x >= KrumC.RES_X) break;
             if (i + x < 0) continue;
-            for (int j = -20; j < 20; j++) {
+            for (int j = -(p.explosionRadius); j < p.explosionRadius; j++) {
                 if (j + y < 0) continue;
                 if (j + y >= KrumC.RES_Y) break;
-                if (java.lang.Math.sqrt(i * i + j * j) <= 20) {
+                if (java.lang.Math.sqrt(i * i + j * j) <= p.explosionRadius) {
                     alphaRaster.setPixel(i + x, j + y, z);
                 }                    
             }
@@ -106,7 +107,7 @@ public class KrumGame implements GameClient {
         for (KrumPlayer p : players) {
             p.update(windX, windY, alphaRaster);
             if (p.projectile != null) {
-                if(p.projectile.collisionCheck(alphaRaster)) {
+                if(p.projectile.collisionCheck()) {
                     explode((int)p.projectile.x, (int)p.projectile.y, p.projectile);
                     p.projectile = null;
                 }
@@ -117,6 +118,16 @@ public class KrumGame implements GameClient {
                         p.projectile = null;
                         players[n].hit();
                     }
+                }
+            }
+            if (p.grenade != null) {
+                if (p.grenade.timerCheck()) {
+                    System.out.println("EX");
+                    if (KrumHelpers.distanceBetween(p.grenade.x, p.grenade.y, p.xpos, p.ypos) <= p.grenade.explosionRadius) {
+                        p.hit();
+                    }
+                    explode((int)p.grenade.x, (int)p.grenade.y, p.grenade);
+                    p.grenade = null;
                 }
             }
         }
@@ -131,6 +142,7 @@ public class KrumGame implements GameClient {
         for (KrumPlayer p : players) {
             p.draw(g);
             if (p.projectile != null) p.projectile.draw(g);
+            if (p.grenade != null) p.grenade.draw(g);
         }        
         g.setColor(Color.red);
         if (windX > 0) g.setColor(Color.blue);        
@@ -158,10 +170,16 @@ public class KrumGame implements GameClient {
 
     // mouse and key Down/Up functions are triggered via the listeners in KrumPanel
     void mouseDown(MouseEvent e){
-        players[playerTurn].startFire(e);
+        if (e.getButton() == MouseEvent.BUTTON1)
+            players[playerTurn].startFire(e);
+        else 
+            players[playerTurn].startGrenadeFire(e);
     }
     void mouseUp(MouseEvent e) {
-        players[playerTurn].endFire(e);
+        if (e.getButton() == MouseEvent.BUTTON1)
+            players[playerTurn].endFire(e);
+        else 
+            players[playerTurn].endGrenadeFire(e);
     }
     void keyDown(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) { // Spacebar

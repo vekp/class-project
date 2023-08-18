@@ -36,11 +36,16 @@ public class KrumPlayer {
     WritableRaster levelRaster; // alpha values of level pixels
 
     boolean firing;
+    boolean firingGrenade;
     long fireStart;
+    long fireGrenadeStart;
     int xoff; // accounts for position of window on user's screen. reset when window is moved
     int yoff; // accounts for position of window on user's screen. reset when window is moved
 
     KrumProjectile projectile = null;
+    KrumGrenade grenade = null;
+
+    int grenadeSeconds;
     
     int flashFramesLeft = 0;
 
@@ -66,6 +71,7 @@ public class KrumPlayer {
     boolean deferredLanding;
 
     long lastShotTime;
+    long lastGrenadeShotTime;
 
     boolean shootingRope;
     boolean onRope;
@@ -78,6 +84,9 @@ public class KrumPlayer {
     boolean rightKeyDown = false;
     boolean upArrowKeyDown = false;
     boolean downArrowKeyDown = false;
+    
+    BufferedImage projectileSprite;
+    BufferedImage grenadeSprite;
 
     ArrayList<Double> ropeSegmentLengths;
 
@@ -94,6 +103,24 @@ public class KrumPlayer {
      * @param level         alpha raster of level
      */
     KrumPlayer(int xpos, int ypos, String spriteFileName, int panelX, int panelY, boolean direction, WritableRaster level) {
+        File spriteFile = new File(KrumC.imgDir + "carrot_s.png");
+        try {
+            projectileSprite = ImageIO.read(spriteFile);
+        }
+        catch (IOException e) {
+            System.out.println("error reading sprite image");
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        }
+        spriteFile = new File(KrumC.imgDir + "grenade.png");
+        try {
+            grenadeSprite = ImageIO.read(spriteFile);
+        }
+        catch (IOException e) {
+            System.out.println("error reading sprite image");
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        }
         this.levelRaster = level;
         topEdgeLeft = -1;
         topEdgeRight = -1;
@@ -111,7 +138,7 @@ public class KrumPlayer {
         this.aimAngleRadians = 0;
         this.hp = 100;
 
-        File spriteFile = new File(KrumC.imgDir + spriteFileName);
+        spriteFile = new File(KrumC.imgDir + spriteFileName);
         try {
             sprite = ImageIO.read(spriteFile);
         }
@@ -210,6 +237,8 @@ public class KrumPlayer {
 
         setDirection(direction, level); // this could modify alphaRaster, so keep it below the outline-determining code, which assumes it's acting on a right-facing sprite
         lastShotTime = System.nanoTime();
+        lastGrenadeShotTime = System.nanoTime();
+        grenadeSeconds = 3;
     }
 
     Point2D.Double playerCentre() {
@@ -249,6 +278,13 @@ public class KrumPlayer {
             g.setColor(Color.black);
             g.drawLine((int)shotOrigin().x, (int)shotOrigin().y, (int)(shotOrigin().x + Math.cos(aimAngleRadians) * power), (int)(shotOrigin().y - Math.sin(aimAngleRadians) * power));
         }
+        if (firingGrenade) {
+            aimAngleRadians = calcAimAngle(); 
+            long power = System.nanoTime() - fireGrenadeStart;
+            power /= 10000000;
+            g.setColor(Color.green);
+            g.drawLine((int)shotOrigin().x, (int)shotOrigin().y, (int)(shotOrigin().x + Math.cos(aimAngleRadians) * power), (int)(shotOrigin().y - Math.sin(aimAngleRadians) * power));
+        }
         g.setColor(Color.orange);
         if (shootingRope) {            
             g.drawLine((int)ropeOrigin().x, (int)ropeOrigin().y, (int)(ropeOrigin().x + Math.cos(ropeAngleRadians) * ropeLength), (int)(ropeOrigin().y - Math.sin(ropeAngleRadians) * ropeLength));
@@ -272,6 +308,9 @@ public class KrumPlayer {
     void update(double windX, double windY, WritableRaster levelRaster){
         if (projectile != null) {
             projectile.update(windX, windY);
+        }
+        if (grenade != null) {
+            grenade.update(windX, windY);
         }
         if (flashFramesLeft > 0) flashFramesLeft--;
         if (airborne) {
@@ -475,7 +514,7 @@ public class KrumPlayer {
                 double dir = ropeVelDir;
                 if (Math.cos(ropeVelDir) > 0) dir += Math.PI;
                 //System.out.println(ropeVelDir + ", " + dir);
-                double[] res = addVectors(ropeVelDir, ropeVelMag, dir, racc);
+                double[] res = KrumHelpers.addVectors(ropeVelDir, ropeVelMag, dir, racc);
                 ropeVelDir = res[0];
                 ropeVelMag = res[1];
             } 
@@ -483,7 +522,7 @@ public class KrumPlayer {
                 double dir = ropeVelDir;
                 if (Math.cos(ropeVelDir) < 0) dir += Math.PI;
                 //System.out.println(ropeVelDir + ", " + dir);
-                double[] res = addVectors(ropeVelDir, ropeVelMag, dir, KrumC.ROPE_KEY_ACCEL);
+                double[] res = KrumHelpers.addVectors(ropeVelDir, ropeVelMag, dir, KrumC.ROPE_KEY_ACCEL);
                 ropeVelDir = res[0];
                 ropeVelMag = res[1];
             }
@@ -526,7 +565,7 @@ public class KrumPlayer {
             }
             if (ropeAttachmentPoints.size() > 1) {
                 while (ropeAttachmentPoints.size() > 1 && ropeCollisionTest(2) == null) {
-                    double len = distanceBetween(ropeAttachmentPoints.get(ropeAttachmentPoints.size()-1).x, ropeAttachmentPoints.get(ropeAttachmentPoints.size()-1).y, ropeAttachmentPoints.get(ropeAttachmentPoints.size()-2).x, ropeAttachmentPoints.get(ropeAttachmentPoints.size()-2).y);
+                    double len = KrumHelpers.distanceBetween(ropeAttachmentPoints.get(ropeAttachmentPoints.size()-1).x, ropeAttachmentPoints.get(ropeAttachmentPoints.size()-1).y, ropeAttachmentPoints.get(ropeAttachmentPoints.size()-2).x, ropeAttachmentPoints.get(ropeAttachmentPoints.size()-2).y);
                     ropeAttachmentPoints.remove(ropeAttachmentPoints.size()-1);                    
                     ropeLength += ropeSegmentLengths.get(ropeSegmentLengths.size()-1);
                     ropeSegmentLengths.remove(ropeSegmentLengths.size()-1);
@@ -538,8 +577,9 @@ public class KrumPlayer {
     }
 
     void knockback(KrumProjectile p) {
-        double distance = distanceBetween(p.x, p.y, playerCentre().x, playerCentre().y);
-        double angle = angleBetween(p.x, p.y, playerCentre().x, playerCentre().y);
+        System.out.println("kbs: " + p.x + ", " + p.y + ", " + playerCentre().x + ", " + playerCentre().y + ", " + p.knockbackDistance + ", " + p.knockbackPower);
+        double distance = KrumHelpers.distanceBetween(p.x, p.y, playerCentre().x, playerCentre().y);
+        double angle = KrumHelpers.angleBetween(p.x, p.y, playerCentre().x, playerCentre().y);
         if (distance > p.knockbackDistance) return;
         double power = p.knockbackPower - (p.knockbackPower * distance / p.knockbackDistance);
         xvel += power * Math.cos(angle);
@@ -548,18 +588,6 @@ public class KrumPlayer {
         System.out.println("kb: " + distance + ", " + power + ", " + angle + "; " + xvel + ", " + yvel + " " + yp);
     }
 
-    double[] addVectors(double dirA, double magA, double dirB, double magB) {        
-        double xa = Math.cos(dirA) * magA;
-        double ya = Math.sin(dirA) * magA;
-        double xb = Math.cos(dirB) * magB;
-        double yb = Math.sin(dirB) * magB;
-        xa += xb;
-        ya += yb;
-        double dirR = Math.atan2(ya, xa);
-        double magR = Math.sqrt(xa*xa + ya*ya);
-        double result[] = {dirR, magR};
-        return result;
-    }
 
     boolean nonDirectionalCollisionCheck() {
         for (int x = KrumC.HITBOX_X_S; x <= KrumC.HITBOX_X_F; x++) {
@@ -579,13 +607,6 @@ public class KrumPlayer {
         return false;
     }
 
-    double distanceBetween(double ax, double ay, double bx, double by) {
-        return Math.sqrt((ax - bx)*(ax-bx)+(ay-by)*(ay-by));
-    }
-
-    double angleBetween(double ax, double ay, double bx, double by) {
-        return Math.atan2(ay - by, bx - ax);
-    }
 
     Point2D.Double ropeCollisionTest(int t) {
         Point2D.Double p = ropeOrigin();
@@ -597,9 +618,9 @@ public class KrumPlayer {
         }
         if (t == 2) {
             if (ropeAttachmentPoints.size() < 2) return null;
-            len = distanceBetween(ropeOrigin().x, ropeOrigin().y, ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 2).x, ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 2).y) - 1;
+            len = KrumHelpers.distanceBetween(ropeOrigin().x, ropeOrigin().y, ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 2).x, ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 2).y) - 1;
             if (len <= 0) return null;
-            ang = angleBetween(ropeOrigin().x, ropeOrigin().y, ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 2).x, ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 2).y);
+            ang = KrumHelpers.angleBetween(ropeOrigin().x, ropeOrigin().y, ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 2).x, ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 2).y);
         }
         double l = len;
         for (int i = 0; i < len - 1; i++) {
@@ -792,13 +813,30 @@ public class KrumPlayer {
 
     void enterKeyPressed() {
         if (onRope) {
-            projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(aimAngleRadians) * KrumC.psd), xvel, yvel);
+            projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(aimAngleRadians) * KrumC.psd), xvel, yvel, projectileSprite, levelRaster);
             lastShotTime = System.nanoTime();
         }
     }
 
     void enterKeyReleased() {
 
+    }
+
+    void startGrenadeFire(MouseEvent e) {
+        firingGrenade = true;
+        fireGrenadeStart = System.nanoTime();
+    }
+
+    void endGrenadeFire(MouseEvent e) {
+        firingGrenade = false;
+        shootGrenade(System.nanoTime() - fireGrenadeStart);
+    }
+
+    void shootGrenade(long power) {
+        power /= 100000000;
+        aimAngleRadians = calcAimAngle();    
+        grenade = new KrumGrenade((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(aimAngleRadians) * KrumC.psd), Math.cos(aimAngleRadians) * power + xvel, Math.sin(aimAngleRadians) * power * -1 + yvel, grenadeSeconds, grenadeSprite, levelRaster);
+        lastGrenadeShotTime = System.nanoTime();
     }
 
     /**
@@ -826,7 +864,7 @@ public class KrumPlayer {
     void shoot(long power) {
         power /= 100000000;
         aimAngleRadians = calcAimAngle();    
-        projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(aimAngleRadians) * KrumC.psd), Math.cos(aimAngleRadians) * power + xvel, Math.sin(aimAngleRadians) * power * -1 + yvel);
+        projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(aimAngleRadians) * KrumC.psd), Math.cos(aimAngleRadians) * power + xvel, Math.sin(aimAngleRadians) * power * -1 + yvel, projectileSprite, levelRaster);
         lastShotTime = System.nanoTime();
     }
 
