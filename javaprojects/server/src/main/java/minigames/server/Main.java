@@ -5,6 +5,7 @@ import io.vertx.core.Promise;
 import minigames.server.battleship.BattleshipServer;
 import minigames.server.highscore.*;
 import minigames.server.muddle.MuddleServer;
+import minigames.server.survey.SurveyServer;
 import minigames.server.telepathy.TelepathyServer;
 import minigames.server.gameshow.GameShowServer;
 
@@ -69,6 +70,7 @@ public class Main extends AbstractVerticle {
         // Register our first demo game
         gameRegistry.registerGameServer("Muddle", new MuddleServer());
         gameRegistry.registerGameServer("Battleship", new BattleshipServer());
+        gameRegistry.registerGameServer("Survey", new SurveyServer());
         gameRegistry.registerGameServer("Telepathy", new TelepathyServer());
         gameRegistry.registerGameServer("GameShow", new GameShowServer());
 

@@ -5,8 +5,8 @@ package minigames.server.battleship;
  */
 public class Ship {
     // Fields
+    private String shipClass;
     private Cell[] shipParts;           // An Array containing all the Cells of the ship
-    private Coordinate[] occupiedCells; // An Array containing the location of the ship
     private boolean sunk;               // A boolean for whether the ship has been sunk
 
     // Constructor
@@ -14,15 +14,23 @@ public class Ship {
     /**
      * Creates a new Ship Object, taking in the desired position and size (shipParts) of the ship
      * @param shipParts The composition of the cells contained within the ship
-     * @param occupiedCells The cells (location) that the ship is occupying
      */
-    public Ship(Cell[] shipParts, Coordinate[] occupiedCells) {
+    public Ship(String shipClass, Cell[] shipParts) {
+        this.shipClass = shipClass;
         this.shipParts = shipParts;
-        this.occupiedCells = occupiedCells;
         this.sunk = false;
     }
 
     // These will likely be wanted when custom ship movement is added
+
+    /**
+     * Returns the ship class
+     * @return String value
+     */
+    public String getShipClass() {
+        return shipClass;
+    }
+
     /**
      * Returns the Cell composition of the current ship
      * @return A Cell Array containing all the cells for the current ship
@@ -38,22 +46,6 @@ public class Ship {
      */
     public void setShipParts(Cell[] shipParts) {
         this.shipParts = shipParts;
-    }
-
-    /**
-     * Returns the coordinates that the ship is currently occupying
-     * @return A Coordinate Array of Cell objects for the current ship
-     */
-    public Coordinate[] getOccupiedCells() {
-        return occupiedCells;
-    }
-
-    /**
-     * Set the coordinate location for the current ship
-     * @param occupiedCells An Array containing Coordinate Objects for the ship's location
-     */
-    public void setOccupiedCells(Coordinate[] occupiedCells) {
-        this.occupiedCells = occupiedCells;
     }
 
     /**
