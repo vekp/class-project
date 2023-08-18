@@ -583,7 +583,7 @@ public class KrumPlayer {
         if (distance > p.knockbackDistance) return;
         double power = p.knockbackPower - (p.knockbackPower * distance / p.knockbackDistance);
         xvel += power * Math.cos(angle);
-        double yp = (onRope || airborne) ? power * Math.sin(angle) : Math.max(Math.sin(angle), 0.3);
+        double yp = (onRope || airborne) ? power * Math.sin(angle) : power * Math.max(Math.sin(angle), 0.3);
         yvel -= yp;
         System.out.println("kb: " + distance + ", " + power + ", " + angle + "; " + xvel + ", " + yvel + " " + yp);
     }
