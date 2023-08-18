@@ -56,6 +56,8 @@ public class MuddleText implements GameClient {
         textArea.setBackground(Color.BLACK);
         textArea.setFont(new Font("Monospaced", Font.PLAIN, 18));
 
+        JButton backButton = new JButton("Back");
+        backButton.addActionListener(e -> mnClient.runMainMenuSequence());
         north = new JButton("NORTH");
         north.addActionListener((evt) -> sendCommand("NORTH"));
         south = new JButton("SOUTH");
@@ -70,7 +72,7 @@ public class MuddleText implements GameClient {
         send.addActionListener((evt) -> sendCommand(userCommand.getText()));
 
         commandPanel = new JPanel();
-        for (Component c : new Component[] { north, south, east, west, userCommand, send }) {
+        for (Component c : new Component[] { north, south, east, west, userCommand, send, backButton }) {
             commandPanel.add(c);
         }
 
