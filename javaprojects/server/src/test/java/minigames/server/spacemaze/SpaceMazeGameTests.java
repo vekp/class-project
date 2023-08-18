@@ -2,12 +2,17 @@ package minigames.server.spacemaze;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.ResourceLock;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.*;
 import java.awt.Point;
 
 import org.junit.jupiter.api.Disabled;
-import java.awt.Point;
+import java.io.*;
+import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * Class for testing the server side game classes
@@ -189,7 +194,7 @@ public class SpaceMazeGameTests {
     private SpacePlayer player1 = new SpacePlayer(startLocation);
     private MazeControl maze1 = new MazeControl();      
 
-     
+         
     @DisplayName("Check validMove -- invalid")
     @Test
     public void testValidMoveInvalid() {
@@ -225,8 +230,10 @@ public class SpaceMazeGameTests {
         assertTrue(maze1.validMove(moveToB));
         assertTrue(maze1.validMove(moveToC));
         // Assert validMove() returns true for moving to an unlocked exit 
+        System.out.println("exitStatus: " + maze1.getExitUnLockedStatus());
         maze1.bypassUnlockExit(true);
-        Point moveToUnLockedExit = new Point(24, 23);
+        System.out.println("exitStatus: " + maze1.getExitUnLockedStatus());
+        Point moveToUnLockedExit = new Point(maze1.getExitLocation());
         // Set exit to unloced and Add assert true here
         assertTrue(maze1.validMove(moveToUnLockedExit));
     }
@@ -241,11 +248,13 @@ public class SpaceMazeGameTests {
         assertFalse(maze1.getKeyStatus().get(new Point(17, 5)));
         assertFalse(maze1.getKeyStatus().get(new Point(7, 17)));
         int playerCurrentKeys = player1.checkNumberOfKeys();
+        System.out.println("playerCurrentKeys: " + playerCurrentKeys);
         //System.out.print("playerCurrentKeys: " + playerCurrentKeys);
         // update keyStatus and check
         maze1.updateKeyStatus(player1, new Point(17, 5));
         assertTrue(maze1.getKeyStatus().get(new Point(17, 5)));
         int playerUpdatedKeys = player1.checkNumberOfKeys();
+        System.out.println("playerUpdatedKeys: " + playerUpdatedKeys);
         assertEquals((playerCurrentKeys+1), playerUpdatedKeys);
     }
 
@@ -280,11 +289,28 @@ public class SpaceMazeGameTests {
 
     @Disabled
     @DisplayName("CheckGameOver/gameFinished") 
+    @Test
     public void testCheckGameOver() {
         // check gameFinished value
 
         // update player1 to have key/unlocked exit/location to exit
 
         // check gameFinished value
+    }
+
+    /*
+     * Test MazeInit class
+     */
+
+    private MazeInit mazeSetup = new MazeInit(1);
+    
+    
+
+    
+    @DisplayName("test MazeInit - mazeArray creation")
+    @Test
+    public void testMazeInit() {
+        // Compare MazeInit mazeArray to MazeControl mazeArray
+        assertArrayEquals(mazeSetup.getMazeInitArray(), maze1.getMazeArray());
     }
 }

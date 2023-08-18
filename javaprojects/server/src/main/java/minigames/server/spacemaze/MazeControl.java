@@ -1,8 +1,8 @@
 package minigames.server.spacemaze;
 
 import java.util.*;
-import java.util.HashMap;
 import java.awt.Point;
+import java.util.Random;
 
 /**
  * MazeControl class to verifies and controls player input,
@@ -15,60 +15,173 @@ import java.awt.Point;
 
 public class MazeControl {
         
-    // Map info -- hard coded for now
+    // Maze info -- hard coded for now
     private int mazeWidth = 25;
     private int mazeHeight = 25;
-    //private char[][] mazeArray = new char[mazeWidth][mazeHeight];
-    // mazeArray at bottom of file for now
-    
+    private int currentLevel;               // level of current maze
+    private int maxLevel = 3;               // maximum number of levels
+    //private char[][] mazeArray = new char[mazeWidth][mazeHeight];  
+    private char[][] mazeArray;
+
+    // MazeTimer
+    public GameTimer mazeTimer = new GameTimer();
+    public int timeTaken;
+
     // Player info
     private Point playerLocation;
 
-    // Exit info
+    // Start info - locations of maze entrances
+    private List<Point> startLocationsList = new ArrayList<Point>();  
+    //private Point[] startLocations;  
+
+    // Exit info - location of maze exit
     private Point exitLocation;
     private Boolean exitUnlocked = false;
 
     // Key info
-    private int numKeysToUnlock = 1;
-    private Point[] keyLocations;
+    private int numKeysToUnlock;
+    private List<Point> keyLocationsList = new ArrayList<Point>();
+    //private Point[] keyLocations;
     private HashMap<Point, Boolean> keyStatus = new HashMap<Point, Boolean>();
 
+    // PickUps info - locations of Pickups in maze
+    private List<Point> pickUpLocationsList = new ArrayList<Point>(); 
+    //private Point[] pickUpLocations;
+
+    // Bots info
+    private List<Point> botsLocationsList = new ArrayList<Point>();
+
     // Gameover info
-    private Boolean gameFinished = false;
+    public Boolean gameFinished = false;
     // winner variable???
 
-    // Constructor - sets fields (update to take player???)
+    /*
+     * Constructor - sets fields (update to take player???)
+     */
     public MazeControl() 
     {
-        // Player (start) location - updated during gameplay
-        // this could be separated into start location and current location
-        //this.playerLocation = new Point(player.getLocation());       // could be a getOrElse(startlocation)
-        this.playerLocation = new Point(1, 0);
-        // Exit location
-        this.exitLocation = new Point(24, 23);
+        // Start maze on level 1
+        this.currentLevel = 1;   
+        // Set number of keys to unlock exit (level num)
+        this.numKeysToUnlock = currentLevel;
+        // Create new Maze, dependent on current level
+        this.mazeArray = createNewMaze(currentLevel);
 
-        // Key locations: (x, y) - Hard coded atm
-        Point[] keyLocations = 
+        // Set start, key... locations
+        set_locations();
+
+        // Exit location
+        this.exitLocation = getExitLocation();
+
+        // Initalise keyStatus with collected = false
+        setKeyStatus(keyLocationsList);
+
+        // Populate maze with Bots and makeBotGo
+        for (int b = 0; b < botsLocationsList.size(); b++)
         {
-            new Point(17, 5),
-            new Point(7, 17)
-        };
-        setKeyStatus(keyLocations);
-        //this.keyStatus.put(new Point(17, 5), false);
-        //this.keyStatus.put(new Point(7, 17), false);
+            SpaceBot botty = new SpaceBot(botsLocationsList.get(b));
+            makeBotGo(botty);
+            // There might be issues when changing levels
+        }
         
+        // Timer starts (here for now)
+        //this.mazeTimer = new GameTimer();
+        
+        
+    }
+
+    /*
+     * createNewMaze function - creates a new maze for each level
+     * @param level - level for maze creation
+     * @return mazeArray
+     */
+    public char[][] createNewMaze(int level)
+    {
+        MazeInit newMaze = new MazeInit(currentLevel);
+        return newMaze.getMazeInitArray();
+    }
+
+    /*
+     * playerEntersMaze function - populates maze with player and starts timer
+     * controlled by SpaceMazeGame
+     * @param player - SpacePlayer 
+     */
+    public void playerEntersMaze(Point playerLoc)
+    {
+        // Place player in maze - start location
+        // Sets players location
+        playerLocation = playerLoc;
+        // checks players location is in startLocations List
+        if (startLocationsList.contains(playerLocation))
+        {
+            // Set (x, y) to 'P'
+            // NB - array[row = y][col = x]
+            //mazeArray[x][y] = 'P';
+            mazeArray[playerLocation.y][playerLocation.x] = 'P';
+        }
+        else
+        {
+            throw new IllegalArgumentException("Player not at valid start location");
+        }
+        // Start timer
+        mazeTimer.startTimer();
+
+    }
+
+    /*
+     * getExitLocation function - returns exit location in maze array
+     * @return exitLocation - Point(x, y) of exit location 
+     */
+    public Point getExitLocation()
+    {
+        return exitLocation;
+    }
+
+    /*
+     * set_Locations function - iterates throught the maze array and sets locations
+     *  
+     */
+    public void set_locations()
+    {
+        // Iterate through array add start locations to startLoc list
+        for (int y = 0; y < mazeArray.length; y++)
+        {
+            for (int x = 0; x < mazeArray[y].length; x++)
+            {
+                if (mazeArray[y][x] == 'S')
+                {
+                    startLocationsList.add(new Point(x, y));
+                }
+                else if (mazeArray[y][x] == 'E')
+                {
+                    exitLocation = new Point(x, y);
+                }
+                else if (mazeArray[y][x] == 'K')
+                {
+                    //private List<Point> keyLocationsList = new ArrayList<Point>();
+                    keyLocationsList.add(new Point(x, y));
+                }
+                // add pickup locations
+
+                // add bot locations
+                else if (mazeArray[y][x] == 'B')
+                {
+                    botsLocationsList.add(new Point(x, y));
+                }
+            }
+        }    
     }
 
     /* 
     * setKeysStatus function - inputs keyLocations into a map and defaults collected bool value to false
     * @param keyLocations - Point object array of key locations in mazeArray
     */
-    private void setKeyStatus(Point[] keyLocations)
+    private void setKeyStatus(List<Point> keyLocationsList)
     {
         // Key Status: (x, y)-> False
-        for (int i = 0; i < keyLocations.length; i++)
+        for (int i = 0; i < keyLocationsList.size(); i++)
         {
-            this.keyStatus.put(keyLocations[i], false);
+            keyStatus.put(keyLocationsList.get(i), false);
         }
     }
 
@@ -80,6 +193,7 @@ public class MazeControl {
     {
         return keyStatus;
     }
+
 
     /* 
     * updateKeyStatus function - updates keyStatus if player's location is at key's location
@@ -94,6 +208,42 @@ public class MazeControl {
             player.addKey();   
         }
     }  
+
+
+
+    /*
+     * makeBotGo function - make bot move every n second 
+     */
+    public void makeBotGo(SpaceBot bot)
+    {
+        int timeInterval = 1000;        // each second?
+        // While the gameTimer is running
+        while (mazeTimer.getIsTimerRunning())
+        {
+            if (System.currentTimeMillis() % timeInterval == 0)
+            {
+                Point posBotMove = new Point(bot.getMoveAttempt());
+                if (mazeArray[posBotMove.y][posBotMove.x] == '.')
+                {
+                    // Move bot to new position:
+                    // Set previous bot location (temp object)
+                    Point prevBotMove = new Point(bot.getLocation());
+                    // Update bot Location in bot object and in mazeArray
+                    //playerLocation = new Point(x, y);
+                    bot.updateLocation(posBotMove);
+                    // Set (x, y) to 'P'
+                    // NB - array[row = y][col = x]
+                    //mazeArray[x][y] = 'P';
+                    mazeArray[posBotMove.y][posBotMove.x] = 'B';
+                    // Set previous player location to '.'
+                    mazeArray[prevBotMove.y][prevBotMove.x]= '.';
+
+                }
+                // else - nothing, bot get a breather
+            }
+        }
+    }
+
 
     /*
     * unlockExit function - unlocks exit if player has correct number of keys 
@@ -112,11 +262,13 @@ public class MazeControl {
         }
     }
 
-    // bypassUnlockExit function - dev tool to check validMove - delete 
+
+    // bypassUnlockExit function - dev tool to check validMove - delete after tests
     public void bypassUnlockExit(Boolean status) {
         exitUnlocked = status;
     }
     
+
     /*
      * getExitUnLockedStatus function - returns bool value -> unlocked == true
      * @return exitUnlocked - bool
@@ -126,18 +278,60 @@ public class MazeControl {
         return exitUnlocked;
     }
 
+    /*
+     * newLevel function - if player exits maze, start new level
+     */
+    public void newLevel()
+    {
+        if ((currentLevel < maxLevel) && (playerLocation == exitLocation))
+        {
+            // Pause Timer
+            mazeTimer.pauseTimer();
+
+            // increment current level
+            currentLevel++;     
+            // Create new Maze, dependent on current level
+            this.mazeArray = createNewMaze(currentLevel);
+
+            // Set start, key... locations
+            set_locations();
+
+            // Exit location
+            this.exitLocation = getExitLocation();
+
+            // Initalise keyStatus with collected = false
+            setKeyStatus(keyLocationsList);
+
+            // Reposition bots
+
+
+            // Re-position player's start location -- this will be problematic for >1 players
+            // Select random location from startLocationsList and calls playerEntersMaze
+            Random rand = new Random();
+            int randomStartIndex = rand.nextInt(startLocationsList.size());
+            playerLocation = startLocationsList.get(randomStartIndex);
+            playerEntersMaze(playerLocation);
+            
+            }
+    }
+
+
     /* 
     * gameOver function - checks if player is at exit - called in updatePlayerLocationMaze
+    * @ return timeTaken - return 
     */
     public void checkGameOver()
     {
-        if (playerLocation == exitLocation)
+        if ((currentLevel == maxLevel) && (playerLocation == exitLocation))
         {
             gameFinished = true;
             // Could also have a print message of game over
-
+            mazeTimer.stopTimer();
+            // Update time taken
+            timeTaken = mazeTimer.getTimeTaken();
         }
     }
+
 
     /* 
     * validMove function - checks if potential move coord is not a wall or locked exit
@@ -176,6 +370,8 @@ public class MazeControl {
             return true;
         }
     }
+
+
 
     /* 
     * getPlayerLocationInMaze function - returns player's current location
@@ -228,13 +424,13 @@ public class MazeControl {
      * MazeArray - hard coded for now as a private char[][]
      */
     
-    private char[][] mazeArray = {
-        {'W','P','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W'},
+    private char[][] mazeArrayTest = {
+        {'W','S','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','S','W'},
         {'W','.','.','.','.','.','.','.','.','.','.','.','.','.','W','.','.','.','W','.','.','.','.','.','W'},
         {'W','W','W','W','W','W','W','W','W','.','W','.','W','W','W','W','W','.','W','W','W','W','W','.','W'},
         {'W','.','.','.','.','.','.','.','W','.','W','.','.','.','.','.','.','.','.','.','.','.','.','.','W'},
         {'W','.','W','W','W','W','.','.','W','.','W','W','W','W','.','.','W','W','W','.','W','W','W','.','W'},
-        {'W','.','.','.','.','.','.','.','.','.','W','.','.','.','.','.','W','K','W','.','.','.','.','.','W'},
+        {'W','.','.','.','.','.','.','.','.','.','W','K','.','.','.','.','W','K','W','.','.','.','.','.','W'},
         {'W','W','W','.','.','W','W','W','W','.','W','.','.','W','W','W','W','.','W','W','W','W','W','W','W'},
         {'W','.','.','.','.','W','.','.','.','.','W','.','.','.','.','.','W','.','W','.','.','.','.','.','W'},
         {'W','W','W','.','.','W','W','W','W','.','W','.','.','W','.','.','W','.','W','.','W','W','W','.','W'},
@@ -252,8 +448,8 @@ public class MazeControl {
         {'W','W','W','W','.','W','W','W','W','.','W','W','W','W','.','.','W','W','W','.','W','W','W','W','W'},
         {'W','.','.','.','.','.','.','.','W','.','W','.','.','.','.','.','.','.','.','.','W','.','.','.','W'},
         {'W','W','.','W','W','W','W','W','W','.','W','W','W','W','W','W','W','.','W','.','W','.','W','W','W'},
-        {'W','.','.','.','.','.','.','.','.','.','.','.','.','W','.','.','.','.','W','.','.','.','.','.','E'},
-        {'W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W'},
+        {'W','.','.','.','.','.','.','.','.','.','.','.','.','W','.','.','.','.','W','.','.','.','.','.','W'},
+        {'W','W','W','W','W','W','W','W','W','W','W','W','E','W','W','W','W','W','W','W','W','W','W','W','W'},
         };
 
 
