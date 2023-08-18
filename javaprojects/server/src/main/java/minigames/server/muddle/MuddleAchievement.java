@@ -1,6 +1,8 @@
 package minigames.server.muddle;
 
 
+import minigames.achievements.Achievement;
+
 /**
  * An enum to store details of each achievement in Muddle
  */
@@ -21,12 +23,15 @@ enum MuddleAchievement {
             "You said the magic word, Abracadabra!",
             true
     );
+    final Achievement achievement;
 
-    final String description;
-    final boolean hidden;
     MuddleAchievement(String description, boolean hidden) {
-        this.description = description;
-        this.hidden = hidden;
+        this.achievement = new Achievement(
+                this.toString(),
+                description, 25,
+                "",
+                hidden
+        );
     }
 
     @Override

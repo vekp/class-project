@@ -1,7 +1,6 @@
 package minigames.server.muddle;
 
 import io.vertx.core.Future;
-import minigames.achievements.Achievement;
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.GameServerDetails;
@@ -39,7 +38,7 @@ public class MuddleServer implements GameServer {
         achievementHandler = new AchievementHandler(MuddleServer.class);
         // Register all achievements with handler
         for (MuddleAchievement a : MuddleAchievement.values()) {
-            achievementHandler.registerAchievement(new Achievement(a.toString(), a.description, 25, "", a.hidden));
+            achievementHandler.registerAchievement(a.achievement);
         }
     }
     @Override
