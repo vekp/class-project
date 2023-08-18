@@ -43,8 +43,8 @@ public class NotificationManager implements Tickable {
     private Status status = Status.IDLE;
 
     /**
-     * Constructor for
-     * @param mnClient
+     * Constructor for NotificationManager
+     * @param mnClient the currently running MinigameNetworkClient
      */
 
     public NotificationManager(MinigameNetworkClient mnClient) {
