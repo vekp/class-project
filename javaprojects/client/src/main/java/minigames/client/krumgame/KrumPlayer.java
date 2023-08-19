@@ -409,6 +409,9 @@ public class KrumPlayer {
         if (enterKeyDownNextFrame) {
             enterKeyPressed();
             enterKeyDownNextFrame = false;
+            if (recordingTurn != null) {
+                recordingFrame.enterKeyDown = true;
+            }
         }
         upArrowKeyDown = upArrowKeyDownNextFrame;
         downArrowKeyDown = downArrowKeyDownNextFrame;
@@ -416,7 +419,7 @@ public class KrumPlayer {
             recordingFrame.upArrowKeyDown = upArrowKeyDownNextFrame;
             recordingFrame.downArrowKeyDown = downArrowKeyDownNextFrame;
             recordingFrame.leftKeyDown = leftKeyDownNextFrame;
-            recordingFrame.rightKeyDown = rightKeyDownNextFrame;
+            recordingFrame.rightKeyDown = rightKeyDownNextFrame;            
             recordingTurn.frames.add(recordingFrame);
         }
         if (projectile != null) {

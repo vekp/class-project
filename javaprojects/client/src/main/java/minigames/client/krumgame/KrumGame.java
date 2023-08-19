@@ -120,7 +120,7 @@ public class KrumGame implements GameClient {
     }
 
     void setGameState(KrumGameState state) {
-        alphaRaster.setDataElements(0,0,state.pixelMatrix);
+        alphaRaster.setDataElements(0,0,background.getWidth(),background.getHeight(),state.pixelMatrix);
         for (int i = 0; i < Math.min(players.length, state.playerStates.size()); i++) {
             KrumPlayerState ps = state.playerStates.get(i);
             players[i].hp = ps.hp;
