@@ -6,13 +6,10 @@ import minigames.client.achievementui.AchievementNotificationHandler;
 import minigames.client.achievementui.AchievementUI;
 import minigames.client.survey.Survey;
 import minigames.client.backgrounds.Starfield;
-import minigames.client.notifications.NotificationManager;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.GameServerDetails;
 
 import java.awt.*;
-
-import java.awt.event.ActionListener;
 import java.util.List;
 
 /**
@@ -26,7 +23,6 @@ import java.util.List;
 public class MinigameNetworkClientWindow {
 
     MinigameNetworkClient networkClient;
-    private NotificationManager notificationManager;
     private final AchievementNotificationHandler achievementPopups;
 
     JFrame frame;
@@ -49,7 +45,7 @@ public class MinigameNetworkClientWindow {
         frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        this.achievementPopups = new AchievementNotificationHandler(this.notificationManager, networkClient);
+        this.achievementPopups = new AchievementNotificationHandler(networkClient);
 
         parent = new JPanel(new BorderLayout());
 
@@ -173,13 +169,13 @@ public class MinigameNetworkClientWindow {
      */
     public void showGameServers(List<GameServerDetails> servers) {
         frame.setTitle("COSC220 2023 Minigame Collection");
-        this.notificationManager = new NotificationManager(networkClient, frame);
         clearAll();
+        networkClient.getNotificationManager().resetToDefaultSettings();
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         List<JPanel> serverPanels = servers.stream().map((gsd) -> {
-            JPanel p = new JPanel();
+            JPanel p = new JPanel(new BorderLayout());
             JLabel l = new JLabel(String.format("<html><h1>%s</h1><p>%s</p></html>", gsd.name(), gsd.description()));
             JButton newG = new JButton("Open games");
 
@@ -188,7 +184,7 @@ public class MinigameNetworkClientWindow {
                         .onSuccess((list) -> showGames(gsd.name(), list));
             });
             p.add(l);
-            p.add(newG);
+            p.add(newG, BorderLayout.EAST);
             return p;
         }).toList();
 
@@ -274,8 +270,11 @@ public class MinigameNetworkClientWindow {
         parent.repaint();
     }
 
-
-    public NotificationManager getNotificationManager() {
-        return notificationManager;
+    /**
+     * Return a reference to this window's frame
+     */
+    public JFrame getFrame() {
+        return frame;
     }
+
 }

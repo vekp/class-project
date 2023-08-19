@@ -94,15 +94,29 @@ public class MinigameNetworkServer {
 
                 List<Achievement> unlocked = new ArrayList<>();
                 List<Achievement> locked = new ArrayList<>();
-
+                //hidden achievements that have not yet been unlocked should be shown at the END of the list of locked
+                //achievements
+                List<Achievement> hiddenLocked = new ArrayList<>();
                 //the list used depends on whether the player has this achievement or not
                 for (Achievement current : gameAchievements) {
                     if (handler.playerHasEarnedAchievement(playerID, current.name())) {
                         unlocked.add(current);
                     } else {
-                        locked.add(current);
+                        //If player hasn't unlocked it, and it's a hidden achievement, we do not send the 'real'
+                        //achievement but instead make a dummy 'hidden' achievement - keeps it secret but still shows
+                        // the player that there is something to unlock
+                        if (current.hidden()) {
+                            Achievement hiddenAchievement = new Achievement(current.name(), "This is a secret " +
+                                    "achievement, play the game to unlock it", 0, "", true);
+                            hiddenLocked.add(hiddenAchievement);
+                        } else {
+                            locked.add(current);
+                        }
                     }
                 }
+                //once we are done sorting through achievments, add any hidden locked achievements to the end of the
+                // locked list to show up at the bottom.
+                locked.addAll(hiddenLocked);
                 GameAchievementState state = new GameAchievementState(server.getDetails().name(), unlocked, locked);
                 gameStates.add(state);
             }
@@ -112,7 +126,7 @@ public class MinigameNetworkServer {
         });
 
         //respond to request to get the most recently unlocked achievements
-        router.get("/achievementUnlocks").respond((ctx) ->{
+        router.get("/achievementUnlocks").respond((ctx) -> {
             List<Achievement> recentUnlocks = AchievementHandler.getRecentUnlocks();
             return Future.succeededFuture(recentUnlocks);
 //            if(recentUnlocks.size() == 0){

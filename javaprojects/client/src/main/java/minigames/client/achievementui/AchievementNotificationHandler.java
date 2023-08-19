@@ -1,12 +1,9 @@
 package minigames.client.achievementui;
 
-import io.vertx.ext.auth.impl.asn.ASN1;
 import minigames.achievements.Achievement;
 import minigames.client.Animator;
 import minigames.client.MinigameNetworkClient;
-import minigames.client.MinigameNetworkClientWindow;
 import minigames.client.Tickable;
-import minigames.client.notifications.NotificationManager;
 
 import javax.swing.*;
 import java.util.List;
@@ -17,7 +14,6 @@ import java.util.List;
  */
 public class AchievementNotificationHandler implements Tickable {
 
-    private final NotificationManager popupManager;
     private final MinigameNetworkClient client;
     int tickInterval = 10; //how many frames we wait between achievement checks
     int tickTimer = 0; //how many ticks have passed since last check
@@ -28,9 +24,7 @@ public class AchievementNotificationHandler implements Tickable {
      *
      * @param mnClient the network client, for sending requests to the server and obtaining the animator
      */
-    public AchievementNotificationHandler(NotificationManager popupManager, MinigameNetworkClient mnClient) {
-        //we want the notification manager attached to our client window
-        this.popupManager = popupManager;
+    public AchievementNotificationHandler(MinigameNetworkClient mnClient) {
         this.client = mnClient;
         this.anim = mnClient.getAnimator();
         anim.requestTick(this);
@@ -54,9 +48,8 @@ public class AchievementNotificationHandler implements Tickable {
     void processAchievements(List<Achievement> unlocks) {
             for (Achievement unlock : unlocks) {
                 AchievementPresenter presenter = new AchievementPresenter(unlock, true);
-                JPanel popup = presenter.tinyAchievementPanel(false);
-                popup.setBorder(null);
-                popupManager.showNotification(popup);
+                JPanel popup = presenter.tinyAchievementPanel();
+                client.getNotificationManager().showNotification(popup);
             }
 
         anim.requestTick(this);

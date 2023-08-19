@@ -1,7 +1,6 @@
 package minigames.client.achievementui;
 
 import minigames.achievements.Achievement;
-import minigames.achievements.AchievementTestData;
 import minigames.achievements.GameAchievementState;
 import minigames.achievements.PlayerAchievementRecord;
 import minigames.client.MinigameNetworkClient;
@@ -9,8 +8,6 @@ import minigames.client.MinigameNetworkClient;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -89,9 +86,9 @@ public class AchievementUI extends JPanel {
             JPanel popupDemoPanel = testAchievement.smallAchievementPanel(false);
             popupDemoPanel.setBorder(null);
             float x = new Random().nextFloat();
-            networkClient.getMainWindow().getNotificationManager().setAlignment(x);
-            networkClient.getMainWindow().getNotificationManager().showNotification(popupDemoPanel);
-            networkClient.getMainWindow().getNotificationManager().setAlignment(0.5f);
+            networkClient.getNotificationManager().setAlignment(x);
+            networkClient.getNotificationManager().showNotification(popupDemoPanel);
+            networkClient.getNotificationManager().setAlignment(0.5f);
         });
         buttonPanel.add(popup, BorderLayout.WEST);
         // Another popup demo button TODO: Remove this
@@ -99,13 +96,13 @@ public class AchievementUI extends JPanel {
         popup2.addActionListener(e -> {
             JButton leftPopup = new JButton("<html>This is another popup example.<br>Click me for another popup.");
             leftPopup.addActionListener(e1 -> {
-                networkClient.getMainWindow().getNotificationManager().setAlignment(0f);
-                networkClient.getMainWindow().getNotificationManager().showNotification(new JLabel("This one is on the left, with Component.LEFT_ALIGNMENT"));
+                networkClient.getNotificationManager().setAlignment(0f);
+                networkClient.getNotificationManager().showNotification(new JLabel("This one is on the left, with Component.LEFT_ALIGNMENT"));
             });
 
-            networkClient.getMainWindow().getNotificationManager().showNotification(leftPopup, false);
+            networkClient.getNotificationManager().showNotification(leftPopup, false);
         });
-        networkClient.getMainWindow().getNotificationManager().setAlignment(1.0f);
+        networkClient.getNotificationManager().setAlignment(1.0f);
         buttonPanel.add(popup2);
 
         this.add(buttonPanel, BorderLayout.SOUTH);
@@ -154,29 +151,15 @@ public class AchievementUI extends JPanel {
             achievementPanel.add(gameLabel);
             List<Achievement> unlockedAchievements = state.unlocked();
             if (!unlockedAchievements.isEmpty()) {
-                AchievementCollection presenterList = achievementCollection(unlockedAchievements, true);
-                //Demo for carousel. todo: remove later when not needed.
-                JButton carousel = new JButton("Demo carousel");
-                carousel.addActionListener(e -> JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(achievementPanel), presenterList.achievementCarousel(),
-                        gameID, JOptionPane.PLAIN_MESSAGE));
-                achievementPanel.add(carousel);
-
+                AchievementCollection presenterList = new AchievementCollection(gameID, unlockedAchievements, true);
                 achievementPanel.add(presenterList.achievementListPanel());
             }
             List<Achievement> lockedAchievements = state.locked();
             if (!lockedAchievements.isEmpty()) {
-                AchievementCollection presenterList = achievementCollection(lockedAchievements, false);
+                AchievementCollection presenterList = new AchievementCollection(gameID, lockedAchievements, false);
                 achievementPanel.add(presenterList.achievementListPanel());
             }
         }
         achievementScrollPane.setViewportView(achievementPanel);
-    }
-
-    private AchievementCollection achievementCollection(List<Achievement> achievementList, boolean isUnlocked) {
-        List<AchievementPresenter> presenterList = new ArrayList<>();
-        for (Achievement achievement : achievementList) {
-            presenterList.add(new AchievementPresenter(achievement, isUnlocked));
-        }
-        return new AchievementCollection(presenterList);
     }
 }
