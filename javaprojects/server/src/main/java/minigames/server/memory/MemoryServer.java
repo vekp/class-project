@@ -37,7 +37,7 @@ public class MemoryServer implements GameServer {
 
     @Override
     public GameServerDetails getDetails() {
-        return new GameServerDetails("Memory", "[Casual] Find the pairs in the Memory card game!");
+        return new GameServerDetails("Memory", "Find the pairs in Pair Up [Memory card game]!");
     }
 
     @Override

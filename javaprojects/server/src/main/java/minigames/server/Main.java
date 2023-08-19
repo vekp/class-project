@@ -3,7 +3,7 @@ package minigames.server;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import minigames.server.battleship.BattleshipServer;
-import minigames.server.highscoreapi.*;
+import minigames.server.highscore.*;
 import minigames.server.memory.MemoryServer;
 import minigames.server.muddle.MuddleServer;
 import minigames.server.survey.SurveyServer;

@@ -8,8 +8,6 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 
 import java.awt.*;
-import java.awt.Font;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -60,7 +58,7 @@ public class Memory implements GameClient, ActionListener, MouseListener {
     public Memory() {
         headingPanel = new JPanel();
         headingPanel.setLayout(new GridLayout(1, 1));
-        title = new JLabel("Pair Up - A memory game");
+        title = new JLabel("Pair Up - A Memory Card Game");
         title.setFont(new Font("Comic Sans MS", Font.BOLD, 25));
         title.setHorizontalAlignment(JLabel.CENTER);
         headingPanel.add(title);
@@ -89,6 +87,7 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         restartLevelButton.setFont(new Font("Arial", Font.BOLD, 16));
         exitButton = new JButton("Exit");
         exitButton.setFont(new Font("Arial", Font.BOLD, 16));
+        exitButton.addActionListener(e -> mnClient.runMainMenuSequence());
         gameOptionsPanel.add(newGameButton);
         gameOptionsPanel.add(restartLevelButton);
         gameOptionsPanel.add(exitButton);
