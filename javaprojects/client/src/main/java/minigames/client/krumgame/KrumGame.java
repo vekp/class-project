@@ -205,18 +205,10 @@ public class KrumGame implements GameClient {
             }   
         }  
         else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-            players[playerTurn].leftKeyDown = true;
-            if (!players[playerTurn].airborne && !players[playerTurn].onRope) {
-                players[playerTurn].walking = true;                
-            }
-            players[playerTurn].setDirection(false, alphaRaster);
+            players[playerTurn].leftKeyDownNextFrame = true;            
         }
         else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            players[playerTurn].rightKeyDown = true;
-            if (!players[playerTurn].airborne && !players[playerTurn].onRope) {
-                players[playerTurn].walking = true;
-            }
-            players[playerTurn].setDirection(true, alphaRaster);            
+            players[playerTurn].rightKeyDownNextFrame = true;       
         }
         else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             players[playerTurn].enterKeyPressed();
@@ -236,12 +228,10 @@ public class KrumGame implements GameClient {
             players[playerTurn].endJump(1);
         } 
         else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-            players[playerTurn].walking = false;
-            players[playerTurn].leftKeyDown = false;
+            players[playerTurn].leftKeyDownNextFrame = false;
         }
         else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            players[playerTurn].walking = false;
-             players[playerTurn].rightKeyDown = false;
+            players[playerTurn].rightKeyDownNextFrame = false;
         }
         else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             players[playerTurn].enterKeyReleased();
