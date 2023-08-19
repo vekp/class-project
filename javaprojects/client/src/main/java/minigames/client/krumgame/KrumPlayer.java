@@ -166,16 +166,12 @@ public class KrumPlayer {
         this.active = false;
         this.aimAngleRadians = 0;
         this.hp = 100;
-
-        spriteFile = new File(KrumC.imgDir + spriteFileName);
-        try {
-            sprite = ImageIO.read(spriteFile);
-        }
-        catch (IOException e) {
-            System.out.println("can't load sprite");          
-            System.err.println(e.getMessage());
-            e.printStackTrace();
-        }
+        
+        // Reading sprites
+        projectileSprite = KrumHelpers.readSprite("carrot_s.png");
+        grenadeSprite = KrumHelpers.readSprite("grenade.png");
+        sprite = KrumHelpers.readSprite(spriteFileName);
+        
         alphaRaster = sprite.getAlphaRaster();
 
         firing = false;
