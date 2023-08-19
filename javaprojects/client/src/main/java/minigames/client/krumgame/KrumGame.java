@@ -15,11 +15,16 @@ import io.vertx.core.json.JsonObject;
 import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
 import minigames.rendering.GameMetadata;
 import minigames.commands.CommandPackage;
+import java.awt.image.ColorModel;
+
+import java.awt.geom.Point2D;
 
 /**
  * The state of each running game will be represented by an instance of KrumGame on the server and an instance on each participating client
@@ -40,6 +45,17 @@ public class KrumGame implements GameClient {
     String windString;
     boolean firstRun;
     boolean running = true;
+    long updateCount = 0;
+    int playBackFrame = 0;
+    
+    boolean startRecordingTurn = false;
+    boolean recordingTurn = false;
+    boolean playBackTurn = false;
+    boolean stopRecordingTurn = false;
+    boolean playingBackTurn = false;
+
+    KrumTurn currentTurn;
+    //KrumTurn savedTurn;
 
     public KrumGame() {        
         File backgroundFile = new File(KrumC.imgDir + "chameleon.png");
@@ -62,9 +78,12 @@ public class KrumGame implements GameClient {
         windString = "Wind: left 2.00";
         firstRun = true;
         players = new KrumPlayer[2];
-        players[0] = new KrumPlayer(235, 0, "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, true, alphaRaster);
-        players[1] = new KrumPlayer(600, 0, "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, false, alphaRaster);
+        players[0] = new KrumPlayer(235, 0, "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, true, alphaRaster, 0);
+        players[1] = new KrumPlayer(600, 0, "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, false, alphaRaster, 1);
         playerTurn = 0;
+        updateCount = 0;
+        currentTurn = new KrumTurn(players, background, windX, windY);
+        //savedTurn = new KrumTurn(players, background);
     }
 
     /**
@@ -100,12 +119,98 @@ public class KrumGame implements GameClient {
         windString += Math.round(windX * 10000.0) / 100.0;
     }
 
+    void setGameState(KrumGameState state) {
+        alphaRaster.setDataElements(0,0,state.pixelMatrix);
+        for (int i = 0; i < Math.min(players.length, state.playerStates.size()); i++) {
+            KrumPlayerState ps = state.playerStates.get(i);
+            players[i].hp = ps.hp;
+            players[i].xpos = ps.xpos;
+            players[i].xvel = ps.xvel;
+            players[i].yvel = ps.yvel;
+            players[i].ypos = ps.ypos;
+            players[i].leftKeyDown = ps.leftKeyDown;
+            players[i].rightKeyDown = ps.rightKeyDown;
+            players[i].upArrowKeyDown = ps.upArrowKeyDown;
+            players[i].downArrowKeyDown = ps.downArrowKeyDown;
+            players[i].firing = ps.firing;
+            players[i].firingGrenade = ps.firingGrenade;
+            players[i].fireStart = ps.fireStart;
+            players[i].fireGrenadeStart = ps.fireGrenadeStart;
+            players[i].grenadeSeconds = ps.grenadeSeconds;
+            players[i].flashFramesLeft = ps.flashFramesLeft;
+            players[i].airborne = ps.airborne;
+            players[i].jumping = ps.jumping;
+            players[i].jumpStart = ps.jumpStart;
+            players[i].walking = ps.walking;
+            players[i].walkedOffEdge = ps.walkedOffEdge;
+            players[i].jumpType = ps.jumpType;
+            players[i].firstJumpFrame = ps.firstJumpFrame;
+            players[i].deferredLanding = ps.deferredLanding;
+            players[i].lastShotTime = ps.lastShotTime;
+            players[i].lastGrenadeShotTime = ps.lastGrenadeShotTime;
+            players[i].shootingRope = ps.shootingRope;
+            players[i].onRope = ps.onRope;
+            players[i].ropeAttachmentPoints = new ArrayList<Point2D.Double>(ps.ropeAttachmentPoints);
+            players[i].ropeLength = ps.ropeLength;
+            players[i].ropeAngleRadians = ps.ropeAngleRadians;
+            players[i].onRopeSpeed = ps.onRopeSpeed;
+            players[i].wasOnRope = ps.wasOnRope;
+            players[i].shotPower = ps.shotPower;
+            players[i].shootNextFrame = ps.shootNextFrame;
+            players[i].grenadePower = ps.grenadePower;
+            players[i].grenadeNextFrame = ps.grenadeNextFrame;
+            players[i].detachRopeNextFrame = ps.detachRopeNextFrame;
+            players[i].shootRopeNextFrame = ps.shootRopeNextFrame;
+            players[i].jumpPower = ps.jumpPower;
+            players[i].jumpNextFrame = ps.jumpNextFrame;
+            players[i].grenadeAimAngle = ps.grenadeAimAngle;
+            players[i].shootAimAngle = ps.shootAimAngle;
+            players[i].ropeAimAngle = ps.ropeAimAngle;
+            players[i].ropeSegmentLengths = new ArrayList<Double>(ps.ropeSegmentLengths);
+            players[i].setDirection(ps.facingRight, null);
+        }
+    }
+
     /**
      * Called once per frame to update game state
      */
     void update() {
-        for (KrumPlayer p : players) {
-            p.update(windX, windY, alphaRaster);
+        if (startRecordingTurn && !playingBackTurn && !playBackTurn) {
+            currentTurn = new KrumTurn(players, background, windX, windY);
+            recordingTurn = true;
+            startRecordingTurn = false;
+        }
+        if (stopRecordingTurn) {
+            recordingTurn = false;
+            currentTurn.endState = new KrumGameState(players, background, windX, windY);
+            //savedTurn = new KrumTurn(currentTurn);
+            stopRecordingTurn = false;
+        }
+        // KrumInputFrame thisFrame = new KrumInputFrame();
+        if (playBackTurn) {
+            playingBackTurn = true;
+            recordingTurn = false;
+            playBackTurn = false;
+            playBackFrame = 0;
+            setGameState(currentTurn.startState);
+        }        
+        for (KrumPlayer p : players) {    
+            KrumInputFrame pf = null;
+            KrumTurn rt = null;
+            if (p.playerIndex == playerTurn && recordingTurn) {
+                rt = currentTurn;
+            }  
+            if (playingBackTurn) {
+                if (playBackFrame >= currentTurn.frames.size()) {
+                    playingBackTurn = false;
+                    System.out.println("done replaying");
+                }
+                else if (p == players[currentTurn.frames.get(playBackFrame).activePlayer]) {
+                    pf = currentTurn.frames.get(playBackFrame);
+                    playBackFrame++;
+                }                
+            }  
+            p.update(windX, windY, alphaRaster, updateCount, rt, pf);
             if (p.projectile != null) {
                 if(p.projectile.collisionCheck()) {
                     explode((int)p.projectile.x, (int)p.projectile.y, p.projectile);
@@ -130,7 +235,12 @@ public class KrumGame implements GameClient {
                     p.grenade = null;
                 }
             }
-        }
+        }   
+        // if (recordingTurn) {
+        //     System.out.println(currentTurn.frames.size());
+        //     System.out.println(currentTurn.frames.get(currentTurn.frames.size() - 1).leftKeyDown);
+        // }   
+        updateCount++;
     }
 
     /**
@@ -184,10 +294,10 @@ public class KrumGame implements GameClient {
     void keyDown(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) { // Spacebar
             if (players[playerTurn].airborne) {
-                players[playerTurn].fireRope();
+                players[playerTurn].shootRopeNextFrame = true;
             }
             if (players[playerTurn].onRope) {
-                players[playerTurn].detachRope();
+                players[playerTurn].detachRopeNextFrame = true;
             }
             else {
                 players[playerTurn].startJump(0);
@@ -195,10 +305,10 @@ public class KrumGame implements GameClient {
         }   
         else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) { // backspace
             if (players[playerTurn].airborne) {
-                players[playerTurn].fireRope();
+                players[playerTurn].shootRopeNextFrame = true;
             }
              if (players[playerTurn].onRope) {
-                players[playerTurn].detachRope();
+                players[playerTurn].detachRopeNextFrame = true;
             }
             else {
                 players[playerTurn].startJump(1);
@@ -211,13 +321,22 @@ public class KrumGame implements GameClient {
             players[playerTurn].rightKeyDownNextFrame = true;       
         }
         else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-            players[playerTurn].enterKeyPressed();
+            players[playerTurn].enterKeyDownNextFrame = true;
         }
         else if (e.getKeyCode() == KeyEvent.VK_UP) {
-            players[playerTurn].upArrowKeyDown = true;
+            players[playerTurn].upArrowKeyDownNextFrame = true;
         }
         else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-            players[playerTurn].downArrowKeyDown = true;
+            players[playerTurn].downArrowKeyDownNextFrame = true;
+        }
+        else if (e.getKeyCode() == KeyEvent.VK_S) {
+            startRecordingTurn = true;
+        }
+        else if (e.getKeyCode() == KeyEvent.VK_F) {
+            stopRecordingTurn = true;
+        }
+        else if (e.getKeyCode() == KeyEvent.VK_R) {
+            playBackTurn = true;
         }
     }
     void keyUp(KeyEvent e) {
@@ -234,13 +353,13 @@ public class KrumGame implements GameClient {
             players[playerTurn].rightKeyDownNextFrame = false;
         }
         else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-            players[playerTurn].enterKeyReleased();
+            players[playerTurn].enterKeyDownNextFrame = false;
         }
         else if (e.getKeyCode() == KeyEvent.VK_UP) {
-            players[playerTurn].upArrowKeyDown = false;
+            players[playerTurn].upArrowKeyDownNextFrame = false;
         }
         else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-            players[playerTurn].downArrowKeyDown = false;
+            players[playerTurn].downArrowKeyDownNextFrame = false;
         }
     }
 

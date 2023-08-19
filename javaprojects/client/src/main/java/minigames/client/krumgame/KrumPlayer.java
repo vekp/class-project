@@ -87,6 +87,14 @@ public class KrumPlayer {
     boolean leftKeyDownNextFrame = false;
     boolean rightKeyDownNextFrame = false;
 
+    boolean enterKeyDownNextFrame = false;
+
+    boolean upArrowKeyDownNextFrame;
+    boolean downArrowKeyDownNextFrame;
+    boolean upArrowKeyUpNextFrame;
+    boolean downArrowKeyUpNextFrame;
+
+    long tick = 0;
     long shotPower;
     boolean shootNextFrame;
 
@@ -102,11 +110,14 @@ public class KrumPlayer {
     double grenadeAimAngle;
     double shootAimAngle;
     double ropeAimAngle;
+
     
     BufferedImage projectileSprite;
     BufferedImage grenadeSprite;
 
     ArrayList<Double> ropeSegmentLengths;
+
+    int playerIndex;
 
     int empty[];
     
@@ -120,7 +131,7 @@ public class KrumPlayer {
      * @param direction     true = pleyer faces right at beginning of fame
      * @param level         alpha raster of level
      */
-    KrumPlayer(int xpos, int ypos, String spriteFileName, int panelX, int panelY, boolean direction, WritableRaster level) {
+    KrumPlayer(int xpos, int ypos, String spriteFileName, int panelX, int panelY, boolean direction, WritableRaster level, int index) {
         File spriteFile = new File(KrumC.imgDir + "carrot_s.png");
         try {
             projectileSprite = ImageIO.read(spriteFile);
@@ -260,6 +271,8 @@ public class KrumPlayer {
         shootNextFrame = false;
         grenadeNextFrame = false;
         jumpNextFrame = false;
+        tick = 0;
+        playerIndex = index;
     }
 
     Point2D.Double playerCentre() {
@@ -326,26 +339,85 @@ public class KrumPlayer {
      * @param windY
      * @param levelRaster
      */
-    void update(double windX, double windY, WritableRaster levelRaster){
+    void update(double windX, double windY, WritableRaster levelRaster, long tick, KrumTurn recordingTurn, KrumInputFrame playbackFrame){
+        KrumInputFrame recordingFrame = new KrumInputFrame();
+        recordingFrame.activePlayer = playerIndex;
+        recordingFrame.frameCount = tick;
+        this.tick = tick;
+        if (playbackFrame != null && playbackFrame.activePlayer == playerIndex) {            
+            shootNextFrame = playbackFrame.shoot;
+            shotPower = playbackFrame.shotPower;
+            shootAimAngle = playbackFrame.shootAimAngle;
+            grenadeNextFrame = playbackFrame.shootGrenade;
+            grenadePower = playbackFrame.grenadePower;
+            grenadeAimAngle = playbackFrame.grenadeAimAngle;
+            shootRopeNextFrame = playbackFrame.shootRope;
+            ropeAimAngle = playbackFrame.ropeAimAngle;
+            leftKeyDownNextFrame = playbackFrame.leftKeyDown;
+            rightKeyDownNextFrame = playbackFrame.rightKeyDown;
+            detachRopeNextFrame = playbackFrame.detachRope;
+            jumpNextFrame = playbackFrame.jump;
+            jumpPower = playbackFrame.jumpPower;
+            jumpType = playbackFrame.jumpType;
+            enterKeyDownNextFrame = playbackFrame.enterKeyDown;
+            upArrowKeyDownNextFrame = playbackFrame.upArrowKeyDown;
+            downArrowKeyDownNextFrame = playbackFrame.downArrowKeyDown;
+            //System.out.println(leftKeyDownNextFrame);
+        }
         if (shootNextFrame) {
             shoot(shotPower);
             shootNextFrame = false;
+            if (recordingTurn != null) {
+                recordingFrame.shoot = true;
+                recordingFrame.shotPower = shotPower;
+                recordingFrame.shootAimAngle = shootAimAngle;
+            }
         }
         if (grenadeNextFrame) {
             shootGrenade(grenadePower);
             grenadeNextFrame = false;
+            if (recordingTurn != null) {
+                recordingFrame.shootGrenade = true;
+                recordingFrame.grenadePower = grenadePower;
+                recordingFrame.grenadeAimAngle = grenadeAimAngle;
+            }
         }
         if (shootRopeNextFrame) {
-            shootRope();
+            fireRope();
             shootRopeNextFrame = false;
+            if (recordingTurn != null) {
+                recordingFrame.shootRope = true;
+                recordingFrame.ropeAimAngle = ropeAimAngle;
+            }
         }
         if (detachRopeNextFrame) {
             detachRope();
             detachRopeNextFrame = false;
+            if (recordingTurn != null) {
+                recordingFrame.detachRope = true;
+            }
         }
         if (jumpNextFrame) {
-            jump(jumpPower);
+            jump(jumpPower, jumpType);
             jumpNextFrame = false;
+            if (recordingTurn != null) {
+                recordingFrame.jump = true;
+                recordingFrame.jumpPower = jumpPower;
+                recordingFrame.jumpType = jumpType;
+            }
+        }
+        if (enterKeyDownNextFrame) {
+            enterKeyPressed();
+            enterKeyDownNextFrame = false;
+        }
+        upArrowKeyDown = upArrowKeyDownNextFrame;
+        downArrowKeyDown = downArrowKeyDownNextFrame;
+        if (recordingTurn != null) {
+            recordingFrame.upArrowKeyDown = upArrowKeyDownNextFrame;
+            recordingFrame.downArrowKeyDown = downArrowKeyDownNextFrame;
+            recordingFrame.leftKeyDown = leftKeyDownNextFrame;
+            recordingFrame.rightKeyDown = rightKeyDownNextFrame;
+            recordingTurn.frames.add(recordingFrame);
         }
         if (projectile != null) {
             projectile.update(windX, windY);
@@ -358,23 +430,26 @@ public class KrumPlayer {
                 walking = true;                
             }
             setDirection(false, levelRaster);
+            leftKeyDown = true;
         }
         if (rightKeyDownNextFrame && !rightKeyDown) {
             if (!airborne && !onRope) {
                 walking = true;                
             }
             setDirection(true, levelRaster);
+            rightKeyDown = true;
         }
         if (!leftKeyDownNextFrame && leftKeyDown) {
             walking = false;
+            leftKeyDown = false;
         }
         if (!rightKeyDownNextFrame && rightKeyDown) {
             walking = false;
+            rightKeyDown = false;
         }
-        leftKeyDown = leftKeyDownNextFrame;
-        rightKeyDown = rightKeyDownNextFrame;
         if (flashFramesLeft > 0) flashFramesLeft--;
         if (airborne) {
+            //System.out.println("AIRBORNE " + tick);
             double oldx = xpos;
             double oldy = ypos;
             yvel += KrumC.GRAVITY;
@@ -494,7 +569,7 @@ public class KrumPlayer {
             Point2D.Double collisionPoint = ropeCollisionTest(0);
             if (collisionPoint != null) {
                 shootingRope = false;
-                onRope = true;
+                onRope = true; 
                 airborne = false;
                 ropeAttachmentPoints.add(collisionPoint);
                 //onRopeSpeed = Math.abs(Math.cos(ropeAngleRadians - Math.atan2(yvel, xvel)) * Math.sqrt(xvel*xvel + yvel*yvel));
@@ -778,13 +853,14 @@ public class KrumPlayer {
      * @param levelRaster
      */
     void setDirection(boolean right, WritableRaster levelRaster) {
-        if (right == facingRight) return;
+        if (right == facingRight) return;        
         facingRight = right;
         AffineTransform tx = AffineTransform.getScaleInstance(-1, 1); 
         tx.translate(-sprite.getWidth(null), 0);        
         AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);        
         sprite = op.filter(sprite, null);
         alphaRaster = sprite.getAlphaRaster();
+        if (levelRaster == null) return;
         if (collisionCheck(levelRaster, (facingRight ? 1 : 0))) {
             facingRight = !facingRight;                  
             sprite = op.filter(sprite, null);
@@ -815,6 +891,7 @@ public class KrumPlayer {
         }
         jumping = false;
         jumpNextFrame = true;
+        jumpType = type;
         jumpPower = System.nanoTime() - jumpStart;
       }
 
@@ -822,15 +899,15 @@ public class KrumPlayer {
      * called by endJump to actually make the player jump
      * @param power number of nanoseconds the jump key was held for
      */
-    void jump(long power) {
+    void jump(long power, int type) {
         power /= 100000000;
         double p = (double)power;
         p /= 2.5;
-        if (jumpType == 0) {
+        if (type == 0) {
             xvel += p * Math.cos(facingRight ? KrumC.JUMP_ANGLE : Math.PI - KrumC.JUMP_ANGLE);
             yvel -= p * Math.sin(facingRight ? KrumC.JUMP_ANGLE : Math.PI - KrumC.JUMP_ANGLE);
         }
-        else if (jumpType == 1) {
+        else if (type == 1) {
             xvel += p * Math.cos(facingRight ? Math.PI - KrumC.JUMP_ANGLE_TWO : KrumC.JUMP_ANGLE_TWO);
             yvel -= p * Math.sin(facingRight ? Math.PI - KrumC.JUMP_ANGLE_TWO : KrumC.JUMP_ANGLE_TWO);
         }
@@ -840,20 +917,11 @@ public class KrumPlayer {
     }
 
     void shootRope() {
-        shootingRope = true;
-        if (wasOnRope) {
-            double x = Math.cos(ropeAngleRadians) * -1;
-            double y = Math.abs(Math.sin(ropeAngleRadians));
-            ropeAngleRadians = Math.atan2(y, x);
-        }
-        else {
-            //ropeAngleRadians = calcAimAngle();
-            ropeAngleRadians = facingRight ? Math.PI / 4 : Math.PI * 3.0 / 4;
-        }
-        
+        shootingRope = true;        
         ropeAttachmentPoints.clear();
         walking = false;
         ropeLength = 0;
+        ropeAngleRadians = ropeAimAngle;
     }
 
     void detachRope() {
@@ -867,7 +935,16 @@ public class KrumPlayer {
             detachRopeNextFrame = true;
         }
         else if (!shootingRope) {            
-            shootRopeNextFrame = true;
+            if (wasOnRope) {
+                double x = Math.cos(ropeAngleRadians) * -1;
+                double y = Math.abs(Math.sin(ropeAngleRadians));
+                ropeAimAngle = Math.atan2(y, x);
+                
+            }
+            else {
+                ropeAimAngle = facingRight ? Math.PI / 4 : Math.PI * 3.0 / 4;
+            }
+            shootRope();
         }
     }
 
@@ -878,9 +955,9 @@ public class KrumPlayer {
         }
     }
 
-    void enterKeyReleased() {
+    // void enterKeyReleased() {
 
-    }
+    // }
 
     void startGrenadeFire(MouseEvent e) {
         firingGrenade = true;
