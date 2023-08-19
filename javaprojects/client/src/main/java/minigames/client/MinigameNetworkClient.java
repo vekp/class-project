@@ -184,6 +184,7 @@ public class MinigameNetworkClient {
                 .onSuccess((resp) -> {
                     //re-create the player record from the JSON we should have been sent, and pass it
                     //over to the UI to populate its panels
+                    //todo this shouldn't be here it will block the thread while the popup is active
                     AchievementCollection ac = new AchievementCollection(GameAchievementState.fromJSON(resp.bodyAsString()));
                     JOptionPane.showMessageDialog(getMainWindow().frame, ac.achievementListPanel(),
                             gameID + " achievements", JOptionPane.PLAIN_MESSAGE);
@@ -199,7 +200,7 @@ public class MinigameNetworkClient {
     /**
      * Asks the server for a list of achievements that have just been unlocked.
      *
-     * @return
+     * @return a list of achievements that were unlocked (since the last time this was called)
      */
     public Future<List<Achievement>> getRecentAchievements() {
         return webClient.get(port, host, "/achievementUnlocks")
