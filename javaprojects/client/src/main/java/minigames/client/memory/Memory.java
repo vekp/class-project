@@ -51,6 +51,8 @@ public class Memory implements GameClient, ActionListener, MouseListener {
 
     ImageIcon cardBackImage = new ImageIcon(getClass().getResource("/memory/images/playing_cards/back/card_back_black.png"));
     //ImageIcon clubs_2 = new ImageIcon(getClass().getResource("/memory/images/playing_cards/2_of_clubs.png"));
+    
+    // Path to card images directory (card front images only)
     String cardImagesDirectory = getClass().getResource("/memory/images/playing_cards/").getPath();
         
     JTextArea textArea;
@@ -99,10 +101,12 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         gameMenuPanel.add(playerPanel);
         gameMenuPanel.add(gameOptionsPanel);
 
+        // Create a list of card images
         List<ImageIcon> cardImages = new ArrayList<>();
         File cardImageDirectory = new File(cardImagesDirectory);
         File[] cardImageFiles = cardImageDirectory.listFiles();
 
+        // Add all card images available
         if (cardImageFiles != null) {
             for (File file: cardImageFiles) {
                 if (file.isFile()) {
@@ -111,14 +115,15 @@ public class Memory implements GameClient, ActionListener, MouseListener {
             }
         }
 
+        // Create a list of card pairs
         List<ImageIcon> cardPairs = new ArrayList<>();
         Random random = new Random();
         for (int i = 0; i < 8; i++) {
             int randomIndex = random.nextInt(cardImages.size());
             ImageIcon cardImage = cardImages.get(randomIndex);
             cardPairs.add(cardImage);
-            cardPairs.add(cardImage);
-            cardImages.remove(randomIndex);
+            cardPairs.add(cardImage); // Add a duplicate for each card
+            cardImages.remove(randomIndex); // Then remove selected card
         }
 
 
@@ -141,9 +146,13 @@ public class Memory implements GameClient, ActionListener, MouseListener {
 
             JPanel cardFront = new JPanel();
             //cardFront.add(new JLabel(resizeImageIcon(clubs_2,50,-1))); // need to make this change to the random card - DONE
+            
+            // Get the next card image from cardPairs
             ImageIcon image = cardPairs.get(cardImageIndex);
+            // Define and append to each section (16 total)
             JLabel cardLabel = new JLabel(resizeImageIcon(image, 50, -1));
             cardFront.add(cardLabel);
+            // Increment the cardImageIndex and wrap around if needed
             cardImageIndex = (cardImageIndex + 1) % cardPairs.size();
 
             cards = new JPanel(new CardLayout());
