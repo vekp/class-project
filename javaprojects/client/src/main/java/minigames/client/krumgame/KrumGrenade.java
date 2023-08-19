@@ -21,6 +21,8 @@ public class KrumGrenade extends KrumProjectile {
     }
     @Override
     void update(double windX, double windY) {
+        if (collisionCheck()) 
+            System.out.println("colliding at start");
         yvel += KrumC.GRAVITY;
         xvel *= KrumC.AIR_RES_FACTOR;
         yvel *= KrumC.AIR_RES_FACTOR;
@@ -28,14 +30,18 @@ public class KrumGrenade extends KrumProjectile {
         this.y += yvel;
         ArrayList<int[]> collisionPoints = new ArrayList<int[]>();
         if (collisionCheck()) {
-            int inc = (int)Math.max(xvel, yvel);
-            if (inc == 0) inc = 1;
+            int inc = Math.abs(Math.max((int)xvel, (int)yvel));
+            inc++;
             int i = inc;
+            // System.out.println(x + ", " + y);
             while(collisionCheck() && i > 0) {
                 x -= xvel / inc;
                 y -= yvel / inc;
                 i--;
             }
+            // System.out.println(x + ", " + y);
+            // if (collisionCheck())
+            //     System.out.println("still colliding");
             x += xvel / inc;
             y += yvel / inc;
             double e[] = {0};
@@ -57,9 +63,10 @@ public class KrumGrenade extends KrumProjectile {
             double xt = 0;
             double yt = 0;
             if (collisionPoints.size() == 0) {
-                System.out.println("no collision points");
+                System.out.println("no collision points");                
                 return;
             }
+            System.out.println("collision points");
             for (int[] p : collisionPoints) {
                 //System.out.println("collision point: " + p[0] + ", " + p[1]);
                 xt += p[0];
@@ -77,6 +84,8 @@ public class KrumGrenade extends KrumProjectile {
             y -= yvel / inc;
             xvel = Math.cos(bounceAngle) * velMag;
             yvel = Math.sin(bounceAngle) * -velMag;
+            // if (collisionCheck())
+            //     System.out.println("colliding at end");
             //System.out.println("ga " + bounceAngle + ", " + velAngle + ", " + (bounceAngle - velAngle));
             //System.out.println("gren: " + x + ", " + y);
         }
