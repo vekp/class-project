@@ -1,13 +1,14 @@
 package minigames.client;
 
-import java.net.ResponseCache;
 import java.util.List;
 import java.util.Optional;
 
-import javax.swing.JLabel;
+import javax.swing.*;
 
 import minigames.achievements.Achievement;
+import minigames.achievements.GameAchievementState;
 import minigames.achievements.PlayerAchievementRecord;
+import minigames.client.achievementui.AchievementCollection;
 import minigames.client.achievementui.AchievementUI;
 import minigames.client.notifications.NotificationManager;
 import org.apache.logging.log4j.LogManager;
@@ -166,6 +167,26 @@ public class MinigameNetworkClient {
                     //re-create the player record from the JSON we should have been sent, and pass it
                     //over to the UI to populate its panels
                     ui.populateAchievementPanel(PlayerAchievementRecord.fromJSON(resp.bodyAsString()));
+                    logger.info(resp.bodyAsString());
+                })
+                .onFailure((resp) -> {
+                    logger.error("Failed: {} ", resp.getMessage());
+                }).map((resp) -> resp.bodyAsString());
+    }
+
+    /**
+     * gets the current achievement data for the logged in / selected player and selected game
+     * this will be sent back as a JSON string that can be used to construct a GameAchievementState
+     */
+    public Future<String> getGameAchievements(String playerID, String gameID) {
+        return webClient.get(port, host, "/achievement/" + playerID + "/" + gameID)
+                .send()
+                .onSuccess((resp) -> {
+                    //re-create the player record from the JSON we should have been sent, and pass it
+                    //over to the UI to populate its panels
+                    AchievementCollection ac = new AchievementCollection(GameAchievementState.fromJSON(resp.bodyAsString()));
+                    JOptionPane.showMessageDialog(getMainWindow().frame, ac.achievementListPanel(),
+                            gameID + " achievements", JOptionPane.PLAIN_MESSAGE);
                     logger.info(resp.bodyAsString());
                 })
                 .onFailure((resp) -> {

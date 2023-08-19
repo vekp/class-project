@@ -141,6 +141,11 @@ public class Battleship implements GameClient {
             c.setForeground(Color.decode(fgColour));
             c.setBackground(Color.decode(bgColour));
         }
+
+        //Achievement button TODO: put in a better place
+        JButton achievementButton = new JButton("Ach");
+        achievementButton.addActionListener(e -> mnClient.getGameAchievements(player, gm.gameServer()));
+        nauticalMap.add(achievementButton);
     }
 
     /**

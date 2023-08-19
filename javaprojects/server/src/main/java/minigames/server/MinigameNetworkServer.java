@@ -125,6 +125,54 @@ public class MinigameNetworkServer {
             ctx.response().end(record.toJSON());
         });
 
+
+        // Respond to request from game client for achievements
+        router.get("/achievement/:player/:gameID").handler((ctx) -> {
+            String playerID = ctx.pathParam("player");
+            String gameID = ctx.pathParam("gameID");
+
+            //we check all the currently registered servers. Their class acts as their Achievement database key.
+            //For any servers that have achievements, we need 2 lists, one of achievements the player has unlocked, and
+            //one for the remaining (yet to be earned) achievements
+            for (GameServer server : Main.gameRegistry.getAllGameServers()) {
+                if (!server.getDetails().name().equals(gameID)) continue;
+                System.out.println("Class is = " + server.getClass());
+                AchievementHandler handler = new AchievementHandler(server.getClass());
+                List<Achievement> gameAchievements = handler.getAllAchievements();
+                if (gameAchievements.size() == 0) continue;
+
+                List<Achievement> unlocked = new ArrayList<>();
+                List<Achievement> locked = new ArrayList<>();
+                //hidden achievements that have not yet been unlocked should be shown at the END of the list of locked
+                //achievements
+                List<Achievement> hiddenLocked = new ArrayList<>();
+                //the list used depends on whether the player has this achievement or not
+                for (Achievement current : gameAchievements) {
+                    if (handler.playerHasEarnedAchievement(playerID, current.name())) {
+                        unlocked.add(current);
+                    } else {
+                        //If player hasn't unlocked it, and it's a hidden achievement, we do not send the 'real'
+                        //achievement but instead make a dummy 'hidden' achievement - keeps it secret but still shows
+                        // the player that there is something to unlock
+                        if (current.hidden()) {
+                            Achievement hiddenAchievement = new Achievement(current.name(), "This is a secret " +
+                                    "achievement, play the game to unlock it", 0, "", true);
+                            hiddenLocked.add(hiddenAchievement);
+                        } else {
+                            locked.add(current);
+                        }
+                    }
+                }
+                //once we are done sorting through achievments, add any hidden locked achievements to the end of the
+                // locked list to show up at the bottom.
+                locked.addAll(hiddenLocked);
+                GameAchievementState state = new GameAchievementState(server.getDetails().name(), unlocked, locked);
+                ctx.response().end(state.toJSON());
+            }
+        });
+
+
+
         //respond to request to get the most recently unlocked achievements
         router.get("/achievementUnlocks").respond((ctx) -> {
             List<Achievement> recentUnlocks = AchievementHandler.getRecentUnlocks();
