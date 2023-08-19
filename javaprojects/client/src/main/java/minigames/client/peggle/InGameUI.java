@@ -1,12 +1,12 @@
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.event.MouseInputAdapter;
 import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.Graphics;
-
+import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-import javax.swing.event.MouseInputAdapter;
 
 public class InGameUI extends JPanel {
     final int COLUMNS = 500;
@@ -25,8 +25,8 @@ public class InGameUI extends JPanel {
 
     InGameUI() {
         setBackground(BACKGROUND);
-        // Creates the cannon at position (0, 0)
-        cannon = new Cannon(0, 0); // The x position will be set dynamically later
+        // Creates the cannon at position (250, 50)
+        cannon = new Cannon(250, 55);
 
         // A new MouseInputAdapter can replace default mouse actions
         addMouseListener(new MouseInputAdapter() {
@@ -43,9 +43,6 @@ public class InGameUI extends JPanel {
             public void mouseReleased(MouseEvent e) {
                 // In some cases, we might want to react to an item being "dropped"
             }
-
-
-
         });
 
         // A new MouseMotionListener can handle movements
@@ -74,9 +71,14 @@ public class InGameUI extends JPanel {
         hoverX = x;
         repaint();
 
-        //Update the angle of the cannon to point towards the mouse position
-        int dx = e.getX() - cannon.x;
-        int dy = e.getY() - cannon.y;
+        // Ignore mouse movements above a certain Y position
+        if (e.getY() < 80) {
+            return;
+        }
+
+        // Update the angle of the cannon to point towards the mouse position
+        double dx = e.getX() - cannon.x;
+        double dy = e.getY() - cannon.y;
         double angle = Math.atan2(dy, dx);
         cannon.setAngle(angle);
         repaint();
@@ -112,7 +114,10 @@ public class InGameUI extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        // Centers the cannon, even when window is resized
+
+        Graphics2D g2d = (Graphics2D) g;
+
+        // Update the cannon's position to be the center of the window
         cannon.setX(getWidth() / 2);
 
         // There is already a background colour set in the constructor
@@ -125,12 +130,13 @@ public class InGameUI extends JPanel {
                 drawGridSquare(x, y, g);
             }
         }
+
         // Yellow square
         g.setColor(HOVER_COLOUR);
         drawGridSquare(hoverX, hoverY, g);
 
         // Draw the cannon
-        cannon.draw(g);
+        cannon.draw(g2d);
     }
 
     @Override
@@ -143,13 +149,10 @@ public class InGameUI extends JPanel {
     public static void main(String[] args) {
         JFrame frame = new JFrame("Title");
         JPanel panel = new InGameUI();
-        frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(panel);
         frame.pack();
+        frame.setVisible(true);
+        panel.repaint();
     }
-
-
-
-
 }
