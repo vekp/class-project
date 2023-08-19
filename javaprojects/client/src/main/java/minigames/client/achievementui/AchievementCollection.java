@@ -1,5 +1,7 @@
 package minigames.client.achievementui;
 
+import minigames.achievements.Achievement;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -10,23 +12,42 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * A class for presenting a group of achievements for a particular game
+ */
 public class AchievementCollection {
     private final List<AchievementPresenter> achievements;
     private final String gameID;
-    public AchievementCollection (String gameID, Collection<AchievementPresenter> achievements) {
-        this.achievements = new ArrayList<>(achievements);
+
+    /**
+     * Constructor for AchievementCollection
+     * @param gameID the name of the game
+     * @param achievements a Collection of Achievements
+     * @param isUnlocked whether the achievement has been unlocked by player
+     */
+    public AchievementCollection (String gameID, Collection<Achievement> achievements, boolean isUnlocked) {
         this.gameID = gameID;
+        this.achievements = new ArrayList<>();
+        for (Achievement a : achievements) {
+            AchievementPresenter ap = new AchievementPresenter(a, isUnlocked);
+            this.achievements.add(ap);
+        }
     }
 
+    /**
+     * Create a panel containing a list of achievements
+     */
     public JPanel achievementListPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
         for (int i = 0; i < achievements.size(); i++) {
             AchievementPresenter ap = achievements.get(i);
             JPanel achievementPanel = ap.smallAchievementPanel(true);
             achievementPanel.setLayout(new BoxLayout(achievementPanel, BoxLayout.X_AXIS));
             achievementPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
             int index = i;
+            // If achievement is unlocked, add mouse click listener to view it in carousel
             if (ap.isUnlocked) {
                 achievementPanel.addMouseListener(new MouseAdapter() {
                     @Override
@@ -40,11 +61,16 @@ public class AchievementCollection {
         return panel;
     }
 
+    /**
+     * Create a carousel view with large images of unlocked achievements
+     * @param index the position to start at
+     * @return a JPanel containing the carousel
+     */
     public JPanel achievementCarousel(int index) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(new JButton("<"), BorderLayout.WEST);
         panel.add(new JButton(">"), BorderLayout.EAST);
-        JLabel indexLabel = new JLabel("");
+        JLabel indexLabel = new JLabel();
         indexLabel.setHorizontalAlignment(SwingConstants.CENTER);
         panel.add(indexLabel, BorderLayout.SOUTH);
         updateCarousel(index, panel);
@@ -53,6 +79,11 @@ public class AchievementCollection {
         return panel;
     }
 
+    /**
+     * Update the elements in the carousel
+     * @param index the position in the list
+     * @param carouselPanel the JPanel containing the carousel
+     */
     private void updateCarousel(int index, JPanel carouselPanel) {
         if (index < 0 || index >= achievements.size()) return;
         BorderLayout layout = (BorderLayout) carouselPanel.getLayout();
@@ -68,19 +99,9 @@ public class AchievementCollection {
         rightButton.setPreferredSize(new Dimension(50, rightButton.getHeight()));
 
         for (ActionListener al : leftButton.getActionListeners()) leftButton.removeActionListener(al);
-        leftButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateCarousel(index - 1, carouselPanel);
-            }
-        });
+        leftButton.addActionListener(e -> updateCarousel(index - 1, carouselPanel));
         for (ActionListener al : rightButton.getActionListeners()) rightButton.removeActionListener(al);
-        rightButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateCarousel(index + 1, carouselPanel);
-            }
-        });
+        rightButton.addActionListener(e -> updateCarousel(index + 1, carouselPanel));
 
         leftButton.setEnabled(!(index == 0));
         rightButton.setEnabled(!(index == achievements.size() - 1));

@@ -10,6 +10,9 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.Random;
 
+/**
+ * Class for presenting achievement information to user
+ */
 public class AchievementPresenter {
 
     private final String achievementImageFolderLocation = "src/main/resources/images/achievements/";
@@ -20,11 +23,21 @@ public class AchievementPresenter {
     private final Color hiddenLockedColour = new Color(204, 216, 255);
     private final Color lockedColour = Color.LIGHT_GRAY;
 
+    /**
+     * Constructor for this class
+     * @param achievement the Achievement
+     * @param isUnlocked whether it has been unlocked
+     */
     public AchievementPresenter(Achievement achievement, boolean isUnlocked) {
         this.achievement = achievement;
         this.isUnlocked = isUnlocked;
     }
 
+    /**
+     * Create image of achievement of given height
+     * @param targetHeight the desired height of image
+     * @return an ImageIcon
+     */
     private ImageIcon achievementImage(int targetHeight) {
         // Attempt to set path of image
         String path = (achievement.hidden() && !isUnlocked) ? achievementImageFolderLocation + "mystery.png" :
@@ -47,7 +60,6 @@ public class AchievementPresenter {
         return new ImageIcon(grayedImage);
     }
 
-
     /**
      * Makes a scaled image of desired height and proportional width.
      * @param filepath String with filepath of the source image
@@ -62,17 +74,20 @@ public class AchievementPresenter {
         imageIcon.setImage(scaledImage);
         return imageIcon;
     }
-    public JPanel tinyAchievementPanel(boolean isClickable) {
+
+    /**
+     * Create a very small panel to present to user, to be used in popup notifications.
+     * @return a JPanel
+     */
+    public JPanel tinyAchievementPanel() {
         Border smallEmptyBorder = new EmptyBorder(4, 4, 4, 4);
-        Border largeEmptyBorder = new EmptyBorder(10, 10, 10, 10);
 
         JLabel name = new JLabel(achievement.name());
-//        name.setBorder(new LineBorder(Color.BLACK));
         Font currentFont = name.getFont();
         Font boldFont = new Font(currentFont.getFontName(), Font.BOLD, currentFont.getSize());
         name.setFont(boldFont);
 
-        JPanel panel = new JPanel();
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         JLabel image = new JLabel(achievementImage(20));
         image.setPreferredSize(new Dimension(20, 20));
 
@@ -89,17 +104,16 @@ public class AchievementPresenter {
         panel.add(textPanel);
         if (!isUnlocked) {
             name.setForeground(achievement.hidden()? hiddenLockedColour : lockedColour);
-        } //else if (achievement.hidden()) panel.setBackground(Color.YELLOW);
-
-        panel.setBorder(largeEmptyBorder);
-        Border mouseOverBorder = new CompoundBorder(new CompoundBorder(smallEmptyBorder,
-                new BevelBorder(BevelBorder.RAISED)), smallEmptyBorder);
-        Border mouseDownBorder = new CompoundBorder(new CompoundBorder(smallEmptyBorder,
-                new BevelBorder(BevelBorder.LOWERED)), smallEmptyBorder);
+        }
 
         return panel;
     }
 
+    /**
+     * Create a small panel with achievement details to be shown in a list
+     * @param isClickable whether panel should be able to be clicked on to display larger panel
+     * @return A JPanel
+     */
     public JPanel smallAchievementPanel(boolean isClickable) {
         Border smallEmptyBorder = new EmptyBorder(4, 4, 4, 4);
         Border largeEmptyBorder = new EmptyBorder(10, 10, 10, 10);
@@ -165,6 +179,10 @@ public class AchievementPresenter {
         return panel;
     }
 
+    /**
+     * Create a large panel with achievement image and details
+     * @return a JPanel
+     */
     public JPanel largeAchievementPanel() {
         JPanel panel = new JPanel();
         panel.setBorder(new EmptyBorder(20, 20, 20, 20));
