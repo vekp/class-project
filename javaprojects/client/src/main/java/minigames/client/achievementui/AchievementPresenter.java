@@ -144,15 +144,10 @@ public class AchievementPresenter {
                 new BevelBorder(BevelBorder.LOWERED)), smallEmptyBorder);
         if (isUnlocked && isClickable) {
             panel.addMouseListener(new MouseAdapter() {
-                // Show large panel if clicked on, if unlocked.
+                // Set border for mouse events
                 @Override
                 public void mousePressed(MouseEvent e) {
                     panel.setBorder(mouseDownBorder);
-                }
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(panel), largeAchievementPanel(),
-                            "Your achievement", JOptionPane.PLAIN_MESSAGE);
                 }
 
                 @Override
@@ -175,24 +170,25 @@ public class AchievementPresenter {
         panel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
         if (!isUnlocked) {
-            panel.add(new JLabel("Sorry, you haven't unlocked this achievement yet and you shouldn't be here!"));
+            panel.add(new JLabel("<html><h1>403 Forbidden</h1>You must unlock this achievement to have access.</html>"));
             return panel;
         }
 
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        JLabel image = new JLabel(achievementImage(256));
+        panel.add(Box.createVerticalGlue());
+        JLabel image = new JLabel(achievementImage(192));
         image.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(image);
 
-        JLabel name = new JLabel(achievement.name());
-        Font nameFont = new Font(name.getFont().getFontName(), Font.BOLD, 36);
+        JLabel name = new JLabel("<html>" + achievement.name() + "</html>", SwingConstants.CENTER);
+        Font nameFont = new Font(name.getFont().getFontName(), Font.BOLD, 24);
         name.setFont(nameFont);
         name.setAlignmentX(Component.CENTER_ALIGNMENT);
         name.setBorder(new EmptyBorder(15, 0, 15, 0));
         panel.add(name);
 
-        JLabel description = new JLabel(achievement.description());
-        Font descriptionFont = new Font(description.getFont().getFontName(), Font.PLAIN, 20);
+        JLabel description = new JLabel("<html><body style='text-align:center'>" + achievement.description() + "</body></html>", SwingConstants.CENTER);
+        Font descriptionFont = new Font(description.getFont().getFontName(), Font.PLAIN, 18);
         description.setFont(descriptionFont);
         description.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(description);
@@ -200,8 +196,10 @@ public class AchievementPresenter {
         if (achievement.hidden()) {
             name.setForeground(hiddenUnlockedColour);
             description.setForeground(hiddenUnlockedColour);
+            image.setBackground(Color.YELLOW);
         }
 
+        panel.add(Box.createVerticalGlue());
         return panel;
     }
 }

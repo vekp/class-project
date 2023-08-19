@@ -4,40 +4,51 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public class AchievementCollection {
     private final List<AchievementPresenter> achievements;
-    public AchievementCollection (Collection<AchievementPresenter> achievements) {
+    private final String gameID;
+    public AchievementCollection (String gameID, Collection<AchievementPresenter> achievements) {
         this.achievements = new ArrayList<>(achievements);
+        this.gameID = gameID;
     }
 
     public JPanel achievementListPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        for (AchievementPresenter ap : achievements) {
+        for (int i = 0; i < achievements.size(); i++) {
+            AchievementPresenter ap = achievements.get(i);
             JPanel achievementPanel = ap.smallAchievementPanel(true);
             achievementPanel.setLayout(new BoxLayout(achievementPanel, BoxLayout.X_AXIS));
             achievementPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            int index = i;
+            if (ap.isUnlocked) {
+                achievementPanel.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        JOptionPane.showMessageDialog(panel.getTopLevelAncestor(), achievementCarousel(index), gameID, JOptionPane.PLAIN_MESSAGE);
+                    }
+                });
+            }
             panel.add(achievementPanel);
         }
         return panel;
     }
 
-    public JPanel achievementCarousel() {
+    public JPanel achievementCarousel(int index) {
         JPanel panel = new JPanel(new BorderLayout());
-        String title = "<html><b>New achievement" + (achievements.size() > 1 ? "s" : "") + " unlocked!</b></html>";
-        JLabel titleLabel = new JLabel(title);
-        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        panel.add(titleLabel, BorderLayout.NORTH);
         panel.add(new JButton("<"), BorderLayout.WEST);
         panel.add(new JButton(">"), BorderLayout.EAST);
         JLabel indexLabel = new JLabel("");
         indexLabel.setHorizontalAlignment(SwingConstants.CENTER);
         panel.add(indexLabel, BorderLayout.SOUTH);
-        updateCarousel(0, panel);
+        updateCarousel(index, panel);
+        panel.setPreferredSize(new Dimension(700, 400));
 
         return panel;
     }
@@ -46,12 +57,10 @@ public class AchievementCollection {
         if (index < 0 || index >= achievements.size()) return;
         BorderLayout layout = (BorderLayout) carouselPanel.getLayout();
 
-        Component centreComponent = layout.getLayoutComponent(BorderLayout.CENTER);
-        if (centreComponent != null) carouselPanel.remove(centreComponent);
         carouselPanel.add(achievements.get(index).largeAchievementPanel());
 
         JLabel southLabel = (JLabel) layout.getLayoutComponent(BorderLayout.SOUTH);
-        southLabel.setText("Achievement " + (index + 1) + " of " + achievements.size());
+        southLabel.setText("Unlocked achievement " + (index + 1) + " of " + achievements.size());
 
         JButton leftButton = (JButton) layout.getLayoutComponent(BorderLayout.WEST);
         leftButton.setPreferredSize(new Dimension(50, leftButton.getHeight()));

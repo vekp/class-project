@@ -154,29 +154,29 @@ public class AchievementUI extends JPanel {
             achievementPanel.add(gameLabel);
             List<Achievement> unlockedAchievements = state.unlocked();
             if (!unlockedAchievements.isEmpty()) {
-                AchievementCollection presenterList = achievementCollection(unlockedAchievements, true);
+                AchievementCollection presenterList = achievementCollection(gameID, unlockedAchievements, true);
                 //Demo for carousel. todo: remove later when not needed.
-                JButton carousel = new JButton("Demo carousel");
-                carousel.addActionListener(e -> JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(achievementPanel), presenterList.achievementCarousel(),
-                        gameID, JOptionPane.PLAIN_MESSAGE));
-                achievementPanel.add(carousel);
+//                JButton carousel = new JButton("Demo carousel");
+//                carousel.addActionListener(e -> JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(achievementPanel), presenterList.achievementCarousel(),
+//                        gameID, JOptionPane.PLAIN_MESSAGE));
+//                achievementPanel.add(carousel);
 
                 achievementPanel.add(presenterList.achievementListPanel());
             }
             List<Achievement> lockedAchievements = state.locked();
             if (!lockedAchievements.isEmpty()) {
-                AchievementCollection presenterList = achievementCollection(lockedAchievements, false);
+                AchievementCollection presenterList = achievementCollection(gameID, lockedAchievements, false);
                 achievementPanel.add(presenterList.achievementListPanel());
             }
         }
         achievementScrollPane.setViewportView(achievementPanel);
     }
 
-    private AchievementCollection achievementCollection(List<Achievement> achievementList, boolean isUnlocked) {
+    private AchievementCollection achievementCollection(String gameID, List<Achievement> achievementList, boolean isUnlocked) {
         List<AchievementPresenter> presenterList = new ArrayList<>();
         for (Achievement achievement : achievementList) {
             presenterList.add(new AchievementPresenter(achievement, isUnlocked));
         }
-        return new AchievementCollection(presenterList);
+        return new AchievementCollection(gameID, presenterList);
     }
 }
