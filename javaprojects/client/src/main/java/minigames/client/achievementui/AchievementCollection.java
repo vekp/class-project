@@ -1,6 +1,8 @@
 package minigames.client.achievementui;
 
 import minigames.achievements.Achievement;
+import minigames.achievements.GameAchievementState;
+import minigames.achievements.PlayerAchievementRecord;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,21 +18,42 @@ import java.util.List;
  * A class for presenting a group of achievements for a particular game
  */
 public class AchievementCollection {
-    private final List<AchievementPresenter> achievements;
+    private final List<AchievementPresenter> achievements = new ArrayList<>();
     private final String gameID;
 
     /**
-     * Constructor for AchievementCollection
+     * Constructor for AchievementCollection using Achievement collection
      * @param gameID the name of the game
      * @param achievements a Collection of Achievements
      * @param isUnlocked whether the achievement has been unlocked by player
      */
-    public AchievementCollection (String gameID, Collection<Achievement> achievements, boolean isUnlocked) {
+    public AchievementCollection(String gameID, Collection<Achievement> achievements, boolean isUnlocked) {
         this.gameID = gameID;
-        this.achievements = new ArrayList<>();
         for (Achievement a : achievements) {
             AchievementPresenter ap = new AchievementPresenter(a, isUnlocked);
             this.achievements.add(ap);
+        }
+    }
+
+    public AchievementCollection(GameAchievementState gaState) {
+        this.gameID = gaState.gameID();
+        for (Achievement a : gaState.unlocked()) achievements.add(new AchievementPresenter(a, true));
+        for (Achievement a : gaState.locked()) achievements.add(new AchievementPresenter(a, false));
+    }
+
+    /**
+     * Constructor using PlayerAchievementRecord
+     * @param gameID ID of the game
+     * @param data the PlayerAchievementRecord
+     */
+    public AchievementCollection(String gameID, PlayerAchievementRecord data) {
+        this.gameID = gameID;
+        for (GameAchievementState gaState : data.gameAchievements()) {
+            if (gaState.gameID().equals(gameID)) {
+                for (Achievement a : gaState.unlocked()) achievements.add(new AchievementPresenter(a, true));
+                for (Achievement a : gaState.locked()) achievements.add(new AchievementPresenter(a, false));
+                break;
+            }
         }
     }
 
