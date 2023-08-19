@@ -8,13 +8,13 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 
 import java.awt.*;
-import java.awt.Font;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
 import java.util.*;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
@@ -49,8 +49,9 @@ public class Memory implements GameClient, ActionListener, MouseListener {
     JPanel gridContainerPanel; // Wraps the cardGridPanel
     JPanel cardGridPanel; // Sets the grid for the playing cards
 
-    ImageIcon cardBackImage = new ImageIcon(getClass().getResource("/memory/images/playing_cards/card_back_black.png"));
-    ImageIcon clubs_2 = new ImageIcon(getClass().getResource("/memory/images/playing_cards/2_of_clubs.png"));
+    ImageIcon cardBackImage = new ImageIcon(getClass().getResource("/memory/images/playing_cards/back/card_back_black.png"));
+    //ImageIcon clubs_2 = new ImageIcon(getClass().getResource("/memory/images/playing_cards/2_of_clubs.png"));
+    String cardImagesDirectory = getClass().getResource("/memory/images/playing_cards/").getPath();
         
     JTextArea textArea;
 
@@ -61,7 +62,7 @@ public class Memory implements GameClient, ActionListener, MouseListener {
     public Memory() {
         headingPanel = new JPanel();
         headingPanel.setLayout(new GridLayout(1, 1));
-        title = new JLabel("Pair Up - A memory game");
+        title = new JLabel("Pair Up - A Memory Card Game");
         title.setFont(new Font("Comic Sans MS", Font.BOLD, 25));
         title.setHorizontalAlignment(JLabel.CENTER);
         headingPanel.add(title);
@@ -90,6 +91,7 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         restartLevelButton.setFont(new Font("Arial", Font.BOLD, 16));
         exitButton = new JButton("Exit");
         exitButton.setFont(new Font("Arial", Font.BOLD, 16));
+        exitButton.addActionListener(e -> mnClient.runMainMenuSequence());
         gameOptionsPanel.add(newGameButton);
         gameOptionsPanel.add(restartLevelButton);
         gameOptionsPanel.add(exitButton);
@@ -97,26 +99,58 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         gameMenuPanel.add(playerPanel);
         gameMenuPanel.add(gameOptionsPanel);
 
+        List<ImageIcon> cardImages = new ArrayList<>();
+        File cardImageDirectory = new File(cardImagesDirectory);
+        File[] cardImageFiles = cardImageDirectory.listFiles();
+
+        if (cardImageFiles != null) {
+            for (File file: cardImageFiles) {
+                if (file.isFile()) {
+                    cardImages.add(new ImageIcon(file.getAbsolutePath()));
+                }
+            }
+        }
+
+        List<ImageIcon> cardPairs = new ArrayList<>();
+        Random random = new Random();
+        for (int i = 0; i < 8; i++) {
+            int randomIndex = random.nextInt(cardImages.size());
+            ImageIcon cardImage = cardImages.get(randomIndex);
+            cardPairs.add(cardImage);
+            cardPairs.add(cardImage);
+            cardImages.remove(randomIndex);
+        }
+
+
+        // Shuffle the card pairs - FIXME: Use the shuffling framework/system here!
+        Collections.shuffle(cardPairs);
+
 
         // Create card grid and add cards with the card images and "flip" buttons
         cardGridPanel = new JPanel();
-        cardGridPanel.setLayout(new GridLayout(4, 4, 0, 0)); // 4x4 grid for placeholders        
+        cardGridPanel.setLayout(new GridLayout(4, 4, 0, 0)); // 4x4 grid for placeholders  
+        
+        int cardImageIndex = 0;
        
         for (int i = 0; i < 16; i++) {
             final JPanel cards; 
-            final String FLIP = "Flip card";
+            final String FLIP = "Flip";
 
             JPanel cardBack = new JPanel();
             cardBack.add(new JLabel(resizeImageIcon(cardBackImage,50,-1)));
 
             JPanel cardFront = new JPanel();
-            cardFront.add(new JLabel(resizeImageIcon(clubs_2,50,-1))); // need to make this change to the random card
+            //cardFront.add(new JLabel(resizeImageIcon(clubs_2,50,-1))); // need to make this change to the random card - DONE
+            ImageIcon image = cardPairs.get(cardImageIndex);
+            JLabel cardLabel = new JLabel(resizeImageIcon(image, 50, -1));
+            cardFront.add(cardLabel);
+            cardImageIndex = (cardImageIndex + 1) % cardPairs.size();
 
             cards = new JPanel(new CardLayout());
             cards.add(cardBack);
             cards.add(cardFront);
 
-            class ControlActionListenter implements ActionListener {
+            class ControlActionListener implements ActionListener {
                 public void actionPerformed(ActionEvent e) {
                     CardLayout cl = (CardLayout) (cards.getLayout());
                     String cmd = e.getActionCommand();
@@ -125,9 +159,9 @@ public class Memory implements GameClient, ActionListener, MouseListener {
                     }
                 }
             }
-            ControlActionListenter cal = new ControlActionListenter();
+            ControlActionListener cal = new ControlActionListener();
 
-            JButton flipButton = new JButton("Flip card");
+            JButton flipButton = new JButton("Flip");
             flipButton.setActionCommand(FLIP);
             flipButton.addActionListener(cal);
 
