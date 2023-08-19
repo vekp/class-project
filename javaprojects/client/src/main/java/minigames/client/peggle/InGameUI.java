@@ -20,8 +20,13 @@ public class InGameUI extends JPanel {
     int hoverX = -1;
     int hoverY = -1;
 
+    //Instance of the Cannon class
+    private Cannon cannon;
+
     InGameUI() {
         setBackground(BACKGROUND);
+        // Creates the cannon at position (0, 0)
+        cannon = new Cannon(0, 0); // The x position will be set dynamically later
 
         // A new MouseInputAdapter can replace default mouse actions
         addMouseListener(new MouseInputAdapter() {
@@ -68,6 +73,13 @@ public class InGameUI extends JPanel {
         hoverY = (ROWS - 1) - y; // Fix for upside down coordinates
         hoverX = x;
         repaint();
+
+        //Update the angle of the cannon to point towards the mouse position
+        int dx = e.getX() - cannon.x;
+        int dy = e.getY() - cannon.y;
+        double angle = Math.atan2(dy, dx);
+        cannon.setAngle(angle);
+        repaint();
     }
 
     // Handles clicks or drags
@@ -98,8 +110,11 @@ public class InGameUI extends JPanel {
     // This method can be used to paint a Component however you like
     // It will be called whenever you repaint(), or when the screen is resized etc
     @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            // Centers the cannon, even when window is resized
+            cannon.setX(getWidth() / 2);
+
         // There is already a background colour set in the constructor
         g.setColor(PAINT_COLOUR);
         for (int y = 0; y < ROWS; y++) {
@@ -113,6 +128,9 @@ public class InGameUI extends JPanel {
         // Yellow square
         g.setColor(HOVER_COLOUR);
         drawGridSquare(hoverX, hoverY, g);
+
+        // Draw the cannon
+        cannon.draw(g);
     }
 
     @Override
