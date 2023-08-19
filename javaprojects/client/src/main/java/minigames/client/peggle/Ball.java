@@ -1,4 +1,9 @@
-import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.Graphics;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+
 
 public class Ball {
 
@@ -17,12 +22,11 @@ public class Ball {
     public void drawToScreen(Graphics g){
         BufferedImage ball = null;
         try {
-            ball = ImageIO.read(New File("assets/ball.png"));
+            ball = ImageIO.read(new File("assets/ball.png"));
         } catch (IOException e) {
             System.out.println("Error loading file. \nError message: " + e.getMessage());
         }
-        
-        g.drawImage(ball, x, y, null);
+        g.drawImage(ball, (int) x, (int) y, null);
     }
 
     // Method that changes ball instances location
