@@ -8,6 +8,8 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 
 import java.awt.*;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -47,7 +49,8 @@ public class Memory implements GameClient, ActionListener, MouseListener {
     JPanel gridContainerPanel; // Wraps the cardGridPanel
     JPanel cardGridPanel; // Sets the grid for the playing cards
 
-    ImageIcon cardBack = new ImageIcon(getClass().getResource("/memory/images/playing_cards/card_back_black.png"));
+    ImageIcon cardBackImage = new ImageIcon(getClass().getResource("/memory/images/playing_cards/card_back_black.png"));
+    ImageIcon clubs_2 = new ImageIcon(getClass().getResource("/memory/images/playing_cards/2_of_clubs.png"));
         
     JTextArea textArea;
 
@@ -58,7 +61,7 @@ public class Memory implements GameClient, ActionListener, MouseListener {
     public Memory() {
         headingPanel = new JPanel();
         headingPanel.setLayout(new GridLayout(1, 1));
-        title = new JLabel("Pair Up - A Memory Card Game");
+        title = new JLabel("Pair Up - A memory game");
         title.setFont(new Font("Comic Sans MS", Font.BOLD, 25));
         title.setHorizontalAlignment(JLabel.CENTER);
         headingPanel.add(title);
@@ -87,7 +90,6 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         restartLevelButton.setFont(new Font("Arial", Font.BOLD, 16));
         exitButton = new JButton("Exit");
         exitButton.setFont(new Font("Arial", Font.BOLD, 16));
-        exitButton.addActionListener(e -> mnClient.runMainMenuSequence());
         gameOptionsPanel.add(newGameButton);
         gameOptionsPanel.add(restartLevelButton);
         gameOptionsPanel.add(exitButton);
@@ -95,16 +97,46 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         gameMenuPanel.add(playerPanel);
         gameMenuPanel.add(gameOptionsPanel);
 
-        // Create card grid and add JButtons with the cardBack images
+
+        // Create card grid and add cards with the card images and "flip" buttons
         cardGridPanel = new JPanel();
-        cardGridPanel.setLayout(new GridLayout(4, 4, 0, 0)); // 4x4 grid for placeholders
-        //cardGridPanel.addMouseListener(this); // Add mouse listener to the card grid //I don't think this is necesary with the JButtons
+        cardGridPanel.setLayout(new GridLayout(4, 4, 0, 0)); // 4x4 grid for placeholders        
+       
         for (int i = 0; i < 16; i++) {
-            JButton cardButton = new JButton(resizeImageIcon(cardBack,60,-1)); // Placeholder text for cards
-            cardButton.setHorizontalAlignment(JLabel.CENTER);
-            cardButton.setVerticalAlignment(JLabel.CENTER);
-            cardButton.setFont(new Font("Arial", Font.PLAIN, 16));
-            cardGridPanel.add(cardButton);
+            final JPanel cards; 
+            final String FLIP = "Flip card";
+
+            JPanel cardBack = new JPanel();
+            cardBack.add(new JLabel(resizeImageIcon(cardBackImage,50,-1)));
+
+            JPanel cardFront = new JPanel();
+            cardFront.add(new JLabel(resizeImageIcon(clubs_2,50,-1))); // need to make this change to the random card
+
+            cards = new JPanel(new CardLayout());
+            cards.add(cardBack);
+            cards.add(cardFront);
+
+            class ControlActionListenter implements ActionListener {
+                public void actionPerformed(ActionEvent e) {
+                    CardLayout cl = (CardLayout) (cards.getLayout());
+                    String cmd = e.getActionCommand();
+                    if (cmd.equals(FLIP)) {
+                        cl.next(cards);
+                    }
+                }
+            }
+            ControlActionListenter cal = new ControlActionListenter();
+
+            JButton flipButton = new JButton("Flip card");
+            flipButton.setActionCommand(FLIP);
+            flipButton.addActionListener(cal);
+
+            JPanel cardPane = new JPanel();
+            cardPane.setLayout(new BoxLayout(cardPane, BoxLayout.Y_AXIS));
+            cardPane.add(cards);
+            cardPane.add(flipButton);
+
+            cardGridPanel.add(cardPane);
         }
 
         // Container for the card grid
