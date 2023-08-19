@@ -110,10 +110,10 @@ public class InGameUI extends JPanel {
     // This method can be used to paint a Component however you like
     // It will be called whenever you repaint(), or when the screen is resized etc
     @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            // Centers the cannon, even when window is resized
-            cannon.setX(getWidth() / 2);
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        // Centers the cannon, even when window is resized
+        cannon.setX(getWidth() / 2);
 
         // There is already a background colour set in the constructor
         g.setColor(PAINT_COLOUR);
