@@ -102,25 +102,7 @@ public class KrumPlayer {
      * @param direction     true = pleyer faces right at beginning of fame
      * @param level         alpha raster of level
      */
-    KrumPlayer(int xpos, int ypos, String spriteFileName, int panelX, int panelY, boolean direction, WritableRaster level) {
-        File spriteFile = new File(KrumC.imgDir + "carrot_s.png");
-        try {
-            projectileSprite = ImageIO.read(spriteFile);
-        }
-        catch (IOException e) {
-            System.out.println("error reading sprite image");
-            System.err.println(e.getMessage());
-            e.printStackTrace();
-        }
-        spriteFile = new File(KrumC.imgDir + "grenade.png");
-        try {
-            grenadeSprite = ImageIO.read(spriteFile);
-        }
-        catch (IOException e) {
-            System.out.println("error reading sprite image");
-            System.err.println(e.getMessage());
-            e.printStackTrace();
-        }
+    KrumPlayer(int xpos, int ypos, String spriteFileName, int panelX, int panelY, boolean direction, WritableRaster level){
         this.levelRaster = level;
         topEdgeLeft = -1;
         topEdgeRight = -1;
@@ -137,16 +119,12 @@ public class KrumPlayer {
         this.active = false;
         this.aimAngleRadians = 0;
         this.hp = 100;
-
-        spriteFile = new File(KrumC.imgDir + spriteFileName);
-        try {
-            sprite = ImageIO.read(spriteFile);
-        }
-        catch (IOException e) {
-            System.out.println("can't load sprite");          
-            System.err.println(e.getMessage());
-            e.printStackTrace();
-        }
+        
+        // Reading sprites
+        projectileSprite = KrumHelpers.readSprite("carrot_s.png");
+        grenadeSprite = KrumHelpers.readSprite("grenade.png");
+        sprite = KrumHelpers.readSprite(spriteFileName);
+        
         alphaRaster = sprite.getAlphaRaster();
 
         firing = false;
