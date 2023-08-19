@@ -20,6 +20,7 @@ import java.util.List;
 public class AchievementCollection {
     private final List<AchievementPresenter> achievements = new ArrayList<>();
     private final String gameID;
+    private final int unlockedQty;
 
     /**
      * Constructor for AchievementCollection using Achievement collection
@@ -33,12 +34,15 @@ public class AchievementCollection {
             AchievementPresenter ap = new AchievementPresenter(a, isUnlocked);
             this.achievements.add(ap);
         }
+        unlockedQty = achievements.size();
     }
 
     public AchievementCollection(GameAchievementState gaState) {
         this.gameID = gaState.gameID();
+        unlockedQty = gaState.unlocked().size();
         for (Achievement a : gaState.unlocked()) achievements.add(new AchievementPresenter(a, true));
         for (Achievement a : gaState.locked()) achievements.add(new AchievementPresenter(a, false));
+
     }
 
     /**
@@ -50,11 +54,13 @@ public class AchievementCollection {
         this.gameID = gameID;
         for (GameAchievementState gaState : data.gameAchievements()) {
             if (gaState.gameID().equals(gameID)) {
+                unlockedQty = gaState.unlocked().size();
                 for (Achievement a : gaState.unlocked()) achievements.add(new AchievementPresenter(a, true));
                 for (Achievement a : gaState.locked()) achievements.add(new AchievementPresenter(a, false));
-                break;
+                return;
             }
         }
+        unlockedQty = 0;
     }
 
     /**
@@ -108,13 +114,13 @@ public class AchievementCollection {
      * @param carouselPanel the JPanel containing the carousel
      */
     private void updateCarousel(int index, JPanel carouselPanel) {
-        if (index < 0 || index >= achievements.size()) return;
+        if (index < 0 || index >= unlockedQty) return;
         BorderLayout layout = (BorderLayout) carouselPanel.getLayout();
 
         carouselPanel.add(achievements.get(index).largeAchievementPanel());
 
         JLabel southLabel = (JLabel) layout.getLayoutComponent(BorderLayout.SOUTH);
-        southLabel.setText("Unlocked achievement " + (index + 1) + " of " + achievements.size());
+        southLabel.setText("Unlocked achievement " + (index + 1) + " of " + unlockedQty);
 
         JButton leftButton = (JButton) layout.getLayoutComponent(BorderLayout.WEST);
         leftButton.setPreferredSize(new Dimension(50, leftButton.getHeight()));
@@ -127,7 +133,7 @@ public class AchievementCollection {
         rightButton.addActionListener(e -> updateCarousel(index + 1, carouselPanel));
 
         leftButton.setEnabled(!(index == 0));
-        rightButton.setEnabled(!(index == achievements.size() - 1));
+        rightButton.setEnabled(!(index == unlockedQty - 1));
     }
 
 }
