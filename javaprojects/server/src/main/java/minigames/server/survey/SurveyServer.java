@@ -1,4 +1,4 @@
-package minigames.server.muddle;
+package minigames.server.survey;
 
 import io.vertx.core.Future;
 import minigames.commands.CommandPackage;
@@ -7,19 +7,17 @@ import minigames.rendering.GameServerDetails;
 import minigames.rendering.RenderingPackage;
 import minigames.server.ClientType;
 import minigames.server.GameServer;
-import minigames.server.achievements.AchievementHandler;
 
 import java.util.HashMap;
 import java.util.Random;
 
 /**
- * Our MuddleServer holds MuddleGames. 
- * When it receives a CommandPackage, it finds the MuddleGame and calls it.
+ * Our SurveyServer holds FeedbackSurveys. 
+ * When it receives a CommandPackage, it finds the FeedbackSurvey and calls it.
  */
-public class MuddleServer implements GameServer {
+public class SurveyServer implements GameServer {
 
     static final String chars = "abcdefghijklmopqrstuvwxyz";
-    AchievementHandler achievementHandler;
 
     /** A random name. We could do with something more memorable, like Docker has */
     static String randomName() {
@@ -32,18 +30,11 @@ public class MuddleServer implements GameServer {
     }
 
     /** Holds the games in progress in memory (no db) */
-    HashMap<String, MuddleGame> games = new HashMap<>();
+    HashMap<String, FeedbackSurvey> games = new HashMap<>();
 
-    public MuddleServer() {
-        achievementHandler = new AchievementHandler(MuddleServer.class);
-        // Register all achievements with handler
-        for (MuddleAchievement a : MuddleAchievement.values()) {
-            achievementHandler.registerAchievement(a.achievement);
-        }
-    }
     @Override
     public GameServerDetails getDetails() {
-        return new GameServerDetails("Muddle", "It would be a MUD, but it's not really written yet");
+        return new GameServerDetails("Survey", "Feedback Survey");
     }
 
     @Override
@@ -54,27 +45,27 @@ public class MuddleServer implements GameServer {
     @Override
     public GameMetadata[] getGamesInProgress() {
         return games.keySet().stream().map((name) -> {
-            return new GameMetadata("Muddle", name, games.get(name).getPlayerNames(), true);
+            return new GameMetadata("Survey", name, games.get(name).getPlayerNames(), true);
         }).toArray(GameMetadata[]::new);
     }
 
     @Override
     public Future<RenderingPackage> newGame(String playerName) {
-        MuddleGame g = new MuddleGame(randomName(), playerName);
+        FeedbackSurvey g = new FeedbackSurvey(randomName());
         games.put(g.name, g);
         return Future.succeededFuture(g.joinGame(playerName));
     }
 
     @Override
     public Future<RenderingPackage> joinGame(String game, String playerName) {
-        MuddleGame g = games.get(game);
+        FeedbackSurvey g = games.get(game);
         return Future.succeededFuture(g.joinGame(playerName));
     }
 
     @Override
     public Future<RenderingPackage> callGame(CommandPackage cp) {
-        MuddleGame g = games.get(cp.gameId());
+        FeedbackSurvey g = games.get(cp.gameId());
         return Future.succeededFuture(g.runCommands(cp));
     }
-
+    
 }

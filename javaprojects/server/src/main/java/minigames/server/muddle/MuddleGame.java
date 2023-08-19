@@ -2,6 +2,7 @@ package minigames.server.muddle;
 
 import java.util.*;
 
+import minigames.server.achievements.AchievementHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -9,6 +10,9 @@ import io.vertx.core.json.JsonObject;
 import minigames.commands.CommandPackage;
 import minigames.rendering.*;
 import minigames.rendering.NativeCommands.LoadClient;
+
+import static minigames.server.muddle.MuddleAchievement.*;
+
 
 /**
  * Represents an actual Muddle game in progress
@@ -30,9 +34,16 @@ public class MuddleGame {
 
     /** Uniquely identifies this game */
     String name;
+    AchievementHandler achievementHandler;
+    String playerName;
 
-    public MuddleGame(String name) {
+    public MuddleGame(String name, String playerName) {
         this.name = name;
+        this.playerName = playerName;
+        this.achievementHandler = new AchievementHandler(MuddleServer.class);
+
+        // Unlock Muddler achievement for starting a new game
+        achievementHandler.unlockAchievement(playerName, MUDDLER.toString());
     }
 
     String[][] rooms = new String[][] {
@@ -84,6 +95,14 @@ public class MuddleGame {
         MuddlePlayer p = players.get(cp.player());
 
         // FIXME: Need to actually run the commands!
+        String userInput = String.valueOf(cp.commands().get(0).getValue("command"));
+
+        // Unlock achievements
+        switch (userInput.toLowerCase().strip()) {
+            case "east" -> achievementHandler.unlockAchievement(playerName, EAST_BUTTON_PUSHER.toString());
+            case "south" -> achievementHandler.unlockAchievement(playerName, SOUTH_BUTTON_PUSHER.toString());
+            case "abracadabra" -> achievementHandler.unlockAchievement(playerName, SAY_THE_MAGIC_WORD.toString());
+        }
 
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         renderingCommands.add(new JsonObject().put("command", "clearText"));
