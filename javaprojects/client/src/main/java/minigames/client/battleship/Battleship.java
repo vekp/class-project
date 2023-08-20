@@ -31,6 +31,7 @@ public class Battleship implements GameClient {
     JPanel mainPanel;
     JPanel heading;
     JButton menuButton;
+    JButton achievementButton;
     JLabel title;
     JLabel currentPlayerName;
     JPanel maps;
@@ -57,10 +58,17 @@ public class Battleship implements GameClient {
         menuButton = new JButton("Menu");
         menuButton.addActionListener(e -> mnClient.runMainMenuSequence());
         menuButton.setFont(fonts.get(1));
+        // Achievement button
+        achievementButton = new JButton("Achv");
+        achievementButton.addActionListener(e -> mnClient.getGameAchievements(player, gm.gameServer()));
+        achievementButton.setFont(fonts.get(1));
+        menuButton.setForeground(Color.decode(fgColour));
+        menuButton.setBackground(Color.decode(bgColour));
+        achievementButton.setForeground(Color.decode(fgColour));
+        achievementButton.setBackground(Color.decode(bgColour));
 
         title = new JLabel("< BattleShip >");
         title.setFont(fonts.get(0));
-        title.setBorder(new EmptyBorder(10, 0, 10,0));
 
         //TODO: set player name
         currentPlayerName = new JLabel("Current Player: Mitcho");
@@ -71,15 +79,19 @@ public class Battleship implements GameClient {
         gbc.gridx = 0;
         gbc.gridy = 0;
         heading.add(menuButton, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        heading.add(achievementButton, gbc);
         gbc.insets = new Insets(0,0,0,0);
         gbc.anchor = GridBagConstraints.CENTER;
-        gbc.weightx = 1.0;
+        gbc.weightx = 0.9;
         gbc.gridx = 1;
         gbc.gridy = 0;
         heading.add(title, gbc);
         gbc.gridx = 1;
         gbc.gridy = 1;
         heading.add(currentPlayerName, gbc);
+
 
         // Maps
         maps = new JPanel();
@@ -136,16 +148,11 @@ public class Battleship implements GameClient {
         mainPanel.add(terminal);
 
         // Set colours for all panels
-        for (Component c : new Component[] {mainPanel, heading, menuButton, title, currentPlayerName, nauticalMap, nauticalText,
+        for (Component c : new Component[] {mainPanel, heading, title, currentPlayerName, nauticalMap, nauticalText,
                 targetMap, targetText, maps, messages, commandTerminal, userCommand}) {
             c.setForeground(Color.decode(fgColour));
             c.setBackground(Color.decode(bgColour));
         }
-
-        //Achievement button TODO: put in a better place
-        JButton achievementButton = new JButton("Ach");
-        achievementButton.addActionListener(e -> mnClient.getGameAchievements(player, gm.gameServer()));
-        nauticalMap.add(achievementButton);
     }
 
     /**
