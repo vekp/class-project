@@ -253,10 +253,11 @@ public class Battleship implements GameClient {
 
         // Apply settings to notifications
         mnClient.getNotificationManager().setMargins(20, 15, 15);
-        mnClient.getNotificationManager().setApplyColourAndFontStyling(true);
-        mnClient.getNotificationManager().setFont(fonts.get(0).getFontName());
-        mnClient.getNotificationManager().setColours(Color.decode(fgColour), Color.decode(bgColour));
-        mnClient.getNotificationManager().setBorder(buttonBorder);
+        mnClient.getNotificationManager().setStyling(
+                Color.decode(fgColour),
+                Color.decode(bgColour),
+                fonts.get(0).getFontName(),
+                buttonBorder);
     }
 
     /**

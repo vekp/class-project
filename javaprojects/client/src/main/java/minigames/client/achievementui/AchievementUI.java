@@ -8,7 +8,6 @@ import minigames.client.MinigameNetworkClient;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.util.List;
 import java.util.Random;
 
 public class AchievementUI extends JPanel {
@@ -83,7 +82,7 @@ public class AchievementUI extends JPanel {
         ), true);
         JButton popup = new JButton("Demo achievement popup");
         popup.addActionListener(e -> {
-            JPanel popupDemoPanel = testAchievement.smallAchievementPanel(false);
+            JPanel popupDemoPanel = testAchievement.mediumAchievementPanel(false);
             popupDemoPanel.setBorder(null);
             float x = new Random().nextFloat();
             mnClient.getNotificationManager().setAlignment(x);
