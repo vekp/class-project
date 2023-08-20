@@ -264,6 +264,9 @@ public class KrumPlayer {
         grenadeNextFrame = false;
         detachRopeNextFrame = false;
         enterKeyDownNextFrame = false;
+        firing = false;
+        firingGrenade = false;
+        shootingRope = false;
     }
 
     Point2D.Double playerCentre() {

@@ -12,7 +12,7 @@ public class KrumGrenade extends KrumProjectile {
         knockbackDistance = 60;
         knockbackPower = 7.5;
         radius = (int)(sprite.getWidth() / 2);        
-        explosionRadius = 30;    
+        explosionRadius = 40;    
         System.out.println(System.nanoTime());
         explosionTime = System.nanoTime() + (long)seconds * 1000000000;    
         System.out.println(explosionTime);
