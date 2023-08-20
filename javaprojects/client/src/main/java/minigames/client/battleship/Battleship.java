@@ -7,10 +7,11 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
+import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,12 +26,20 @@ public class Battleship implements GameClient {
 
     // Background colour
     String bgColour = "#07222b";
+    // Background colour hover
+    String bgColourHover = "#113440";
     // Foreground colour
     String fgColour = "#ffffff";
     ArrayList<Font> fonts = determineFont();
+    Border buttonBorder = BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Color.decode("#6e8690")),
+            BorderFactory.createEmptyBorder(5, 15, 5, 15)
+    );
+
     JPanel mainPanel;
     JPanel heading;
     JButton menuButton;
+    JButton achievementButton;
     JLabel title;
     JLabel currentPlayerName;
     JPanel maps;
@@ -55,12 +64,34 @@ public class Battleship implements GameClient {
 
         // Menu button
         menuButton = new JButton("Menu");
-        menuButton.addActionListener(e -> mnClient.runMainMenuSequence());
+        menuButton.addActionListener(e -> {
+            closeGame();
+            mnClient.runMainMenuSequence();
+        });
         menuButton.setFont(fonts.get(1));
+        // Achievement button
+        achievementButton = new JButton("Achv");
+        achievementButton.addActionListener(e -> mnClient.getGameAchievements(player, gm.gameServer()));
+        achievementButton.setFont(fonts.get(1));
+
+        for (JButton b : new JButton[] {menuButton, achievementButton}) {
+            b.setOpaque(true);
+            b.setBorder(buttonBorder);
+            b.setFocusable(false);
+            b.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    b.setBackground(Color.decode(bgColourHover));
+                }
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    b.setBackground(Color.decode(bgColour));
+                }
+            });
+        }
 
         title = new JLabel("< BattleShip >");
         title.setFont(fonts.get(0));
-        title.setBorder(new EmptyBorder(10, 0, 10,0));
 
         //TODO: set player name
         currentPlayerName = new JLabel("Current Player: Mitcho");
@@ -71,15 +102,19 @@ public class Battleship implements GameClient {
         gbc.gridx = 0;
         gbc.gridy = 0;
         heading.add(menuButton, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        heading.add(achievementButton, gbc);
         gbc.insets = new Insets(0,0,0,0);
         gbc.anchor = GridBagConstraints.CENTER;
-        gbc.weightx = 1.0;
+        gbc.weightx = 0.9;
         gbc.gridx = 1;
         gbc.gridy = 0;
         heading.add(title, gbc);
         gbc.gridx = 1;
         gbc.gridy = 1;
         heading.add(currentPlayerName, gbc);
+
 
         // Maps
         maps = new JPanel();
@@ -136,16 +171,11 @@ public class Battleship implements GameClient {
         mainPanel.add(terminal);
 
         // Set colours for all panels
-        for (Component c : new Component[] {mainPanel, heading, menuButton, title, currentPlayerName, nauticalMap, nauticalText,
-                targetMap, targetText, maps, messages, commandTerminal, userCommand}) {
+        for (Component c : new Component[] {mainPanel, heading, title, currentPlayerName, nauticalMap, nauticalText,
+                targetMap, targetText, maps, messages, commandTerminal, userCommand, menuButton, achievementButton}) {
             c.setForeground(Color.decode(fgColour));
             c.setBackground(Color.decode(bgColour));
         }
-
-        //Achievement button TODO: put in a better place
-        JButton achievementButton = new JButton("Ach");
-        achievementButton.addActionListener(e -> mnClient.getGameAchievements(player, gm.gameServer()));
-        nauticalMap.add(achievementButton);
     }
 
     /**
@@ -220,8 +250,13 @@ public class Battleship implements GameClient {
 
         // Don't forget to call pack - it triggers the window to resize and repaint itself
         mnClient.getMainWindow().pack();
-        mnClient.getNotificationManager().setMargins(15, 10, 10);
 
+        // Apply settings to notifications
+        mnClient.getNotificationManager().setMargins(20, 15, 15);
+        mnClient.getNotificationManager().setApplyColourAndFontStyling(true);
+        mnClient.getNotificationManager().setFont(fonts.get(0).getFontName());
+        mnClient.getNotificationManager().setColours(Color.decode(fgColour), Color.decode(bgColour));
+        mnClient.getNotificationManager().setBorder(buttonBorder);
     }
 
     /**
@@ -246,6 +281,7 @@ public class Battleship implements GameClient {
                 messages.setText(command.getString("history"));
                 messages.setCaretPosition(messages.getDocument().getLength());
             }
+            case "updatePlayerName" -> currentPlayerName.setText("Current Player: " + command.getString("player"));
             case "placePlayer1Board" -> nauticalText.setText(nauticalText.getText() + command.getString("text"));
             case "placePlayer2Board" -> targetText.setText(targetText.getText() + command.getString("text"));
         }

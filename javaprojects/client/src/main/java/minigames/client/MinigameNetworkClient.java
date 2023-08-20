@@ -182,11 +182,14 @@ public class MinigameNetworkClient {
         return webClient.get(port, host, "/achievement/" + playerID + "/" + gameID)
                 .send()
                 .onSuccess((resp) -> {
-                    //re-create the player record from the JSON we should have been sent, and pass it
-                    //over to the UI to populate its panels
+                    //re-create the player's GameAchievementState from the JSON we should have been sent, and
+                    //display it in a message dialog in a background thread
                     AchievementCollection ac = new AchievementCollection(GameAchievementState.fromJSON(resp.bodyAsString()));
-                    JOptionPane.showMessageDialog(getMainWindow().frame, ac.achievementListPanel(),
-                            gameID + " achievements", JOptionPane.PLAIN_MESSAGE);
+                    vertx.executeBlocking(getGameAchievements -> {
+                        JOptionPane.showMessageDialog(getMainWindow().frame, ac.achievementListPanel(),
+                                gameID + " achievements", JOptionPane.PLAIN_MESSAGE);
+                        getGameAchievements.complete();
+                    });
                     logger.info(resp.bodyAsString());
                 })
                 .onFailure((resp) -> {
@@ -199,7 +202,7 @@ public class MinigameNetworkClient {
     /**
      * Asks the server for a list of achievements that have just been unlocked.
      *
-     * @return
+     * @return a list of achievements that were unlocked (since the last time this was called)
      */
     public Future<List<Achievement>> getRecentAchievements() {
         return webClient.get(port, host, "/achievementUnlocks")
