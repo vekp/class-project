@@ -1,3 +1,5 @@
+package minigames.client.peggle;
+
 import javax.swing.JPanel;
 import javax.swing.ImageIcon;
 import javax.swing.event.MouseInputAdapter;

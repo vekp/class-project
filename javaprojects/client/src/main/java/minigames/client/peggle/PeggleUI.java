@@ -1,3 +1,6 @@
+package minigames.client.peggle;
+
+
 import javax.swing.*;
 import java.awt.*;
 import java.lang.reflect.Type;
