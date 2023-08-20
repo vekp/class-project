@@ -100,10 +100,16 @@ public class SpaceMazeGame {
 
         // Temporarily sending the whole maze array back after key input
         if (commandString.startsWith("updateMaze")) {
-            JsonObject serializedMazeArray = new JsonObject()
-                    .put("command", "updateMaze")
-                    .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()));
-            renderingCommands.add(serializedMazeArray);
+            if(!mazeControl.gameFinished) {
+                JsonObject serializedMazeArray = new JsonObject()
+                        .put("command", "updateMaze")
+                        .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()));
+                renderingCommands.add(serializedMazeArray);
+            } else {
+                player.calculateScore(mazeControl.timeTaken, 8000);
+                String playerScoreString = String.valueOf(player.getPlayerScore());
+                renderingCommands.add(new JsonObject().put("command", "gameOver").put("totalScore", playerScoreString));
+            }
         }
 
         if (commandString.startsWith("gameTimer")) {

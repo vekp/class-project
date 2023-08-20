@@ -196,6 +196,8 @@ public class SpaceMaze implements GameClient {
             }
             case "gameOver" -> {
                 statusBar.stopTimer();
+                String totalScore = command.getString("totalScore");
+                // Do something with the score
             }
             case "viewHighScore" -> headerText.setText("View High Score");
             case "mainMenu" -> headerText.setText("Go to Main Menu");

@@ -74,7 +74,7 @@ public class StatusBar extends JPanel {
      * @param currentTime time the game has been running as a String
      */
     public void updateTimer(String currentTime) {
-            gameTimer.setText("Time: " + currentTime);
+            gameTimer.setText("Time: " + currentTime + "  ");
             statusBar.revalidate();
             statusBar.repaint();
     }

@@ -146,7 +146,6 @@ public class MazeDisplay extends JPanel {
                 }
                 break;
         }
-        repaint();
     }
 
     /**
