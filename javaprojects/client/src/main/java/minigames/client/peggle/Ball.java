@@ -9,42 +9,69 @@ import javax.imageio.ImageIO;
 
 public class Ball {
 
-    private float x, y, deltax, deltay, speed;
+    private float xDelta, yDelta, xVelocity, yVelocity;
+    private int x, y, size, ballNumber;
+    private boolean active;
 
-    public Ball(float x, float y, float deltax, float deltay, float speed, float size) {
+    public Ball(int x, int y, float deltax, float deltay, float xVelocity, float yVelocity, boolean active, int ballNumber, int size) {
         this.x = x;
         this.y = y;
-        this.deltax = deltax;
-        this.deltay = deltay;
-        this.speed = speed;
+        this.xDelta = deltax;
+        this.yDelta = deltay;
+        this.xVelocity = xVelocity;
+        this.yVelocity = yVelocity;
+        this.active = active;
+        this.ballNumber = ballNumber;
+        this.size = size;
+    }
+
+    public void updateBall(Graphics g, int leftWall, int rightWall, int floorYValue){
+        if (this.active == true){
+            bounceOffWalls(leftWall, rightWall);
+            moveBall();
+            drawToScreen(g);
+            ballActive(floorYValue);
+        }
     }
 
     // Method for drawing a ball instance to screen
-    public void drawToScreen(Graphics g){
+    private void drawToScreen(Graphics g){
         BufferedImage ball = null;
         try {
-            ball = ImageIO.read(new File("assets/ball.png"));
+            ball = ImageIO.read(new File("./javaprojects/client/src/main/java/minigames/client/peggle/assets/objects/ball.png"));
         } catch (IOException e) {
             System.out.println("Error loading file. \nError message: " + e.getMessage());
         }
-        g.drawImage(ball, (int) x, (int) y, null);
+        g.drawImage(ball, x, y, this.size, this.size, null);
     }
 
     // Method that changes ball instances location
-    public void moveBall(){
-        x += deltax;
-        y += deltay;
+    private void moveBall(){
+        if (this.xDelta < 0) {
+            this.xDelta += this.xVelocity;
+        } else if (this.xDelta > 0) {
+            this.xDelta -= this.xVelocity;
+        }
+        this.yDelta += this.yVelocity;
+        this.x += this.xDelta;
+        this.y += this.yDelta;
     }
 
     // Method organises ball bouncing off edge of screen
     // TODO: Jarrod needs to align this with his image when implemented so the ball appears to bounce correctly
-    public void bounceOffEdges(int left, int right){
-        if (x < left) {
-            deltax *= -1;
+    private void bounceOffWalls(int leftWall, int rightWall){
+        if (x < leftWall) {
+            xDelta *= -1;
         }
 
-        if (x > right) {
-            deltax *= -1;
+        if (x > rightWall - this.size) {
+            xDelta *= -1;
+        }
+    }
+
+    private void ballActive(int floorYValue){
+        if (this.y > floorYValue) {
+            this.active = false;
         }
     }
 }
