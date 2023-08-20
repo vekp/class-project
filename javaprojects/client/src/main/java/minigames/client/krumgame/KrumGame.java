@@ -268,6 +268,21 @@ public class KrumGame implements GameClient {
         if (windX > 0) g.setColor(Color.blue);        
         g.setFont(new Font("Courier New", 1, 24));
         g.drawString(windString, 300, 25);
+        g.setFont(new Font("Courier New", 1, 26));
+        String timerString = "";
+        if (turnEndFrame - updateCount > KrumC.TARGET_FRAMERATE * 3) {
+            g.setColor(Color.green);
+            timerString += Math.round((turnEndFrame - updateCount) / (double)KrumC.TARGET_FRAMERATE);
+        }
+        else {
+            g.setColor(Color.orange);
+            timerString += Math.round((turnEndFrame - updateCount) / (double)KrumC.TARGET_FRAMERATE * 10.0) / 10.0;
+        }
+        g.drawString(timerString, 5, 20);
+        if (playingBackTurn) {
+            g.setColor(Color.gray);
+            g.drawString("REPLAY", 325, 60);
+        }
     }
 
     /**
