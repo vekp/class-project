@@ -114,35 +114,51 @@ public class MazeDisplay extends JPanel {
             case KeyEvent.VK_UP:
                 logger.info("Info up:");
                 if (isMoveValid(getMazeMap(), "up")){
-                    updatePlayerPos();
                     // These commands currently only tell the server where to move the player
                     spaceMaze.sendCommand("keyUp");
-                    // This is to get the server to send back the new maze array
-                    spaceMaze.sendCommand("updateMaze");
+                    if (mazeMap[moveTo.y][moveTo.x] == 'K') {
+                        // This is to get the server to send back the new maze array
+                        spaceMaze.sendCommand("updateMaze");
+                    } else {
+                        movePlayer("up");
+                    }
+                    updatePlayerPos();
                 }
                 break;
             case KeyEvent.VK_DOWN:
                 logger.info("Info Down:");
                 if (isMoveValid(getMazeMap(), "down")){
-                    updatePlayerPos();
                     spaceMaze.sendCommand("keyDown");
-                    spaceMaze.sendCommand("updateMaze");
+                    if (mazeMap[moveTo.y][moveTo.x] == 'K') {
+                        spaceMaze.sendCommand("updateMaze");
+                    } else {
+                        movePlayer("down");
+                    }
+                    updatePlayerPos();
                 }
                 break;
             case KeyEvent.VK_LEFT:
                 logger.info("Info left:");
                 if (isMoveValid(getMazeMap(), "left")){
-                    updatePlayerPos();
                     spaceMaze.sendCommand("keyLeft");
-                    spaceMaze.sendCommand("updateMaze");
+                    if (mazeMap[moveTo.y][moveTo.x] == 'K') {
+                        spaceMaze.sendCommand("updateMaze");
+                    } else {
+                        movePlayer("left");
+                    }
+                    updatePlayerPos();
                 }
                 break;
             case KeyEvent.VK_RIGHT:
                 logger.info("Info right:");
                 if (isMoveValid(getMazeMap(), "right")){
-                    updatePlayerPos();
                     spaceMaze.sendCommand("keyRight");
-                    spaceMaze.sendCommand("updateMaze");
+                    if (mazeMap[moveTo.y][moveTo.x] == 'K') {
+                        spaceMaze.sendCommand("updateMaze");
+                    } else {
+                        movePlayer("right");
+                    }
+                    updatePlayerPos();
                 }
                 break;
         }
@@ -163,6 +179,12 @@ public class MazeDisplay extends JPanel {
                 g2.fillRect(c * tileWidth, r * tileHeight, tileWidth, tileHeight);
             }
         }
+    }
+
+    public void movePlayer(String direction) {
+        mazeMap[playerPos.y][playerPos.x] = '.';
+        mazeMap[moveTo.y][moveTo.x] = 'P';
+        repaint();
     }
 
     /**
