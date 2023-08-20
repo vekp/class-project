@@ -319,11 +319,15 @@ public class KrumGame implements GameClient {
             g.drawString("REPLAY", 325, 60);
         }
         g.setColor(Color.red);
-        for (ExplosionDetails e : explosions) {
+        for (int i = 0; i < explosions.size(); i++) {
+            ExplosionDetails e = explosions.get(i);
             int r = e.radius - (int)(e.endFrame - updateCount) / 2;
             g.fillOval(e.x -r, e.y - r, r * 2, r * 2);
-            if (updateCount >= e.endFrame)
+            if (updateCount >= e.endFrame) {
                 explosions.remove(e);
+                i--;
+            }
+                
         }
     }
 

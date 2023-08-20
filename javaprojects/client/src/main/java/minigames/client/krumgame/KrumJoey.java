@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 
 public class KrumJoey extends KrumProjectile {
     long explosionTick;
+    long startTick;
     double jumpPower = 3;
     KrumPlayer otherPlayer;
     boolean facingRight;
@@ -32,6 +33,7 @@ public class KrumJoey extends KrumProjectile {
     boolean active;
     final int PROXIMITY_THRESHOLD = 60;
     final int PROXIMITY_DELAY = 32;
+    final int PROXIMITY_BEGIN = 90;
     boolean flash;
     long currentTick;
     KrumJoey(int xpos, int ypos, double xvel, double yvel, int seconds, BufferedImage sprite, WritableRaster ground, long tick) {
@@ -219,6 +221,7 @@ public class KrumJoey extends KrumProjectile {
         this.setDirection(facingRight, levelRaster);
         this.currentTick = tick;
         this.flash = false;
+        startTick = tick;
     }
     @Override 
     void draw(Graphics2D g) {
@@ -294,8 +297,12 @@ public class KrumJoey extends KrumProjectile {
         }
 
         if (!flash && KrumHelpers.distanceBetween(xpos + sprite.getWidth() / 2, ypos + sprite.getHeight() / 2, otherPlayer.playerCentre().x, otherPlayer.playerCentre().y) < PROXIMITY_THRESHOLD) {
-            explosionTick = Math.min(explosionTick, tick + PROXIMITY_DELAY);
-            flash = true;
+            if (currentTick - startTick > PROXIMITY_BEGIN) {
+                explosionTick = Math.min(explosionTick, tick + PROXIMITY_DELAY);
+                flash = true;
+            }
+            
+            
         }
     }
     void setDirection(boolean right, WritableRaster levelRaster) {

@@ -951,11 +951,11 @@ public class KrumPlayer {
     }
 
     void enterKeyPressed() {
-        if (onRope) {
-            //projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(aimAngleRadians) * KrumC.psd), xvel, yvel, projectileSprite, levelRaster);
-            joey.spawn(playerCentre().x - joey.sprite.getWidth() / 2,playerCentre().y - joey.sprite.getHeight() / 2,xvel + 1 * (facingRight ? 1 : -1), yvel - 1, tick, facingRight);
-            lastShotTime = System.nanoTime();
-        }
+        // if (onRope) {
+        //     projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(aimAngleRadians) * KrumC.psd), xvel, yvel, projectileSprite, levelRaster);
+        //     lastShotTime = System.nanoTime();
+        // }
+        joey.spawn(playerCentre().x - joey.sprite.getWidth() / 2,playerCentre().y - joey.sprite.getHeight() / 2,xvel + 1 * (facingRight ? 1 : -1), yvel - 1, tick, facingRight);
     }
 
     // void enterKeyReleased() {
