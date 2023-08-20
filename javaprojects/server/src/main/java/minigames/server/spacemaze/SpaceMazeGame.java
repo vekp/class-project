@@ -77,6 +77,13 @@ public class SpaceMazeGame {
             case "SCORE" -> renderingCommands.add(new JsonObject().put("command", "viewHighScore"));
             case "MENU"  -> renderingCommands.add(new JsonObject().put("command", "mainMenu"));
             case "EXIT" ->  renderingCommands.add(new JsonObject().put("command", "exit"));
+            case "onExit" -> {
+                mazeControl.newLevel();
+                JsonObject serializedMazeArray = new JsonObject()
+                        .put("command", "renderMaze")
+                        .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()));
+                renderingCommands.add(serializedMazeArray);
+            }
 
             //Key Event Requests from client
             //case "keyUp" -> renderingCommands.add(new JsonObject().put("command", "movePlayerToHere")); //calculate and send new position of player to server??? 

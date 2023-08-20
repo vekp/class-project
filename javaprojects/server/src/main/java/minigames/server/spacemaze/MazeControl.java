@@ -290,37 +290,39 @@ public class MazeControl {
      */
     public void newLevel()
     {
-        if ((currentLevel < maxLevel) && (playerLocation == exitLocation))
-        {
-            // Pause Timer
-            mazeTimer.pauseTimer();
+        if ((currentLevel < maxLevel)) {
+        logger.info("Moving to next level");
+        // Pause Timer
+        mazeTimer.pauseTimer();
 
-            // increment current level
-            currentLevel++;     
-            // Create new Maze, dependent on current level
-            this.mazeArray = createNewMaze(currentLevel);
+        // increment current level
+        currentLevel++;
+        // Create new Maze, dependent on current level
+        this.mazeArray = createNewMaze(currentLevel);
 
-            // Set start, key... locations
-            set_locations();
+        // Set start, key... locations
+        set_locations();
 
-            // Exit location
-            this.exitLocation = getExitLocation();
+        // Exit location
+        this.exitLocation = getExitLocation();
 
-            // Initalise keyStatus with collected = false
-            setKeyStatus(keyLocationsList);
+        // Initalise keyStatus with collected = false
+        setKeyStatus(keyLocationsList);
 
-            // Reposition bots
+        // Reposition bots
 
 
-            // Re-position player's start location -- this will be problematic for >1 players
-            // Select random location from startLocationsList and calls playerEntersMaze
-            Random rand = new Random();
-            int randomStartIndex = rand.nextInt(startLocationsList.size());
-            playerLocation = startLocationsList.get(randomStartIndex);
-            playerEntersMaze(playerLocation);
-            
-            }
+        // Re-position player's start location -- this will be problematic for >1 players
+        // Select random location from startLocationsList and calls playerEntersMaze
+        Random rand = new Random();
+        int randomStartIndex = rand.nextInt(startLocationsList.size());
+        playerLocation = startLocationsList.get(randomStartIndex);
+        playerEntersMaze(playerLocation);
+
+    } else {
+        logger.info("New Level conditions were not met!");
     }
+}
 
 
     /* 
@@ -410,7 +412,7 @@ public class MazeControl {
         mazeArray[newMove.y][newMove.x] = 'P';
         // Set previous player location to '.'
         mazeArray[prevMove.y][prevMove.x]= '.';
-        
+
         // Check if player location picks up a key
         updateKeyStatus(player, playerLocation);
 

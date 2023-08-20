@@ -26,6 +26,7 @@ public class MazeDisplay extends JPanel {
     SpaceMaze spaceMaze;
     private Point playerPos;
     private Point moveTo;
+    private Point exitPoint;
     private char[][] mazeMap;
     int jPanelWidth = 800;
     int jPanelHeight = 600;
@@ -42,6 +43,7 @@ public class MazeDisplay extends JPanel {
         this.mazeMap = mazeArray;
         this.playerPos = findPlayerPos(mazeArray);
         this.moveTo = new Point(playerPos);
+        this.exitPoint = findExit(mazeArray);
         this.tileWidth = jPanelWidth / mazeMap[0].length;
         this.tileHeight = jPanelHeight / mazeMap.length;
         this.setLayout(new BorderLayout());
@@ -124,6 +126,7 @@ public class MazeDisplay extends JPanel {
                     }
                     updatePlayerPos();
                 }
+                checkForExit();
                 break;
             case KeyEvent.VK_DOWN:
                 logger.info("Info Down:");
@@ -136,6 +139,7 @@ public class MazeDisplay extends JPanel {
                     }
                     updatePlayerPos();
                 }
+                checkForExit();
                 break;
             case KeyEvent.VK_LEFT:
                 logger.info("Info left:");
@@ -148,6 +152,7 @@ public class MazeDisplay extends JPanel {
                     }
                     updatePlayerPos();
                 }
+                checkForExit();
                 break;
             case KeyEvent.VK_RIGHT:
                 logger.info("Info right:");
@@ -160,6 +165,7 @@ public class MazeDisplay extends JPanel {
                     }
                     updatePlayerPos();
                 }
+                checkForExit();
                 break;
         }
     }
@@ -178,6 +184,14 @@ public class MazeDisplay extends JPanel {
                 charToImage(g2, r, c);
                 g2.fillRect(c * tileWidth, r * tileHeight, tileWidth, tileHeight);
             }
+        }
+    }
+
+    public void checkForExit() {
+        if (playerPos.equals(exitPoint)) {
+            logger.info("playerPos == exit");
+            spaceMaze.sendCommand("onExit");
+            this.exitPoint = findExit(mazeMap);
         }
     }
 
@@ -226,6 +240,10 @@ public class MazeDisplay extends JPanel {
                 g2.setColor(Color.GREEN);
                 //g2.drawImage(unlockedExitImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, this);
                 break;
+            case 'B':
+                g2.setColor(Color.ORANGE);
+                //g2.drawImage(unlockedExitImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, this);
+                break;
         }
     }
 
@@ -244,6 +262,18 @@ public class MazeDisplay extends JPanel {
         }
         logger.info("No player found in the maze");
         return null; // No player in the maze
+    }
+
+    public Point findExit(char[][] mazeMap) {
+        for (int r = 0; r < mazeMap.length; r++) {
+            for (int c = 0; c < mazeMap[r].length; c++) {
+                if (mazeMap[r][c] == 'E') {
+                    return new Point(c, r);
+                }
+            }
+        }
+        logger.info("No Exit found in the maze");
+        return null; // No Exit in the maze
     }
 
     /**
