@@ -10,6 +10,7 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,9 +25,12 @@ public class Battleship implements GameClient {
 
     // Background colour
     String bgColour = "#07222b";
+    // Background colour hover
+    String bgColourHover = "#113440";
     // Foreground colour
     String fgColour = "#ffffff";
     ArrayList<Font> fonts = determineFont();
+
     JPanel mainPanel;
     JPanel heading;
     JButton menuButton;
@@ -55,18 +59,33 @@ public class Battleship implements GameClient {
 
         // Menu button
         menuButton = new JButton("Menu");
-        menuButton.addActionListener(e -> mnClient.runMainMenuSequence());
+        menuButton.addActionListener(e -> {
+            closeGame();
+            mnClient.runMainMenuSequence();
+        });
         menuButton.setFont(fonts.get(1));
         // Achievement button
         achievementButton = new JButton("Achv");
         achievementButton.addActionListener(e -> mnClient.getGameAchievements(player, gm.gameServer()));
         achievementButton.setFont(fonts.get(1));
 
-        for (JButton b : new JButton[] {menuButton, achievementButton}) b.setBorder((
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(Color.decode("#6e8690")),
-                        BorderFactory.createEmptyBorder(5, 15, 5, 15)
-                )));
+        for (JButton b : new JButton[] {menuButton, achievementButton}) {
+            b.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(Color.decode("#6e8690")),
+                    BorderFactory.createEmptyBorder(5, 15, 5, 15)
+            ));
+            b.setFocusable(false);
+            b.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    b.setBackground(Color.decode(bgColourHover));
+                }
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    b.setBackground(Color.decode(bgColour));
+                }
+            });
+        }
 
         title = new JLabel("< BattleShip >");
         title.setFont(fonts.get(0));
@@ -254,6 +273,7 @@ public class Battleship implements GameClient {
                 messages.setText(command.getString("history"));
                 messages.setCaretPosition(messages.getDocument().getLength());
             }
+            case "updatePlayerName" -> currentPlayerName.setText("Current Player: " + command.getString("player"));
             case "placePlayer1Board" -> nauticalText.setText(nauticalText.getText() + command.getString("text"));
             case "placePlayer2Board" -> targetText.setText(targetText.getText() + command.getString("text"));
         }
