@@ -182,12 +182,14 @@ public class MinigameNetworkClient {
         return webClient.get(port, host, "/achievement/" + playerID + "/" + gameID)
                 .send()
                 .onSuccess((resp) -> {
-                    //re-create the player record from the JSON we should have been sent, and pass it
-                    //over to the UI to populate its panels
-                    //todo this shouldn't be here it will block the thread while the popup is active
+                    //re-create the player's GameAchievementState from the JSON we should have been sent, and
+                    //display it in a message dialog in a background thread
                     AchievementCollection ac = new AchievementCollection(GameAchievementState.fromJSON(resp.bodyAsString()));
-                    JOptionPane.showMessageDialog(getMainWindow().frame, ac.achievementListPanel(),
-                            gameID + " achievements", JOptionPane.PLAIN_MESSAGE);
+                    vertx.executeBlocking(getGameAchievements -> {
+                        JOptionPane.showMessageDialog(getMainWindow().frame, ac.achievementListPanel(),
+                                gameID + " achievements", JOptionPane.PLAIN_MESSAGE);
+                        getGameAchievements.complete();
+                    });
                     logger.info(resp.bodyAsString());
                 })
                 .onFailure((resp) -> {
