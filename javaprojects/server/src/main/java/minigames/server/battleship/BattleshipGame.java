@@ -335,6 +335,7 @@ public class BattleshipGame {
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         renderingCommands.add(new JsonObject().put("command", "clearText"));
         renderingCommands.add(new JsonObject().put("command", "updateHistory").put("history", p.getMessageHistory()));
+        renderingCommands.add(new JsonObject().put("command", "updatePlayerName").put("player", p.getPlayerName()));
         renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, player1.getGrid())));
         renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.generateBoard(enemy, player2.getGrid())));
         return new RenderingPackage(this.gameMetadata(), renderingCommands);
@@ -352,23 +353,12 @@ public class BattleshipGame {
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         // Don't allow a player to join if the player's name is already taken
         if (players.containsKey(playerName)) {
-            // Allow same player to join back in (for nathan :) )
-            Board p = players.get(playerName);
-            renderingCommands.add(new LoadClient("Battleship", "Battleship", gameName, playerName).toJson());
-            renderingCommands.add(new JsonObject().put("command", "clearText"));
-            renderingCommands.add(new JsonObject().put("command", "updateHistory").put("history", p.getMessageHistory()));
-            renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, player1.getGrid())));
-            renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.generateBoard(enemy, player2.getGrid())));
-            renderingCommands.add(new JsonObject().put("command", "quitGame"));
-            return new RenderingPackage(this.gameMetadata(), renderingCommands);
-            // End exp. code
-
-//            return new RenderingPackage(
-//                    gameMetadata(),
-//                    Arrays.stream(new RenderingCommand[]{
-//                            new NativeCommands.ShowMenuError("That name's not available")
-//                    }).map((r) -> r.toJson()).toList()
-//            );
+            return new RenderingPackage(
+                    gameMetadata(),
+                    Arrays.stream(new RenderingCommand[]{
+                            new NativeCommands.ShowMenuError("That name's not available")
+                    }).map((r) -> r.toJson()).toList()
+            );
         } else {
             Board p = new Board(playerName, welcomeMessage);
             players.put(playerName, p);
@@ -377,6 +367,7 @@ public class BattleshipGame {
             renderingCommands.add(new LoadClient("Battleship", "Battleship", gameName, playerName).toJson());
             renderingCommands.add(new JsonObject().put("command", "clearText"));
             renderingCommands.add(new JsonObject().put("command", "updateHistory").put("history", messageHistory(p)));
+            renderingCommands.add(new JsonObject().put("command", "updatePlayerName").put("player", playerName));
             renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, player1.getGrid())));
             renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.generateBoard(enemy, player2.getGrid())));
 
