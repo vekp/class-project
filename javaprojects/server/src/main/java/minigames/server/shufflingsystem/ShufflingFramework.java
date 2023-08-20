@@ -78,4 +78,7 @@ public class ShufflingFramework<T> {
         }
     }
 
+    //More work would be required to get this to work on shuffling a queue or stack
+    //Doesn't seem like a huge priority, will come back to it if I have time or if other groups request it
+
 }
