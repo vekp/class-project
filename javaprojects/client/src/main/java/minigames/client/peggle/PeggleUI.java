@@ -1,22 +1,18 @@
-package minigames.client.peggle;
-
 import javax.swing.*;
 import java.awt.*;
+import java.lang.reflect.Type;
 
 public class PeggleUI {
-    // TODO: Decide on game colours
     private static final String gameName = "Peggle";
     private static JFrame mainWindow = null;
     private static final String titleFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/titlecard.png";
     private static final String iconFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/UI/gameicon.png";
 
 
-
     // TODO: Decide on game colours
     private static final Color mainColour = new Color(1, 172, 252);
     private static final Color accentColour = new Color(255, 255, 255);
     private static final Color textColour = new Color(0, 0, 0);
-
 
 
     public static void main(String[] args) {
@@ -130,8 +126,7 @@ public class PeggleUI {
     }
 
     private static void listInstructions() {
-        System.out.println("Listing Instructions");
-        InstructionsUI instructionsSession = new InstructionsUI(mainWindow);
+        InstructionsUI instructionsSession = new InstructionsUI();
         mainWindow.setContentPane(instructionsSession);
         mainWindow.revalidate();
     }
