@@ -70,6 +70,7 @@ public class Battleship implements GameClient {
         achievementButton.setFont(fonts.get(1));
 
         for (JButton b : new JButton[] {menuButton, achievementButton}) {
+            b.setOpaque(true);
             b.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createLineBorder(Color.decode("#6e8690")),
                     BorderFactory.createEmptyBorder(5, 15, 5, 15)
