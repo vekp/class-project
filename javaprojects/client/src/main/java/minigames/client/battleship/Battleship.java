@@ -7,6 +7,7 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
@@ -30,6 +31,10 @@ public class Battleship implements GameClient {
     // Foreground colour
     String fgColour = "#ffffff";
     ArrayList<Font> fonts = determineFont();
+    Border buttonBorder = BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Color.decode("#6e8690")),
+            BorderFactory.createEmptyBorder(5, 15, 5, 15)
+    );
 
     JPanel mainPanel;
     JPanel heading;
@@ -71,10 +76,7 @@ public class Battleship implements GameClient {
 
         for (JButton b : new JButton[] {menuButton, achievementButton}) {
             b.setOpaque(true);
-            b.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(Color.decode("#6e8690")),
-                    BorderFactory.createEmptyBorder(5, 15, 5, 15)
-            ));
+            b.setBorder(buttonBorder);
             b.setFocusable(false);
             b.addMouseListener(new java.awt.event.MouseAdapter() {
                 @Override
@@ -248,8 +250,13 @@ public class Battleship implements GameClient {
 
         // Don't forget to call pack - it triggers the window to resize and repaint itself
         mnClient.getMainWindow().pack();
-        mnClient.getNotificationManager().setMargins(15, 10, 10);
 
+        // Apply settings to notifications
+        mnClient.getNotificationManager().setMargins(20, 15, 15);
+        mnClient.getNotificationManager().setApplyColourAndFontStyling(true);
+        mnClient.getNotificationManager().setFont(fonts.get(0).getFontName());
+        mnClient.getNotificationManager().setColours(Color.decode(fgColour), Color.decode(bgColour));
+        mnClient.getNotificationManager().setBorder(buttonBorder);
     }
 
     /**

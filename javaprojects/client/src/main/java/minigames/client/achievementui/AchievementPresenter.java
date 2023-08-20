@@ -39,10 +39,9 @@ public class AchievementPresenter {
      * @return an ImageIcon
      */
     private ImageIcon achievementImage(int targetHeight) {
-        // Attempt to set path of image
+        // Attempt to set path of image todo: loop through possible extensions instead
         String path = (achievement.hidden() && !isUnlocked) ? achievementImageFolderLocation + "mystery.png" :
                 achievementImageFolderLocation + achievement.mediaFileName().toLowerCase().replace(" ", "") + ".png";
-        System.out.println(path);
         if (!new File(path).exists()) {
             path = path.replace(".png", ".jpg");
             if (!new File(path).exists()) {
@@ -83,9 +82,6 @@ public class AchievementPresenter {
         Border smallEmptyBorder = new EmptyBorder(4, 4, 4, 4);
 
         JLabel name = new JLabel(achievement.name());
-        Font currentFont = name.getFont();
-        Font boldFont = new Font(currentFont.getFontName(), Font.BOLD, currentFont.getSize());
-        name.setFont(boldFont);
 
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         JLabel image = new JLabel(achievementImage(20));
