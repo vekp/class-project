@@ -8,18 +8,18 @@ public class KrumTurn {
     KrumGameState startState;
     KrumGameState endState;
     BufferedImage background;
-    KrumTurn(KrumPlayer[] players, BufferedImage background, double windX, double windY) {
+    KrumTurn(KrumPlayer[] players, BufferedImage background, double windX, double windY, long tick) {
         frames = new ArrayList<KrumInputFrame>();
-        startState = new KrumGameState(players, background, windX, windY);
+        startState = new KrumGameState(players, background, windX, windY, tick);
         endState = null;
         this.background = background;
     }
-    KrumTurn(KrumTurn other) {
-        frames = new ArrayList<KrumInputFrame>(other.frames);
-        startState = other.startState;
-        endState = other.endState;
-        background = other.background;
-    }
+    // KrumTurn(KrumTurn other) {
+    //     frames = new ArrayList<KrumInputFrame>(other.frames);
+    //     startState = other.startState;
+    //     endState = other.endState;
+    //     background = other.background;
+    // }
     void addFrame(KrumInputFrame f) {
         frames.add(f);
     }

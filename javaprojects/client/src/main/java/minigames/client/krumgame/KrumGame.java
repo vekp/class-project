@@ -54,8 +54,10 @@ public class KrumGame implements GameClient {
     boolean stopRecordingTurn = false;
     boolean playingBackTurn = false;
 
+    long turnEndFrame;
+
+    KrumTurn[] savedTurns;
     KrumTurn currentTurn;
-    //KrumTurn savedTurn;
 
     public KrumGame() {        
         background = KrumHelpers.readSprite("chameleon.png");
@@ -74,8 +76,29 @@ public class KrumGame implements GameClient {
         players[1] = new KrumPlayer(600, 0, "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, false, alphaRaster, 1);
         playerTurn = 0;
         updateCount = 0;
-        currentTurn = new KrumTurn(players, background, windX, windY);
-        //savedTurn = new KrumTurn(players, background);
+        savedTurns = new KrumTurn[] {new KrumTurn(players, background, windX, windY, updateCount), new KrumTurn(players, background, windX, windY, updateCount)};       
+        currentTurn = savedTurns[playerTurn];
+        startTurn();
+    }
+
+    void startTurn() {
+        System.out.println("Start turn");
+        windX = (rand.nextDouble() - 0.5) / 10;
+        windString = "Wind: ";
+        windString += windX > 0 ? "right " : "left ";
+        windString += Math.round(windX * 10000.0) / 100.0;
+        turnEndFrame = updateCount + KrumC.TURN_TIME_LIMIT_FRAMES;
+        savedTurns[playerTurn] = new KrumTurn(players, background, windX, windY, updateCount);
+        currentTurn = savedTurns[playerTurn];
+        recordingTurn = true;
+    }
+
+    void endTurn() {
+        players[playerTurn].stop();
+        recordingTurn = false;
+        currentTurn.endState = new KrumGameState(players, background, windX, windY, updateCount);
+        playerTurn = 1 - playerTurn;        
+        startTurn();
     }
 
     /**
@@ -103,16 +126,13 @@ public class KrumGame implements GameClient {
             if (!players[i].onRope) {
                 players[i].airborne = true;                
             }                       
-        }
-        
-        windX = (rand.nextDouble() - 0.5) / 10;
-        windString = "Wind: ";
-        windString += windX > 0 ? "right " : "left ";
-        windString += Math.round(windX * 10000.0) / 100.0;
+        }      
     }
 
     void setGameState(KrumGameState state) {
         alphaRaster.setDataElements(0,0,background.getWidth(),background.getHeight(),state.pixelMatrix);
+        updateCount = state.startTick;
+        turnEndFrame = state.endTick;
         for (int i = 0; i < Math.min(players.length, state.playerStates.size()); i++) {
             KrumPlayerState ps = state.playerStates.get(i);
             players[i].hp = ps.hp;
@@ -167,35 +187,33 @@ public class KrumGame implements GameClient {
      * Called once per frame to update game state
      */
     void update() {
-        if (startRecordingTurn && !playingBackTurn && !playBackTurn) {
-            currentTurn = new KrumTurn(players, background, windX, windY);
-            recordingTurn = true;
-            startRecordingTurn = false;
-        }
-        if (stopRecordingTurn) {
-            recordingTurn = false;
-            currentTurn.endState = new KrumGameState(players, background, windX, windY);
-            //savedTurn = new KrumTurn(currentTurn);
-            stopRecordingTurn = false;
-        }
+
         // KrumInputFrame thisFrame = new KrumInputFrame();
         if (playBackTurn) {
             playingBackTurn = true;
             recordingTurn = false;
             playBackTurn = false;
             playBackFrame = 0;
+            currentTurn = savedTurns[1 - playerTurn];
             setGameState(currentTurn.startState);
-        }        
+            System.out.println("playback " + currentTurn);
+            playerTurn = 1 - playerTurn;
+        } 
+        else if (!playingBackTurn && updateCount > turnEndFrame) {
+            endTurn();
+        }       
         for (KrumPlayer p : players) {    
             KrumInputFrame pf = null;
             KrumTurn rt = null;
             if (p.playerIndex == playerTurn && recordingTurn) {
                 rt = currentTurn;
+                //System.out.println("recording " + currentTurn);
             }  
             if (playingBackTurn) {
                 if (playBackFrame >= currentTurn.frames.size()) {
                     playingBackTurn = false;
                     System.out.println("done replaying");
+                    endTurn();
                 }
                 else if (p == players[currentTurn.frames.get(playBackFrame).activePlayer]) {
                     pf = currentTurn.frames.get(playBackFrame);
@@ -321,12 +339,12 @@ public class KrumGame implements GameClient {
         else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
             players[playerTurn].downArrowKeyDownNextFrame = true;
         }
-        else if (e.getKeyCode() == KeyEvent.VK_S) {
-            startRecordingTurn = true;
-        }
-        else if (e.getKeyCode() == KeyEvent.VK_F) {
-            stopRecordingTurn = true;
-        }
+        // else if (e.getKeyCode() == KeyEvent.VK_S) {
+        //     startRecordingTurn = true;
+        // }
+        // else if (e.getKeyCode() == KeyEvent.VK_F) {
+        //     stopRecordingTurn = true;
+        // }
         else if (e.getKeyCode() == KeyEvent.VK_R) {
             playBackTurn = true;
         }

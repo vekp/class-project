@@ -11,7 +11,9 @@ public class KrumGameState {
     Object pixelMatrix;
     double windX;
     double windY;
-    KrumGameState(KrumPlayer[] players, BufferedImage background, double windX, double windY) {
+    long startTick;
+    long endTick;
+    KrumGameState(KrumPlayer[] players, BufferedImage background, double windX, double windY, long tick) {
         playerStates = new ArrayList<KrumPlayerState>();
         for (KrumPlayer p : players) {
             playerStates.add(new KrumPlayerState(p));
@@ -19,5 +21,7 @@ public class KrumGameState {
         pixelMatrix = background.getAlphaRaster().getDataElements(0,0,background.getWidth(),background.getHeight(), null);
         this.windX = windX;
         this.windY = windY;
+        this.startTick = tick;
+        this.endTick = tick + KrumC.TURN_TIME_LIMIT_FRAMES;
     }
 }

@@ -253,6 +253,19 @@ public class KrumPlayer {
         playerIndex = index;
     }
 
+    void stop() {
+        detachRope();
+        leftKeyDownNextFrame = false;
+        rightKeyDownNextFrame = false;
+        upArrowKeyDownNextFrame = false;
+        downArrowKeyDownNextFrame = false;
+        shootNextFrame = false;
+        shootRopeNextFrame = false;
+        grenadeNextFrame = false;
+        detachRopeNextFrame = false;
+        enterKeyDownNextFrame = false;
+    }
+
     Point2D.Double playerCentre() {
         return new Point2D.Double((int)(xpos + sprite.getWidth()/2), (int)(ypos + sprite.getHeight()/2));
     }

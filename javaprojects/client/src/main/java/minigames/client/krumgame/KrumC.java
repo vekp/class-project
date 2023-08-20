@@ -57,4 +57,9 @@ public class KrumC {
     //static final double ROPE_LENGTH_ACCEL_FACTOR = 1;
 
     static final double GRENADE_BOUNCE_FACTOR = 0.95;
+
+    static final int TURN_TIME_LIMIT_SECONDS = 15;
+    static final int TURN_TIME_LIMIT_FRAMES = TURN_TIME_LIMIT_SECONDS * TARGET_FRAMERATE;
+
+    static final int BILLION = 1000000000; // to help avoid typos when converting between seconds and nanoseconds
 }
