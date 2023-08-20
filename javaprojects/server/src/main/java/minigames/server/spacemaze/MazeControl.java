@@ -3,6 +3,8 @@ package minigames.server.spacemaze;
 import java.util.*;
 import java.awt.Point;
 import java.util.Random;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * MazeControl class to verifies and controls player input,
@@ -14,6 +16,8 @@ import java.util.Random;
  */
 
 public class MazeControl {
+
+    private static final Logger logger = LogManager.getLogger(MazeControl.class);
         
     // Maze info -- hard coded for now
     private int mazeWidth = 25;
@@ -205,7 +209,10 @@ public class MazeControl {
         if (keyStatus.containsKey(playerLoc))
         {
             keyStatus.put(playerLoc, true); 
-            player.addKey();   
+            player.addKey();
+
+            // Attempting to unlock the exit
+            unlockExit(player);
         }
     }  
 
