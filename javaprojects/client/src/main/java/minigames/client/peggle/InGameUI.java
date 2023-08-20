@@ -1,5 +1,6 @@
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.ImageIcon;
 import javax.swing.event.MouseInputAdapter;
 import java.awt.Dimension;
 import java.awt.Color;
@@ -9,8 +10,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 
 public class InGameUI extends JPanel {
-    final int COLUMNS = 500;
-    final int ROWS = 500;
+    final int COLUMNS = 1000;
+    final int ROWS = 750;
     final Color PAINT_COLOUR = Color.GRAY;
     final Color BACKGROUND = Color.BLACK;
     final Color HOVER_COLOUR = Color.YELLOW;
@@ -20,12 +21,16 @@ public class InGameUI extends JPanel {
     int hoverX = -1;
     int hoverY = -1;
 
+    //InGameUI Background image
+    private static final String backgroundImagePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/UI/InGameBackground.png"; // Replace with the actual path to your image
+    private ImageIcon backgroundImage = new ImageIcon(backgroundImagePath);
+
     //Instance of the Cannon class
     private Cannon cannon;
 
     InGameUI() {
         setBackground(BACKGROUND);
-        // Creates the cannon at position (250, 50)
+        // Creates the cannon at position (250, 55)
         cannon = new Cannon(250, 55);
 
         // A new MouseInputAdapter can replace default mouse actions
@@ -114,6 +119,10 @@ public class InGameUI extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        // Draw the background image
+        g.drawImage(backgroundImage.getImage(), 0, 0, getWidth(), getHeight(), this);
+
 
         Graphics2D g2d = (Graphics2D) g;
 

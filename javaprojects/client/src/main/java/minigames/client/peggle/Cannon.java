@@ -17,7 +17,7 @@ public class Cannon {
         this.y = y;
         this.angle = 0;
         try {
-            this.cannonImage = ImageIO.read(new File("./javaprojects/client/src/main/java/minigames/client/peggle/assets/cannon.png"));
+            this.cannonImage = ImageIO.read(new File("./javaprojects/client/src/main/java/minigames/client/peggle/assets/objects/cannon02.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }

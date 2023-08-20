@@ -5,8 +5,8 @@ public class PeggleUI {
     // TODO: Decide on game colours
     private static final String gameName = "Peggle";
     private static JFrame mainWindow = null;
-    private static final String titleFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/titlecard.png";
-    private static final String iconFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/gameicon.png";
+    private static final String titleFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/titlecard.png";
+    private static final String iconFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/UI/gameicon.png";
 
 
 
