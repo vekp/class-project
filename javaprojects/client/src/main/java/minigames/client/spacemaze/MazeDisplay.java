@@ -1,73 +1,54 @@
 package minigames.client.spacemaze;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
-import java.util.Collections;
-
+import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
-import java.awt.Point;
-
-import java.util.List;
-import io.vertx.core.json.JsonArray;
-
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import java.awt.BorderLayout;
 import javax.swing.JLabel;
-import javax.swing.BoxLayout;
-import java.awt.Insets;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import javax.swing.JComponent;
-import javax.swing.Box;
-
-import io.vertx.core.json.JsonObject;
-import minigames.client.GameClient;
-import minigames.client.MinigameNetworkClient;
-import minigames.rendering.GameMetadata;
-import minigames.commands.CommandPackage;
+import javax.swing.JPanel;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;;
 
 /**
- *
+ * Class to display the maze, handle key input and do basic validation
+ * before letting the server know
  *
  * @authors Niraj Rana Bhat, Andrew McKenzie
  */
-public class MazeDisplay extends JPanel{
+public class MazeDisplay extends JPanel {
+
     private static final Logger logger = LogManager.getLogger(MazeDisplay.class);
-
-    JPanel mazePanel;
-    JPanel elementPanel;
     SpaceMaze spaceMaze;
-
-    JLabel countdownTimer;
-    JLabel score;
-
-    // The players position (if we go two player, does this work?)
     private Point playerPos;
+    private Point moveTo;
     private char[][] mazeMap;
+    int jPanelWidth = 800;
+    int jPanelHeight = 600;
+    int tileWidth;
+    int tileHeight;
 
     /**
      * Constructor for MazeDisplay
      * @param mazeArray a nested char array for the map of the maze
+     * @param spaceMaze a SpaceMaze object for sending commmands
      */
-    public MazeDisplay (char[][] mazeArray, Point playerStartPos, SpaceMaze spaceMaze) {
-        this.mazeMap = mazeArray;
-        this.playerPos = playerStartPos;
+    public MazeDisplay (char[][] mazeArray, SpaceMaze spaceMaze) {
         this.spaceMaze = spaceMaze;
-        mazePanel = new JPanel();
+        this.mazeMap = mazeArray;
+        this.playerPos = findPlayerPos(mazeArray);
+        this.moveTo = new Point(playerPos);
+        this.tileWidth = jPanelWidth / mazeMap[0].length;
+        this.tileHeight = jPanelHeight / mazeMap.length;
+        this.setLayout(new BorderLayout());
+        this.setPreferredSize(new Dimension(jPanelWidth, jPanelHeight));
 
         //Focus Listener for Logging purposes
-        mazePanel.addFocusListener(new FocusListener() {
+        this.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
                 logger.info("MazeDisplay gained focus.");
@@ -80,7 +61,7 @@ public class MazeDisplay extends JPanel{
         });
 
         //Action Listener
-        mazePanel.addKeyListener(new KeyListener() {
+        this.addKeyListener(new KeyListener() {
             @Override
             public void keyPressed(KeyEvent e) {
                 handleKeyPressed(e);
@@ -94,8 +75,6 @@ public class MazeDisplay extends JPanel{
             public void keyTyped(KeyEvent e) {
             }
         });
-
-
     }
 
     /**
@@ -104,8 +83,26 @@ public class MazeDisplay extends JPanel{
      */
     public void requestFocusInPanel(){
         //Have to set the focus on mazePanel inorder for the key presses to work
-        mazePanel.setFocusable(true);
-        mazePanel.requestFocusInWindow();
+        this.setFocusable(true);
+        this.requestFocusInWindow();
+    }
+
+    /**
+     * Called from SpaceMaze class when a command is received to updateMaze
+     * @param mazeMap char[][] of the current maze layout
+     */
+    public void updateMaze(char[][] mazeMap){
+        this.mazeMap = mazeMap;
+        repaint();
+    }
+
+    /**
+     * Called to update the recorded players postion in this MazeDisplay object
+     * So we don't have to keep calling findPlayerPos()
+     */
+    public void updatePlayerPos() {
+        this.playerPos.x = moveTo.x;
+        this.playerPos.y = moveTo.y;
     }
 
     /**
@@ -115,118 +112,117 @@ public class MazeDisplay extends JPanel{
     public void handleKeyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:
-                logger.info("Info KEYUP:");
+                logger.info("Info up:");
                 if (isMoveValid(getMazeMap(), "up")){
+                    updatePlayerPos();
+                    // These commands currently only tell the server where to move the player
                     spaceMaze.sendCommand("keyUp");
+                    // This is to get the server to send back the new maze array
+                    spaceMaze.sendCommand("updateMaze");
                 }
                 break;
             case KeyEvent.VK_DOWN:
-                    logger.info("Info Down:");
+                logger.info("Info Down:");
                 if (isMoveValid(getMazeMap(), "down")){
+                    updatePlayerPos();
                     spaceMaze.sendCommand("keyDown");
+                    spaceMaze.sendCommand("updateMaze");
                 }
                 break;
             case KeyEvent.VK_LEFT:
                 logger.info("Info left:");
                 if (isMoveValid(getMazeMap(), "left")){
+                    updatePlayerPos();
                     spaceMaze.sendCommand("keyLeft");
+                    spaceMaze.sendCommand("updateMaze");
                 }
                 break;
             case KeyEvent.VK_RIGHT:
                 logger.info("Info right:");
                 if (isMoveValid(getMazeMap(), "right")){
+                    updatePlayerPos();
                     spaceMaze.sendCommand("keyRight");
+                    spaceMaze.sendCommand("updateMaze");
                 }
+                break;
+        }
+        repaint();
+    }
+
+    /**
+     * Renders the maze, Using paintComponent now because it sounds better if we want to
+     * get more creative later. Also it's easy to update the display.
+     * @param g2 Graphics object
+     */
+    @Override
+    public void paintComponent(Graphics g2) {
+        super.paintComponent(g2);
+
+        for (int r = 0; r < mazeMap.length; r++) {
+            for (int c = 0; c < mazeMap[r].length; c++) {
+                charToImage(g2, r, c);
+                g2.fillRect(c * tileWidth, r * tileHeight, tileWidth, tileHeight);
+            }
+        }
+    }
+
+    /**
+     * For setting each tile in the maze to a Colour and later an image
+     * (Images will have to be loaded somewhere first)
+     * @param g2 Graphics object
+     * @param r row number
+     * @param c column number
+     */
+    public void charToImage(Graphics g2, int r, int c){
+        switch (mazeMap[r][c]) {
+            case 'W':
+                g2.setColor(Color.BLACK);
+                // "c * tileWidth" to give the top left corner pixel location
+                // Might have to adjust depending if the images are the same size as the grid tiles
+                //g2.drawImage(wallImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, this);
+                break;
+            case 'S':
+                g2.setColor(Color.GRAY);
+                //g2.drawImage(wallImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, this);
+                break;
+            case '.':
+                g2.setColor(Color.WHITE);
+                //g2.drawImage(pathImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, this);
+                break;
+            case 'K':
+                g2.setColor(Color.YELLOW);
+                //g2.drawImage(keyImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, this);
+                break;
+            case 'P':
+                g2.setColor(Color.BLUE);
+                //g2.drawImage(playerImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, this);
+                break;
+            case 'E':
+                g2.setColor(Color.RED);
+                //g2.drawImage(lockedExitImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, this);
+                break;
+            case 'U':
+                g2.setColor(Color.GREEN);
+                //g2.drawImage(unlockedExitImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, this);
                 break;
         }
     }
 
     /**
-     * Renders the maze
-     * @param mazeMap Nested char array to display as the maze
-     * @return Jpanel with the maze
+     * Method to find the player in the maze
+     * @param mazeMap char[][] of the maze layout
+     * @return a new point of the players position
      */
-    public JPanel mazePanel(char[][] mazeMap){
-
-        int jPanelWidth = 800;
-        int jPanelHeight = 600;
-
-        mazePanel.setPreferredSize(new Dimension(jPanelWidth, jPanelHeight));
-        mazePanel.setLayout(new GridBagLayout());
-
-        int tileWidth = jPanelWidth / mazeMap[0].length;
-        int tileHeight = jPanelHeight / mazeMap.length;
-
-        // Each Grid bag component associates an instance of this
-        GridBagConstraints gbc = new GridBagConstraints();
-
+    public Point findPlayerPos(char[][] mazeMap) {
         for (int r = 0; r < mazeMap.length; r++) {
             for (int c = 0; c < mazeMap[r].length; c++) {
-                JLabel mazeTile = new JLabel();
-                // Abstract this out at some point
-                switch(mazeMap[r][c]) {
-                    case 'W':
-                        mazeTile.setBackground(Color.BLACK);
-                        break;
-                    case '.':
-                        mazeTile.setBackground(Color.WHITE);
-                        break;
-                    case 'K':
-                        mazeTile.setBackground(Color.YELLOW);
-                        break;
-                    case 'P':
-                        mazeTile.setBackground(Color.BLUE);
-                        break;
-                    case 'E':
-                        mazeTile.setBackground(Color.RED);
-                        break;
-                    case 'U':
-                        mazeTile.setBackground(Color.GREEN);
-                        break;
+                if (mazeMap[r][c] == 'P') {
+                    return new Point(c, r);
                 }
-                mazeTile.setOpaque(true);
-                mazeTile.setPreferredSize(new Dimension(tileWidth, tileHeight));
-                gbc.gridx = c;
-                gbc.gridy = r;
-                mazePanel.add(mazeTile, gbc);
             }
         }
-        return mazePanel;
-    }
-
-    /**
-     * Panel below the maze for holding maze information
-     * @return Jpanel with components
-     */
-    public JPanel elementPanel(){
-        elementPanel = new JPanel();
-        elementPanel.setPreferredSize(new Dimension(800, 200));
-        elementPanel.setBackground(Color.BLACK);
-
-        //Dummy Timer display
-        countdownTimer = new JLabel("Time Remaning: 0");
-        countdownTimer.setForeground(Color.GREEN);
-        countdownTimer.setFont(new Font("Monospaced", Font.PLAIN, 18));
-        
-        //Dummy score display
-        score = new JLabel("Score: 0");
-        score.setForeground(Color.GREEN);
-        score.setFont(new Font("Monospaced", Font.PLAIN, 18));
-
-        elementPanel.add(countdownTimer);
-        elementPanel.add(score);
-
-        return elementPanel;
-    }
-
-    //Dummy Timer
-    public void updateTimer(int newTimer){
-        if(newTimer >= 0){
-            String myString = "Time Remaning: " + String.valueOf(newTimer);
-            countdownTimer.setText(myString);
-        } else {
-            countdownTimer.setText("Game Over!");
-        }
+        logger.info("No player found in the maze");
+        return null; // No player in the maze
     }
 
     /**
@@ -236,7 +232,7 @@ public class MazeDisplay extends JPanel{
         return this.mazeMap;
     }
 
-/**
+    /**
      * Method to check whether a move is valid
      * Used to save time by not sending invalid moves to the server
      * @param mazeMap char[][] of the maze
@@ -245,19 +241,7 @@ public class MazeDisplay extends JPanel{
      */
     public boolean isMoveValid(char[][] mazeMap, String direction) {
 
-        Point playerPos = new Point();
-        Point moveTo = new Point();
-
         boolean isWallOrExit = true;
-
-        for (int r = 0; r < mazeMap.length; r++) {
-            for (int c = 0; c < mazeMap[r].length; c++) {
-                if (mazeMap[r][c] == 'P') {
-                    playerPos.x = c;
-                    playerPos.y = r;
-                }
-            }
-        }
 
         switch(direction) {
             case "up":

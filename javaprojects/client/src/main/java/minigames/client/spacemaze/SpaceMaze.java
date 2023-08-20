@@ -3,9 +3,6 @@ package minigames.client.spacemaze;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import java.util.List;
 import io.vertx.core.json.JsonArray;
 import java.awt.Point;
@@ -67,12 +64,12 @@ public class SpaceMaze implements GameClient {
     //Main Container
     JLabel developerCredits;
 
-    JPanel mazePanel;
-    JPanel elementPanel;
+    // HUD
+    StatusBar statusBar;
 
+    // Maze
     MazeDisplay maze;
 
-    ClientControl controller;
     int time = 120;
 
     /**
@@ -170,11 +167,6 @@ public class SpaceMaze implements GameClient {
         mnClient.getMainWindow().pack();
     }
 
-    /**
-     *
-     * @param game
-     * @param command
-     */
     @Override
     public void execute(GameMetadata game, JsonObject command) {
         this.gm = game;
@@ -184,7 +176,26 @@ public class SpaceMaze implements GameClient {
             case "startGame" -> sendCommand("requestMaze");
             case "renderMaze" -> {
                 JsonArray serialisedArray = command.getJsonArray("mazeArray");
-                loadMaze(serialisedArray);
+                if (!serialisedArray.isEmpty()) {
+                    loadMaze(serialisedArray);
+                }
+            }
+            case "updateMaze" -> {
+                JsonArray serialisedArray = command.getJsonArray("mazeArray");
+                if (!serialisedArray.isEmpty()) {
+                    //Json array of strings to Java array of strings
+                    List<String> mazeList = serialisedArray.getList();
+                    char[][] mazeMap = deserialiseJsonMaze(mazeList);
+                    maze.updateMaze(mazeMap);
+                }
+            }
+            case "timer" -> {
+                String timeValue = command.getString("time");
+                logger.info("Received timer command with value: " + timeValue);
+                statusBar.updateTimer(command.getString("time"));
+            }
+            case "gameOver" -> {
+                statusBar.stopTimer();
             }
             case "viewHighScore" -> headerText.setText("View High Score");
             case "mainMenu" -> headerText.setText("Go to Main Menu");
@@ -192,48 +203,34 @@ public class SpaceMaze implements GameClient {
             
             //Update PLayer location in display maze.
             //case "movePlayerToHere" -> updatePlayerLocation(newLocation);
-
-            //case "updateTime" -> updateTime(); //Dummy Timer
         }
     }
 
-    //Method to update location of player in DisplayMaze? 
-    public void UpdatePlayerLocation(){
-        //Todo 
-    }
-
-    /**
-     *
-     */
     @Override
     public void closeGame() {
         // Nothing to do        
     }
 
     /**
-     *
-     * @param jsonArray
+     * Called for the intial maze setup
+     * @param jsonArray the maze sent from the server as a Json Object
      */
     public void loadMaze(JsonArray jsonArray){
-        //Start Dummy Timer
-        //startTimer();
-
         mnClient.getMainWindow().clearAll();
 
+        //Json array of strings to Java array of strings
         List<String> mazeList = jsonArray.getList();
+
         char[][] mazeMap = deserialiseJsonMaze(mazeList);
 
-        Point playerStartPos = new Point(1,0);
+        maze = new MazeDisplay(mazeMap, this);
+        statusBar = new StatusBar(this);
 
-        maze = new MazeDisplay(mazeMap, playerStartPos, this);
-        //controller = new ClientControl(maze, this);
-
-        mazePanel = maze.mazePanel(mazeMap);
-        elementPanel = maze.elementPanel();
-
-        mnClient.getMainWindow().addCenter(mazePanel);
-        mnClient.getMainWindow().addSouth(elementPanel);
+        mnClient.getMainWindow().addCenter(maze);
+        mnClient.getMainWindow().addSouth(statusBar.getStatusBar());
         mnClient.getMainWindow().pack();
+
+        statusBar.startTimer();
 
         maze.requestFocusInPanel();
     }
@@ -244,30 +241,14 @@ public class SpaceMaze implements GameClient {
      * @return char[][] mazeArray
      */
     private char[][] deserialiseJsonMaze(List<String> serialisedMaze) {
+        // Rows in the original array is size of the list of Strings
         int rows = serialisedMaze.size();
         char[][] mazeArray = new char[rows][];
+        // Converting each string into an array of chars
         for (int i = 0; i < rows; i++) {
             mazeArray[i] = serialisedMaze.get(i).toCharArray();
         }
         return mazeArray;
     }
-
-    /*
-    //Dummy Timer
-    public void updateTime(){
-        maze.updateTimer(time);
-        time-= 1;
-    }
-
-    public void startTimer(){
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                sendCommand("gameTimer");
-            }
-        }, 0, 1000);
-    }*/
-    
 }
 

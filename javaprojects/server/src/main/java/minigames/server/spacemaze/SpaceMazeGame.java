@@ -38,6 +38,7 @@ public class SpaceMazeGame {
         this.mazeControl = new MazeControl();
         this.player = new SpacePlayer(new Point(1,0));
         players.put(name, this.player);
+        mazeControl.playerEntersMaze(new Point(1,0));
     }
 
     // Players in this game
@@ -76,7 +77,6 @@ public class SpaceMazeGame {
             case "SCORE" -> renderingCommands.add(new JsonObject().put("command", "viewHighScore"));
             case "MENU"  -> renderingCommands.add(new JsonObject().put("command", "mainMenu"));
             case "EXIT" ->  renderingCommands.add(new JsonObject().put("command", "exit"));
-            case "gameTimer" -> renderingCommands.add(new JsonObject().put("command", "updateTime")); //Dummy Timer Request
 
             //Key Event Requests from client
             //case "keyUp" -> renderingCommands.add(new JsonObject().put("command", "movePlayerToHere")); //calculate and send new position of player to server??? 
@@ -86,14 +86,9 @@ public class SpaceMazeGame {
 
         }
 
-        // Temporarily sending the whole maze array back after key input
         if (commandString.startsWith("key")) {
             String keyPressed = commandString;
             processKeyInput(keyPressed, p);
-            JsonObject serializedMazeArray = new JsonObject()
-                    .put("command", "renderMaze")
-                    .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()));
-            renderingCommands.add(serializedMazeArray);
         }
 
         if (commandString.startsWith("requestMaze")) {
@@ -103,8 +98,18 @@ public class SpaceMazeGame {
             renderingCommands.add(serializedMazeArray);
         }
 
+        // Temporarily sending the whole maze array back after key input
+        if (commandString.startsWith("updateMaze")) {
+            JsonObject serializedMazeArray = new JsonObject()
+                    .put("command", "updateMaze")
+                    .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()));
+            renderingCommands.add(serializedMazeArray);
+        }
+
         if (commandString.startsWith("gameTimer")) {
-            // TODO
+            String currentTime = mazeControl.mazeTimer.getCurrentTime();
+            renderingCommands.add(new JsonObject().put("command", "timer")
+                    .put("time", currentTime));
         }
 
         return new RenderingPackage(this.gameMetadata(), renderingCommands);
