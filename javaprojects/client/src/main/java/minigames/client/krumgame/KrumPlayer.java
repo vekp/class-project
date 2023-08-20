@@ -2,10 +2,6 @@ package minigames.client.krumgame;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 import java.lang.Math;
 import java.util.ArrayList;
@@ -120,6 +116,8 @@ public class KrumPlayer {
     int playerIndex;
 
     int empty[];
+
+    KrumJoey joey;
     
     /**
      * 
@@ -131,7 +129,7 @@ public class KrumPlayer {
      * @param direction     true = pleyer faces right at beginning of fame
      * @param level         alpha raster of level
      */
-    KrumPlayer(int xpos, int ypos, String spriteFileName, int panelX, int panelY, boolean direction, WritableRaster level, int index) {
+    KrumPlayer(int xpos, int ypos, String spriteFileName, int panelX, int panelY, boolean direction, WritableRaster level, int index, KrumPlayer[] players) {
         this.levelRaster = level;
         topEdgeLeft = -1;
         topEdgeRight = -1;
@@ -148,6 +146,10 @@ public class KrumPlayer {
         this.active = false;
         this.aimAngleRadians = 0;
         this.hp = 100;
+
+        BufferedImage joeySprite = KrumHelpers.readSprite("joey.png");
+
+        joey = new KrumJoey(0,0,0,0,8,joeySprite,level,0);
         
         // Reading sprites
         projectileSprite = KrumHelpers.readSprite("carrot_s.png");
@@ -421,7 +423,10 @@ public class KrumPlayer {
         }
         if (grenade != null) {
             grenade.update(windX, windY);
-        }        
+        }       
+        if (joey.active) {
+            joey.update(tick);
+        } 
         if (leftKeyDownNextFrame && !leftKeyDown) {
             if (!airborne && !onRope) {
                 walking = true;                
@@ -947,7 +952,8 @@ public class KrumPlayer {
 
     void enterKeyPressed() {
         if (onRope) {
-            projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(aimAngleRadians) * KrumC.psd), xvel, yvel, projectileSprite, levelRaster);
+            //projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(aimAngleRadians) * KrumC.psd), xvel, yvel, projectileSprite, levelRaster);
+            joey.spawn(playerCentre().x - joey.sprite.getWidth() / 2,playerCentre().y - joey.sprite.getHeight() / 2,xvel + 1 * (facingRight ? 1 : -1), yvel - 1, tick, facingRight);
             lastShotTime = System.nanoTime();
         }
     }
@@ -970,7 +976,7 @@ public class KrumPlayer {
 
     void shootGrenade(long power) {
         power /= 100000000; 
-        grenade = new KrumGrenade((int)(xpos + sprite.getWidth()/2 + Math.cos(grenadeAimAngle) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(grenadeAimAngle) * KrumC.psd), Math.cos(grenadeAimAngle) * power + xvel, Math.sin(grenadeAimAngle) * power * -1 + yvel, grenadeSeconds, grenadeSprite, levelRaster);
+        grenade = new KrumGrenade((int)(xpos + sprite.getWidth()/2 + Math.cos(grenadeAimAngle) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(grenadeAimAngle) * KrumC.psd), Math.cos(grenadeAimAngle) * power + xvel, Math.sin(grenadeAimAngle) * power * -1 + yvel, grenadeSeconds, grenadeSprite, levelRaster, tick);
         lastGrenadeShotTime = System.nanoTime();
     }
 

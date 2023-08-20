@@ -59,6 +59,8 @@ public class KrumGame implements GameClient {
     KrumTurn[] savedTurns;
     KrumTurn currentTurn;
 
+    ArrayList<ExplosionDetails> explosions;
+
     public KrumGame() {        
         background = KrumHelpers.readSprite("chameleon.png");
         background = KrumHelpers.readSprite("ropetestmap.png");
@@ -72,13 +74,29 @@ public class KrumGame implements GameClient {
         windString = "Wind: left 2.00";
         firstRun = true;
         players = new KrumPlayer[2];
-        players[0] = new KrumPlayer(235, 0, "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, true, alphaRaster, 0);
-        players[1] = new KrumPlayer(600, 0, "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, false, alphaRaster, 1);
+        players[0] = new KrumPlayer(235, 0, "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, true, alphaRaster, 0, players);
+        players[1] = new KrumPlayer(600, 0, "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, false, alphaRaster, 1, players);
+        players[0].joey.otherPlayer = players[1];
+        players[1].joey.otherPlayer = players[0];
         playerTurn = 0;
         updateCount = 0;
         savedTurns = new KrumTurn[] {new KrumTurn(players, background, windX, windY, updateCount), new KrumTurn(players, background, windX, windY, updateCount)};       
         currentTurn = savedTurns[playerTurn];
+        explosions = new ArrayList<ExplosionDetails>();
         startTurn();
+    }
+
+    class ExplosionDetails {
+        int x;
+        int y;
+        long endFrame;
+        int radius;
+        ExplosionDetails(int x,int y, long f, int r){
+            this.x = x;
+            this.y = y;
+            this.endFrame = f;
+            this.radius = r;
+        }
     }
 
     void startTurn() {
@@ -127,7 +145,9 @@ public class KrumGame implements GameClient {
             if (!players[i].onRope) {
                 players[i].airborne = true;                
             }                       
-        }      
+        }  
+        ExplosionDetails newex = new ExplosionDetails(x, y, updateCount + 10, p.explosionRadius);            
+        explosions.add(newex);
     }
 
     void setGameState(KrumGameState state) {
@@ -237,13 +257,26 @@ public class KrumGame implements GameClient {
                 }
             }
             if (p.grenade != null) {
-                if (p.grenade.timerCheck()) {
+                if (p.grenade.timerCheck(updateCount)) {
                     System.out.println("EX");
-                    if (KrumHelpers.distanceBetween(p.grenade.x, p.grenade.y, p.xpos, p.ypos) <= p.grenade.explosionRadius) {
-                        p.hit();
+                    for (KrumPlayer pl : players) {
+                        if (KrumHelpers.distanceBetween(p.grenade.x, p.grenade.y, pl.playerCentre().x, pl.playerCentre().y) <= p.grenade.explosionRadius) {
+                            pl.hit();
+                        }
                     }
                     explode((int)p.grenade.x, (int)p.grenade.y, p.grenade);
                     p.grenade = null;
+                }
+            }
+            if (p.joey.active) {
+                if (p.joey.timerCheck(updateCount)) {
+                    for (KrumPlayer pl : players) {
+                        if (KrumHelpers.distanceBetween(p.joey.xpos, p.joey.ypos, pl.playerCentre().x, pl.playerCentre().y) <= p.joey.explosionRadius) {
+                            pl.hit();
+                        }
+                    }
+                    explode((int)p.joey.xpos, (int)p.joey.ypos, p.joey);
+                    p.joey.active = false;
                 }
             }
         }   
@@ -264,6 +297,7 @@ public class KrumGame implements GameClient {
             p.draw(g);
             if (p.projectile != null) p.projectile.draw(g);
             if (p.grenade != null) p.grenade.draw(g);
+            if (p.joey.active) p.joey.draw(g);
         }        
         g.setColor(Color.red);
         if (windX > 0) g.setColor(Color.blue);        
@@ -283,6 +317,13 @@ public class KrumGame implements GameClient {
         if (playingBackTurn) {
             g.setColor(Color.gray);
             g.drawString("REPLAY", 325, 60);
+        }
+        g.setColor(Color.red);
+        for (ExplosionDetails e : explosions) {
+            int r = e.radius - (int)(e.endFrame - updateCount) / 2;
+            g.fillOval(e.x -r, e.y - r, r * 2, r * 2);
+            if (updateCount >= e.endFrame)
+                explosions.remove(e);
         }
     }
 

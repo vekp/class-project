@@ -2,22 +2,17 @@ package minigames.client.krumgame;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 public class KrumGrenade extends KrumProjectile {
-    long explosionTime;
-    KrumGrenade(int xpos, int ypos, double xvel, double yvel, int seconds, BufferedImage sprite, WritableRaster ground) {
+    long explosionTick;
+    KrumGrenade(int xpos, int ypos, double xvel, double yvel, int seconds, BufferedImage sprite, WritableRaster ground, long tick) {
         super(xpos, ypos, xvel, yvel, sprite, ground);        
         knockbackDistance = 60;
         knockbackPower = 7.5;
         radius = (int)(sprite.getWidth() / 2);        
         explosionRadius = 40;    
-        System.out.println(System.nanoTime());
-        explosionTime = System.nanoTime() + (long)seconds * 1000000000;    
-        System.out.println(explosionTime);
-        System.out.println(seconds);
-        System.out.println("r: " + radius);
+        explosionTick = tick + (long)seconds * KrumC.TARGET_FRAMERATE;
     }
     @Override
     void update(double windX, double windY) {
@@ -33,15 +28,11 @@ public class KrumGrenade extends KrumProjectile {
             int inc = Math.abs(Math.max((int)xvel, (int)yvel));
             inc++;
             int i = inc;
-            // System.out.println(x + ", " + y);
             while(collisionCheck() && i > 0) {
                 x -= xvel / inc;
                 y -= yvel / inc;
                 i--;
             }
-            // System.out.println(x + ", " + y);
-            // if (collisionCheck())
-            //     System.out.println("still colliding");
             x += xvel / inc;
             y += yvel / inc;
             double e[] = {0};
@@ -66,32 +57,23 @@ public class KrumGrenade extends KrumProjectile {
                 System.out.println("no collision points");                
                 return;
             }
-            //System.out.println("collision points");
             for (int[] p : collisionPoints) {
-                //System.out.println("collision point: " + p[0] + ", " + p[1]);
                 xt += p[0];
                 yt += p[1];
             }            
             double xav = xt / collisionPoints.size();
             double yav = yt / collisionPoints.size();
-            //System.out.println("av: " + xav + ", " + yav + "; " + (xav - x) + ", " + (yav - y));
             double revVelAngle = Math.atan2(yvel, -xvel);
             double bounceAngle = KrumHelpers.angleBetween(xav, yav, (int)x, (int)y);
-            //System.out.println("reflecting around " + bounceAngle);
             double velMag = Math.sqrt(xvel * xvel + yvel * yvel) * KrumC.GRENADE_BOUNCE_FACTOR;
             bounceAngle += (bounceAngle - revVelAngle);
             x -= xvel / inc;
             y -= yvel / inc;
             xvel = Math.cos(bounceAngle) * velMag;
             yvel = Math.sin(bounceAngle) * -velMag;
-            // if (collisionCheck())
-            //     System.out.println("colliding at end");
-            //System.out.println("ga " + bounceAngle + ", " + velAngle + ", " + (bounceAngle - velAngle));
-            //System.out.println("gren: " + x + ", " + y);
         }
     }
-    boolean timerCheck() {
-        //System.out.println("timertest: " + System.nanoTime());
-        return System.nanoTime() >= explosionTime;
+    boolean timerCheck(long tick) {
+        return tick >= explosionTick;
     }
 }
