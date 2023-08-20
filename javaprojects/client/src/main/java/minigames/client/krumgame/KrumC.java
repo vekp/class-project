@@ -6,9 +6,11 @@ package minigames.client.krumgame;
  */
 public class KrumC {
 
-    static final String projectDir = System.getProperty("user.dir");
+    // static final String projectDir = System.getProperty("user.dir");
 
-    static final String imgDir = projectDir + "/src/main/java/minigames/client/krumgame/";
+    // static final String imgDir = projectDir + "/src/main/java/minigames/client/krumgame/";
+
+    static final String imgDir = "krumgame/";
 
     static final int TARGET_FRAMERATE = 60;
     static final long TARGET_FRAMETIME = 1000000000 / TARGET_FRAMERATE; // nanoseconds

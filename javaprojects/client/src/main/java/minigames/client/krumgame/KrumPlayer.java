@@ -132,24 +132,6 @@ public class KrumPlayer {
      * @param level         alpha raster of level
      */
     KrumPlayer(int xpos, int ypos, String spriteFileName, int panelX, int panelY, boolean direction, WritableRaster level, int index) {
-        File spriteFile = new File(KrumC.imgDir + "carrot_s.png");
-        try {
-            projectileSprite = ImageIO.read(spriteFile);
-        }
-        catch (IOException e) {
-            System.out.println("error reading sprite image");
-            System.err.println(e.getMessage());
-            e.printStackTrace();
-        }
-        spriteFile = new File(KrumC.imgDir + "grenade.png");
-        try {
-            grenadeSprite = ImageIO.read(spriteFile);
-        }
-        catch (IOException e) {
-            System.out.println("error reading sprite image");
-            System.err.println(e.getMessage());
-            e.printStackTrace();
-        }
         this.levelRaster = level;
         topEdgeLeft = -1;
         topEdgeRight = -1;

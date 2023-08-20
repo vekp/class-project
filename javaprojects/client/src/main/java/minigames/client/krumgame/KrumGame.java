@@ -58,16 +58,8 @@ public class KrumGame implements GameClient {
     //KrumTurn savedTurn;
 
     public KrumGame() {        
-        File backgroundFile = new File(KrumC.imgDir + "chameleon.png");
-        backgroundFile = new File(KrumC.imgDir + "ropetestmap.png");
-        try {
-            background = ImageIO.read(backgroundFile);
-        }
-        catch (IOException e) {
-            System.out.println("error reading background image");
-            System.err.println(e.getMessage());
-            e.printStackTrace();                     
-        }
+        background = KrumHelpers.readSprite("chameleon.png");
+        background = KrumHelpers.readSprite("ropetestmap.png");
         alphaRaster = background.getAlphaRaster();
         panel = new KrumPanel(this);
         panel.setPreferredSize(panel.getPreferredSize());

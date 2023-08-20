@@ -66,7 +66,7 @@ public class KrumGrenade extends KrumProjectile {
                 System.out.println("no collision points");                
                 return;
             }
-            System.out.println("collision points");
+            //System.out.println("collision points");
             for (int[] p : collisionPoints) {
                 //System.out.println("collision point: " + p[0] + ", " + p[1]);
                 xt += p[0];

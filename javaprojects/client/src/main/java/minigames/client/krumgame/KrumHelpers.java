@@ -3,6 +3,8 @@ package minigames.client.krumgame;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+
 import javax.imageio.ImageIO;
 
 public class KrumHelpers {
@@ -33,13 +35,13 @@ public class KrumHelpers {
      * @params: String fileName: image file name
      * @return: BufferedImage
      */
-    static BufferedImage readSprite(String fileName){
-        File spriteFile = new File(KrumC.imgDir + fileName);
-
+    static BufferedImage readSprite(String fileName){               
         try{
-            return ImageIO.read(spriteFile);
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            InputStream is = cl.getResourceAsStream(KrumC.imgDir + fileName);
+            return ImageIO.read(is);
         }catch (IOException e){
-            System.out.println("error reading sprite image" + fileName);
+            System.out.println("error reading sprite image" + KrumC.imgDir + fileName);
             System.out.println(e.getMessage());
             e.printStackTrace();
             System.exit(1);
