@@ -15,7 +15,7 @@ public class InGameUI extends JPanel {
     int hoverX = -1;
     int hoverY = -1;
     //InGameUI Background image
-    private static final String backgroundImagePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/UI/InGameBackground.png";
+    private static final String backgroundImagePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/UI/gameBG.png";
     private ImageIcon backgroundImage = new ImageIcon(backgroundImagePath);
     //Instance of the Cannon class
     private Cannon cannon;
