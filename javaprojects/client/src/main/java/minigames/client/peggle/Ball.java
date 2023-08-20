@@ -1,3 +1,5 @@
+package minigames.client.peggle;
+
 import java.awt.image.BufferedImage;
 import java.awt.Graphics;
 import java.io.File;
@@ -7,7 +9,7 @@ import javax.imageio.ImageIO;
 
 public class Ball {
 
-    private float x, y, deltax, deltay, speed, size;
+    private float x, y, deltax, deltay, speed;
 
     public Ball(float x, float y, float deltax, float deltay, float speed, float size) {
         this.x = x;
@@ -15,7 +17,6 @@ public class Ball {
         this.deltax = deltax;
         this.deltay = deltay;
         this.speed = speed;
-        this.size = size;
     }
 
     // Method for drawing a ball instance to screen
