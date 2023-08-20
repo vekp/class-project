@@ -7,7 +7,6 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
@@ -62,10 +61,12 @@ public class Battleship implements GameClient {
         achievementButton = new JButton("Achv");
         achievementButton.addActionListener(e -> mnClient.getGameAchievements(player, gm.gameServer()));
         achievementButton.setFont(fonts.get(1));
-        menuButton.setForeground(Color.decode(fgColour));
-        menuButton.setBackground(Color.decode(bgColour));
-        achievementButton.setForeground(Color.decode(fgColour));
-        achievementButton.setBackground(Color.decode(bgColour));
+
+        for (JButton b : new JButton[] {menuButton, achievementButton}) b.setBorder((
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(Color.decode("#6e8690")),
+                        BorderFactory.createEmptyBorder(5, 15, 5, 15)
+                )));
 
         title = new JLabel("< BattleShip >");
         title.setFont(fonts.get(0));
@@ -149,7 +150,7 @@ public class Battleship implements GameClient {
 
         // Set colours for all panels
         for (Component c : new Component[] {mainPanel, heading, title, currentPlayerName, nauticalMap, nauticalText,
-                targetMap, targetText, maps, messages, commandTerminal, userCommand}) {
+                targetMap, targetText, maps, messages, commandTerminal, userCommand, menuButton, achievementButton}) {
             c.setForeground(Color.decode(fgColour));
             c.setBackground(Color.decode(bgColour));
         }
