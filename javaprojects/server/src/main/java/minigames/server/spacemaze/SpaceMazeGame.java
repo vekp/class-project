@@ -148,6 +148,8 @@ public class SpaceMazeGame {
      * @param player the player that sent the key
      */
     private void processKeyInput(String keyPressed, SpacePlayer player) {
+        // This all needs cleaned up, very repetitive! ... But it works
+        player.updateLocation(mazeControl.getPlayerLocationInMaze(player));
 
         // Point locations to check
         Point ploc = new Point(player.getLocation());
