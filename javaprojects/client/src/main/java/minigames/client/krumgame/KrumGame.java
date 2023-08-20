@@ -94,7 +94,8 @@ public class KrumGame implements GameClient {
     }
 
     void endTurn() {
-        players[playerTurn].stop();
+        for (KrumPlayer p : players)
+            p.stop();
         recordingTurn = false;
         currentTurn.endState = new KrumGameState(players, background, windX, windY, updateCount);
         playerTurn = 1 - playerTurn;        
