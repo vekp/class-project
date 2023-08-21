@@ -9,8 +9,10 @@ import java.util.Random;
  */
 
 public class SpaceBot extends SpaceEntity {
+    private char tile;
     public SpaceBot(Point startLocation) {
         super(startLocation);
+        this.tile = '.';
     }
 
     /*
@@ -64,4 +66,13 @@ public class SpaceBot extends SpaceEntity {
 
         return moveAttempt;
     }
+    // Way for the bot to record what it is standing on (key,power up etc)
+    public void updateTile(char t) {
+        tile = t;
+    }
+
+    public char getTile() {
+        return tile;
+    }
+
 }
