@@ -9,20 +9,15 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
-import java.io.File;
-import java.io.IOException;
 import io.vertx.core.json.JsonObject;
 import java.util.Random;
-import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
 import minigames.rendering.GameMetadata;
 import minigames.commands.CommandPackage;
-import java.awt.image.ColorModel;
 
 import java.awt.geom.Point2D;
 
@@ -92,6 +87,9 @@ public class KrumGame implements GameClient {
         startTurn();
     }
 
+    /*
+     * Represents the details of an explosion, for use in the draw loop
+     */
     class ExplosionDetails {
         int x;
         int y;
@@ -105,6 +103,9 @@ public class KrumGame implements GameClient {
         }
     }
 
+    /*
+     * Called to start a new turn, shifting control to the other player
+     */
     void startTurn() {
         System.out.println("Start turn");
         windX = (rand.nextDouble() - 0.5) / 10;
@@ -118,6 +119,11 @@ public class KrumGame implements GameClient {
         turnOver = false;
     }
 
+    /*
+     * Called when turn time has expired. Next turn won't be started until
+     * projectiles have exploded or fallen off the bottom of the screen, and 
+     * players are no longer airborne.
+     */
     void endTurn() {
         for (KrumPlayer p : players)
             p.stop();
@@ -159,6 +165,9 @@ public class KrumGame implements GameClient {
         explosions.add(newex);
     }
 
+    /*
+     * Loads state from a KrumGameState object
+     */
     void setGameState(KrumGameState state) {
         alphaRaster.setDataElements(0,0,background.getWidth(),background.getHeight(),state.pixelMatrix);
         updateCount = state.startTick;
@@ -217,7 +226,6 @@ public class KrumGame implements GameClient {
      * Called once per frame to update game state
      */
     void update() {
-        // KrumInputFrame thisFrame = new KrumInputFrame();
         if (playBackTurn) {
             playingBackTurn = true;
             recordingTurn = false;
@@ -237,7 +245,6 @@ public class KrumGame implements GameClient {
             KrumTurn rt = null;
             if (p.playerIndex == playerTurn && recordingTurn) {
                 rt = currentTurn;
-                //System.out.println("recording " + currentTurn);
             }  
             if (playingBackTurn) {
                 if (playBackFrame >= currentTurn.frames.size()) {
@@ -297,13 +304,8 @@ public class KrumGame implements GameClient {
                     readyToStartTurn = false;
                 else if (p.airborne)
                     readyToStartTurn = false;
-            }
-            
+            }            
         }   
-        // if (recordingTurn) {
-        //     System.out.println(currentTurn.frames.size());
-        //     System.out.println(currentTurn.frames.get(currentTurn.frames.size() - 1).leftKeyDown);
-        // }   
         updateCount++;
         if (turnOver) {
             if (readyToStartTurn || updateCount - turnOverFrame > MAX_TURN_GAP_FRAMES)
@@ -354,8 +356,7 @@ public class KrumGame implements GameClient {
             if (updateCount >= e.endFrame) {
                 explosions.remove(e);
                 i--;
-            }
-                
+            }                
         }
     }
 
@@ -428,12 +429,6 @@ public class KrumGame implements GameClient {
         else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
             players[playerTurn].downArrowKeyDownNextFrame = true;
         }
-        // else if (e.getKeyCode() == KeyEvent.VK_S) {
-        //     startRecordingTurn = true;
-        // }
-        // else if (e.getKeyCode() == KeyEvent.VK_F) {
-        //     stopRecordingTurn = true;
-        // }
         else if (e.getKeyCode() == KeyEvent.VK_R) {
             playBackTurn = true;
         }

@@ -1,5 +1,9 @@
 package minigames.client.krumgame;
 
+/*
+ * The state of all player inputs at an update tick
+ */
+
 public class KrumInputFrame {
     int activePlayer;
     long frameCount;

@@ -17,6 +17,10 @@ import java.awt.geom.Point2D;
 
 import java.awt.Color;
 
+/*
+ * Class representing a player-controlled character
+ */
+
 public class KrumPlayer {
     int hp;
     double xpos;

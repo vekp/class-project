@@ -5,7 +5,10 @@ import java.awt.image.BufferedImage;
 
 import java.awt.image.WritableRaster;
 
-
+/**
+ * This class represents the projectile fired by the bazooka. 
+ * Other projectile types extend this class.
+ */
 public class KrumProjectile {
     double x;
     double y;
@@ -43,6 +46,10 @@ public class KrumProjectile {
         this.x += xvel;
         this.y += yvel;
     }
+    /**
+     * tests for collision with level
+     * @return true if collision
+     */
     boolean collisionCheck() {
         double z[] = {0};
         if (y >= ground.getHeight()) return true;
@@ -63,6 +70,12 @@ public class KrumProjectile {
         }
         return false;
     }
+
+    /**
+     * Tests for collision between projectile and player
+     * @param   players
+     * @return  index of player collided with, or -1 if no collision
+     */
     int playerCollisionCheck(KrumPlayer players[]){
         int n = -1;
         double z[] = {0};

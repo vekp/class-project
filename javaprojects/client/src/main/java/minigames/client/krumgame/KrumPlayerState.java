@@ -3,6 +3,10 @@ package minigames.client.krumgame;
 import java.util.ArrayList;
 import java.awt.geom.Point2D;
 
+/**
+ * Class representing the state of a KrumPlayer at one instant
+ */
+
 public class KrumPlayerState {
     int hp;
     double xpos;

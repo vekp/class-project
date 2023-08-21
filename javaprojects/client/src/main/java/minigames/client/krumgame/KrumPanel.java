@@ -14,6 +14,9 @@ import java.awt.Graphics2D;
 import java.awt.KeyboardFocusManager;
 import java.awt.KeyEventDispatcher;
 
+/**
+ * The panel containing our game
+ */
 public class KrumPanel extends JPanel {
     KrumGame game;
     public KrumPanel(KrumGame g) {

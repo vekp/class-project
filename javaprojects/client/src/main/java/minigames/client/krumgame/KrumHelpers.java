@@ -1,17 +1,23 @@
 package minigames.client.krumgame;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
+
+/*
+ * Functions to be used in more than one class
+ */
 
 public class KrumHelpers {
     static double distanceBetween(double ax, double ay, double bx, double by) {
         return Math.sqrt((ax - bx)*(ax-bx)+(ay-by)*(ay-by));
     }
 
+    /**
+     * @return angle in radians of the line from (ax,ay) to (bx,by)
+     */
     static double angleBetween(double ax, double ay, double bx, double by) {
         return Math.atan2(ay - by, bx - ax);
     }

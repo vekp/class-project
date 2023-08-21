@@ -1,11 +1,11 @@
 package minigames.client.krumgame;
 
-import java.awt.image.WritableRaster;
 import java.util.ArrayList;
-import java.util.Random;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
 
+/**
+ * Class representing the state of a game at one instant
+ */
 public class KrumGameState {
     ArrayList<KrumPlayerState> playerStates;
     Object pixelMatrix;

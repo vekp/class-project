@@ -6,7 +6,24 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.Graphics2D;
 
+/*
+ * Joey bounces along, changing direction when it hits a wall. After a brief
+ * delay, proximity to the enemy player makes the joey explode very soon.
+ * Otherwise it explodes when its timer runs out.
+ */
+
 public class KrumJoey extends KrumProjectile {
+    final int PROXIMITY_THRESHOLD = 60; // distance from oppoent (in pixels) at which proximity explosion is triggered
+    final int PROXIMITY_DELAY = 32; // delay (in frames) between proximity explosion being triggered and actual explosion
+    final int PROXIMITY_BEGIN = 90; // delay (in frames after launch) before proximity explosion can be triggered
+    final int HITBOX_X_S = 5;
+    final int HITBOX_X_F = 17;
+    final int HITBOX_Y_S = 0;
+    final int HITBOX_Y_F = 19;
+    final double KNOCKBACK_DISTANCE = 75;
+    final double KNOCKBACK_POWER = 8;
+    final int EXPLOSION_RADIUS = 50;
+    final int TIMER_SECONDS = 6;
     long explosionTick;
     long startTick;
     double jumpPower = 3;
@@ -23,17 +40,10 @@ public class KrumJoey extends KrumProjectile {
     int bottomEdgeFlipped[];
     int topEdgeLeft, topEdgeRight, bottomEdgeLeft, bottomEdgeRight, leftEdgeBottom, leftEdgeTop, rightEdgeBottom, rightEdgeTop;
     WritableRaster levelRaster;
-    WritableRaster alphaRaster;
-    final int HITBOX_X_S = 5;
-    final int HITBOX_X_F = 17;
-    final int HITBOX_Y_S = 0;
-    final int HITBOX_Y_F = 19;
+    WritableRaster alphaRaster;    
     boolean firstJumpFrame;
     boolean deferredLanding;
-    boolean active;
-    final int PROXIMITY_THRESHOLD = 60;
-    final int PROXIMITY_DELAY = 32;
-    final int PROXIMITY_BEGIN = 90;
+    boolean active;    
     boolean flash;
     long currentTick;
     KrumJoey(int xpos, int ypos, double xvel, double yvel, int seconds, BufferedImage sprite, WritableRaster ground, long tick) {
@@ -42,10 +52,10 @@ public class KrumJoey extends KrumProjectile {
         this.facingRight = true;
         this.xpos = xpos;
         this.ypos = ypos;
-        knockbackDistance = 75;
-        knockbackPower = 8;
-        explosionRadius = 50; 
-        explosionTick = tick + KrumC.TARGET_FRAMERATE * 5;
+        knockbackDistance = KNOCKBACK_DISTANCE;
+        knockbackPower = KNOCKBACK_POWER;
+        explosionRadius = EXPLOSION_RADIUS; 
+        explosionTick = tick + KrumC.TARGET_FRAMERATE * TIMER_SECONDS;
         topEdgeLeft = -1;
         topEdgeRight = -1;
         bottomEdgeLeft = -1;
@@ -192,7 +202,12 @@ public class KrumJoey extends KrumProjectile {
             topEdgeFlipped[i] = topEdge[topEdge.length - 1 - i];
             bottomEdgeFlipped[i] = bottomEdge[bottomEdge.length - 1 - i];
         }
-    }    
+    } 
+
+    /**
+     * 
+     * @return  True if joey overlaps any level pixels
+     */
     boolean nonDirectionalCollisionCheck() {
         for (int x = HITBOX_X_S; x <= HITBOX_X_F; x++) {
             if (x + xpos < 0) continue;
@@ -202,7 +217,6 @@ public class KrumJoey extends KrumProjectile {
                 if (y + ypos >= levelRaster.getHeight()) break;
                 if (alphaRaster.getPixel(x, y, empty)[0] > KrumC.OPACITY_THRESHOLD) {
                     if (levelRaster.getPixel((int)(x + xpos), (int)(y + ypos), empty)[0] > KrumC.OPACITY_THRESHOLD) {
-                        //System.out.println(x + ", " + y + "; " + (int)(x + xpos) + ", " + (int)(y + ypos));
                         return true;
                     }
                 }
@@ -210,13 +224,22 @@ public class KrumJoey extends KrumProjectile {
         }
         return false;
     }
+    /**
+     * Called when player launches a joey
+     * @param xpos
+     * @param ypos
+     * @param xvel
+     * @param yvel
+     * @param tick
+     * @param facingRight
+     */
     void spawn(double xpos, double ypos, double xvel, double yvel, long tick, boolean facingRight){
         this.xvel = xvel;
         this.yvel = yvel;
         exploding = false;   
         this.xpos = xpos;
         this.ypos = ypos;
-        explosionTick = tick + KrumC.TARGET_FRAMERATE * 5;
+        explosionTick = tick + KrumC.TARGET_FRAMERATE * TIMER_SECONDS;
         this.active = true;
         this.setDirection(facingRight, levelRaster);
         this.currentTick = tick;
@@ -228,12 +251,9 @@ public class KrumJoey extends KrumProjectile {
         if (!flash || currentTick % 4 < 2) {
             g.drawImage(sprite, null, (int)xpos, (int)ypos);
         }        
-        //System.out.println(xpos + ypos);
     }
     void update(long tick) {
         this.currentTick = tick;
-        double oldx = xpos;
-        double oldy = ypos;
         yvel += KrumC.GRAVITY;
         yvel *= KrumC.AIR_RES_FACTOR;
         xvel *= KrumC.AIR_RES_FACTOR;
@@ -279,15 +299,7 @@ public class KrumJoey extends KrumProjectile {
         if ((l && xvel < 0) || (r && xvel > 0)) {                
             xvel = -xvel;
             setDirection(!facingRight, levelRaster);
-        }
-        // if ((l && xvel < 0) || (r && xvel > 0)) {
-        //     double mag = Math.max(Math.abs(xvel) * -0.1, 0.2);
-        //     xvel = xvel > 0 ? -mag : mag;
-        //     if (land && !deferredLanding) {
-        //         land = false;   
-        //         deferredLanding = true;
-        //     }               
-        // }            
+        }         
         if (ud && (land || !deferredLanding)) {
             yvel = 0;
         }
@@ -295,14 +307,11 @@ public class KrumJoey extends KrumProjectile {
             yvel = 0;
             jump();
         }
-
         if (!flash && KrumHelpers.distanceBetween(xpos + sprite.getWidth() / 2, ypos + sprite.getHeight() / 2, otherPlayer.playerCentre().x, otherPlayer.playerCentre().y) < PROXIMITY_THRESHOLD) {
             if (currentTick - startTick > PROXIMITY_BEGIN) {
                 explosionTick = Math.min(explosionTick, tick + PROXIMITY_DELAY);
                 flash = true;
-            }
-            
-            
+            }           
         }
     }
     void setDirection(boolean right, WritableRaster levelRaster) {

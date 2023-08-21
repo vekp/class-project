@@ -3,6 +3,11 @@ package minigames.client.krumgame;
 import java.util.ArrayList;
 import java.awt.image.BufferedImage;
 
+/*
+ * Class representing a complete turn (for sending between client and server, 
+ * and executing with the same results as the original turn).
+ */
+
 public class KrumTurn {
     ArrayList<KrumInputFrame> frames;
     KrumGameState startState;
@@ -14,12 +19,6 @@ public class KrumTurn {
         endState = null;
         this.background = background;
     }
-    // KrumTurn(KrumTurn other) {
-    //     frames = new ArrayList<KrumInputFrame>(other.frames);
-    //     startState = other.startState;
-    //     endState = other.endState;
-    //     background = other.background;
-    // }
     void addFrame(KrumInputFrame f) {
         frames.add(f);
     }

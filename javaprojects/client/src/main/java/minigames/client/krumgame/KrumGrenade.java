@@ -4,14 +4,21 @@ import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
 
+/**
+ * A projectile that bounces off the level, and explodes after its timer runs 
+ * out.
+ */
 public class KrumGrenade extends KrumProjectile {
-    long explosionTick;
+    static double KNOCKBACK_DISTANCE = 60;
+    static double KNOCKBACK_POWER = 7.5;
+    static int EXPLOSION_RADIUS = 40;
+    long explosionTick; 
     KrumGrenade(int xpos, int ypos, double xvel, double yvel, int seconds, BufferedImage sprite, WritableRaster ground, long tick) {
         super(xpos, ypos, xvel, yvel, sprite, ground);        
-        knockbackDistance = 60;
-        knockbackPower = 7.5;
+        knockbackDistance = KNOCKBACK_DISTANCE;
+        knockbackPower = KNOCKBACK_POWER;
         radius = (int)(sprite.getWidth() / 2);        
-        explosionRadius = 40;    
+        explosionRadius = EXPLOSION_RADIUS;    
         explosionTick = tick + (long)seconds * KrumC.TARGET_FRAMERATE;
     }
     @Override
@@ -73,6 +80,11 @@ public class KrumGrenade extends KrumProjectile {
             yvel = Math.sin(bounceAngle) * -velMag;
         }
     }
+    /**
+     * 
+     * @param tick  Value of updateCount in KrumGame
+     * @return      True if it's time to explode
+     */
     boolean timerCheck(long tick) {
         return tick >= explosionTick;
     }

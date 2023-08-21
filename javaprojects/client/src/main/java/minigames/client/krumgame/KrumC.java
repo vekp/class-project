@@ -5,11 +5,6 @@ package minigames.client.krumgame;
  * Static constants for use in other classes
  */
 public class KrumC {
-
-    // static final String projectDir = System.getProperty("user.dir");
-
-    // static final String imgDir = projectDir + "/src/main/java/minigames/client/krumgame/";
-
     static final String imgDir = "krumgame/";
 
     static final int TARGET_FRAMERATE = 60;
@@ -54,7 +49,6 @@ public class KrumC {
     static final double ROPE_SPEED = 10;
     static final double ROPE_KEY_ACCEL = 0.06;
     static final double ROPE_LENGTH_SPEED = 1.2;
-    //static final double ROPE_LENGTH_ACCEL_FACTOR = 1;
 
     static final double GRENADE_BOUNCE_FACTOR = 0.95;
 
