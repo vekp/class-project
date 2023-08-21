@@ -60,7 +60,7 @@ public class TelepathyGame {
 
         // TODO Create a response to the command to send back
 
-        // Decide what to do on receiving commands
+        // Return the response
         return new RenderingPackage(this.telepathyGameMetadata(), null);
     }
 
@@ -83,9 +83,10 @@ public class TelepathyGame {
                 renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMEFAIL).put("message", "Name taken"));
             }
             else if(!this.players[1].name.equals("Empty")){ // Spot already taken
-            renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMEFAIL).put("message", "No spots available"));
+                renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMEFAIL).put("message", "No spots available"));
             } else{
                 this.players[1] = new Player(playerName);
+                renderingCommands.add(new NativeCommands.LoadClient("Telepathy", "Telepathy", this.name, this.players[0].name()).toJson());
                 renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMESUCCESS));
             }
         }

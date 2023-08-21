@@ -13,10 +13,12 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
 import minigames.rendering.GameMetadata;
+import minigames.telepathy.TelepathyCommands;
 import minigames.commands.CommandPackage;
 
 import java.awt.*; // not the best coding practice - to update
@@ -104,7 +106,9 @@ public class Telepathy implements GameClient {
             for (int row = 0; row < buttonGrid.length; row++) {
                 for (int col = 0; col < buttonGrid[row].length; col++) {
                     if (buttonGrid[row][col] == selectedBtn) {
-                         xyCheck.setText(Integer.toString(row) + ", " + Integer.toString(col));
+                        String buttonText = (Integer.toString(row) + ", " + Integer.toString(col));
+                        xyCheck.setText(Integer.toString(row) + ", " + Integer.toString(col));
+                        sendCommand(TelepathyCommands.BUTTONPRESS.toString(), buttonText);
                     }
                 }
             }
@@ -128,16 +132,33 @@ public class Telepathy implements GameClient {
     }
 
     
-    /** 
+    /** COMMENTED OUT - Deprecated by sendCommand(String, String...)
      * Sends a command to the game at the server.
      * This being a text adventure, all our commands are just plain text strings our gameserver will interpret.
      * We're sending these as 
      * { "command": command }
-     */
+     
     public void sendCommand(String command) {
         JsonObject json = new JsonObject().put("command", command);
 
         // Collections.singletonList() is a quick way of getting a "list of one item"
+        mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
+    }
+    */
+
+    /**
+     * Sends a command to the Telepathy game running on the server.
+     * @param command: The TelepathyCommand used to specify the type of command.
+     * @param attributes: Any attributes that need to be packaged with the command. 
+     */
+    public void sendCommand(String command, String... attributes){
+        JsonObject json = new JsonObject().put("command", command);
+        if(attributes.length == 0){ 
+            System.out.println("null value");
+            attributes = new String[0];
+        }
+        json.put("attributes", new JsonArray().add(attributes));
+
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
     }
  
