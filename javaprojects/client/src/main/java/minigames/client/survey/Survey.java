@@ -10,12 +10,15 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 public class Survey implements ActionListener {
     private int count = 0;
     private JLabel label, headingLabel;
     public JPanel panel;
     private JButton button, backButton;
+    private JTextField textField;
+    private JLabel feedbackLabel;
 
     public Survey(ActionListener goBack) {
         headingLabel = new JLabel();
@@ -23,6 +26,8 @@ public class Survey implements ActionListener {
         backButton = new JButton("Back");
         label = new JLabel("Number of clicks: 0");
         panel = new JPanel();
+        textField = new JTextField(20);
+        feedbackLabel = new JLabel("Enter feedback here: ");
 
         // Actions
         button.addActionListener(this);
@@ -36,6 +41,8 @@ public class Survey implements ActionListener {
         // Add
         panel.add(headingLabel);
         panel.add(button);
+        panel.add(feedbackLabel);
+        panel.add(textField);
         panel.add(label);
         panel.add(backButton);
     }
