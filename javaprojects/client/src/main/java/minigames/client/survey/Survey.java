@@ -1,29 +1,49 @@
 package minigames.client.survey;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 
-public class Survey extends JPanel {
+public class Survey implements ActionListener {
+    private int count = 0;
+    private JLabel label, headingLabel;
+    public JPanel panel;
+    private JButton button, backButton;
 
-    private JTextArea textArea;
+    public Survey(ActionListener goBack) {
+        headingLabel = new JLabel();
+        button = new JButton("Click me... I can count!");
+        backButton = new JButton("Back");
+        label = new JLabel("Number of clicks: 0");
+        panel = new JPanel();
 
-    public Survey() {
-        setLayout(null);
+        // Actions
+        button.addActionListener(this);
+        backButton.addActionListener(goBack);
 
-        textArea = new JTextArea();
-        textArea.setEditable(false);
-        textArea.setPreferredSize(new Dimension(800, 600));
-        textArea.setForeground(Color.GREEN);
-        textArea.setBackground(Color.BLACK);
-        textArea.setFont(new Font("Monospaced", Font.PLAIN, 18));
-        textArea.setText("This is a sample survey text.\nFeel free to add your questions here.");
-        add(textArea);
+        // Set
+        headingLabel.setText("<html><h1 style='color: blue;'}>Game Survey</h1></html>");
+        panel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
+        panel.setLayout(new GridLayout(0, 1));
 
-        setPreferredSize(new Dimension(800, 800));
+        // Add
+        panel.add(headingLabel);
+        panel.add(button);
+        panel.add(label);
+        panel.add(backButton);
     }
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        count++;
+        label.setText("Number of clicks: " + count);
+    }
 }
+

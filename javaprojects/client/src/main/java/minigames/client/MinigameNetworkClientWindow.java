@@ -209,12 +209,11 @@ public class MinigameNetworkClientWindow {
         });
         south.add(achievementsButton);
 
-        // // Create a button for the Achievement UI.
         JButton surveyButton = new JButton("Survey");
         surveyButton.addActionListener(e -> {
             clearAll();
-            Survey survey = new Survey();
-            center.add(survey);
+            Survey survey = new Survey(returnAction);
+            center.add(survey.panel);
             pack();
         });
         south.add(surveyButton);
