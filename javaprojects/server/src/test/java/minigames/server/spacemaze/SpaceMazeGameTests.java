@@ -45,6 +45,7 @@ public class SpaceMazeGameTests {
         
         assertEquals(startLocation.x, cLoc.x);
         assertEquals(startLocation.y, cLoc.y);
+        assertEquals('.', bot.getTile());
 
     }
 
@@ -111,6 +112,17 @@ public class SpaceMazeGameTests {
        // a command not between 0 - 3 inclusive
        assertThrows(RuntimeException.class, () -> { bot.getMoveAttempt(4); });
     }
+
+    @DisplayName("Check setting of occupied tile")
+    @Test
+    public void testBotUpdateTile() {
+        char testChar = 'K';
+       // a command not between 0 - 3 inclusive
+       char currChar = bot.getTile();
+       bot.updateTile(testChar);
+       assertEquals(bot.getTile(), testChar);
+    }
+
 
 
 

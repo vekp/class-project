@@ -230,20 +230,24 @@ public class MazeControl {
             if (System.currentTimeMillis() % timeInterval == 0)
             {
                 Point posBotMove = new Point(bot.getMoveAttempt());
-                if (mazeArray[posBotMove.y][posBotMove.x] == '.')
+                if (mazeArray[posBotMove.y][posBotMove.x] == '.' || 
+                    mazeArray[posBotMove.y][posBotMove.x] == 'K')
                 {
                     // Move bot to new position:
                     // Set previous bot location (temp object)
                     Point prevBotMove = new Point(bot.getLocation());
                     // Update bot Location in bot object and in mazeArray
                     //playerLocation = new Point(x, y);
+
+                    char currentTile = bot.getTile();
+                    bot.updateTile(mazeArray[posBotMove.y][posBotMove.x]);
                     bot.updateLocation(posBotMove);
                     // Set (x, y) to 'P'
                     // NB - array[row = y][col = x]
                     //mazeArray[x][y] = 'P';
                     mazeArray[posBotMove.y][posBotMove.x] = 'B';
                     // Set previous player location to '.'
-                    mazeArray[prevBotMove.y][prevBotMove.x]= '.';
+                    mazeArray[prevBotMove.y][prevBotMove.x]= currentTile;
 
                 }
                 // else - nothing, bot get a breather
