@@ -335,7 +335,7 @@ public class KrumPlayer {
      * @param windY
      * @param levelRaster
      */
-    void update(double windX, double windY, WritableRaster levelRaster, long tick, KrumTurn recordingTurn, KrumInputFrame playbackFrame){
+    void update(double windX, double windY, WritableRaster levelRaster, long tick, KrumTurn recordingTurn, KrumInputFrame playbackFrame, boolean turnOver){
         KrumInputFrame recordingFrame = new KrumInputFrame();
         recordingFrame.activePlayer = playerIndex;
         recordingFrame.frameCount = tick;
@@ -358,7 +358,17 @@ public class KrumPlayer {
             enterKeyDownNextFrame = playbackFrame.enterKeyDown;
             upArrowKeyDownNextFrame = playbackFrame.upArrowKeyDown;
             downArrowKeyDownNextFrame = playbackFrame.downArrowKeyDown;
-            //System.out.println(leftKeyDownNextFrame);
+        }
+        if (turnOver) {      
+            shootNextFrame = false;
+            grenadeNextFrame = false;
+            shootRopeNextFrame = false;
+            leftKeyDownNextFrame = false;
+            rightKeyDownNextFrame = false;
+            jumpNextFrame = false;
+            enterKeyDownNextFrame = false;
+            upArrowKeyDownNextFrame = false;
+            downArrowKeyDownNextFrame = false;
         }
         if (shootNextFrame) {
             shoot(shotPower);
