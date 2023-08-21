@@ -103,7 +103,8 @@ public class Memory implements GameClient, ActionListener, MouseListener {
 
         // Create a list of card images
         List<ImageIcon> cardImages = new ArrayList<>();
-        File cardImageDirectory = new File(cardImagesDirectory);
+        //if (cardImagesDirectory.contains("%20")) cardImagesDirectory.replace("%20", " ");
+        File cardImageDirectory = new File(cardImagesDirectory.replace("%20", " "));
         File[] cardImageFiles = cardImageDirectory.listFiles();
 
         // Add all card images available
