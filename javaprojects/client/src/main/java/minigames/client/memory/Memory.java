@@ -53,7 +53,7 @@ public class Memory implements GameClient, ActionListener, MouseListener {
     //ImageIcon clubs_2 = new ImageIcon(getClass().getResource("/memory/images/playing_cards/2_of_clubs.png"));
     
     // Path to card images directory (card front images only)
-    String cardImagesDirectory = getClass().getResource("/memory/images/playing_cards/").getPath();
+    String cardImagesDirectory = getClass().getResource("/memory/images/playing_cards/front/").getPath();
         
     JTextArea textArea;
 
