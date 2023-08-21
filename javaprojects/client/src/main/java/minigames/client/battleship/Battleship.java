@@ -30,9 +30,11 @@ public class Battleship implements GameClient {
     String bgColourHover = "#113440";
     // Foreground colour
     String fgColour = "#ffffff";
+    // Border colour
+    String borderColour = "#6e8690";
     ArrayList<Font> fonts = determineFont();
     Border buttonBorder = BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.decode("#6e8690")),
+            BorderFactory.createLineBorder(Color.decode(borderColour)),
             BorderFactory.createEmptyBorder(5, 15, 5, 15)
     );
 
@@ -255,7 +257,7 @@ public class Battleship implements GameClient {
         mnClient.getNotificationManager().setMargins(20, 15, 15);
         mnClient.getNotificationManager().setStyling(
                 Color.decode(fgColour),
-                Color.decode(bgColour),
+                Color.decode(bgColourHover),
                 fonts.get(0).getFontName(),
                 buttonBorder);
     }
