@@ -99,6 +99,7 @@ public class StatusBar extends JPanel {
     public void stopTimer() {
         if (timer != null) {
             timer.cancel();
+            timer.purge();
         }
     }
 }

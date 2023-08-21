@@ -99,12 +99,42 @@ public class MazeDisplay extends JPanel {
     }
 
     /**
+     * To be called when we start a new level.
+     * @param mazeMap the new level
+     */
+    public void newLevel(char[][] mazeMap){
+        this.mazeMap = mazeMap;
+        this.playerPos = findPlayerPos(mazeMap);
+        this.exitPoint = findExit(mazeMap);
+        repaint();
+    }
+
+    /**
      * Called to update the recorded players postion in this MazeDisplay object
      * So we don't have to keep calling findPlayerPos()
      */
-    public void updatePlayerPos() {
+    public void updatePlayerPoint() {
         this.playerPos.x = moveTo.x;
         this.playerPos.y = moveTo.y;
+    }
+
+    /**
+     * Checks if the player is on the exit
+     */
+    public void checkForExit() {
+        if (playerPos.equals(exitPoint)) {
+            logger.info("playerPos == exit");
+            spaceMaze.sendCommand("onExit");
+        }
+    }
+
+    /**
+     * Moves the player image in the array
+     */
+    public void movePlayerImage() {
+        mazeMap[playerPos.y][playerPos.x] = '.';
+        mazeMap[moveTo.y][moveTo.x] = 'P';
+        repaint();
     }
 
     /**
@@ -122,11 +152,13 @@ public class MazeDisplay extends JPanel {
                         // This is to get the server to send back the new maze array
                         spaceMaze.sendCommand("updateMaze");
                     } else {
-                        movePlayer("up");
+                        // Moves the player image
+                        movePlayerImage();
                     }
-                    updatePlayerPos();
+                    // Updates our recorded player point
+                    updatePlayerPoint();
+                    checkForExit();
                 }
-                checkForExit();
                 break;
             case KeyEvent.VK_DOWN:
                 logger.info("Info Down:");
@@ -135,11 +167,11 @@ public class MazeDisplay extends JPanel {
                     if (mazeMap[moveTo.y][moveTo.x] == 'K') {
                         spaceMaze.sendCommand("updateMaze");
                     } else {
-                        movePlayer("down");
+                        movePlayerImage();
                     }
-                    updatePlayerPos();
+                    updatePlayerPoint();
+                    checkForExit();
                 }
-                checkForExit();
                 break;
             case KeyEvent.VK_LEFT:
                 logger.info("Info left:");
@@ -148,11 +180,11 @@ public class MazeDisplay extends JPanel {
                     if (mazeMap[moveTo.y][moveTo.x] == 'K') {
                         spaceMaze.sendCommand("updateMaze");
                     } else {
-                        movePlayer("left");
+                        movePlayerImage();
                     }
-                    updatePlayerPos();
+                    updatePlayerPoint();
+                    checkForExit();
                 }
-                checkForExit();
                 break;
             case KeyEvent.VK_RIGHT:
                 logger.info("Info right:");
@@ -161,11 +193,11 @@ public class MazeDisplay extends JPanel {
                     if (mazeMap[moveTo.y][moveTo.x] == 'K') {
                         spaceMaze.sendCommand("updateMaze");
                     } else {
-                        movePlayer("right");
+                        movePlayerImage();
                     }
-                    updatePlayerPos();
+                    updatePlayerPoint();
+                    checkForExit();
                 }
-                checkForExit();
                 break;
         }
     }
@@ -185,20 +217,6 @@ public class MazeDisplay extends JPanel {
                 g2.fillRect(c * tileWidth, r * tileHeight, tileWidth, tileHeight);
             }
         }
-    }
-
-    public void checkForExit() {
-        if (playerPos.equals(exitPoint)) {
-            logger.info("playerPos == exit");
-            spaceMaze.sendCommand("onExit");
-            this.exitPoint = findExit(mazeMap);
-        }
-    }
-
-    public void movePlayer(String direction) {
-        mazeMap[playerPos.y][playerPos.x] = '.';
-        mazeMap[moveTo.y][moveTo.x] = 'P';
-        repaint();
     }
 
     /**

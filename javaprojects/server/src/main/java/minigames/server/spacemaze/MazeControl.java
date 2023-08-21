@@ -318,7 +318,12 @@ public class MazeControl {
         int randomStartIndex = rand.nextInt(startLocationsList.size());
         playerLocation = startLocationsList.get(randomStartIndex);
         playerEntersMaze(playerLocation);
-
+    } else if (currentLevel == maxLevel){
+            logger.info("GAME FINISHED = TRUE");
+            gameFinished = true;
+            mazeTimer.stopTimer();
+            // Update time taken
+            timeTaken = mazeTimer.getTimeTaken();
     } else {
         logger.info("New Level conditions were not met!");
     }
@@ -329,9 +334,9 @@ public class MazeControl {
     * gameOver function - checks if player is at exit - called in updatePlayerLocationMaze
     * @ return timeTaken - return 
     */
-    public void checkGameOver()
+    public void checkGameOver() // REVIEW: Not using anymore?
     {
-        if ((currentLevel == maxLevel) && (playerLocation == exitLocation))
+        if ((currentLevel == maxLevel)) // && (playerLocation == exitLocation))
         {
             gameFinished = true;
             // Could also have a print message of game over
@@ -417,7 +422,7 @@ public class MazeControl {
         updateKeyStatus(player, playerLocation);
 
         // Check if game is over
-        checkGameOver();
+        //checkGameOver();
     }
 
     /*

@@ -38,7 +38,6 @@ public class SpaceMazeGame {
         this.mazeControl = new MazeControl();
         this.player = new SpacePlayer(new Point(1,0));
         players.put(name, this.player);
-        mazeControl.playerEntersMaze(new Point(1,0));
     }
 
     // Players in this game
@@ -79,45 +78,40 @@ public class SpaceMazeGame {
             case "EXIT" ->  renderingCommands.add(new JsonObject().put("command", "exit"));
             case "onExit" -> {
                 mazeControl.newLevel();
-                JsonObject serializedMazeArray = new JsonObject()
-                        .put("command", "renderMaze")
-                        .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()));
-                renderingCommands.add(serializedMazeArray);
+                if (!mazeControl.gameFinished) {
+                    JsonObject serializedMazeArray = new JsonObject()
+                            .put("command", "newLevel")
+                            .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()));
+                    renderingCommands.add(serializedMazeArray);
+                } else {
+                    player.calculateScore(mazeControl.timeTaken, 8000);
+                    String playerScoreString = String.valueOf(player.getPlayerScore());
+                    renderingCommands.add(new JsonObject().put("command", "gameOver").put("totalScore", playerScoreString));
+                }
             }
-
-            //Key Event Requests from client
-            //case "keyUp" -> renderingCommands.add(new JsonObject().put("command", "movePlayerToHere")); //calculate and send new position of player to server??? 
-            //case "keyDown" -> renderingCommands.add(new JsonObject().put("command", "movePlayerToHere"));
-            //case "keyLeft" -> renderingCommands.add(new JsonObject().put("command", "movePlayerToHere"));
-            //case "keyRight" -> renderingCommands.add(new JsonObject().put("command", "movePlayerToHere"));
-
         }
 
+        // Lets mazeControl keep track of the player for when client sends updateMaze
         if (commandString.startsWith("key")) {
             String keyPressed = commandString;
             processKeyInput(keyPressed, p);
         }
 
         if (commandString.startsWith("requestMaze")) {
+            // Moved here from the constructor to only start the timer on maze load
+            mazeControl.playerEntersMaze(new Point(1,0));
             JsonObject serializedMazeArray = new JsonObject()
                     .put("command", "renderMaze")
                     .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()));
             renderingCommands.add(serializedMazeArray);
         }
 
-        // Temporarily sending the whole maze array back after key input
         if (commandString.startsWith("updateMaze")) {
-            if(!mazeControl.gameFinished) {
-                JsonObject serializedMazeArray = new JsonObject()
-                        .put("command", "updateMaze")
-                        .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()));
-                renderingCommands.add(serializedMazeArray);
-            } else {
-                player.calculateScore(mazeControl.timeTaken, 8000);
-                String playerScoreString = String.valueOf(player.getPlayerScore());
-                renderingCommands.add(new JsonObject().put("command", "gameOver").put("totalScore", playerScoreString));
+            JsonObject serializedMazeArray = new JsonObject()
+                    .put("command", "updateMaze")
+                    .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()));
+            renderingCommands.add(serializedMazeArray);
             }
-        }
 
         if (commandString.startsWith("gameTimer")) {
             String currentTime = mazeControl.mazeTimer.getCurrentTime();

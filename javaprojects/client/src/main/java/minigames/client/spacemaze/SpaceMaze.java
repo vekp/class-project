@@ -177,7 +177,16 @@ public class SpaceMaze implements GameClient {
             case "renderMaze" -> {
                 JsonArray serialisedArray = command.getJsonArray("mazeArray");
                 if (!serialisedArray.isEmpty()) {
+                    // Only call this once, or we get multiple timer tasks running
                     loadMaze(serialisedArray);
+                }
+            }
+            case "newLevel" -> {
+                JsonArray serialisedArray = command.getJsonArray("mazeArray");
+                if (!serialisedArray.isEmpty()) {
+                    List<String> mazeList = serialisedArray.getList();
+                    char[][] mazeMap = deserialiseJsonMaze(mazeList);
+                    maze.newLevel(mazeMap);
                 }
             }
             case "updateMaze" -> {
