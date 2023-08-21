@@ -116,6 +116,7 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         }
 
         // Create a list of card pairs
+        // TODO: Look into the possible error for Random - 'out of bound' - if it occurs again!
         List<ImageIcon> cardPairs = new ArrayList<>();
         Random random = new Random();
         for (int i = 0; i < 8; i++) {
