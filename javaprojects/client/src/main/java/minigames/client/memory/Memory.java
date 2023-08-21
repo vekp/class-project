@@ -115,8 +115,31 @@ public class Memory implements GameClient, ActionListener, MouseListener {
             }
         }
 
+        // Define indices of cardImages list
+        List<Integer> indices = new ArrayList<>();
+        for (int i = 0; i < cardImages.size(); i++) {
+            indices.add(i);
+        }
+
+
+        // Shuffle the indices - ?Shuffling framework/system here!
+        Collections.shuffle(indices);
+
+
         // Create a list of card pairs
-        // TODO: Look into the possible error for Random - 'out of bound' - if it occurs again!
+        List<ImageIcon> cardPairs = new ArrayList<>();
+        int counter = 0;
+        for (int index : indices) {
+            if (counter < 8) {
+                ImageIcon cardImage = cardImages.get(index);
+                cardPairs.add(cardImage);
+                cardPairs.add(cardImage); // Add a duplicate for each card
+                counter++;
+            }
+        }
+
+
+        /* // TODO: Look into the possible error for Random - 'bound must be positive' - if it occurs again!
         List<ImageIcon> cardPairs = new ArrayList<>();
         Random random = new Random();
         for (int i = 0; i < 8; i++) {
@@ -125,7 +148,7 @@ public class Memory implements GameClient, ActionListener, MouseListener {
             cardPairs.add(cardImage);
             cardPairs.add(cardImage); // Add a duplicate for each card
             cardImages.remove(randomIndex); // Then remove selected card
-        }
+        } */
 
 
         // Shuffle the card pairs - FIXME: Use the shuffling framework/system here!
