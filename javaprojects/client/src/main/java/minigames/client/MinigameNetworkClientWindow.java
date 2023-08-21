@@ -2,6 +2,8 @@ package minigames.client;
 
 import javax.swing.*;
 
+import java.awt.event.ActionListener;
+
 import minigames.client.achievementui.AchievementNotificationHandler;
 import minigames.client.achievementui.AchievementUI;
 import minigames.client.survey.Survey;
@@ -205,12 +207,15 @@ public class MinigameNetworkClientWindow {
         });
         south.add(achievementsButton);
 
-        // // Create a button for the Achievement UI.
+        // Added action listener back in for back btn in Survey
+        ActionListener returnAction = (a) -> {
+            showGameServers(servers);
+        }; 
         JButton surveyButton = new JButton("Survey");
         surveyButton.addActionListener(e -> {
             clearAll();
-            Survey survey = new Survey();
-            center.add(survey);
+            Survey survey = new Survey(returnAction);
+            center.add(survey.panel);
             pack();
         });
         south.add(surveyButton);
