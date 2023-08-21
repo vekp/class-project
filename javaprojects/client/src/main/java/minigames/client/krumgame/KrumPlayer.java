@@ -465,7 +465,6 @@ public class KrumPlayer {
         }
         if (flashFramesLeft > 0) flashFramesLeft--;
         if (airborne) {
-            //System.out.println("AIRBORNE " + tick);
             double oldx = xpos;
             double oldy = ypos;
             yvel += KrumC.GRAVITY;
@@ -588,11 +587,8 @@ public class KrumPlayer {
                 onRope = true; 
                 airborne = false;
                 ropeAttachmentPoints.add(collisionPoint);
-                //onRopeSpeed = Math.abs(Math.cos(ropeAngleRadians - Math.atan2(yvel, xvel)) * Math.sqrt(xvel*xvel + yvel*yvel));
                 wasOnRope = true;
                 ropeLength = Math.sqrt((collisionPoint.x - ropeOrigin().x) * (collisionPoint.x - ropeOrigin().x) + (collisionPoint.y - ropeOrigin().y) * (collisionPoint.y - ropeOrigin().y));
-                //if (xvel < 0) onRopeSpeed *= -1;
-                //System.out.println(onRopeSpeed);
             }
         }
         else if (onRope) {
@@ -608,10 +604,10 @@ public class KrumPlayer {
                     ypos += Math.sin(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED;
                     cancelRopeLengthChange = true;
                 }
-                // else {
-                //     xvel += Math.cos(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED * KrumC.ROPE_LENGTH_ACCEL_FACTOR;
-                //     yvel -= Math.sin(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED * KrumC.ROPE_LENGTH_ACCEL_FACTOR;
-                // }
+                else {
+                    xvel *= KrumC.ROPE_KEY_ACCEL_FACTOR;
+                    yvel *= KrumC.ROPE_KEY_ACCEL_FACTOR;
+                }
             }
             if (downArrowKeyDown) {
                 ropeLength += KrumC.ROPE_LENGTH_SPEED;
@@ -623,12 +619,11 @@ public class KrumPlayer {
                     ypos -= Math.sin(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED;
                     cancelRopeLengthChange = true;
                 }
-                // else {
-                //     xvel -= Math.cos(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED * KrumC.ROPE_LENGTH_ACCEL_FACTOR;
-                //     yvel += Math.sin(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED * KrumC.ROPE_LENGTH_ACCEL_FACTOR;
-                // }
+                else {
+                    xvel /= KrumC.ROPE_KEY_ACCEL_FACTOR;
+                    yvel /= KrumC.ROPE_KEY_ACCEL_FACTOR;
+                }
             }
-            //System.out.println("RAR: " + ropeAngleRadians + ", " + xpos + ", " + ypos + ", " + ropeAttachmentPoints.get(ropeAttachmentPoints.size() -1).x + ", " + ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 1).y);
             double oldx = xpos;
             double oldy = ypos;
             yvel += KrumC.GRAVITY;
@@ -644,10 +639,8 @@ public class KrumPlayer {
             while (velDir >= 2*Math.PI) velDir -= 2*Math.PI;
             while (velDir < 0) velDir += 2*Math.PI;
             double d = ropeAngleRadians - velDir;
-            //System.out.println(ropeAngleRadians + ", " + velDir + ", " + d);
             if ((d > 0 && d < Math.PI) || (d < 0 && d < -Math.PI)) {
                 clockwise = false;
-                //System.out.println("anti");
             }
             if (clockwise) {
                 ropeVelDir = ropeAngleRadians + Math.PI / 2;                
@@ -663,7 +656,6 @@ public class KrumPlayer {
             if (leftKeyDown) {                          
                 double dir = ropeVelDir;
                 if (Math.cos(ropeVelDir) > 0) dir += Math.PI;
-                //System.out.println(ropeVelDir + ", " + dir);
                 double[] res = KrumHelpers.addVectors(ropeVelDir, ropeVelMag, dir, racc);
                 ropeVelDir = res[0];
                 ropeVelMag = res[1];
@@ -671,7 +663,6 @@ public class KrumPlayer {
             if (rightKeyDown) {
                 double dir = ropeVelDir;
                 if (Math.cos(ropeVelDir) < 0) dir += Math.PI;
-                //System.out.println(ropeVelDir + ", " + dir);
                 double[] res = KrumHelpers.addVectors(ropeVelDir, ropeVelMag, dir, KrumC.ROPE_KEY_ACCEL);
                 ropeVelDir = res[0];
                 ropeVelMag = res[1];
@@ -683,17 +674,14 @@ public class KrumPlayer {
             if ((d > 0 && d < Math.PI) || (d < 0 && d < -Math.PI)) {
                 clockwise = false;
             }
-            //System.out.println(velMag + ", " + velDir + ", " + ropeVelMag + ", " + clockwise + ", " + ropeVelDir + ", " + ropeAngleRadians);
             ropeAngleRadians += (clockwise ? -ropeVelMag / ropeLength : ropeVelMag / ropeLength);
             xpos = ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 1).x + ropeLength * Math.cos(Math.PI + ropeAngleRadians) - sprite.getWidth()/2;
             ypos = ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 1).y - ropeLength * Math.sin(Math.PI + ropeAngleRadians) - sprite.getHeight()/2;
-            //System.out.println(ropeAngleRadians + ", " + xpos + ", " + ypos);
             if (nonDirectionalCollisionCheck()) {
                 xpos = oldx;
                 ypos = oldy;
                 ropeAngleRadians -= (clockwise ? ropeVelMag / ropeLength : -ropeVelMag / ropeLength);
                 clockwise = !clockwise;
-                //System.out.println("ndcc: " + ", " + xpos + ", " + ypos + ", " + ropeAngleRadians + ", " + ropeVelDir);
             }            
             if (clockwise) {
                 ropeVelDir = ropeAngleRadians + Math.PI / 2;
@@ -701,10 +689,8 @@ public class KrumPlayer {
             else {
                 ropeVelDir = ropeAngleRadians - Math.PI / 2;
             }        
-            //System.out.println(ropeVelDir);   
             xvel = Math.cos(ropeVelDir) * ropeVelMag;
             yvel = Math.sin(ropeVelDir) * ropeVelMag * -1;
-            //System.out.println(xvel + ", " + yvel + ", " + ropeVelDir + ", " + ropeVelMag);
             velDir = Math.atan2(-yvel, xvel);
             Point2D.Double newAttachPoint = ropeCollisionTest(1);
             if (newAttachPoint != null) {
@@ -943,7 +929,6 @@ public class KrumPlayer {
     void detachRope() {
         onRope = false;
         airborne = true;
-        //System.out.println("DETACH " + xvel + ", " + yvel);
     }
 
     void fireRope() {
@@ -965,16 +950,8 @@ public class KrumPlayer {
     }
 
     void enterKeyPressed() {
-        // if (onRope) {
-        //     projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(aimAngleRadians) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(aimAngleRadians) * KrumC.psd), xvel, yvel, projectileSprite, levelRaster);
-        //     lastShotTime = System.nanoTime();
-        // }
         joey.spawn(playerCentre().x - joey.sprite.getWidth() / 2,playerCentre().y - joey.sprite.getHeight() / 2,xvel + 1 * (facingRight ? 1 : -1), yvel - 1, tick, facingRight);
     }
-
-    // void enterKeyReleased() {
-
-    // }
 
     void startGrenadeFire(MouseEvent e) {
         firingGrenade = true;
