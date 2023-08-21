@@ -1,7 +1,6 @@
 package minigames.client.achievementui;
 
 import minigames.achievements.Achievement;
-import minigames.achievements.AchievementTestData;
 import minigames.achievements.GameAchievementState;
 import minigames.achievements.PlayerAchievementRecord;
 import minigames.client.MinigameNetworkClient;
@@ -9,9 +8,8 @@ import minigames.client.MinigameNetworkClient;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class AchievementUI extends JPanel {
     public static final String TITLE = "Achievements";
@@ -20,10 +18,9 @@ public class AchievementUI extends JPanel {
     /**
      * Creates a new JPanel containing a user interface for viewing achievements.
      *
-     * @param networkClient the MinigameNetworkClient to be used for communicating with server.
-     * @param returnAction  an ActionListener for returning to the previous screen.
+     * @param mnClient the MinigameNetworkClient to be used for communicating with server.
      */
-    public AchievementUI(MinigameNetworkClient networkClient, ActionListener returnAction) {
+    public AchievementUI(MinigameNetworkClient mnClient) {
         this.setPreferredSize(new Dimension(800, 600));
         this.setLayout(new BorderLayout());
 
@@ -41,18 +38,16 @@ public class AchievementUI extends JPanel {
 
         //Getting usernames from server
         //todo obtain username from login / user system when able
-        networkClient.getPlayerNames().onSuccess((resp) -> {
+        mnClient.getPlayerNames().onSuccess((resp) -> {
             String[] names = resp.replace("[","").replace("]","").split(",");
-//            List<String> usernames = AchievementTestData.getNames();
-//            JList<String> usernameJList = new JList<>(usernames.toArray(new String[0]));
-            JList<String> usernameJlist = new JList<>(names);
+           JList<String> usernameJlist = new JList<>(names);
             usernameJlist.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             selectorPanel.add(generateScrollPane("Username:", usernameJlist));
             usernameJlist.addListSelectionListener(e -> {
                 String selectedUsername = usernameJlist.getSelectedValue();
-                networkClient.getPlayerAchievements(this, selectedUsername);
+                mnClient.getPlayerAchievements(this, selectedUsername);
             });
-            networkClient.getMainWindow().pack();
+            mnClient.getMainWindow().pack();
         });
 
 
@@ -77,12 +72,12 @@ public class AchievementUI extends JPanel {
         JPanel buttonPanel = new JPanel(new BorderLayout());
         // Add a back button
         JButton backButton = new JButton("Back");
-        backButton.addActionListener(returnAction);
+        backButton.addActionListener(e -> mnClient.runMainMenuSequence());
         buttonPanel.add(backButton, BorderLayout.EAST);
         // Add demo popup button TODO: Remove when not required
         AchievementPresenter testAchievement = new AchievementPresenter(new Achievement(
                 "Popup tester",
-                "<html>Congratulations, you have opened a popup notification!<br>Click me to dismiss!</html>",
+                "<html>Congratulations, you have opened a popup notification!<br>Click me to dismiss! It uses random alignment</html>",
                 0, "",
                 false
         ), true);
@@ -90,18 +85,24 @@ public class AchievementUI extends JPanel {
         popup.addActionListener(e -> {
             JPanel popupDemoPanel = testAchievement.smallAchievementPanel(false);
             popupDemoPanel.setBorder(null);
-            networkClient.getMainWindow().getNotificationManager().showNotification(popupDemoPanel);
-//            networkClient.getMainWindow().showNotification(popupDemoPanel);
+            float x = new Random().nextFloat();
+            mnClient.getNotificationManager().setAlignment(x);
+            mnClient.getNotificationManager().showNotification(popupDemoPanel);
+            mnClient.getNotificationManager().setAlignment(0.5f);
         });
         buttonPanel.add(popup, BorderLayout.WEST);
         // Another popup demo button TODO: Remove this
         JButton popup2 = new JButton("Demo text popup");
         popup2.addActionListener(e -> {
-            JButton leftPopup = new JButton("<html>This is another popup example.<br>It uses Component.RIGHT_ALIGNMENT (1.0f)<br>Click me for another popup.");
-            leftPopup.addActionListener(e1 -> networkClient.getMainWindow().showNotification(new JLabel("This one is on the left, with Component.LEFT_ALIGNMENT"), Component.LEFT_ALIGNMENT));
+            JButton leftPopup = new JButton("<html>This is another popup example.<br>Click me for another popup.");
+            leftPopup.addActionListener(e1 -> {
+                mnClient.getNotificationManager().setAlignment(0f);
+                mnClient.getNotificationManager().showNotification(new JLabel("This one is on the left, with Component.LEFT_ALIGNMENT"));
+            });
 
-            networkClient.getMainWindow().showNotification(leftPopup, Component.RIGHT_ALIGNMENT);
+            mnClient.getNotificationManager().showNotification(leftPopup, false);
         });
+        mnClient.getNotificationManager().setAlignment(1.0f);
         buttonPanel.add(popup2);
 
         this.add(buttonPanel, BorderLayout.SOUTH);
@@ -148,31 +149,9 @@ public class AchievementUI extends JPanel {
             gameLabel.setFont(new Font(gameLabel.getFont().getFontName(), Font.BOLD, 25));
             gameLabel.setBorder(new EmptyBorder(10, 10, 10, 10));
             achievementPanel.add(gameLabel);
-            List<Achievement> unlockedAchievements = state.unlocked();
-            if (!unlockedAchievements.isEmpty()) {
-                AchievementCollection presenterList = achievementCollection(unlockedAchievements, true);
-                //Demo for carousel. todo: remove later when not needed.
-                JButton carousel = new JButton("Demo carousel");
-                carousel.addActionListener(e -> JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(achievementPanel), presenterList.achievementCarousel(),
-                        gameID, JOptionPane.PLAIN_MESSAGE));
-                achievementPanel.add(carousel);
-
-                achievementPanel.add(presenterList.achievementListPanel());
-            }
-            List<Achievement> lockedAchievements = state.locked();
-            if (!lockedAchievements.isEmpty()) {
-                AchievementCollection presenterList = achievementCollection(lockedAchievements, false);
-                achievementPanel.add(presenterList.achievementListPanel());
-            }
+            AchievementCollection gameAchievements = new AchievementCollection(state);
+            achievementPanel.add(gameAchievements.achievementListPanel());
         }
         achievementScrollPane.setViewportView(achievementPanel);
-    }
-
-    private AchievementCollection achievementCollection(List<Achievement> achievementList, boolean isUnlocked) {
-        List<AchievementPresenter> presenterList = new ArrayList<>();
-        for (Achievement achievement : achievementList) {
-            presenterList.add(new AchievementPresenter(achievement, isUnlocked));
-        }
-        return new AchievementCollection(presenterList);
     }
 }

@@ -4,6 +4,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -88,26 +89,37 @@ public class MinigameNetworkServer {
             for (GameServer server : Main.gameRegistry.getAllGameServers()) {
                 System.out.println("Class is = " + server.getClass());
                 AchievementHandler handler = new AchievementHandler(server.getClass());
-                List<Achievement> gameAchievements = handler.getAllAchievements();
-                if (gameAchievements.size() == 0) continue;
-
-                List<Achievement> unlocked = new ArrayList<>();
-                List<Achievement> locked = new ArrayList<>();
-
-                //the list used depends on whether the player has this achievement or not
-                for (Achievement current : gameAchievements) {
-                    if (handler.playerHasEarnedAchievement(playerID, current.name())) {
-                        unlocked.add(current);
-                    } else {
-                        locked.add(current);
-                    }
-                }
-                GameAchievementState state = new GameAchievementState(server.getDetails().name(), unlocked, locked);
-                gameStates.add(state);
+                GameAchievementState achievementState = handler.getAchievementState(playerID,
+                        server.getDetails().name());
+                if (achievementState != null) gameStates.add(achievementState);
             }
             //prepare a record package to convert to JSON for sending to client
             PlayerAchievementRecord record = new PlayerAchievementRecord(playerID, gameStates);
             ctx.response().end(record.toJSON());
+        });
+
+
+        // Respond to request from game client for achievements
+        router.get("/achievement/:player/:gameID").handler((ctx) -> {
+            String playerID = ctx.pathParam("player");
+            String gameID = ctx.pathParam("gameID");
+            String bloop = ctx.pathParam("JBob");
+            //we check all the currently registered servers. Their class acts as their Achievement database key.
+            //For any servers that have achievements, we need 2 lists, one of achievements the player has unlocked, and
+            //one for the remaining (yet to be earned) achievements
+            for (GameServer server : Main.gameRegistry.getAllGameServers()) {
+                if (!server.getDetails().name().equals(gameID)) continue;
+                AchievementHandler handler = new AchievementHandler(server.getClass());
+                GameAchievementState achievementState = handler.getAchievementState(playerID,
+                        server.getDetails().name());
+                ctx.response().end(achievementState.toJSON());
+            }
+        });
+
+        //respond to request to get the most recently unlocked achievements
+        router.get("/achievementUnlocks").respond((ctx) -> {
+            List<Achievement> recentUnlocks = AchievementHandler.getRecentUnlocks();
+            return Future.succeededFuture(recentUnlocks);
         });
 
         //todo this will need to pull from the user login system when implemented

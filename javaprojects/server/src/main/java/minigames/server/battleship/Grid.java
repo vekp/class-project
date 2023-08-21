@@ -20,7 +20,7 @@ public class Grid {
         Cell[][] grid = new Cell[10][10];
         for (int i=0; i<10; i++) {
             for (int j=0; j<10; j++) {
-                grid[i][j] = new Cell();
+                grid[i][j] = new Cell(i, j);
             }
         }
 //        grid = placeDefaultConvoy(grid);
@@ -59,74 +59,74 @@ public class Grid {
 //        return true;
 //    }
 
-    /**
-     * For now, I'm literally just putting in a default ship placement lazily, it will be changed later
-     */
-    public Cell[][] placeDefaultConvoy(Cell[][] grid) {
-        // The Board should perhaps just contain the 2D array of cells and nothing more so that functions like this one
-        // can be called upon other grid objects
-        this.grid = grid;
-
-        // Create the cells
-        // TODO: See if there is a less redundant way to do this
-        Cell top = new Cell();
-        top.setCellType(CellType.SHIP_UP);
-        Cell bottom = new Cell();
-        bottom.setCellType(CellType.SHIP_DOWN);
-        Cell right = new Cell();
-        right.setCellType(CellType.SHIP_RIGHT);
-        Cell left = new Cell();
-        left.setCellType(CellType.SHIP_LEFT);
-        Cell mid = new Cell();
-        mid.setCellType(CellType.SHIP_HULL);
-        // TODO: See if there is a less redundant way to do this too
-        // Create the carrier
-        this.setCell(1, 1, top);
-        for(int i = 2; i < 6; i++){
-            this.setCell(1, i, mid);
-        }
-        this.setCell(1, 6, bottom);
-
-        // Create the Battleship
-        this.setCell(2, 2, top);
-        for(int i = 3; i < 6; i++){
-            this.setCell(2, i, mid);
-        }
-        this.setCell(2,6,bottom);
-
-        // Create the Submarine
-        this.setCell(4,5, top);
-        for(int i = 6; i < 8; i++){
-            this.setCell(4, i, mid);
-        }
-        this.setCell(4, 8, bottom);
-
-        // Create the Destroyer
-        this.setCell(6, 6, left);
-        for(int i = 7; i < 9; i++){
-            this.setCell(i, 6, mid);
-        }
-        this.setCell(9, 6, right);
-
-        // And finally the Patrol Boat
-        this.setCell(4, 2, left);
-        this.setCell(5, 2, mid);
-        this.setCell(6, 2, right);
-        return this.grid;
-//        this.grid = new String[][]{
-//                {" ", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"},
-//                {"A", "^", "~", "~", "~", "~", "~", "~", "~", "~", "~"},
-//                {"B", "0", "~", "<", "0", ">", "~", "~", "~", "~", "~"},
-//                {"C", "0", "~", "~", "~", "~", "<", "0", "0", ">", "~"},
-//                {"D", "0", "~", "~", "~", "~", "~", "~", "~", "~", "~"},
-//                {"E", "0", "~", "~", "^", "~", "~", "~", "~", "~", "~"},
-//                {"F", "V", "~", "~", "0", "~", "~", "~", "~", "~", "~"},
-//                {"G", "~", "~", "~", "0", "~", "~", "~", "~", "~", "~"},
-//                {"H", "~", "~", "~", "V", "~", "~", "~", "~", "~", "~"},
-//                {"I", "~", "~", "~", "~", "~", "~", "~", "~", "~", "~"},
-//                {"J", "~", "~", "~", "~", "~", "<", "0", "0", "0", ">"}
-//        };
-    }
+//    /**
+//     * For now, I'm literally just putting in a default ship placement lazily, it will be changed later
+//     */
+//    public Cell[][] placeDefaultConvoy(Cell[][] grid) {
+//        // The Board should perhaps just contain the 2D array of cells and nothing more so that functions like this one
+//        // can be called upon other grid objects
+//        this.grid = grid;
+//
+//        // Create the cells
+//        // TODO: See if there is a less redundant way to do this
+//        Cell top = new Cell(horizontalCoord, verticalCoord);
+//        top.setCellType(CellType.SHIP_UP);
+//        Cell bottom = new Cell(horizontalCoord, verticalCoord);
+//        bottom.setCellType(CellType.SHIP_DOWN);
+//        Cell right = new Cell(horizontalCoord, verticalCoord);
+//        right.setCellType(CellType.SHIP_RIGHT);
+//        Cell left = new Cell(horizontalCoord, verticalCoord);
+//        left.setCellType(CellType.SHIP_LEFT);
+//        Cell mid = new Cell(horizontalCoord, verticalCoord);
+//        mid.setCellType(CellType.SHIP_HULL);
+//        // TODO: See if there is a less redundant way to do this too
+//        // Create the carrier
+//        this.setCell(1, 1, top);
+//        for(int i = 2; i < 6; i++){
+//            this.setCell(1, i, mid);
+//        }
+//        this.setCell(1, 6, bottom);
+//
+//        // Create the Battleship
+//        this.setCell(2, 2, top);
+//        for(int i = 3; i < 6; i++){
+//            this.setCell(2, i, mid);
+//        }
+//        this.setCell(2,6,bottom);
+//
+//        // Create the Submarine
+//        this.setCell(4,5, top);
+//        for(int i = 6; i < 8; i++){
+//            this.setCell(4, i, mid);
+//        }
+//        this.setCell(4, 8, bottom);
+//
+//        // Create the Destroyer
+//        this.setCell(6, 6, left);
+//        for(int i = 7; i < 9; i++){
+//            this.setCell(i, 6, mid);
+//        }
+//        this.setCell(9, 6, right);
+//
+//        // And finally the Patrol Boat
+//        this.setCell(4, 2, left);
+//        this.setCell(5, 2, mid);
+//        this.setCell(6, 2, right);
+//        return this.grid;
+////        this.grid = new String[][]{
+////                {" ", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"},
+////                {"A", "^", "~", "~", "~", "~", "~", "~", "~", "~", "~"},
+////                {"B", "0", "~", "<", "0", ">", "~", "~", "~", "~", "~"},
+////                {"C", "0", "~", "~", "~", "~", "<", "0", "0", ">", "~"},
+////                {"D", "0", "~", "~", "~", "~", "~", "~", "~", "~", "~"},
+////                {"E", "0", "~", "~", "^", "~", "~", "~", "~", "~", "~"},
+////                {"F", "V", "~", "~", "0", "~", "~", "~", "~", "~", "~"},
+////                {"G", "~", "~", "~", "0", "~", "~", "~", "~", "~", "~"},
+////                {"H", "~", "~", "~", "V", "~", "~", "~", "~", "~", "~"},
+////                {"I", "~", "~", "~", "~", "~", "~", "~", "~", "~", "~"},
+////                {"J", "~", "~", "~", "~", "~", "<", "0", "0", "0", ">"}
+////        };
+//    }
     /**
      * Set the Cell at a specific x and y coordinate
      * @param y
@@ -149,61 +149,74 @@ public class Grid {
 
     /**
      * Function to place ship on the grid and return a Ship object
+     * @param vesselClass string value describing the ship class
      * @param parts vertical or horizontal list of ship parts
      * @param size size of ship, eg Carrier = 6
      * @param y vertical location in grid
      * @param x horizontal location in grid
      * @return Ship object
      */
-    public Ship placeShip(CellType[] parts, int size, int y, int x) {
-        String chars = "ABCDEFGHIJ";
+    public Ship placeShip(String vesselClass, CellType[] parts, int size, int y, int x) {
         Cell[] newShipParts = new Cell[size];
-        Coordinate[] shipLocation = new Coordinate[size];
+
         for (int i=0; i<size; i++) {
-            newShipParts[i] = new Cell();
-            shipLocation[i] = new Coordinate("A",0);  // Default values - changed below
+            newShipParts[i] = new Cell(x, y);
         }
-        //TODO: there has to be a better implementation than setting newShipParts and shipLocation like this
 
         // If horizontal
         if (parts[0].equals(CellType.SHIP_LEFT)) {
             if (x + parts.length < 10) {
                 this.grid[y][x].setCellType(parts[0]);
                 newShipParts[0].setCellType(parts[0]);
-                shipLocation[0].setHorizontal(x);
-                shipLocation[0].setVertical(String.valueOf(chars.charAt(y)));
                 for (int i = 1; i < size; i++) {
-                    this.grid[y][x + i].setCellType(parts[1]);
-                    newShipParts[i].setCellType(parts[1]);
-                    shipLocation[i].setHorizontal(i);
-                    shipLocation[i].setVertical(String.valueOf(chars.charAt(y)));
+                    if (i<size-1) {
+                        this.grid[y][x + i].setCellType(parts[1]);
+                        newShipParts[i].setCellType(parts[1]);
+                        newShipParts[i].setHorizontalCoord(x + i);
+                        newShipParts[i].setVerticalCoord(y);
+                    } else {
+                        this.grid[y][x + i].setCellType(parts[2]);
+                        newShipParts[i].setCellType(parts[2]);
+                        newShipParts[i].setHorizontalCoord(x + i);
+                        newShipParts[i].setVerticalCoord(y);
+                    }
                 }
-                grid[y][x + size-1].setCellType(parts[2]);
-                newShipParts[size-1].setCellType(parts[2]);
-                shipLocation[size-1].setHorizontal(size-1);
-                shipLocation[size-1].setVertical(String.valueOf(chars.charAt(y)));
             }
         }
-        // If Vertical
+
+        // If vertical
         if (parts[0].equals(CellType.SHIP_UP)) {
             if (y + parts.length < 10) {
                 this.grid[y][x].setCellType(parts[0]);
                 newShipParts[0].setCellType(parts[0]);
-                shipLocation[0].setHorizontal(x);
-                shipLocation[0].setVertical(String.valueOf(chars.charAt(y)));
                 for (int i = 1; i < size; i++) {
-                    this.grid[y +i][x].setCellType(parts[1]);
-                    newShipParts[i].setCellType(parts[1]);
-                    shipLocation[i].setHorizontal(i);
-                    shipLocation[i].setVertical(String.valueOf(chars.charAt(y)));
+                    if (i<size-1) {
+                        this.grid[y + i][x].setCellType(parts[1]);
+                        newShipParts[i].setCellType(parts[1]);
+                        newShipParts[i].setHorizontalCoord(x);
+                        newShipParts[i].setVerticalCoord(y + i);
+                    } else {
+                        this.grid[y + i][x].setCellType(parts[2]);
+                        newShipParts[i].setCellType(parts[2]);
+                        newShipParts[i].setHorizontalCoord(x);
+                        newShipParts[i].setVerticalCoord(y + i);
+                    }
                 }
-                grid[y + size-1][x].setCellType(parts[2]);
-                newShipParts[size-1].setCellType(parts[2]);
-                shipLocation[size-1].setHorizontal(size-1);
-                shipLocation[size-1].setVertical(String.valueOf(chars.charAt(y)));
             }
         }
-        return new Ship(newShipParts, shipLocation);
+//        System.out.println("Ship: "+vesselClass);
+//        for (Cell cell:
+//                newShipParts) {
+//            System.out.print(cell.getVerticalCoordString()+cell.getHorizontalCoord()+"  ");
+//        }
+//        System.out.println(" ");
+//        for (Cell cell:
+//                newShipParts) {
+//            System.out.print(cell.getCellType()+"   ");
+//        }
+//        System.out.println("\n");
+
+        return new Ship(vesselClass, newShipParts);
     }
 
     /**
@@ -216,11 +229,11 @@ public class Grid {
         CellType[] ver = {CellType.SHIP_UP,CellType.SHIP_HULL, CellType.SHIP_DOWN};
         // Map of ships
         HashMap<String, Ship> vessels = new HashMap<>();
-        vessels.put("Carrier", placeShip(hor, 6,  2, 0));
-        vessels.put("Battleship", placeShip(ver, 5,  1, 8));
-        vessels.put("Destroyer", placeShip(ver, 4,  4, 1));
-        vessels.put("Submarine", placeShip(hor, 4,  8, 3));
-        vessels.put("Patrol Boat", placeShip(hor, 3,  5, 4));
+        vessels.put("Carrier", placeShip("Carrier", hor, 6,  2, 0));
+        vessels.put("Battleship", placeShip("Battleship", ver, 5,  1, 8));
+        vessels.put("Destroyer", placeShip("Destroyer", ver, 4,  4, 1));
+        vessels.put("Submarine", placeShip("Submarine", hor, 4,  8, 3));
+        vessels.put("Patrol Boat", placeShip("Patrol Boat", hor, 3,  5, 4));
         return vessels;
     }
 }

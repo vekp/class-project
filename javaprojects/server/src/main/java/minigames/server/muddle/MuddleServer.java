@@ -1,18 +1,16 @@
 package minigames.server.muddle;
 
 import io.vertx.core.Future;
-import minigames.achievements.Achievement;
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.GameServerDetails;
 import minigames.rendering.RenderingPackage;
 import minigames.server.ClientType;
 import minigames.server.GameServer;
+import minigames.server.achievements.AchievementHandler;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
 
 /**
  * Our MuddleServer holds MuddleGames. 
@@ -21,6 +19,7 @@ import java.util.Set;
 public class MuddleServer implements GameServer {
 
     static final String chars = "abcdefghijklmopqrstuvwxyz";
+    AchievementHandler achievementHandler;
 
     /** A random name. We could do with something more memorable, like Docker has */
     static String randomName() {
@@ -35,6 +34,13 @@ public class MuddleServer implements GameServer {
     /** Holds the games in progress in memory (no db) */
     HashMap<String, MuddleGame> games = new HashMap<>();
 
+    public MuddleServer() {
+        achievementHandler = new AchievementHandler(MuddleServer.class);
+        // Register all achievements with handler
+        for (MuddleAchievement a : MuddleAchievement.values()) {
+            achievementHandler.registerAchievement(a.achievement);
+        }
+    }
     @Override
     public GameServerDetails getDetails() {
         return new GameServerDetails("Muddle", "It would be a MUD, but it's not really written yet");
@@ -54,7 +60,7 @@ public class MuddleServer implements GameServer {
 
     @Override
     public Future<RenderingPackage> newGame(String playerName) {
-        MuddleGame g = new MuddleGame(randomName());
+        MuddleGame g = new MuddleGame(randomName(), playerName);
         games.put(g.name, g);
         return Future.succeededFuture(g.joinGame(playerName));
     }

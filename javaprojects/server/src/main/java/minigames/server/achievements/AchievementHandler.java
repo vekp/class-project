@@ -1,6 +1,7 @@
 package minigames.server.achievements;
 
 import minigames.achievements.Achievement;
+import minigames.achievements.GameAchievementState;
 import minigames.server.GameServer;
 
 import java.util.*;
@@ -16,12 +17,11 @@ public class AchievementHandler {
     //implemented later)
     private final static AchievementDatabase database = new AchievementDatabase();
 
-    //Keyed by player ID, the hashset within contains the set of Achievement IDs keyed to this handler that
-    //a particular player has unlocked.
-    //todo replace this with a player profile or some sort of player database
-    private final static Map<String, Map<String, String>> playerUnlockList = new HashMap<>();
-
+    //manager class responsible for holding all of the player achievement profiles
     private final static PlayerAchievementProfileManager playerManager = new PlayerAchievementProfileManager();
+
+    //This stores recently unlocked achievements, so that notifications can be played on the client.
+    private static final List<Achievement> recentUnlocks = new ArrayList<>();
 
     //the game server name associated with this handler. It is unique for each game server (though multiple
     //handlers can have this same id - they just access and handle achievements for the same server)
@@ -37,8 +37,28 @@ public class AchievementHandler {
         handlerID = type.getName();
     }
 
+    /**
+     * Get the handlers ID
+     *
+     * @return the achievement handler's ID, which is the classname of the server that this handler is for
+     */
     public String getHandlerID() {
         return handlerID;
+    }
+
+    /**
+     * Getter for the list of recently unlocked achievements. This returns ALL achievements that have recently been
+     * unlocked (regardless of game - though typically when running only 1 client this is only going to contain 1
+     * game's achievements)
+     *
+     * @return A list of achievements that were just unlocked. Sorted by order that they were added to the queue
+     */
+    public static List<Achievement> getRecentUnlocks() {
+        List<Achievement> result = new ArrayList<>(recentUnlocks.stream().toList());
+        //once the recent unlocks are requested, it is presumed they will be turned into notifications, so this queue
+        //is now cleared as these are no longer the 'recent' unlocks.
+        recentUnlocks.clear();
+        return result;
     }
 
     /**
@@ -71,16 +91,19 @@ public class AchievementHandler {
      */
     public void unlockAchievement(String playerID, String achievementID) {
         //throw an error if we try to unlock an achievement that either doesnt exist, or isnt ours
-        if(database.getAchievement(handlerID, achievementID) == null){
-            throw new IllegalArgumentException("Achievement { " +achievementID + " } does not exist for this game { " +
+        if (database.getAchievement(handlerID, achievementID) == null) {
+            throw new IllegalArgumentException("Achievement { " + achievementID + " } does not exist for this game { " +
                     handlerID + " }. Please ensure all achievements are registered before trying to use");
         }
         //this will either add the player, or they were already there
         playerManager.addPlayer(playerID);
 
         PlayerAchievementProfile player = playerManager.getPlayer(playerID);
-        if(!player.hasEarnedAchievement(handlerID, achievementID)){
-            //todo if this is first time player has earned achievement, we can do a notification /popup
+        if (!player.hasEarnedAchievement(handlerID, achievementID)) {
+            //if the player has not unlocked this achievement before, it is a new achievement and needs to have a
+            //notification popup, so we add it to our recents list
+            Achievement result = database.getAchievement(handlerID, achievementID);
+            recentUnlocks.add(result);
         }
         //this won't add duplicates if player already has achievement
         player.addAchievement(handlerID, achievementID);
@@ -95,7 +118,49 @@ public class AchievementHandler {
      */
     public boolean playerHasEarnedAchievement(String playerID, String achievementID) {
         PlayerAchievementProfile player = playerManager.getPlayer(playerID);
-        if(player != null) return player.hasEarnedAchievement(handlerID, achievementID);
+        if (player != null) return player.hasEarnedAchievement(handlerID, achievementID);
         else return false;
+    }
+
+    /**
+     * Puts together a game state object containing the list of locked, unlocked, and hidden achievements
+     * for a particular player. Used by the server to put together data packets to send to the client for display
+     * @param playerID the player we want achievements for
+     * @param gameName the name we want to attach to the achievement data. Since the handler usually is keyed by a
+     *                 class type (not a game name), it might be more appropriate to pass in a game's title for the
+     *                 user to read.
+     * @return a game state object containing lists of unlocked and locked achievements for this player in this game
+     */
+    public GameAchievementState getAchievementState(String playerID, String gameName){
+        List<Achievement> gameAchievements = database.getAchievementsByGame(getHandlerID());
+        //if there are no achievements for this handler we will not provide a state for it
+        if (gameAchievements.size() == 0) return null;
+
+        GameAchievementState state = new GameAchievementState(gameName, new ArrayList<>(), new ArrayList<>());
+
+        //hidden achievements that have not yet been unlocked should be shown at the END of the list of locked
+        //achievements, put them in here for now so they can be added afterwards
+        List<Achievement> hiddenLocked = new ArrayList<>();
+        //the list used depends on whether the player has this achievement or not
+        for (Achievement current : gameAchievements) {
+            if (playerHasEarnedAchievement(playerID, current.name())) {
+                state.unlocked().add(current);
+            } else {
+                //If player hasn't unlocked it, and it's a hidden achievement, we do not send the 'real'
+                //achievement but instead make a dummy 'hidden' achievement - keeps it secret but still shows
+                // the player that there is something to unlock
+                if (current.hidden()) {
+                    Achievement hiddenAchievement = new Achievement(current.name(), "This is a secret " +
+                            "achievement, play the game to unlock it", 0, "", true);
+                    hiddenLocked.add(hiddenAchievement);
+                } else {
+                    state.locked().add(current);
+                }
+            }
+        }
+        //once we are done sorting through achievments, add any hidden locked achievements to the end of the
+        // locked list to show up at the bottom.
+        state.locked().addAll(hiddenLocked);
+        return state;
     }
 }

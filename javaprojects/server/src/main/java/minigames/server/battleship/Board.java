@@ -1,6 +1,9 @@
 package minigames.server.battleship;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
+
 import static java.lang.Math.round;
 
 /**
@@ -10,10 +13,11 @@ public class Board {
     private String playerName;
     private String boardTitle;
     private Grid grid; // A two-dimensional array of Cells for drawing the game board
-    private HashMap vessels = new HashMap<>();  // An array containing each of the five ship types for the current board
+    private HashMap<String, Ship> vessels;  // An array containing each of the five ship types for the current board
     private int turnNumber;  // The current turn number
     private String messageHistory;  // String of all valid messages, both game and player
     private GameState gameState;
+
 
     /**
      * The Constructor takes only the player's name as a parameter
@@ -22,8 +26,8 @@ public class Board {
     public Board(String playerName, String message){
         this.playerName = playerName;
         this.turnNumber = 0;
-        // Create a default grid
-        this.grid = new Grid();
+        this.vessels = new HashMap<>();
+        this.grid = new Grid(); // Create a default grid
         defaultGrid();  // Set the grid to default ship positions
         this.messageHistory = message;
         this.gameState = GameState.SHIP_PLACEMENT;
@@ -68,6 +72,9 @@ public class Board {
         return gameState;
     }
 
+    public HashMap<String, Ship> getVessels() {
+        return vessels;
+    }
 
     // Setters
     /**
@@ -155,7 +162,7 @@ public class Board {
      * @return a 2D cell array
      */
     public Cell[][] defaultGrid() {
-        this.vessels = new HashMap<>(grid.defaultShips());
+        this.vessels = new HashMap<>(this.grid.defaultShips());
         return this.getGrid();
     }
 
