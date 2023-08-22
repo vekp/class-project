@@ -211,11 +211,13 @@ public class MinigameNetworkClientWindow {
         ActionListener returnAction = (a) -> {
             showGameServers(servers);
         }; 
+
         JButton surveyButton = new JButton("Survey");
         surveyButton.addActionListener(e -> {
             clearAll();
-            Survey survey = new Survey(returnAction);
-            center.add(survey.panel);
+            JPanel survey = new Survey(returnAction);
+            frame.setTitle(Survey.FRAME_TITLE);
+            center.add(survey);
             pack();
         });
         south.add(surveyButton);
