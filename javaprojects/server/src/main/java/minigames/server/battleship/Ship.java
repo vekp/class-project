@@ -8,6 +8,8 @@ public class Ship {
     private String shipClass;
     private Cell[] shipParts;           // An Array containing all the Cells of the ship
     private boolean sunk;               // A boolean for whether the ship has been sunk
+    int hits;
+    int size;
 
     // Constructor
 
@@ -20,6 +22,8 @@ public class Ship {
         this.shipClass = shipClass;
         this.shipParts = shipParts;
         this.sunk = false;
+        int hits = 0;
+        int size = shipParts.length;
     }
 
     // These will likely be wanted when custom ship movement is added
