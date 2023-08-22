@@ -241,8 +241,23 @@ public class BattleshipGame {
             achievementHandler.unlockAchievement(playerName, YOU_GOT_HIM.toString());
             return true;
         } else {
+            // Set the cell to be hit
             player.setGridCell(x, y, CellType.HIT);
-            // TODO: Check if a ship is sunk
+            // TODO: Check if a ship is sunk + perhaps move this code into a new class for vessels
+            Ship[] ships = new Ship[5];
+            ships[0] = this.player2.getShip("Carrier");
+            ships[1] = this.player2.getShip("Battleship");
+            ships[2] = this.player2.getShip("Destroyer");
+            ships[3] = this.player2.getShip("Submarine");
+            ships[4] = this.player2.getShip("Patrol Boat");
+
+            for(int i = 0; i < ships.length; i++){
+                ships[i].updateShipStatus(x, y);
+            }
+
+
+
+            // Not sure what this check does - Craig
             if (sunk(player, x, y)) {
                 respondToInput(player, GameState.SHIP_SUNK, "",true);
             }
@@ -251,6 +266,7 @@ public class BattleshipGame {
         // TODO: increment turn number?
 
     }
+
     private boolean sunk(Board player, int x, int y) {
          Cell[][] grid = player.getGrid();
          return true;
