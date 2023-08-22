@@ -42,6 +42,8 @@ public class Cell {
         return cellType.toString();
     }
 
+    public boolean getShotStatus() {return this.shotAt;}
+
     public int getHorizontalCoord() {
         return horizontalCoord;
     }
@@ -78,4 +80,6 @@ public class Cell {
     public void setVerticalCoord(int verticalCoord) {
         this.verticalCoord = verticalCoord;
     }
+
+    public void shot(){this.shotAt = true;}
 }
