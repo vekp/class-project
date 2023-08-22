@@ -1,15 +1,14 @@
 package minigames.client.gameshow;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.util.Collections;
 
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
@@ -46,34 +45,125 @@ public class GameShow implements GameClient {
     JTextField userCommand;
     JButton send;
 
-    JPanel commandPanel;
+    JPanel background;
+
+    JPanel titleArea;
+    JLabel title;
+
+    JPanel gameContainer;
+    JPanel gameArea;
+    JPanel gameSelect;
+    JLabel gameSelectInstructions;
+    JPanel guessContainer;
+
+    JButton wordScramble;
+    JButton memoryGame;
+    JButton guessingGame;
 
     public GameShow() {
-        textArea = new JTextArea();
-        textArea.setEditable(false);
-        textArea.setPreferredSize(new Dimension(800, 600));
-        textArea.setForeground(Color.GREEN);
-        textArea.setBackground(Color.BLACK);
-        textArea.setFont(new Font("Monospaced", Font.PLAIN, 18));
+        background = new JPanel(new BorderLayout());
+        background.setPreferredSize(new Dimension(800, 600));
+        background.setBackground(Color.WHITE);
+        
+        titleArea = new JPanel(new BorderLayout());
+        titleArea.setPreferredSize(new Dimension(800, 100));
+        titleArea.setBackground(new Color(255, 255, 0));
 
-        north = new JButton("NORTH");
-        north.addActionListener((evt) -> sendCommand("NORTH"));
-        south = new JButton("SOUTH");
-        south.addActionListener((evt) -> sendCommand("SOUTH"));
-        east = new JButton("EAST");
-        east.addActionListener((evt) -> sendCommand("EAST"));
-        west = new JButton("WEST");
-        west.addActionListener((evt) -> sendCommand("WEST"));
+        title = new JLabel("GAME SHOW", SwingConstants.CENTER);
+        title.setFont(new Font("Arial Black", Font.PLAIN, 60));
 
-        userCommand = new JTextField(20);
-        send = new JButton(">");
-        send.addActionListener((evt) -> sendCommand(userCommand.getText()));
+        titleArea.add(title, BorderLayout.CENTER);
 
-        commandPanel = new JPanel();
-        for (Component c : new Component[] { north, south, east, west, userCommand, send }) {
-            commandPanel.add(c);
+        background.add(titleArea, BorderLayout.NORTH);
+
+        gameContainer = new JPanel(new BorderLayout());
+        gameContainer.setPreferredSize(new Dimension(700, 400));
+        gameContainer.setBorder(new EmptyBorder(20, 20, 20, 20));
+        gameContainer.setBackground(Color.WHITE);
+
+        gameSelect = new JPanel(new BorderLayout());
+        gameSelect.setPreferredSize(new Dimension(760, 40));
+        gameSelect.setBackground(new Color(255, 106, 210));
+
+        gameSelectInstructions = new JLabel("Select a game to play", SwingConstants.CENTER);
+        gameSelectInstructions.setFont(new Font("Arial", Font.PLAIN, 24));
+
+        gameSelect.add(gameSelectInstructions, BorderLayout.CENTER);
+
+        gameArea = new JPanel(new BorderLayout(10, 10));
+        gameArea.setBackground(new Color(255, 106, 210));
+        
+        gameArea.add(gameSelect, BorderLayout.NORTH);
+        
+        wordScramble = new JButton("Word Scramble");
+        wordScramble.setPreferredSize(new Dimension(100, 50));
+        wordScramble.addActionListener((evt) -> 
+            sendCommand(new JsonObject().put("command", "wordScramble")));
+
+        gameArea.add(wordScramble, BorderLayout.NORTH);
+
+        memoryGame = new JButton("Memory Game");
+        memoryGame.setPreferredSize(new Dimension(100, 50));
+
+        gameArea.add(memoryGame, BorderLayout.CENTER);
+
+        guessingGame = new JButton("Guess the Animal");
+        guessingGame.setPreferredSize(new Dimension(100, 50));
+
+        gameArea.add(guessingGame, BorderLayout.SOUTH);
+
+        gameContainer.add(gameArea);
+
+        background.add(gameContainer);
+    }
+
+    public void startWordScramble(String scrambledWord, int gameId) {
+        gameContainer.removeAll();
+        gameContainer.validate();
+        gameContainer.repaint();
+
+        JPanel scrambledWordPanel = new JPanel(new BorderLayout());
+        JLabel scrambled = new JLabel(scrambledWord, SwingConstants.CENTER);
+
+        scrambledWordPanel.add(scrambled, BorderLayout.CENTER);
+
+        gameContainer.add(scrambledWordPanel, BorderLayout.NORTH);
+        
+        guessContainer = new JPanel(new BorderLayout(50, 50));
+        guessContainer.setBorder(new EmptyBorder(100, 100, 100, 100));
+
+        JTextField guess = new JTextField(5);
+        JButton sendGuess = new JButton("Submit guess");
+        sendGuess.addActionListener((evt) ->
+            sendCommand(new JsonObject()
+                .put("command", "guess")
+                .put("guess", guess.getText())
+                .put("gameId", gameId)));
+
+        guessContainer.add(guess, BorderLayout.CENTER);
+        guessContainer.add(sendGuess, BorderLayout.SOUTH);
+
+        gameContainer.add(guessContainer, BorderLayout.CENTER);
+        gameContainer.validate();
+        gameContainer.repaint();
+    }
+
+    public void wordScrambleGuess(boolean correct) {
+        if (!correct) {
+            JLabel tryAgain = new JLabel("That's not quite right :( Try again!",
+                                         SwingConstants.CENTER);
+            guessContainer.add(tryAgain, BorderLayout.NORTH);
+        } else {
+            guessContainer.removeAll();
+            guessContainer.validate();
+            guessContainer.repaint();
+            JLabel congrats = new JLabel("Congratulations! You Win :)",
+                                         SwingConstants.CENTER);
+            guessContainer.add(congrats, BorderLayout.CENTER);
         }
 
+        guessContainer.validate();
+        guessContainer.repaint();
     }
 
     /**
@@ -82,9 +172,7 @@ public class GameShow implements GameClient {
      * We're sending these as
      * { "command": command }
      */
-    public void sendCommand(String command) {
-        JsonObject json = new JsonObject().put("command", command);
-
+    public void sendCommand(JsonObject json) {
         // Collections.singletonList() is a quick way of getting a "list of one item"
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
     }
@@ -100,10 +188,7 @@ public class GameShow implements GameClient {
         this.player = player;
 
         // Add our components to the north, south, east, west, or centre of the main window's BorderLayout
-        mnClient.getMainWindow().addCenter(textArea);
-        mnClient.getMainWindow().addSouth(commandPanel);
-
-        textArea.append("Starting...");
+        mnClient.getMainWindow().addCenter(background);
 
         // Don't forget to call pack - it triggers the window to resize and repaint itself
         mnClient.getMainWindow().pack();
@@ -113,18 +198,14 @@ public class GameShow implements GameClient {
     public void execute(GameMetadata game, JsonObject command) {
         this.gm = game;
 
-        // We should only be receiving messages that our game understands
-        // Note that this uses the -> version of case statements, not the : version
-        // (which means we don't nead to say "break;" at the end of our cases)
         switch (command.getString("command")) {
-            case "clearText" -> textArea.setText("");
-            case "appendText" -> textArea.setText(textArea.getText() + command.getString("text"));
-            case "setDirections" -> {
-                String directions = command.getString("directions");
-                north.setEnabled(directions.contains("N"));
-                south.setEnabled(directions.contains("S"));
-                east.setEnabled(directions.contains("E"));
-                west.setEnabled(directions.contains("W"));
+            case "startWordScramble" -> {
+                this.startWordScramble(
+                    command.getString("scrambledWord"),
+                    (int) command.getInteger("gameId"));
+            }
+            case "guessOutcome" -> {
+                wordScrambleGuess(command.getBoolean("outcome"));
             }
         }
 
