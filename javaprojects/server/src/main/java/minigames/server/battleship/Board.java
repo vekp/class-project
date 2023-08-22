@@ -182,6 +182,40 @@ public class Board {
         return gridStrings.toString();
     }
 
+    public static String showEnemyBoard(String boardTitle, Cell[][] grid) {
+        StringBuilder gridStrings = new StringBuilder();
+        String chars = "ABCDEFGHIJ";
+
+        // Character width of the board
+        int strLength = 24;
+        int titleSpace = round((float) (strLength - boardTitle.length()) / 2);
+
+        // Adds space to the start of the title to centre the text
+        for (int i = 0; i < titleSpace; i++) {
+            gridStrings.append(" ");
+        }
+        gridStrings.append(boardTitle).append("\n").append(" ---------------------\n");
+
+        for (int i=0; i<11; i++) {
+            for (int j = 0; j < 10; j++) {
+                if (i==0 && j==0) gridStrings.append("   ");
+                if (i==0) gridStrings.append(j).append(" ");
+                if (j==0 && i!=0) gridStrings.append(" ").append(chars.charAt(i-1)).append(" ");
+                if (i>0) {
+                    if(grid[i-1][j].getCellTypeString().equals(".") || grid[i-1][j].getCellTypeString().equals("X")){
+                        gridStrings.append(grid[i-1][j].getCellTypeString()).append(" ");
+                    } else {
+                        gridStrings.append("~ ");
+                    }
+
+                    //System.out.print(grid[i-1][j].getCellTypeString());
+                }
+            }
+            if (i<10) gridStrings.append("\n");
+        }
+        return gridStrings.toString();
+    }
+
     /**
      * Call the grid's default grid creator
      * @return A 2D array of cells

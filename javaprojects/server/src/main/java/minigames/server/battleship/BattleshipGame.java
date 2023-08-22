@@ -355,7 +355,7 @@ public class BattleshipGame {
         renderingCommands.add(new JsonObject().put("command", "updateHistory").put("history", p.getMessageHistory()));
         renderingCommands.add(new JsonObject().put("command", "updatePlayerName").put("player", p.getPlayerName()));
         renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, player1.getGrid())));
-        renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.generateBoard(enemy, player2.getGrid())));
+        renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.showEnemyBoard(enemy, player2.getGrid())));
         return new RenderingPackage(this.gameMetadata(), renderingCommands);
     }
 
@@ -387,7 +387,7 @@ public class BattleshipGame {
             renderingCommands.add(new JsonObject().put("command", "updateHistory").put("history", messageHistory(p)));
             renderingCommands.add(new JsonObject().put("command", "updatePlayerName").put("player", playerName));
             renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, player1.getGrid())));
-            renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.generateBoard(enemy, player2.getGrid())));
+            renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.showEnemyBoard(enemy, player2.getGrid())));
 
             return new RenderingPackage(gameMetadata(), renderingCommands);
         }
