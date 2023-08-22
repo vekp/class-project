@@ -12,22 +12,24 @@ import minigames.client.krumgame.KrumHelpers;
  * 
  */
 
-// Using static methods as background image is being 
-// processed as alphaRaster in other classes.
 public class Background{
-    private static BufferedImage image;
-    private static WritableRaster alphaRaster;
+    private BufferedImage image;
+    private WritableRaster alphaRaster;
 
-    public static void initializeBackground(String imageFile){
+    public Background(String imageFile){
+        initializeBackground(imageFile);
+    }
+
+    private void initializeBackground(String imageFile){
         image = KrumHelpers.readSprite(imageFile);
         alphaRaster = image.getAlphaRaster();
     }
 
-    public static BufferedImage getImage(){
+    public BufferedImage getImage(){
         return image;
     }
 
-    public static WritableRaster getAlphaRaster(){
+    public WritableRaster getAlphaRaster(){
         return alphaRaster;
     }
 }
