@@ -1,30 +1,29 @@
 package minigames.client.peggle;
 
+
 import javax.swing.*;
 import java.awt.*;
 
-public class InstructionsUI extends Container {
+public class InstructionsUI extends JPanel{
     private final String instructionsText = "tesbnfisdbnigjkbn";
 
-    public InstructionsUI(JFrame mainWindow) {
+    public InstructionsUI() {
+        JPanel instructionsPanel = generateInstructionsPanel();
+        this.add(instructionsPanel);
 
-        generateInstructionsPanel();
 
     }
 
     private JPanel generateInstructionsPanel(){
-        JPanel instructionsPanel = new JPanel(new GridLayout(0,1,0,10));
+        JPanel instructionsPanel = new JPanel(new BorderLayout());
         instructionsPanel.setBackground(Color.BLACK);
-
-        System.out.println("sbighsdfghbiasdf");
-
 
         JTextArea instructions = new JTextArea(instructionsText);
         instructions.setEditable(false);
         instructions.setLineWrap(true);
         instructions.setWrapStyleWord(true);
 
-        instructionsPanel.add(instructions);
+        instructionsPanel.add(instructions, BorderLayout.CENTER);
 
         return instructionsPanel;
     }

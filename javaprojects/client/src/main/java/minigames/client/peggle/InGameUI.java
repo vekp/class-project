@@ -1,37 +1,26 @@
 package minigames.client.peggle;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.ImageIcon;
 import javax.swing.event.MouseInputAdapter;
-import java.awt.Dimension;
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 
 public class InGameUI extends JPanel {
-    final int COLUMNS = 1000;
-    final int ROWS = 750;
-    final Color PAINT_COLOUR = Color.GRAY;
-    final Color BACKGROUND = Color.BLACK;
-    final Color HOVER_COLOUR = Color.YELLOW;
-    int CELL_WIDTH = 1; // preferred
-    int CELL_HEIGHT = 1; // preferred
-    private boolean grid[][] = new boolean[ROWS][COLUMNS];
+    final int columns = 1000;
+    final int rows = 750;
+    private boolean grid[][] = new boolean[rows][columns];
     int hoverX = -1;
     int hoverY = -1;
-
     //InGameUI Background image
-    private static final String backgroundImagePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/UI/InGameBackground.png";
+    private static final String backgroundImagePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/UI/gameBG.png";
     private ImageIcon backgroundImage = new ImageIcon(backgroundImagePath);
-
     //Instance of the Cannon class
     private Cannon cannon;
 
     InGameUI() {
-        setBackground(BACKGROUND);
         // Creates the cannon at position (250, 55)
         cannon = new Cannon(250, 55);
 
@@ -68,13 +57,13 @@ public class InGameUI extends JPanel {
     }
 
     void handleHover(MouseEvent e) {
-        int x = COLUMNS * e.getX() / getWidth();
-        int y = (ROWS * e.getY() / getHeight());
+        int x = columns * e.getX() / getWidth();
+        int y = (rows * e.getY() / getHeight());
         if (x == hoverX && y == hoverY) {
             // Don't do repaints unless there was a change
             return;
         }
-        hoverY = (ROWS - 1) - y; // Fix for upside down coordinates
+        hoverY = (rows - 1) - y; // Fix for upside down coordinates
         hoverX = x;
         repaint();
 
@@ -100,9 +89,9 @@ public class InGameUI extends JPanel {
         // Track and paint the yellow cursor bit while we're dragging
         handleHover(e);
 
-        int x = COLUMNS * e.getX() / getWidth();
-        int y = (ROWS * e.getY() / getHeight());
-        y = (ROWS - 1) - y; // Fix for upside down coordinates
+        int x = columns * e.getX() / getWidth();
+        int y = (rows * e.getY() / getHeight());
+        y = (rows - 1) - y; // Fix for upside down coordinates
         // Update the model
         grid[y][x] = true;
         repaint();
@@ -111,9 +100,9 @@ public class InGameUI extends JPanel {
     private void drawGridSquare(int x, int y, Graphics g) {
         // Translate x and y to panel coordinates
         // Switch y coordinates that usually start from top, to start from bottom.
-        x = (int) (getWidth() * x / COLUMNS);
-        y = (int) (getHeight() * (ROWS - 1 - y) / ROWS);
-        g.fillRect(x, y, getWidth() / COLUMNS, getHeight() / ROWS);
+        x = (int) (getWidth() * x / columns);
+        y = (int) (getHeight() * (rows - 1 - y) / rows);
+        g.fillRect(x, y, getWidth() / columns, getHeight() / rows);
     }
 
     // This method can be used to paint a Component however you like
@@ -125,16 +114,13 @@ public class InGameUI extends JPanel {
         // Draw the background image
         g.drawImage(backgroundImage.getImage(), 0, 0, getWidth(), getHeight(), this);
 
-
         Graphics2D g2d = (Graphics2D) g;
 
         // Update the cannon's position to be the center of the window
         cannon.setX(getWidth() / 2);
 
-        // There is already a background colour set in the constructor
-        g.setColor(PAINT_COLOUR);
-        for (int y = 0; y < ROWS; y++) {
-            for (int x = 0; x < COLUMNS; x++) {
+        for (int y = 0; y < rows; y++) {
+            for (int x = 0; x < columns; x++) {
                 if (!grid[y][x])
                     continue;
                 // Grey squares
@@ -142,28 +128,11 @@ public class InGameUI extends JPanel {
             }
         }
 
-        // Yellow square
-        g.setColor(HOVER_COLOUR);
         drawGridSquare(hoverX, hoverY, g);
 
         // Draw the cannon
         cannon.draw(g2d);
     }
 
-    @Override
-    public Dimension getPreferredSize() {
-        return new Dimension(COLUMNS * CELL_WIDTH, ROWS * CELL_HEIGHT);
-    }
 
-    // We only have a main method to display the panel on a new JFrame.
-    // In the project, we would just put a panel directly on the client window
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Title");
-        JPanel panel = new InGameUI();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(panel);
-        frame.pack();
-        frame.setVisible(true);
-        panel.repaint();
-    }
 }

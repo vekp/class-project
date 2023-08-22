@@ -2,155 +2,188 @@ package minigames.client.peggle;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.Image;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
+/*
+ * PeggleUI class that provides a user interface for the Peggle mini-game
+ */
 public class PeggleUI {
-    // TODO: Decide on game colours
-    private static final String gameName = "Peggle";
+    private static final String gameName = "Peggle MiniGame";
+    // File paths for images
+    private static final String iconFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/UI/gameIcon.png";
+    private static final String backgroundFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/UI/menuBG.png";
+    private static final String startButtonFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/startBTN.png";
+    private static final String exitButtonFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/exitBTN.png";
+    private static final String instructionsButtonFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/instructionsBTN.png";
+    private static final String achievementsButtonFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/achievementsBTN.png";
+    private static final String leaderboardButtonFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/leaderboardBTN.png";
+    private static final String settingsButtonFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/settingsBTN.png";
+
     private static JFrame mainWindow = null;
-    private static final String titleFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/titlecard.png";
-    private static final String iconFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/UI/gameicon.png";
 
-
-
-    // TODO: Decide on game colours
-    private static final Color mainColour = new Color(1, 172, 252);
-    private static final Color accentColour = new Color(255, 255, 255);
-    private static final Color textColour = new Color(0, 0, 0);
-
-
-
+    // Main function initialises the UI and starts the game
     public static void main(String[] args) {
-
-        //Create JFrame window: set title, size and colour
         mainWindow = new JFrame(gameName);
         mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainWindow.setMinimumSize(new Dimension(500,500));
-        mainWindow.setBackground(mainColour);
+        mainWindow.setPreferredSize(new Dimension(500, 850));
+        mainWindow.setIconImage(new ImageIcon(iconFilePath).getImage());
 
-        //Set icon for main window
-        ImageIcon icon = new ImageIcon(iconFilePath);
-        mainWindow.setIconImage(icon.getImage());
-
-        //Initialise game with start screen
-        JPanel titleScreen = generateTitleScreen();
+        JPanel titleScreen = generateMainMenu();
         mainWindow.setContentPane(titleScreen);
         mainWindow.pack();
         mainWindow.setVisible(true);
-
     }
 
-    public static JPanel generateTitleScreen(){
-        //TODO add outer graphic
+    // Adds a panel to the background with an anchor
+    private static void addPanelToBackground(JLabel background, JPanel panel, int anchor) {
+        GridBagConstraints backgroundConstraints = new GridBagConstraints();
+        backgroundConstraints.gridx = 0;
+        backgroundConstraints.gridy = 0;
+        backgroundConstraints.weightx = 1;
+        backgroundConstraints.weighty = 1;
+        backgroundConstraints.anchor = anchor;
+        background.add(panel, backgroundConstraints);
+    }
 
-        JPanel titleScreen = new JPanel(new GridLayout(0,3,10,10));
-        titleScreen.setBackground(mainColour);
+    // Generates the title screen main menu of the game
+    private static JPanel generateMainMenu() {
+        JPanel titleScreen = new JPanel(new BorderLayout());
+        JLabel background = new JLabel(new ImageIcon(backgroundFilePath));
+        titleScreen.add(background, BorderLayout.CENTER);
+        background.setLayout(new GridBagLayout());
 
-        //Padding at bottom of buttons showing title
-        titleScreen.add(generateMenuHeader());
+        JPanel buttonsPanel = generateMainButtonsPanel();
+        addPanelToBackground(background, buttonsPanel, GridBagConstraints.CENTER);
 
-        //Menu interaction buttons plus top and bottom headers
-        titleScreen.add(generateMenuButtons());
-
-        //Padding at bottom of buttons showing title
-        titleScreen.add(generateMenuHeader());
+        JPanel topCenterButtonsPanel = generateTopCenterButtonsPanel();
+        addPanelToBackground(background, topCenterButtonsPanel, GridBagConstraints.NORTH);
 
         return titleScreen;
     }
 
+    // Generates the main menu buttons (start, exit)
+    private static JPanel generateMainButtonsPanel() {
+        JPanel buttonsPanel = new JPanel();
+        buttonsPanel.setOpaque(false);
+        buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS)); // Vertical alignment
 
-    private static JPanel generateMenuButtons(){
+        //Start button
+        JButton startButton = createImageButton(startButtonFilePath, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                startGame();
+            }
+        }, 0.5); //scaling
 
-        //Basic properties of parent JPanel
-        JPanel buttonGrid = new JPanel(new GridLayout(0,1,0,10));
-        buttonGrid.setBackground(mainColour);
+        //Exit button
+        JButton exitButton = createImageButton(exitButtonFilePath, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        }, 0.5); //scaling
 
-        //Get UI details from UI class depending on response
-        JButton startGameButton = new JButton("Start Game");
-        JButton instructionsButton = new JButton("How to Play");
-        JButton leaderboardButton = new JButton("Leaderboard (In Development)");
-        JButton achievementsButton = new JButton("Achievements (In Development)");
-        JButton settingsButton = new JButton("Settings (In Development)");
+        // Add buttons
+        buttonsPanel.add(startButton);
+        buttonsPanel.add(Box.createVerticalStrut(75)); // Vertical spacing between buttons
+        buttonsPanel.add(exitButton);
 
-        //Button colour (background) and button text (foreground)
-        startGameButton.setBackground(accentColour);
-        startGameButton.setForeground(textColour);
-        startGameButton.addActionListener(e -> startGame());
-
-        instructionsButton.setBackground(accentColour);
-        instructionsButton.setForeground(textColour);
-        instructionsButton.addActionListener(e -> listInstructions());
-
-        leaderboardButton.setBackground(accentColour);
-        leaderboardButton.setForeground(textColour);
-        leaderboardButton.addActionListener(e -> checkLeaderboard());
-
-        achievementsButton.setBackground(accentColour);
-        achievementsButton.setForeground(textColour);
-        achievementsButton.addActionListener(e -> checkAchievements());
-
-        settingsButton.setBackground(accentColour);
-        settingsButton.setForeground(textColour);
-        settingsButton.addActionListener(e -> checkSettings());
-
-
-        //Padding at top of buttons showing title
-        buttonGrid.add(generateMenuHeader());
-
-        //Add buttons
-        buttonGrid.add(startGameButton);
-        buttonGrid.add(instructionsButton);
-        buttonGrid.add(leaderboardButton);
-        buttonGrid.add(achievementsButton);
-        buttonGrid.add(settingsButton);
-
-        //Padding at bottom of buttons showing title
-        buttonGrid.add(generateMenuHeader());
-
-        return buttonGrid;
+        return buttonsPanel;
     }
 
-    private static JPanel generateMenuHeader() {
+    // Generate the top center buttons (achievements, leaderboard, instructions, settings)
+    private static JPanel generateTopCenterButtonsPanel() {
+        JPanel topRightButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        topRightButtonsPanel.setOpaque(false);
 
-        //Basic properties of parent JPanel
-        JPanel menuHeader = new JPanel(new GridLayout(0,1,0,10));
-        menuHeader.setBackground(mainColour);
+        // Achievements button
+        topRightButtonsPanel.add(createImageButton(achievementsButtonFilePath, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                checkAchievements();
+            }
+        }, 0.3)); //scaling
 
-        //Generate title
-        JLabel titleCard = new JLabel(new ImageIcon(titleFilePath));
-        menuHeader.add(titleCard);
+        //Leaderboard button
+        topRightButtonsPanel.add(createImageButton(leaderboardButtonFilePath, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                checkLeaderboard();
+            }
+        }, 0.3)); //scaling
 
-        return menuHeader;
+        //Instructions button
+        topRightButtonsPanel.add(createImageButton(instructionsButtonFilePath, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                checkInstructions();
+            }
+        }, 0.3)); //scaling
+
+        //Settings button
+        topRightButtonsPanel.add(createImageButton(settingsButtonFilePath, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                checkSettings();
+            }
+        }, 0.3)); //scaling
+
+        return topRightButtonsPanel;
     }
 
+    // Creates a button with an image, associated action and scaling
+    private static JButton createImageButton(String imagePath, ActionListener action, double scalingFactor) {
+        ImageIcon icon = new ImageIcon(imagePath);
+        int scaledWidth = (int) (icon.getIconWidth() * scalingFactor);
+        int scaledHeight = (int) (icon.getIconHeight() * scalingFactor);
+        Image scaledImage = icon.getImage().getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH);
+        JButton button = new JButton(new ImageIcon(scaledImage));
+        button.setOpaque(false);
+        button.setContentAreaFilled(false);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+        button.addActionListener(action);
+        return button;
+    }
 
-    private static void startGame(){
+    // Starts the game by switching to the InGameUI
+    private static void startGame() {
         InGameUI gameSession = new InGameUI();
         mainWindow.setContentPane(gameSession);
+        mainWindow.setPreferredSize(new Dimension(1000, 750));
+        mainWindow.pack();
         mainWindow.revalidate();
     }
 
-    private static void listInstructions() {
-        System.out.println("Listing Instructions");
-        InstructionsUI instructionsSession = new InstructionsUI(mainWindow);
-        mainWindow.setContentPane(instructionsSession);
-        mainWindow.revalidate();
-    }
-
-    private static void checkLeaderboard(){
-        System.out.println("Checking Leaderboard");
-    }
-
+    // Checks achievements and displays them to the player
     private static void checkAchievements() {
         System.out.println("Checking Achievements");
     }
 
-    private static void checkSettings(){
-        System.out.println("Open Settings");
+    // Checks and displays the leaderboard
+    private static void checkLeaderboard() {
+        System.out.println("Checking Leaderboard");
     }
 
+    // Checks and displays game settings
+    private static void checkSettings() {
+        System.out.println("Checking Settings");
+    }
+
+    // Display game instructions to the player
+    private static void checkInstructions() {
+        InstructionsUI instructionsUI = new InstructionsUI();
+        mainWindow.setContentPane(instructionsUI);
+        mainWindow.setPreferredSize(new Dimension(500, 850));
+        mainWindow.pack();
+        mainWindow.revalidate();
+    }
+
+    // Pause the game and display the pause menu. TODO: To be implemented
     private void pauseMenu(){
         System.out.println("Pause Menu");
     }
-
-
 }
