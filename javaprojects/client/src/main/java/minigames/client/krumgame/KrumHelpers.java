@@ -11,18 +11,18 @@ import javax.imageio.ImageIO;
  */
 
 public class KrumHelpers {
-    static double distanceBetween(double ax, double ay, double bx, double by) {
+    public static double distanceBetween(double ax, double ay, double bx, double by) {
         return Math.sqrt((ax - bx)*(ax-bx)+(ay-by)*(ay-by));
     }
 
     /**
      * @return angle in radians of the line from (ax,ay) to (bx,by)
      */
-    static double angleBetween(double ax, double ay, double bx, double by) {
+    public static double angleBetween(double ax, double ay, double bx, double by) {
         return Math.atan2(ay - by, bx - ax);
     }
     
-    static double[] addVectors(double dirA, double magA, double dirB, double magB) {        
+    public static double[] addVectors(double dirA, double magA, double dirB, double magB) {        
         double xa = Math.cos(dirA) * magA;
         double ya = Math.sin(dirA) * magA;
         double xb = Math.cos(dirB) * magB;
@@ -41,7 +41,7 @@ public class KrumHelpers {
      * @params: String fileName: image file name
      * @return: BufferedImage
      */
-    static BufferedImage readSprite(String fileName){               
+    public static BufferedImage readSprite(String fileName){               
         try{
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
             InputStream is = cl.getResourceAsStream(KrumC.imgDir + fileName);
