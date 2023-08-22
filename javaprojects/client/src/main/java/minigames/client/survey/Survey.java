@@ -12,28 +12,43 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class Survey implements ActionListener {
+
+    // Private variables
     private int count = 0;
     private JLabel label, headingLabel;
-    public JPanel panel;
     private JButton button, backButton;
+    
+    // Public variables
+    public JPanel panel;
 
+    // Main Survey Class
     public Survey(ActionListener goBack) {
+
+        // add new JLabels here
         headingLabel = new JLabel();
-        button = new JButton("Click me... I can count!");
-        backButton = new JButton("Back");
         label = new JLabel("Number of clicks: 0");
+
+        // add new JPanels here
         panel = new JPanel();
 
-        // Actions
+        // add new JButtons here
+        button = new JButton("Click me... I can count!");
+        backButton = new JButton("Back");
+
+        // Action Listeners
         button.addActionListener(this);
         backButton.addActionListener(goBack);
 
-        // Set
+        // Set Survey Heading
         headingLabel.setText("<html><h1 style='color: blue;'}>Game Survey</h1></html>");
+
+        // Set Survey Border
         panel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
+
+        // Set Survey Layout
         panel.setLayout(new GridLayout(0, 1));
 
-        // Add
+        // Panel add section
         panel.add(headingLabel);
         panel.add(button);
         panel.add(label);
