@@ -215,7 +215,7 @@ public class MinigameNetworkClientWindow {
         surveyButton.addActionListener(e -> {
             clearAll();
             Survey survey = new Survey(returnAction);
-            center.add(survey.panel);
+            center.add(survey.mainPanel);
             pack();
         });
         south.add(surveyButton);
