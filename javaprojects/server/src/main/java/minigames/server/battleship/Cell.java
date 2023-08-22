@@ -42,7 +42,7 @@ public class Cell {
         return cellType.toString();
     }
 
-    public boolean getShotStatus() {return this.shotAt;}
+    public boolean beenShot() {return this.shotAt;}
 
     public int getHorizontalCoord() {
         return horizontalCoord;
