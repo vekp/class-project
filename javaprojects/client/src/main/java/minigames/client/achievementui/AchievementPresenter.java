@@ -8,7 +8,6 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.util.Random;
 
 /**
  * Class for presenting achievement information to user
@@ -78,7 +77,7 @@ public class AchievementPresenter {
      * Create a very small panel to present to user, to be used in popup notifications.
      * @return a JPanel
      */
-    public JPanel tinyAchievementPanel() {
+    public JPanel smallAchievementPanel() {
         Border smallEmptyBorder = new EmptyBorder(4, 4, 4, 4);
 
         JLabel name = new JLabel(achievement.name());
@@ -106,11 +105,11 @@ public class AchievementPresenter {
     }
 
     /**
-     * Create a small panel with achievement details to be shown in a list
+     * Create a medium panel with achievement details to be shown in a list
      * @param isClickable whether panel should be able to be clicked on to display larger panel
      * @return A JPanel
      */
-    public JPanel smallAchievementPanel(boolean isClickable) {
+    public JPanel mediumAchievementPanel(boolean isClickable) {
         Border smallEmptyBorder = new EmptyBorder(4, 4, 4, 4);
         Border largeEmptyBorder = new EmptyBorder(10, 10, 10, 10);
 
