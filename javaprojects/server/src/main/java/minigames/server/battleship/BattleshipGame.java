@@ -45,12 +45,16 @@ public class BattleshipGame {
 
     AchievementHandler achievementHandler;
 
+    HashMap<String, Board> players = new HashMap<>();
+
+
     public BattleshipGame(String gameName, String playerName) {
         this.gameName = gameName;
         this.achievementHandler = new AchievementHandler(BattleshipServer.class);
         this.playerName = playerName;
         this.player1 = new Board(playerName, welcomeMessage);
         this.player2 = new Board("CPU", welcomeMessage);
+        players.put("CPU", player2);
     }
 
     static String welcomeMessage = """
@@ -61,8 +65,6 @@ public class BattleshipGame {
 
     String chars = "ABCDEFGHIJ";
 
-    //TODO: having two set players will likely not work for multiplayer and will need to be fixed - Names should also not be fixed values
-    HashMap<String, Board> players = new HashMap<>();
 
     /**
      * Returns the names of the players currently playing the game
@@ -243,35 +245,21 @@ public class BattleshipGame {
             achievementHandler.unlockAchievement(playerName, YOU_GOT_HIM.toString());
             return true;
         } else {
-            // Set the cell to a "hit"
+            // If the cell is not an ocean, miss, or hit cell, set the cell to a "hit"
             player.setGridCell(x, y, CellType.HIT);
-            // TODO: Do a loop within a hashmap instead
-            Ship[] ships = new Ship[5];
-            ships[0] = this.player2.getShip("Carrier");
-            ships[1] = this.player2.getShip("Battleship");
-            ships[2] = this.player2.getShip("Destroyer");
-            ships[3] = this.player2.getShip("Submarine");
-            ships[4] = this.player2.getShip("Patrol Boat");
 
-            for(int i = 0; i < ships.length; i++){
-                ships[i] = ships[i].updateShipStatus(x, y);
-            }
+            // Update the ships to include the hit in their cells
 
-            HashMap<String, Ship> vessels = this.player2.getVessels();
+            HashMap<String, Ship> vessels = player.getVessels();
 
-            vessels.replace("Carrier", ships[0]);
-            vessels.replace("Battleship", ships[1]);
-            vessels.replace("Destroyer", ships[2]);
-            vessels.replace("Submarine", ships[3]);
-            vessels.replace("Patrol Boat", ships[4]);
+            vessels.forEach((key, value) ->{
+                Ship current = value;
+                current.updateShipStatus(x, y);
+                vessels.replace(key, current);
+            });
 
-            this.player2.setVessels(vessels);
+            player.setVessels(vessels);
 
-
-
-
-
-            // Not sure what this check does - Craig
             if (sunk(player, x, y)) {
                 respondToInput(player, GameState.SHIP_SUNK, "",true);
             }
