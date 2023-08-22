@@ -25,41 +25,53 @@ import java.awt.geom.Point2D;
  * The state of each running game will be represented by an instance of KrumGame on the server and an instance on each participating client
  */
 public class KrumGame implements GameClient {
+
+    // Networking
     MinigameNetworkClient mnClient;
+
+    // Game metadata and state
     GameMetadata gm;
-    String player;   
     KrumPlayer players[];
     int playerTurn;
+    boolean turnOver = false;
+    boolean readyToStartTurn = false;
+
+    // Player information
+    String player;
+
+    // Wind properties
     double windX;
     double windY;
+    String windString;
+
+    // Graphic and rendering
     BufferedImage background = null;
     WritableRaster alphaRaster;
     KrumPanel panel;
     long lastFrameTime;
+
+    // Random number generator
     Random rand;
-    String windString;
+
+    // Game loop and update controls
     boolean firstRun;
     boolean running = true;
     long updateCount = 0;
-    int playBackFrame = 0;
-    
+
+    // Turn recording and playback
     boolean startRecordingTurn = false;
     boolean recordingTurn = false;
     boolean playBackTurn = false;
     boolean stopRecordingTurn = false;
     boolean playingBackTurn = false;
-
-    boolean turnOver = false;
+    int playBackFrame = 0;
     long turnOverFrame;
-    boolean readyToStartTurn = false;
-
     long turnEndFrame;
-
     KrumTurn[] savedTurns;
     KrumTurn currentTurn;
-
     final int MAX_TURN_GAP_FRAMES = 600;
 
+    // Explosions details for the draw loop
     ArrayList<ExplosionDetails> explosions;
 
     public KrumGame() {        
