@@ -75,7 +75,7 @@ public class Board {
     public HashMap<String, Ship> getVessels() {
         return vessels;
     }
-    
+
     /**
      * Return the ship object of the specified class on the current game board
      * @param shipClass A String containing the class of the ship
@@ -100,7 +100,14 @@ public class Board {
      */
     public void setGridCell(int x, int y, CellType cellType){
         this.grid.setCellType(x, y, cellType);
+        // if the cell is being changed to a "hit" or "miss" cell, update the cell's shotAt boolean to be true
+        // This function is also used to update the grid when placing ships, it was causing issues because all parts of the
+        // ships were being read as "shotAt"
+        if(cellType.toString().equals("X") || cellType.toString().equals(".")) {
+            this.grid.shootCell(x, y);
+        }
     }
+
 
     /**
      * Adds the user's input to the message history
