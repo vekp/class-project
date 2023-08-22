@@ -58,9 +58,7 @@ public class Cell {
     }
 
     public String getBothCoords(){
-        String returnString = ""+this.getVerticalCoordString()+this.getHorizontalCoord();
-        System.out.println(returnString);
-        return returnString;
+        return ""+this.getVerticalCoordString()+this.getHorizontalCoord();
     }
 
     // Setters
