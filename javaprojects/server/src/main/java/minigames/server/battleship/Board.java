@@ -13,7 +13,8 @@ public class Board {
     private String playerName;
     private String boardTitle;
     private Grid grid; // A two-dimensional array of Cells for drawing the game board
-    private HashMap<String, Ship> vessels;  // An array containing each of the five ship types for the current board
+    private HashMap<String, Ship> vessels;  // A hashmap containing each of the five ship types for the current board
+    private Ship[] vesselsArray; // created an array to get the ship sinking working. NEED TO CONVERT LATER
     private int turnNumber;  // The current turn number
     private String messageHistory;  // String of all valid messages, both game and player
     private GameState gameState;
@@ -90,6 +91,10 @@ public class Board {
      */
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
+    }
+
+    public void setVessels(HashMap<String, Ship> vessels){
+        this.vessels = vessels;
     }
 
     /**
