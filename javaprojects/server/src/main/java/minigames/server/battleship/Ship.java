@@ -13,6 +13,7 @@ public class Ship {
 
     /**
      * Creates a new Ship Object, taking in the desired position and size (shipParts) of the ship
+     * @param shipClass The class of the ship (Battleship, sub, etc)
      * @param shipParts The composition of the cells contained within the ship
      */
     public Ship(String shipClass, Cell[] shipParts) {
@@ -54,6 +55,26 @@ public class Ship {
      */
     public boolean isSunk() {
         return sunk;
+    }
+
+    /**
+     * Updates the cells within the current Ship Object, should be performed after every round of enemy firing
+     * @param target The Cell that has just been fired upon
+     */
+    public void updateShipStatus(Cell target) {
+        // Get the length of the Cell array within the Ship (the ship's size) and put this within an int variable called "size"
+
+        // initialise a "hits" counter at 0
+
+        // For-loop for cells within the ship
+            // For every cell within the Ship, if it has been hit, increment the "hits" counter
+
+            // If the current Cell of the ship is at the same coord as the "target" cell, set the cell-type to "hit"
+            // and increment the "hits" counter
+
+        // If size == hits, then the ship should be sunk
+            // set sunk to true then exit the function
+
     }
 
     /**
