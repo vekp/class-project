@@ -64,25 +64,42 @@ public class Ship {
     public void updateShipStatus(Cell target) {
         // Get the length of the Cell array within the Ship (the ship's size) and put this within an int variable called "size"
 
-        // initialise a "hits" counter at 0
+        Cell[] shipParts = this.getShipParts();
 
-        // For-loop for cells within the ship
+        int size = shipParts.length;
+        int hits = 0;
+
+
+        // Loop through all cells within the current ship to see if any of the cells were hit by the previous shot
+        for (int i = 0; i < size; i++){
+            Cell current = shipParts[i];
             // For every cell within the Ship, if it has been hit, increment the "hits" counter
-
+            if(current.hasBeenShot()){
+                hits ++;
+            }
             // If the current Cell of the ship is at the same coord as the "target" cell, set the cell-type to "hit"
             // and increment the "hits" counter
+            if(current.getBothCoords().equals(target.getBothCoords())){
+                shipParts[i].shoot();
+                hits++;
+            }
+        }
+        // update the cells of the Ship Object
+        this.shipParts = shipParts;
 
-        // If size == hits, then the ship should be sunk
-            // set sunk to true then exit the function
+        // if all cells within the Ship have been hit, sink the ship
+        if(size==hits){
+            this.sink();
+        }
+
+
 
     }
 
     /**
-     * Sets the boolean for the current ship
-     * @param sunk A boolean to represent whether the ship has been sunk
+     * Sinks the current ship
      */
-    public void setSunk(boolean sunk) {
-        // We could probably just change this to a public void sink() function, since the boolean is false by default
-        this.sunk = sunk;
+    public void sink() {
+        this.sunk=true;
     }
 }

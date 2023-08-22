@@ -42,7 +42,7 @@ public class Cell {
         return cellType.toString();
     }
 
-    public boolean beenShot() {return this.shotAt;}
+    public boolean hasBeenShot() {return this.shotAt;}
 
     public int getHorizontalCoord() {
         return horizontalCoord;
@@ -81,5 +81,5 @@ public class Cell {
         this.verticalCoord = verticalCoord;
     }
 
-    public void shot(){this.shotAt = true;}
+    public void shoot(){this.shotAt = true;}
 }
