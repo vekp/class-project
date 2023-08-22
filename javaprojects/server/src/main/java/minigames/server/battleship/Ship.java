@@ -1,5 +1,9 @@
 package minigames.server.battleship;
 
+import minigames.server.achievements.AchievementHandler;
+
+import static minigames.server.battleship.achievements.*;
+
 /**
  * A Class to represent a ship on the game board
  */
@@ -10,6 +14,8 @@ public class Ship {
     private boolean sunk;               // A boolean for whether the ship has been sunk
     int hits;
     int size;
+    String owner;                       // The name of the player that owns this ship
+    AchievementHandler achievementHandler;
 
     // Constructor
 
@@ -24,6 +30,14 @@ public class Ship {
         this.sunk = false;
         this.hits = 0;
         this.size = shipParts.length;
+        this.achievementHandler = new AchievementHandler(BattleshipServer.class);
+        this.owner = "";
+    }
+
+    @Override
+    public String toString(){
+        return "This is a "+shipClass+ " with total hitpoints of "+this.size +
+                " is it currently sunk?: " + this.sunk +"\nIt's owner is " + owner;
     }
 
     // These will likely be wanted when custom ship movement is added
@@ -54,6 +68,14 @@ public class Ship {
     }
 
     /**
+     * Set the owner for the current ship
+     * @param owner The name of the player that the ship belongs to
+     */
+    public void setOwner(String owner){
+        this.owner = owner;
+    }
+
+    /**
      * Returns whether the current Ship Object has been sunk
      * @return The boolean representing whether the ship's status is sunk
      */
@@ -69,7 +91,7 @@ public class Ship {
      */
     public Ship updateShipStatus(int y, int x) {
         // booleans that can be set to reduce console spam
-        this.hits = 0;
+        hits = 0;
         boolean iWantPrintouts = true;
         boolean iWantMorePrintouts = false;
         // Get the length of the Cell array within the Ship (the ship's size) and put this within an int variable called "size"
@@ -90,7 +112,7 @@ public class Ship {
             }
             // For every cell within the Ship, if it has been hit, increment the "hits" counter
             if(current.hasBeenShot()){
-                this.hits ++;
+                hits ++;
             }
             // If the current Cell of the ship is at the same coord as the "target" cell, set the cell-type to "hit"
             // and increment the "hits" counter
@@ -102,7 +124,7 @@ public class Ship {
                     System.out.println("Hit here: " + current.getBothCoords());
                     System.out.println("Target coords: " + target.getBothCoords());
                 }
-                this.hits++;
+                hits++;
             }
         }
         // update the cells of the Ship Object
@@ -113,8 +135,19 @@ public class Ship {
             System.out.println("to hit: " + this.size);
         }
         // if all cells within the Ship have been hit, sink the ship
-        if(this.size==this.hits){
+        if(this.size==hits ){
             this.sink();
+            if(this.getShipClass().equals("Carrier")){
+                achievementHandler.unlockAchievement(owner, THE_BIGGER_THEY_ARE.toString());
+            } else if (this.getShipClass().equals("Patrol Boat")) {
+                achievementHandler.unlockAchievement(owner, THREE_HOUR_CRUISE.toString());
+            } else if (this.getShipClass().equals("Submarine")){
+                achievementHandler.unlockAchievement(owner, HUNTER_KILLER.toString());
+            } else if (this.getShipClass().equals("Destroyer")) {
+                achievementHandler.unlockAchievement(owner, DESTROYER_DESTROYED.toString());
+            } else if (this.getShipClass().equals("Battleship")) {
+                achievementHandler.unlockAchievement(owner, TITLE_DROP.toString());
+            }
             System.out.println("You sank the enemy "+ this.getShipClass());
         }
         return this;

@@ -14,7 +14,6 @@ public class Board {
     private String boardTitle;
     private Grid grid; // A two-dimensional array of Cells for drawing the game board
     private HashMap<String, Ship> vessels;  // A hashmap containing each of the five ship types for the current board
-    private Ship[] vesselsArray; // created an array to get the ship sinking working. NEED TO CONVERT LATER
     private int turnNumber;  // The current turn number
     private String messageHistory;  // String of all valid messages, both game and player
     private GameState gameState;
@@ -32,6 +31,8 @@ public class Board {
         defaultGrid();  // Set the grid to default ship positions
         this.messageHistory = message;
         this.gameState = GameState.SHIP_PLACEMENT;
+        this.setPlayerOwner();
+
     }
 
 
@@ -95,6 +96,16 @@ public class Board {
 
     public void setVessels(HashMap<String, Ship> vessels){
         this.vessels = vessels;
+    }
+
+    public void setPlayerOwner(){
+        this.vessels.forEach((key, value) ->{
+            Ship current = value;
+            System.out.println(vessels.get(key));
+            current.setOwner(this.playerName);
+            vessels.replace(key, current);
+            System.out.println(vessels.get(key));
+        });
     }
 
     /**
