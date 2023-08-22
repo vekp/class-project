@@ -13,10 +13,10 @@ import javax.swing.JPanel;
 
 public class Survey implements ActionListener {
 
-    // Private variables
+    // Private variables (labels and buttons need to be registered here)
     private int count = 0;
-    private JLabel label, headingLabel;
-    private JButton button, backButton;
+    private JLabel counterLabel, headingLabel;
+    private JButton counterButton, backButton;
     
     // Public variables
     public JPanel panel;
@@ -26,17 +26,17 @@ public class Survey implements ActionListener {
 
         // add new JLabels here
         headingLabel = new JLabel();
-        label = new JLabel("Number of clicks: 0");
+        counterLabel = new JLabel("Number of clicks: 0");
 
         // add new JPanels here
         panel = new JPanel();
 
         // add new JButtons here
-        button = new JButton("Click me... I can count!");
+        counterButton = new JButton("Click me... I can count!");
         backButton = new JButton("Back");
 
         // Action Listeners
-        button.addActionListener(this);
+        counterButton.addActionListener(this);
         backButton.addActionListener(goBack);
 
         // Set Survey Heading
@@ -50,15 +50,15 @@ public class Survey implements ActionListener {
 
         // Panel add section
         panel.add(headingLabel);
-        panel.add(button);
-        panel.add(label);
+        panel.add(counterButton);
+        panel.add(counterLabel);
         panel.add(backButton);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         count++;
-        label.setText("Number of clicks: " + count);
+        counterLabel.setText("Number of clicks: " + count);
     }
 }
 
