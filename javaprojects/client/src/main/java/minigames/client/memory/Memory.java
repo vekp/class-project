@@ -42,6 +42,8 @@ public class Memory implements GameClient, ActionListener, MouseListener {
     JLabel title;
     JPanel playerPanel; // Panel for the player information
     JLabel playerName;
+    JLabel matches;
+    JLabel stopwatch;
     JPanel gameOptionsPanel; // Houses the button objects for the game options
     JButton newGameButton;
     JButton restartLevelButton;
@@ -59,6 +61,8 @@ public class Memory implements GameClient, ActionListener, MouseListener {
 
     // Game variable
     boolean gameStarted = false;
+    int matchesCounter = 0;
+    int [] timeElapsed = {0, 0}; // {mins, seconds}
 
     /** Initialize Swing components */
     public Memory() {
@@ -77,12 +81,26 @@ public class Memory implements GameClient, ActionListener, MouseListener {
 
         // Create the player panel
         playerPanel = new JPanel();
-        playerPanel.setLayout(new GridLayout(1, 1));
+        playerPanel.setLayout(new GridLayout(1, 2));
         playerPanel.setPreferredSize(new Dimension(800,30));
-        //playerPanel.setBackground(Color .decode("#B2C6B2"));
+        
         playerName = new JLabel("Player: " + player); // Placeholder text for player name
         playerName.setFont(new Font("Arial", Font.BOLD, 16));
+        playerName.setHorizontalAlignment(JLabel.LEFT);
+
+        matches = new JLabel("Pairs matched: " + matchesCounter + "/8"); // Placeholder text for matched pairs
+        matches.setFont(new Font("Arial", Font.BOLD, 16));
+        matches.setHorizontalAlignment(JLabel.CENTER);
+        
+        stopwatch = new JLabel(String.format("Time elapsed: %02d:%02d", timeElapsed[0], timeElapsed[1])); // Placeholder text for Timer
+        stopwatch.setFont(new Font("Arial", Font.BOLD, 16));
+        stopwatch.setHorizontalAlignment(JLabel.RIGHT);
+        
+
         playerPanel.add(playerName);
+        playerPanel.add(matches);
+        playerPanel.add(stopwatch);
+
 
         // Create the game options panel which hosts new game, restart level, and exit buttons
         gameOptionsPanel = new JPanel();
@@ -103,7 +121,6 @@ public class Memory implements GameClient, ActionListener, MouseListener {
 
         // Create a list of card images
         List<ImageIcon> cardImages = new ArrayList<>();
-        //if (cardImagesDirectory.contains("%20")) cardImagesDirectory.replace("%20", " ");
         File cardImageDirectory = new File(cardImagesDirectory.replace("%20", " "));
         File[] cardImageFiles = cardImageDirectory.listFiles();
 
@@ -227,7 +244,7 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         mainPanel.setLayout(new BorderLayout());
         mainPanel.add(gameMenuPanel, BorderLayout.NORTH);
         mainPanel.add(gridContainerPanel, BorderLayout.CENTER);
-        mainPanel.add(commandPanel, BorderLayout.SOUTH);
+        //mainPanel.add(commandPanel, BorderLayout.SOUTH);
 
 
         for (Component c:  new Component[] {title, headingPanel, playerName, newGameButton, restartLevelButton, exitButton,
