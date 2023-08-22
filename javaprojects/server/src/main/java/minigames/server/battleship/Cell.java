@@ -49,9 +49,16 @@ public class Cell {
     public int getVerticalCoordInt() {
         return verticalCoord;
     }
+
     public String getVerticalCoordString() {
         String chars = "ABCDEFGHIJ";
         return String.valueOf(chars.charAt(verticalCoord));
+    }
+
+    public String getBothCoords(){
+        String returnString = ""+this.getVerticalCoordString()+this.getHorizontalCoord();
+        System.out.println(returnString);
+        return returnString;
     }
 
     // Setters
