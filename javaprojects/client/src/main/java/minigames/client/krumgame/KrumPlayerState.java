@@ -58,6 +58,7 @@ public class KrumPlayerState {
     ArrayList<Double> ropeSegmentLengths;
     KrumProjectile projectile;
     KrumGrenade grenade;
+    KrumJoey joey;
     KrumPlayerState(KrumPlayer p) {
         this.hp = p.hp;
         this.xpos = p.xpos;
@@ -107,5 +108,6 @@ public class KrumPlayerState {
         this.facingRight = p.facingRight;
         this.projectile = p.projectile;
         this.grenade = p.grenade;
+        this.joey = p.joey;
     }
 }

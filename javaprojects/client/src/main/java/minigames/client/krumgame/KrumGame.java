@@ -254,6 +254,9 @@ public class KrumGame implements GameClient {
             players[i].ropeAimAngle = ps.ropeAimAngle;
             players[i].ropeSegmentLengths = new ArrayList<Double>(ps.ropeSegmentLengths);
             players[i].setDirection(ps.facingRight, null);
+            players[i].joey.active = false;
+            players[i].grenade = null;
+            players[i].projectile = null;
         }
     }
 
