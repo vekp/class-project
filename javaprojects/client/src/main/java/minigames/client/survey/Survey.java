@@ -19,15 +19,17 @@ public class Survey implements ActionListener {
     private JButton counterButton, backButton;
     
     // Public variables
+    public static final String FRAME_TITLE = "Game Survey";
     public JPanel mainPanel;
 
     // Main Survey Class
     public Survey(ActionListener goBack) {
 
+        // this.setTitle("Game Survey");
+
         // add new JLabels here
         headingLabel = new JLabel();
         counterLabel = new JLabel("Number of clicks: 0");
-        // testLabel = new JLabel("Number of clicks: 0");
 
         // add new JPanels here
         mainPanel = new JPanel();

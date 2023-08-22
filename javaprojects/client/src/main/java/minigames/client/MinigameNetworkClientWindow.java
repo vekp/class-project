@@ -215,6 +215,7 @@ public class MinigameNetworkClientWindow {
         surveyButton.addActionListener(e -> {
             clearAll();
             Survey survey = new Survey(returnAction);
+            frame.setTitle(survey.FRAME_TITLE);
             center.add(survey.mainPanel);
             pack();
         });
