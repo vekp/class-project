@@ -96,7 +96,7 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         stopwatch.setFont(new Font("Arial", Font.BOLD, 16));
         stopwatch.setHorizontalAlignment(JLabel.RIGHT);
         
-
+        // Add the player information to the player panel
         playerPanel.add(playerName);
         playerPanel.add(matches);
         playerPanel.add(stopwatch);
@@ -104,7 +104,7 @@ public class Memory implements GameClient, ActionListener, MouseListener {
 
         // Create the game options panel which hosts new game, restart level, and exit buttons
         gameOptionsPanel = new JPanel();
-        gameOptionsPanel.setLayout(new GridLayout(1, 3));
+        gameOptionsPanel.setLayout(new GridLayout(1, 4));
         newGameButton = new JButton("New Game");
         newGameButton.setFont(new Font("Arial", Font.BOLD, 16));
         restartLevelButton = new JButton("Restart Level");
@@ -112,10 +112,19 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         exitButton = new JButton("Exit");
         exitButton.setFont(new Font("Arial", Font.BOLD, 16));
         exitButton.addActionListener(e -> mnClient.runMainMenuSequence());
+
+        // Create a JComboBox to select difficulty level. This updates the cardGridPanel.
+        JComboBox<String> difficultyComboBox = new JComboBox<>(new String[]{"Easy", "Medium", "Hard"});
+        difficultyComboBox.setFont(new Font("Arial", Font.BOLD, 16));
+        difficultyComboBox.setSelectedItem("Medium");
+
+        // Add game options to gameOptionsPanel
+        gameOptionsPanel.add(difficultyComboBox);
         gameOptionsPanel.add(newGameButton);
         gameOptionsPanel.add(restartLevelButton);
         gameOptionsPanel.add(exitButton);
 
+        // Add playerPanel and gameOptionsPanel to gameMenuPanel
         gameMenuPanel.add(playerPanel);
         gameMenuPanel.add(gameOptionsPanel);
 
@@ -172,10 +181,39 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         // Shuffle the card pairs - FIXME: Use the shuffling framework/system here!
         Collections.shuffle(cardPairs);
 
-
         // Create card grid and add cards with the card images and "flip" buttons
         cardGridPanel = new JPanel();
-        cardGridPanel.setLayout(new GridLayout(4, 4, 0, 0)); // 4x4 grid for placeholders  
+        //cardGridPanel.setLayout(new GridLayout(4, 4, 0, 0)); // 4x4 grid for placeholders
+
+        // TODO - wonky implementation. Needs more time in the oven.
+        // Update rows and columns based on the selected difficulty
+        // Listen for changes based on users selected difficulty to update the cardGridPanel
+        difficultyComboBox.addActionListener((ActionEvent e) -> {
+            // Get the selected difficulty from the JComboBox
+            String selectedDifficulty = (String) difficultyComboBox.getSelectedItem();
+            int rows = 4; // Default rows
+            int columns = 4; // Default columns
+
+            // Update rows and columns based on the selected difficulty
+            if (selectedDifficulty.equals("Easy")) {
+                rows = 3;
+                columns = 4;
+            } else if (selectedDifficulty.equals("Medium")) {
+                rows = 4;
+                columns = 4;
+            } else if (selectedDifficulty.equals("Hard")) {
+                rows = 5;
+                columns = 4;
+            }
+
+            // Update the grid layout of cardGridPanel
+            cardGridPanel.setLayout(new GridLayout(rows, columns, 0, 0));
+
+            // Repaint cardGridPanel to reflect the new grid layout
+            cardGridPanel.revalidate();
+            cardGridPanel.repaint();
+        });
+
         
         int cardImageIndex = 0;
        
@@ -314,6 +352,7 @@ public class Memory implements GameClient, ActionListener, MouseListener {
      */
     @Override
     public void actionPerformed(ActionEvent e) {
+
         if (e.getSource() == newGameButton) {
             //TODO
             mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(new JsonObject().put("command", "newGame"))));
