@@ -59,14 +59,23 @@ public class Ship {
 
     /**
      * Updates the cells within the current Ship Object, should be performed after every round of enemy firing
-     * @param target The Cell that has just been fired upon
+     * @param x The x coordinate for the target
+     * @param y The y coord
      */
-    public void updateShipStatus(Cell target) {
+    public void updateShipStatus(int x, int y) {
         // Get the length of the Cell array within the Ship (the ship's size) and put this within an int variable called "size"
+        boolean iWantPrintouts = true;
+        Cell target = new Cell(x, y);
+        if(iWantPrintouts){
+            System.out.println("Updating ship status");
+        }
 
         Cell[] shipParts = this.getShipParts();
 
         int size = shipParts.length;
+        if(iWantPrintouts){
+            System.out.println("Size of this " + this.getShipClass() +": " + size);
+        }
         int hits = 0;
 
 
@@ -90,6 +99,7 @@ public class Ship {
         // if all cells within the Ship have been hit, sink the ship
         if(size==hits){
             this.sink();
+            System.out.println("You sank my "+ this.getShipClass());
         }
 
 
