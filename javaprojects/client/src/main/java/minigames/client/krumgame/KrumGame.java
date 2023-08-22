@@ -21,6 +21,7 @@ import minigames.commands.CommandPackage;
 
 import java.awt.geom.Point2D;
 
+import minigames.client.krumgame.components.Background;
 /**
  * The state of each running game will be represented by an instance of KrumGame on the server and an instance on each participating client
  */
@@ -78,7 +79,11 @@ public class KrumGame implements GameClient {
         rand = new Random(); 
         firstRun = true;
         updateCount = 0;
-        initializeBackground();
+        // Initializing the background image
+        //Background.initializeBackground("chameleon.png");
+        Background.initializeBackground("ropetestmap.png");
+        background = Background.getImage();
+        alphaRaster = Background.getAlphaRaster();
         initializePanel();
         initializePlayers();
         initializeWind();
@@ -86,13 +91,13 @@ public class KrumGame implements GameClient {
 
         explosions = new ArrayList<ExplosionDetails>();
     }
-
+/*
     private void initializeBackground(){
         //background = KrumHelpers.readSprite("chameleon.png");
         background = KrumHelpers.readSprite("ropetestmap.png");
         alphaRaster = background.getAlphaRaster();
     }
-
+*/
     private void initializePanel(){
         panel = new KrumPanel(this);
         panel.setPreferredSize(panel.getPreferredSize());
@@ -589,7 +594,7 @@ public class KrumGame implements GameClient {
     public void setWindY(double windY) {
         this.windY = windY;
     }
-
+/*
     public BufferedImage getBackground() {
         return background;
     }
@@ -605,7 +610,7 @@ public class KrumGame implements GameClient {
     public void setAlphaRaster(WritableRaster alphaRaster) {
         this.alphaRaster = alphaRaster;
     }
-
+*/
     public KrumPanel getPanel() {
         return panel;
     }
