@@ -94,8 +94,8 @@ public class Ship {
      * @param y The y coord
      */
     public Ship updateShipStatus(int y, int x) {
-        // booleans that can be set to reduce console spam
         hits = 0;
+        // booleans that can be set to reduce console spam
         boolean iWantPrintouts = true;
         boolean iWantMorePrintouts = false;
         // Get the length of the Cell array within the Ship (the ship's size) and put this within an int variable called "size"
@@ -139,7 +139,7 @@ public class Ship {
             System.out.println("to hit: " + this.size);
         }
         // if all cells within the Ship have been hit, sink the ship
-        if(this.size==hits ){
+        if(this.size==hits && !this.sunk){
             this.sink();
             if(this.getShipClass().equals("Carrier")){
                 achievementHandler.unlockAchievement(owner, THE_BIGGER_THEY_ARE.toString());

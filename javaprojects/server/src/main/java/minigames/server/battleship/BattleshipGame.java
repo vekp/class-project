@@ -257,7 +257,7 @@ public class BattleshipGame {
                 ships[i] = ships[i].updateShipStatus(x, y);
             }
 
-            HashMap<String, Ship> vessels = this.player1.getVessels();
+            HashMap<String, Ship> vessels = this.player2.getVessels();
 
             vessels.replace("Carrier", ships[0]);
             vessels.replace("Battleship", ships[1]);

@@ -195,7 +195,7 @@ public class Board {
     // and finally returns the players grid after all this is complete (in defaultGrid() below)
 
     public Cell[][] chooseGrid(){
-        if(playerName == null){
+        if(playerName == "CPU"){
             return otherGrid();
         } else {
             return defaultGrid();
