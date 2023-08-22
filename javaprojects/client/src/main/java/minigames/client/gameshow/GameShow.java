@@ -22,15 +22,19 @@ import minigames.commands.CommandPackage;
  * It understands three commands:
  * { "command": "clearText" } to clear the contents of the text area
  * { "command": "appendText", "text": text } to add contents to the text area
- * { "command": "setDirections", "directions": directions} to enable/disable the N, S, E, W buttons
- *   depending on whether the directions string contains "N", "S", "E", "W"
- *   (e.g. { "command": "setDirections", "directions": "NS" } would enable only N and S)
+ * { "command": "setDirections", "directions": directions} to enable/disable the
+ * N, S, E, W buttons
+ * depending on whether the directions string contains "N", "S", "E", "W"
+ * (e.g. { "command": "setDirections", "directions": "NS" } would enable only N
+ * and S)
  */
 public class GameShow implements GameClient {
 
     MinigameNetworkClient mnClient;
 
-    /** We hold on to this because we'll need it when sending commands to the server */
+    /**
+     * We hold on to this because we'll need it when sending commands to the server
+     */
     GameMetadata gm;
 
     /** Your name */
@@ -64,7 +68,7 @@ public class GameShow implements GameClient {
         background = new JPanel(new BorderLayout());
         background.setPreferredSize(new Dimension(800, 600));
         background.setBackground(Color.WHITE);
-        
+
         titleArea = new JPanel(new BorderLayout());
         titleArea.setPreferredSize(new Dimension(800, 100));
         titleArea.setBackground(new Color(255, 255, 0));
@@ -92,13 +96,12 @@ public class GameShow implements GameClient {
 
         gameArea = new JPanel(new BorderLayout(10, 10));
         gameArea.setBackground(new Color(255, 106, 210));
-        
+
         gameArea.add(gameSelect, BorderLayout.NORTH);
-        
+
         wordScramble = new JButton("Word Scramble");
         wordScramble.setPreferredSize(new Dimension(100, 50));
-        wordScramble.addActionListener((evt) -> 
-            sendCommand(new JsonObject().put("command", "wordScramble")));
+        wordScramble.addActionListener((evt) -> sendCommand(new JsonObject().put("command", "wordScramble")));
 
         gameArea.add(wordScramble, BorderLayout.NORTH);
 
@@ -128,14 +131,13 @@ public class GameShow implements GameClient {
         scrambledWordPanel.add(scrambled, BorderLayout.CENTER);
 
         gameContainer.add(scrambledWordPanel, BorderLayout.NORTH);
-        
+
         guessContainer = new JPanel(new BorderLayout(50, 50));
         guessContainer.setBorder(new EmptyBorder(100, 100, 100, 100));
 
         JTextField guess = new JTextField(5);
         JButton sendGuess = new JButton("Submit guess");
-        sendGuess.addActionListener((evt) ->
-            sendCommand(new JsonObject()
+        sendGuess.addActionListener((evt) -> sendCommand(new JsonObject()
                 .put("command", "guess")
                 .put("guess", guess.getText())
                 .put("gameId", gameId)));
@@ -151,14 +153,14 @@ public class GameShow implements GameClient {
     public void wordScrambleGuess(boolean correct) {
         if (!correct) {
             JLabel tryAgain = new JLabel("That's not quite right :( Try again!",
-                                         SwingConstants.CENTER);
+                    SwingConstants.CENTER);
             guessContainer.add(tryAgain, BorderLayout.NORTH);
         } else {
             guessContainer.removeAll();
             guessContainer.validate();
             guessContainer.repaint();
             JLabel congrats = new JLabel("Congratulations! You Win :)",
-                                         SwingConstants.CENTER);
+                    SwingConstants.CENTER);
             guessContainer.add(congrats, BorderLayout.CENTER);
         }
 
@@ -168,7 +170,8 @@ public class GameShow implements GameClient {
 
     /**
      * Sends a command to the game at the server.
-     * This being a text adventure, all our commands are just plain text strings our gameserver will interpret.
+     * This being a text adventure, all our commands are just plain text strings our
+     * gameserver will interpret.
      * We're sending these as
      * { "command": command }
      */
@@ -176,7 +179,6 @@ public class GameShow implements GameClient {
         // Collections.singletonList() is a quick way of getting a "list of one item"
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
     }
-
 
     /**
      * What we do when our client is loaded into the main screen
@@ -187,10 +189,12 @@ public class GameShow implements GameClient {
         this.gm = game;
         this.player = player;
 
-        // Add our components to the north, south, east, west, or centre of the main window's BorderLayout
+        // Add our components to the north, south, east, west, or centre of the main
+        // window's BorderLayout
         mnClient.getMainWindow().addCenter(background);
 
-        // Don't forget to call pack - it triggers the window to resize and repaint itself
+        // Don't forget to call pack - it triggers the window to resize and repaint
+        // itself
         mnClient.getMainWindow().pack();
     }
 
@@ -201,8 +205,8 @@ public class GameShow implements GameClient {
         switch (command.getString("command")) {
             case "startWordScramble" -> {
                 this.startWordScramble(
-                    command.getString("scrambledWord"),
-                    (int) command.getInteger("gameId"));
+                        command.getString("scrambledWord"),
+                        (int) command.getInteger("gameId"));
             }
             case "guessOutcome" -> {
                 wordScrambleGuess(command.getBoolean("outcome"));
