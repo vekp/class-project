@@ -82,6 +82,13 @@ public class Ship {
         // Loop through all cells within the current ship to see if any of the cells were hit by the previous shot
         for (int i = 0; i < size; i++){
             Cell current = shipParts[i];
+            if(iWantPrintouts){
+                System.out.println("Current cell: " + current);
+                System.out.println("Current cell coords: " + current.getBothCoords());
+                System.out.println("Current cell y: " +current.getVerticalCoordString() + "Target cell y: "+target.getVerticalCoordString());
+                System.out.println("Current cell x: "+current.getHorizontalCoord() + "Target cell x: " +target.getHorizontalCoord());
+                System.out.println("Has current cell been shot? " + current.hasBeenShot());
+            }
             // For every cell within the Ship, if it has been hit, increment the "hits" counter
             if(current.hasBeenShot()){
                 hits ++;
@@ -89,6 +96,10 @@ public class Ship {
             // If the current Cell of the ship is at the same coord as the "target" cell, set the cell-type to "hit"
             // and increment the "hits" counter
             if(current.getBothCoords().equals(target.getBothCoords())){
+                if(iWantPrintouts) {
+                    System.out.println("Current coordinates: " + current.getBothCoords());
+                    System.out.println("Target coordinates: " + target.getBothCoords());
+                }
                 shipParts[i].shoot();
                 hits++;
             }
