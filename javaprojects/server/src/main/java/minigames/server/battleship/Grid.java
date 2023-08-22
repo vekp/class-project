@@ -138,7 +138,7 @@ public class Grid {
     }
 
     public void shootCell(int x, int y){
-        this.grid[y][x - 1].shoot();
+        this.grid[y][x].shoot();
     }
 
     /**
