@@ -25,24 +25,25 @@ public class Ball {
         this.size = size;
     }
 
-    public void updateBall(Graphics g, int leftWall, int rightWall, int floorYValue){
+    public void updateBall(int leftWall, int rightWall, int floorYValue){
         if (this.active == true){
             bounceOffWalls(leftWall, rightWall);
             moveBall();
-            drawToScreen(g);
             ballActive(floorYValue);
         }
     }
 
     // Method for drawing a ball instance to screen
-    private void drawToScreen(Graphics g){
-        BufferedImage ball = null;
-        try {
-            ball = ImageIO.read(new File("./javaprojects/client/src/main/java/minigames/client/peggle/assets/objects/ball.png"));
-        } catch (IOException e) {
-            System.out.println("Error loading file. \nError message: " + e.getMessage());
+    public void drawBall(Graphics g){
+        if (this.active == true) {
+            BufferedImage ball = null;
+            try {
+                ball = ImageIO.read(new File("./javaprojects/client/src/main/java/minigames/client/peggle/assets/objects/ball.png"));
+            } catch (IOException e) {
+                System.out.println("Error loading file. \nError message: " + e.getMessage());
+            }
+            g.drawImage(ball, x, y, this.size, this.size, null);
         }
-        g.drawImage(ball, x, y, this.size, this.size, null);
     }
 
     // Method that changes ball instances location
@@ -73,5 +74,17 @@ public class Ball {
         if (this.y > floorYValue) {
             this.active = false;
         }
+    }
+
+    public int getSize(){
+        return this.size;
+    }
+
+    public int getX(){
+        return this.x;
+    }
+
+    public int getY(){
+        return this.y;
     }
 }
