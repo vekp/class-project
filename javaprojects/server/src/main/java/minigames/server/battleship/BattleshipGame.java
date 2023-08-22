@@ -40,6 +40,8 @@ public class BattleshipGame {
      */
     String gameName;
     String playerName;
+    Board player1;
+    Board player2;
 
     AchievementHandler achievementHandler;
 
@@ -47,6 +49,8 @@ public class BattleshipGame {
         this.gameName = gameName;
         this.achievementHandler = new AchievementHandler(BattleshipServer.class);
         this.playerName = playerName;
+        this.player1 = new Board(playerName, welcomeMessage);
+        this.player2 = new Board("CPU", welcomeMessage);
     }
 
     static String welcomeMessage = """
@@ -58,8 +62,6 @@ public class BattleshipGame {
     String chars = "ABCDEFGHIJ";
 
     //TODO: having two set players will likely not work for multiplayer and will need to be fixed - Names should also not be fixed values
-    Board player1 = new Board(playerName, welcomeMessage);
-    Board player2 = new Board("CPU", welcomeMessage);
     HashMap<String, Board> players = new HashMap<>();
 
     /**
