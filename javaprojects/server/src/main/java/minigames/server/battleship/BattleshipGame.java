@@ -241,9 +241,9 @@ public class BattleshipGame {
             achievementHandler.unlockAchievement(playerName, YOU_GOT_HIM.toString());
             return true;
         } else {
-            // Set the cell to be hit
+            // Set the cell to a "hit"
             player.setGridCell(x, y, CellType.HIT);
-            // TODO: Check if a ship is sunk + perhaps move this code into a new class for vessels
+            // TODO: Do a loop within a hashmap instead
             Ship[] ships = new Ship[5];
             ships[0] = this.player2.getShip("Carrier");
             ships[1] = this.player2.getShip("Battleship");
@@ -252,7 +252,7 @@ public class BattleshipGame {
             ships[4] = this.player2.getShip("Patrol Boat");
 
             for(int i = 0; i < ships.length; i++){
-                ships[i].updateShipStatus(x, y);
+                ships[i] = ships[i].updateShipStatus(x, y);
             }
 
             HashMap<String, Ship> vessels = this.player1.getVessels();

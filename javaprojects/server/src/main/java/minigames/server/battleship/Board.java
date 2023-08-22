@@ -31,6 +31,7 @@ public class Board {
         defaultGrid();  // Set the grid to default ship positions
         this.messageHistory = message;
         this.gameState = GameState.SHIP_PLACEMENT;
+        // Set the player to be the owner for all ships on this board
         this.setPlayerOwner();
 
     }
@@ -94,17 +95,22 @@ public class Board {
         this.gameState = gameState;
     }
 
+    /**
+     * Updates / sets the Ship objects within the vessels HashMap
+     * @param vessels the Hashmap containing all Ship objects
+     */
     public void setVessels(HashMap<String, Ship> vessels){
         this.vessels = vessels;
     }
 
+    /**
+     * Sets the player to be the owner for all ships on this board
+     */
     public void setPlayerOwner(){
         this.vessels.forEach((key, value) ->{
             Ship current = value;
-            System.out.println(vessels.get(key));
             current.setOwner(this.playerName);
             vessels.replace(key, current);
-            System.out.println(vessels.get(key));
         });
     }
 
