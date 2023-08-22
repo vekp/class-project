@@ -70,7 +70,6 @@ public class Cell {
      */
     public void setCellType(CellType cellType) {
         this.cellType = cellType;
-        this.shotAt = true;
     }
 
     public void setHorizontalCoord(int horizontalCoord) {
