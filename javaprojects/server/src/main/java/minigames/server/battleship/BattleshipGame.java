@@ -39,7 +39,7 @@ public class BattleshipGame {
      * Uniquely identifies this game
      */
     String gameName;
-    static String playerName;
+    String playerName;
 
     AchievementHandler achievementHandler;
 
@@ -58,8 +58,8 @@ public class BattleshipGame {
     String chars = "ABCDEFGHIJ";
 
     //TODO: having two set players will likely not work for multiplayer and will need to be fixed - Names should also not be fixed values
-    static Board player1 = new Board(playerName, welcomeMessage);
-    static Board player2 = new Board("CPU", welcomeMessage);
+    Board player1 = new Board(playerName, welcomeMessage);
+    Board player2 = new Board("CPU", welcomeMessage);
     HashMap<String, Board> players = new HashMap<>();
 
     /**

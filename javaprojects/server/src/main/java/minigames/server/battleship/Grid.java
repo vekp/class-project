@@ -240,4 +240,18 @@ public class Grid {
         vessels.put("Patrol Boat", placeShip("Patrol Boat", hor, 3,  5, 4));
         return vessels;
     }
+
+    public HashMap<String,Ship> defaultShips1(){
+        // Ship parts
+        CellType[] hor = {CellType.SHIP_LEFT,CellType.SHIP_HULL, CellType.SHIP_RIGHT};
+        CellType[] ver = {CellType.SHIP_UP,CellType.SHIP_HULL, CellType.SHIP_DOWN};
+        // Map of ships
+        HashMap<String, Ship> vessels = new HashMap<>();
+        vessels.put("Carrier", placeShip("Carrier", ver, 6,  2, 9));
+        vessels.put("Battleship", placeShip("Battleship", hor, 5,  0, 3));
+        vessels.put("Destroyer", placeShip("Destroyer", hor, 4,  2, 1));
+        vessels.put("Submarine", placeShip("Submarine", ver, 4,  4, 8));
+        vessels.put("Patrol Boat", placeShip("Patrol Boat", hor, 3,  5, 4));
+        return vessels;
+    }
 }

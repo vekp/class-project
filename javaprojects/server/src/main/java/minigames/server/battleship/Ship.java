@@ -96,7 +96,7 @@ public class Ship {
     public Ship updateShipStatus(int y, int x) {
         // booleans that can be set to reduce console spam
         hits = 0;
-        boolean iWantPrintouts = false;
+        boolean iWantPrintouts = true;
         boolean iWantMorePrintouts = false;
         // Get the length of the Cell array within the Ship (the ship's size) and put this within an int variable called "size"
         Cell target = new Cell(x, y);
@@ -123,7 +123,7 @@ public class Ship {
             if(current.getBothCoords().equals(target.getBothCoords())){
 
                 shipParts[i].shoot();
-                if(iWantPrintouts){
+                if(iWantMorePrintouts){
                     System.out.println("Shot on target");
                     System.out.println("Hit here: " + current.getBothCoords());
                     System.out.println("Target coords: " + target.getBothCoords());

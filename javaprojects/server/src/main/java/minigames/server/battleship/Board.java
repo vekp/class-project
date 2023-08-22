@@ -28,7 +28,8 @@ public class Board {
         this.turnNumber = 0;
         this.vessels = new HashMap<>();
         this.grid = new Grid(); // Create a default grid
-        defaultGrid();  // Set the grid to default ship positions
+        chooseGrid();
+
         this.messageHistory = message;
         this.gameState = GameState.SHIP_PLACEMENT;
         // Set the player to be the owner for all ships on this board
@@ -193,12 +194,25 @@ public class Board {
     // placeShip() method, which puts a ship on the grid and then returns a ship object which is added to the hashmap
     // and finally returns the players grid after all this is complete (in defaultGrid() below)
 
+    public Cell[][] chooseGrid(){
+        if(playerName == null){
+            return otherGrid();
+        } else {
+            return defaultGrid();
+        }
+    }
+
     /**
      * Set the vessels map, and place ships on the grid in a default position
      * @return a 2D cell array
      */
     public Cell[][] defaultGrid() {
         this.vessels = new HashMap<>(this.grid.defaultShips());
+        return this.getGrid();
+    }
+
+    public Cell[][] otherGrid(){
+        this.vessels = new HashMap<>(this.grid.defaultShips1());
         return this.getGrid();
     }
 
