@@ -11,7 +11,7 @@ import java.util.Random;
 
 public class Board{
 
-    public Square[][] board; //needed?
+    public Square[][] board; 
     int ROWS = 9; // adjustable variable for grid size
     int COLS = 9; // adjustable variable for grid size
 
@@ -61,7 +61,7 @@ public class Board{
      */
     
     //FIXME need to write a throws exception for index out of bounds
-    public Square getSquare(int x, int y, Board board){
+    public static Square getSquare(int x, int y, Board board){
         Square square = board.getBoard()[x][y];
 
         return square;
@@ -71,7 +71,7 @@ public class Board{
     /**
      * A method to generate an ArrayList of colour constants for the board
      */
-    public ArrayList<Object> generateColours(){
+    public static ArrayList<Object> generateColours(){
         ArrayList<Object> coloursList = new ArrayList<>(List.of(Colours.values()));
 
         return coloursList;
@@ -79,7 +79,7 @@ public class Board{
     /**
      * A method to generate an ArrayList of symbol constants for the board
      */
-    public ArrayList<Object> generateSymbols(){
+    public static ArrayList<Object> generateSymbols(){
         ArrayList<Object> symbolsList = new ArrayList<>(List.of(Symbols.values()));
 
         return symbolsList;
