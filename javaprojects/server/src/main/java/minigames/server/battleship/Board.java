@@ -75,6 +75,13 @@ public class Board {
     public HashMap<String, Ship> getVessels() {
         return vessels;
     }
+    
+    /**
+     * Return the ship object of the specified class on the current game board
+     * @param shipClass A String containing the class of the ship
+     * @return
+     */
+    public Ship getShip(String shipClass){return this.vessels.get(shipClass);}
 
     // Setters
     /**
