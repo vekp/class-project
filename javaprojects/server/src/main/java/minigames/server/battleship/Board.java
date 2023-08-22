@@ -13,7 +13,7 @@ public class Board {
     private String playerName;
     private String boardTitle;
     private Grid grid; // A two-dimensional array of Cells for drawing the game board
-    private HashMap<String, Ship> vessels;  // An array containing each of the five ship types for the current board
+    private HashMap<String, Ship> vessels;  // A hashmap containing each of the five ship types for the current board
     private int turnNumber;  // The current turn number
     private String messageHistory;  // String of all valid messages, both game and player
     private GameState gameState;
@@ -31,6 +31,9 @@ public class Board {
         defaultGrid();  // Set the grid to default ship positions
         this.messageHistory = message;
         this.gameState = GameState.SHIP_PLACEMENT;
+        // Set the player to be the owner for all ships on this board
+        this.setPlayerOwner();
+
     }
 
 
@@ -76,6 +79,13 @@ public class Board {
         return vessels;
     }
 
+    /**
+     * Return the ship object of the specified class on the current game board
+     * @param shipClass A String containing the class of the ship
+     * @return
+     */
+    public Ship getShip(String shipClass){return this.vessels.get(shipClass);}
+
     // Setters
     /**
      * Sets the current game state for the player
@@ -86,6 +96,25 @@ public class Board {
     }
 
     /**
+     * Updates / sets the Ship objects within the vessels HashMap
+     * @param vessels the Hashmap containing all Ship objects
+     */
+    public void setVessels(HashMap<String, Ship> vessels){
+        this.vessels = vessels;
+    }
+
+    /**
+     * Sets the player to be the owner for all ships on this board
+     */
+    public void setPlayerOwner(){
+        this.vessels.forEach((key, value) ->{
+            Ship current = value;
+            current.setOwner(this.playerName);
+            vessels.replace(key, current);
+        });
+    }
+
+    /**
      * Sets the CellType for a given coordinate in the grid
      * @param x horizontal position
      * @param y vertical position
@@ -93,7 +122,14 @@ public class Board {
      */
     public void setGridCell(int x, int y, CellType cellType){
         this.grid.setCellType(x, y, cellType);
+        // if the cell is being changed to a "hit" or "miss" cell, update the cell's shotAt boolean to be true
+        // This function is also used to update the grid when placing ships, it was causing issues because all parts of the
+        // ships were being read as "shotAt"
+        if(cellType.toString().equals("X") || cellType.toString().equals(".")) {
+            this.grid.shootCell(x, y);
+        }
     }
+
 
     /**
      * Adds the user's input to the message history

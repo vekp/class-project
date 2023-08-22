@@ -6,7 +6,6 @@ import minigames.achievements.PlayerAchievementRecord;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -72,7 +71,7 @@ public class AchievementCollection {
 
         for (int i = 0; i < achievements.size(); i++) {
             AchievementPresenter ap = achievements.get(i);
-            JPanel achievementPanel = ap.smallAchievementPanel(true);
+            JPanel achievementPanel = ap.mediumAchievementPanel(true);
             achievementPanel.setLayout(new BoxLayout(achievementPanel, BoxLayout.X_AXIS));
             achievementPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
             int index = i;

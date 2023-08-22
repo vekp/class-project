@@ -37,7 +37,7 @@ public class NotificationManager implements Tickable {
     boolean applyColourAndFontStyling;
     private Color backgroundColor;
     private Color foregroundColor;
-    private String fontname;
+    private String fontName;
     private Border border;
 
     /**
@@ -140,7 +140,6 @@ public class NotificationManager implements Tickable {
             // Wait for display time to elapse
             case FULLY_DISPLAYED -> {
                 if (displayTime > 0 && (now - startTime) / 1000000 >= displayTime) {
-                    System.out.println(displayTime);
                     status = Status.MOVING_UP;
                 }
             }
@@ -248,13 +247,29 @@ public class NotificationManager implements Tickable {
     public void setColours(Color foregroundColour, Color backgroundColour) {
         this.foregroundColor = foregroundColour;
         this.backgroundColor = backgroundColour;
+        setApplyColourAndFontStyling(true);
     }
 
     /**
      * Set font for notifications
      */
     public void setFont(String fontname) {
-        this.fontname = fontname;
+        this.fontName = fontname;
+        setApplyColourAndFontStyling(true);
+    }
+
+
+    /**
+     * Set styling for foreground/background colours, font and border in one method.
+     * @param foregroundColour
+     * @param backgroundColour
+     * @param fontName
+     * @param border
+     */
+    public void setStyling(Color foregroundColour, Color backgroundColour, String fontName, Border border) {
+        setColours(foregroundColour, backgroundColour);
+        setFont(fontName);
+        setBorder(border);
     }
 
     /**
@@ -271,8 +286,7 @@ public class NotificationManager implements Tickable {
         }
         // Set font
         Font f = component.getFont();
-        System.out.println("setting font here: " + fontname);
-        component.setFont(new Font(fontname, f.getStyle(), f.getSize()));
+        component.setFont(new Font(fontName, f.getStyle(), f.getSize()));
         // Recurse
         if (component instanceof Container container) {
             for (Component c : container.getComponents()) {
