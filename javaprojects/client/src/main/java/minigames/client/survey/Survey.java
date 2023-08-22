@@ -1,5 +1,14 @@
 package minigames.client.survey;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -51,6 +60,35 @@ public class Survey implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         count++;
         label.setText("Number of clicks: " + count);
+
+        if (e.getSource() == button) {
+            String feedbackText = textField.getText();
+    
+            // JSON object to store the feedback data
+            JSONObject feedbackObject = new JSONObject();
+            feedbackObject.put("user_id", "123"); // Replace with real user ID
+            feedbackObject.put("timestamp", getCurrentTimestamp());
+            feedbackObject.put("feedback_text", feedbackText);
+    
+            // Save JSON object to a local file
+            saveFeedbackToJsonFile(feedbackObject);
+        }
+    }
+
+    private String getCurrentTimestamp() {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return now.format(formatter);
+    }
+    
+    private void saveFeedbackToJsonFile(JSONObject feedbackObject) {
+        try (FileWriter fileWriter = new FileWriter("feedback.json", true)) {
+            // Append feedback to existing JSON file, otherwise create new one
+            fileWriter.write(feedbackObject.toJSONString());
+            fileWriter.write("\n");
+            fileWriter.flush();
+        } catch (IOException e) {
+            e.printStackTrace(); // Add proper exception handling
+        }
     }
 }
-
