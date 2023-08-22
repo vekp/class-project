@@ -22,8 +22,8 @@ public class Ship {
         this.shipClass = shipClass;
         this.shipParts = shipParts;
         this.sunk = false;
-        int hits = 0;
-        int size = shipParts.length;
+        this.hits = 0;
+        this.size = shipParts.length;
     }
 
     // These will likely be wanted when custom ship movement is added
@@ -62,40 +62,35 @@ public class Ship {
     }
 
     /**
-     * Updates the cells within the current Ship Object, should be performed after every round of enemy firing
+     * Updates the cells within the current Ship Object, should be performed after every round of enemy firing.
+     * NOTE: These are reversed because the player enters the y coord before the x coord
      * @param x The x coordinate for the target
      * @param y The y coord
      */
-    public Ship updateShipStatus(int x, int y) {
+    public Ship updateShipStatus(int y, int x) {
         // booleans that can be set to reduce console spam
+        this.hits = 0;
         boolean iWantPrintouts = true;
         boolean iWantMorePrintouts = false;
         // Get the length of the Cell array within the Ship (the ship's size) and put this within an int variable called "size"
         Cell target = new Cell(x, y);
-        if(iWantMorePrintouts){
-            System.out.println("Updating ship status");
-        }
 
         Cell[] shipParts = this.getShipParts();
 
         int size = shipParts.length;
-        if(iWantMorePrintouts){
-            System.out.println("Size of this " + this.getShipClass() +": " + size);
-        }
-        int hits = 0;
 
 
         // Loop through all cells within the current ship to see if any of the cells were hit by the previous shot
         for (int i = 0; i < size; i++){
             Cell current = shipParts[i];
             if(iWantMorePrintouts){
-                System.out.println("Current cell: " + current);
                 System.out.println("Current cell coords: " + current.getBothCoords());
+                System.out.println("Target cell coords: " + target.getBothCoords());
                 System.out.println("Has current cell been shot? " + current.hasBeenShot());
             }
             // For every cell within the Ship, if it has been hit, increment the "hits" counter
             if(current.hasBeenShot()){
-                hits ++;
+                this.hits ++;
             }
             // If the current Cell of the ship is at the same coord as the "target" cell, set the cell-type to "hit"
             // and increment the "hits" counter
@@ -107,18 +102,20 @@ public class Ship {
                     System.out.println("Hit here: " + current.getBothCoords());
                     System.out.println("Target coords: " + target.getBothCoords());
                 }
-                hits++;
+                this.hits++;
             }
         }
         // update the cells of the Ship Object
         this.shipParts = shipParts;
-        System.out.println("hits: " + hits);
-        System.out.println("to hit: " + size);
-
+        if(iWantPrintouts) {
+            System.out.println("Ship class: " + this.getShipClass());
+            System.out.println("hits: " + this.hits);
+            System.out.println("to hit: " + this.size);
+        }
         // if all cells within the Ship have been hit, sink the ship
-        if(size==hits){
+        if(this.size==this.hits){
             this.sink();
-            System.out.println("You sank my "+ this.getShipClass());
+            System.out.println("You sank the enemy "+ this.getShipClass());
         }
         return this;
     }

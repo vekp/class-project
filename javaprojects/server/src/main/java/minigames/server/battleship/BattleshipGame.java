@@ -263,7 +263,7 @@ public class BattleshipGame {
             vessels.replace("Submarine", ships[3]);
             vessels.replace("Patrol Boat", ships[4]);
 
-            this.player1.setVessels(vessels);
+            this.player2.setVessels(vessels);
 
 
 
