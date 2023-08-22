@@ -105,7 +105,7 @@ public class NotificationManager implements Tickable {
         int width = (int) notificationPanel.getPreferredSize().getWidth();
         height = (int) notificationPanel.getPreferredSize().getHeight();
         // calculate start position
-        int maxX = frame.getWidth() - width - rightMargin;
+        int maxX = layeredPane.getWidth() - width - rightMargin;
         int minX = leftMargin;
         currentX = minX + (int) (alignment * (maxX - minX));
         currentY = - height;

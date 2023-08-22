@@ -8,7 +8,7 @@ import javax.swing.*;
 import minigames.achievements.Achievement;
 import minigames.achievements.GameAchievementState;
 import minigames.achievements.PlayerAchievementRecord;
-import minigames.client.achievementui.AchievementCollection;
+import minigames.client.achievementui.AchievementPresenterRegistry;
 import minigames.client.achievementui.AchievementUI;
 import minigames.client.notifications.NotificationManager;
 import org.apache.logging.log4j.LogManager;
@@ -184,7 +184,7 @@ public class MinigameNetworkClient {
                 .onSuccess((resp) -> {
                     //re-create the player's GameAchievementState from the JSON we should have been sent, and
                     //display it in a message dialog in a background thread
-                    AchievementCollection ac = new AchievementCollection(GameAchievementState.fromJSON(resp.bodyAsString()));
+                    AchievementPresenterRegistry ac = new AchievementPresenterRegistry(GameAchievementState.fromJSON(resp.bodyAsString()));
                     vertx.executeBlocking(getGameAchievements -> {
                         JOptionPane.showMessageDialog(getMainWindow().frame, ac.achievementListPanel(),
                                 gameID + " achievements", JOptionPane.PLAIN_MESSAGE);

@@ -148,7 +148,7 @@ public class AchievementUI extends JPanel {
             gameLabel.setFont(new Font(gameLabel.getFont().getFontName(), Font.BOLD, 25));
             gameLabel.setBorder(new EmptyBorder(10, 10, 10, 10));
             achievementPanel.add(gameLabel);
-            AchievementCollection gameAchievements = new AchievementCollection(state);
+            AchievementPresenterRegistry gameAchievements = new AchievementPresenterRegistry(state);
             achievementPanel.add(gameAchievements.achievementListPanel());
         }
         achievementScrollPane.setViewportView(achievementPanel);
