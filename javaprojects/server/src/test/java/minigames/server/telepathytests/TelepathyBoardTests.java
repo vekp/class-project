@@ -100,7 +100,7 @@ public class TelepathyBoardTests{
 
 
     @Test
-    @DisplayName ("Test generateColours returns an array of symbol constants")
+    @DisplayName ("Test generateSymbols returns an array of symbol constants")
     public void testGenerateSymbols(){
        
         ArrayList<Object> expectedList = new ArrayList<>();
