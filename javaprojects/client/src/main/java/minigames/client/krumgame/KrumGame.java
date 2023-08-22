@@ -46,6 +46,7 @@ public class KrumGame implements GameClient {
     String windString;
 
     // Graphic and rendering
+    Background backgroundComponent;
     BufferedImage background = null;
     WritableRaster alphaRaster;
     KrumPanel panel;
@@ -80,10 +81,10 @@ public class KrumGame implements GameClient {
         firstRun = true;
         updateCount = 0;
         // Initializing the background image
-        //Background.initializeBackground("chameleon.png");
-        Background.initializeBackground("ropetestmap.png");
-        background = Background.getImage();
-        alphaRaster = Background.getAlphaRaster();
+        //backgroundComponent = new Background("chameleon.png");
+        backgroundComponent = new Background("ropetestmap.png");
+        background = backgroundComponent.getImage();
+        alphaRaster = backgroundComponent.getAlphaRaster();
         initializePanel();
         initializePlayers();
         initializeWind();
