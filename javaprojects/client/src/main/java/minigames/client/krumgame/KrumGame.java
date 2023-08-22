@@ -74,31 +74,46 @@ public class KrumGame implements GameClient {
     // Explosions details for the draw loop
     ArrayList<ExplosionDetails> explosions;
 
-    public KrumGame() {        
-        background = KrumHelpers.readSprite("chameleon.png");
+    public KrumGame() {  
+        rand = new Random(); 
+        firstRun = true;
+        updateCount = 0;
+        initializeBackground();
+        initializePanel();
+        initializePlayers();
+        initializeWind();
+        startTurn();
+
+        explosions = new ArrayList<ExplosionDetails>();
+    }
+
+    private void initializeBackground(){
+        //background = KrumHelpers.readSprite("chameleon.png");
         background = KrumHelpers.readSprite("ropetestmap.png");
         alphaRaster = background.getAlphaRaster();
+    }
+
+    private void initializePanel(){
         panel = new KrumPanel(this);
         panel.setPreferredSize(panel.getPreferredSize());
-        playerTurn = 0;
-        windY = 0;
-        windX = -0.02;
-        rand = new Random();
-        windString = "Wind: left 2.00";
-        firstRun = true;
+    }
+
+    private void initializePlayers(){
         players = new KrumPlayer[2];
         players[0] = new KrumPlayer(235, 0, "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, true, alphaRaster, 0, players);
         players[1] = new KrumPlayer(600, 0, "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, false, alphaRaster, 1, players);
         players[0].joey.otherPlayer = players[1];
         players[1].joey.otherPlayer = players[0];
         playerTurn = 0;
-        updateCount = 0;
         savedTurns = new KrumTurn[] {new KrumTurn(players, background, windX, windY, updateCount), new KrumTurn(players, background, windX, windY, updateCount)};       
         currentTurn = savedTurns[playerTurn];
-        explosions = new ArrayList<ExplosionDetails>();
-        startTurn();
     }
 
+    private void initializeWind(){
+        windY = 0;
+        windX = -0.02;
+        windString = "Wind: left 2.00";
+    }
     /*
      * Represents the details of an explosion, for use in the draw loop
      */
