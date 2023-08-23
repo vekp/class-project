@@ -6,8 +6,12 @@ import minigames.rendering.GameMetadata;
 import minigames.rendering.RenderingPackage;
 import minigames.server.telepathy.TelepathyGame;
 import minigames.server.telepathy.TelepathyServer;
+import minigames.telepathy.TelepathyCommands;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.List;
+import io.vertx.core.json.JsonObject;
 
 /**
  * Tests for the Telepathy server side code
@@ -23,7 +27,11 @@ public class TelepathyTests {
         TelepathyGame game = new TelepathyGame(testGameName);
 
         assertTrue(game.getName().equals(testGameName));
-        assertTrue(game.getPlayers().size() == 0);
+        TelepathyGame.Player[] gamePlayers = game.getPlayers();
+        
+        assertTrue(gamePlayers.length == 2);
+        assertTrue(gamePlayers[0].name().equals("Empty"));
+        assertTrue(gamePlayers[1].name().equals("Empty"));
     }
 
     @Test
@@ -37,7 +45,7 @@ public class TelepathyTests {
         assertTrue(metadata.gameServer().equals("Telepathy"));
         assertTrue(metadata.name().equals(testGameName));
 
-        assertTrue(metadata.players().length == 0);
+        assertTrue(metadata.players().length == 2);
         // Check that game is joinable to start
         assertTrue(metadata.joinable());
     }
@@ -48,9 +56,39 @@ public class TelepathyTests {
         TelepathyGame game = new TelepathyGame("TestGame");
 
         game.joinGame("Bob");
-        assertTrue(game.getPlayers().size() == 1);
+        assertTrue(game.getPlayers()[0].name().equals("Bob"));
 
-        // Test the response returned from joinGame() when coded in
+        // Check that another Bob cannot join
+        RenderingPackage renderingPackage = game.joinGame("Bob");
+        for(JsonObject command : renderingPackage.renderingCommands()){
+            System.out.println(command.getString("command"));
+            assertTrue(command.getString("command").equals(TelepathyCommands.JOINGAMEFAIL.toString()));
+            
+            TelepathyGame.Player players[] = game.getPlayers();
+            assertTrue(players[0].name().equals("Bob"));
+            assertTrue(players[1].name().equals("Empty"));
+        }
+
+        // Check another player can join a game with a free spot
+        renderingPackage = game.joinGame("Alice");
+        for(JsonObject command : renderingPackage.renderingCommands()){
+            System.out.println(command.getString("command"));
+            assertTrue(command.getString("command").equals(TelepathyCommands.JOINGAMESUCCESS.toString()));
+            
+            TelepathyGame.Player players[] = game.getPlayers();
+            assertTrue(players[0].name().equals("Bob"));
+            assertTrue(players[1].name().equals("Alice"));
+        }
+
+        // Check that a player cannot join a full game
+        renderingPackage = game.joinGame("Fred");
+        for(JsonObject command : renderingPackage.renderingCommands()){
+            assertTrue(command.getString("command").equals(TelepathyCommands.JOINGAMEFAIL.toString()));
+
+            TelepathyGame.Player players[] = game.getPlayers();
+            assertTrue(players[0].name().equals("Bob"));
+            assertTrue(players[1].name().equals("Alice"));
+        }
     }
 
     /* Tests for TelepathyServer */
@@ -92,11 +130,11 @@ public class TelepathyTests {
         // Assert that Alice is in Bob's game
         GameMetadata[] games = server.getGamesInProgress();
         boolean inGame = false;
+        
         for(GameMetadata g : games){
-            if(g.name().equals("Bob's game")){
-                for(String name : games[0].players()){
-                    if(name.equals("Alice")) inGame = true;
-                }
+            System.out.println(g.players()[0] + g.players()[1]);
+            for(String name : g.players()){
+                if(name.equals("Alice")) inGame = true;
             }
         }
         assertTrue(inGame);
