@@ -89,7 +89,5 @@ public class FeedbackSurvey {
 
             return new RenderingPackage(gameMetadata(), renderingCommands);
         }
-
     }
-    
 }
