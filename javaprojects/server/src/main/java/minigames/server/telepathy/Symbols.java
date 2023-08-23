@@ -2,7 +2,7 @@ package minigames.server.telepathy;
 
 
 /**
- * Symbols enum, a list of constants representing square symbols
+ * Symbols enum, a list of constants representing tile symbols
  */
 
 public enum Symbols{

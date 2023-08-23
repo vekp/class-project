@@ -6,12 +6,12 @@ import java.util.Random;
 
 
 /**
- * A class representing a Telepathy board including a method to access Square objects
+ * A class representing a Telepathy board, includes a method to access Tile objects from a board.
  */
 
 public class Board{
 
-    public Square[][] board; 
+    public Tile[][] board; 
     int ROWS = 9; // adjustable variable for grid size
     int COLS = 9; // adjustable variable for grid size
 
@@ -24,17 +24,17 @@ public class Board{
 
     //getter
 
-    public Square[][] getBoard(){return this.board;}
+    public Tile[][] getBoard(){return this.board;}
 
 
     /**
-     * A method to generate a 2D array of square objects
+     * A method to generate a 2D array of tile objects with assigned colour and symbol.
      * @param rows an int representing number of rows on the board
      * @param cols an int representing number of columns on the board
-     * @return a 2D array of Square objects
+     * @return a 2D array of Tile objects
      */
-    public Square[][] generateBoard(int rows, int cols) {
-        Square[][] board = new Square[rows][cols];
+    public Tile[][] generateBoard(int rows, int cols) {
+        Tile[][] board = new Tile[rows][cols];
         Random randNumber = new Random(16); // every board will be the same because of 'seed' number in formula
         ArrayList<Object> colourList = generateColours();
         ArrayList<Object> symbolList = generateSymbols();
@@ -42,14 +42,14 @@ public class Board{
             for (int col = 0; col < board.length; col++) {
                 Colours colour = (Colours) colourList.get(randNumber.nextInt(9));
                 Symbols symbol = (Symbols) symbolList.get(randNumber.nextInt(9));
-                Square square = new Square(row, col, colour, symbol);
-                board[row][col] = square;
+                Tile tile = new Tile(row, col, colour, symbol);
+                board[row][col] = tile;
                 //redundant code: used to quickly check random allocation was functioning
-                //int x = square.getHorizontalPos();
-                //int y = square.getVerticalPos();
-                //Colours squareColour = square.getSquareColour();
-                //Symbols squareSymbol = square.getSquareSymbol();
-                //System.out.println(x + "," + y + squareColour + squareSymbol);
+                //int x = tile.getHorizontalPos();
+                //int y = tile.getVerticalPos();
+                //Colours tileColour = tile.getTileColour();
+                //Symbols tileSymbol = tile.getTileSymbol();
+                //System.out.println(x + "," + y + tileColour + tileSymbol);
             }
         }
         return board;
@@ -59,19 +59,20 @@ public class Board{
     /**
      * A method to return a square at coordinates x, y from the board
      */
-    
-    //FIXME need to write a throws exception for index out of bounds
-    public static Square getSquare(int x, int y, Board board){
-        Square square = board.getBoard()[x][y];
 
-        return square;
+    
+    public Tile getTile(int x, int y, Board board){
+
+        Tile tile = board.getBoard()[x][y];
+
+        return tile;
     }
 
 
     /**
      * A method to generate an ArrayList of colour constants for the board
      */
-    public static ArrayList<Object> generateColours(){
+    public ArrayList<Object> generateColours(){
         ArrayList<Object> coloursList = new ArrayList<>(List.of(Colours.values()));
 
         return coloursList;
@@ -79,7 +80,7 @@ public class Board{
     /**
      * A method to generate an ArrayList of symbol constants for the board
      */
-    public static ArrayList<Object> generateSymbols(){
+    public ArrayList<Object> generateSymbols(){
         ArrayList<Object> symbolsList = new ArrayList<>(List.of(Symbols.values()));
 
         return symbolsList;

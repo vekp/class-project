@@ -1,7 +1,7 @@
 package minigames.server.telepathy;
 
 /**
- * Colour enum, a list of constants repesenting square colours
+ * Colour enum, a list of constants repesenting tile colours
  */
 
 

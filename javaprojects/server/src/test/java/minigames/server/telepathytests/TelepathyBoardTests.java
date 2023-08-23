@@ -13,8 +13,8 @@ public class TelepathyBoardTests{
 
     //Tests to be discussed...extremely likely there are much better ways to implement these...
     
+    @DisplayName ("The generateBoard method should return a 2D array of tile objects")
     @Test
-    @DisplayName ("The generateBoard method should return a 2D array of square objects")
     public void testGenerateBoard(){ 
         Board testTelepathyBoard = new Board();
         int testBoardLength = testTelepathyBoard.getBoard().length;
@@ -22,14 +22,14 @@ public class TelepathyBoardTests{
         
         for (int row = 0; row < testBoardLength; row++){
             for (int col = 0; col < testBoardLength; col++) {
-                Square testSquare = testTelepathyBoard.getBoard()[row][col];
+                Tile testTile = testTelepathyBoard.getBoard()[row][col];
 
-                int horizontal = testSquare.getHorizontalPos();
-                int vertical = testSquare.getVerticalPos();
+                int horizontal = testTile.getHorizontalPos();
+                int vertical = testTile.getVerticalPos();
                 
                 assertTrue(horizontal == row);
                 assertTrue(vertical == col);
-                checkLength.add(testSquare);
+                checkLength.add(testTile);
                 
             }
         }
@@ -38,24 +38,24 @@ public class TelepathyBoardTests{
         
     }
 
+    @DisplayName ("Assert the generateBoard method returns the same array of tile objects")
     @Test
-    @DisplayName ("Assert the generateBoard method returns the same array of square objects")
     public void testBoardEquality(){
         Board testTelepathyBoard = new Board();
         Board testTelepathyBoard2 = new Board();
 
-        Square testSquare1 = testTelepathyBoard.getBoard()[0][0];
-        Square testSquare2 = testTelepathyBoard2.getBoard()[0][0];
+        Tile testTile1 = testTelepathyBoard.getBoard()[0][0];
+        Tile testTile2 = testTelepathyBoard2.getBoard()[0][0];
 
-        int horizontal1 = testSquare1.getHorizontalPos();
-        int vertical1 = testSquare1.getVerticalPos();
-        Colours colour1 = testSquare1.getSquareColour();
-        Symbols symbol1 = testSquare1.getSquareSymbol();
+        int horizontal1 = testTile1.getHorizontalPos();
+        int vertical1 = testTile1.getVerticalPos();
+        Colours colour1 = testTile1.getTileColour();
+        Symbols symbol1 = testTile1.getTileSymbol();
 
-        int horizontal2 = testSquare2.getHorizontalPos();
-        int vertical2 = testSquare2.getVerticalPos();
-        Colours colour2 = testSquare2.getSquareColour();
-        Symbols symbol2 = testSquare2.getSquareSymbol();
+        int horizontal2 = testTile2.getHorizontalPos();
+        int vertical2 = testTile2.getVerticalPos();
+        Colours colour2 = testTile2.getTileColour();
+        Symbols symbol2 = testTile2.getTileSymbol();
 
         assertTrue(horizontal1 == horizontal2);
         assertTrue(vertical1 == vertical2);
@@ -63,23 +63,24 @@ public class TelepathyBoardTests{
         assertTrue(symbol1.equals(symbol2));
     }
 
-
+    @DisplayName ("Test getTile method works as predicted")
     @Test
-    @DisplayName ("Test getSquare method works as predicted")
-    public void testGetSquare(){
+    public void testGetTile(){
         Board testTelepathyBoard = new Board();
-        Square testSquare = Board.getSquare(0, 0, testTelepathyBoard);
-        int horizontal = testSquare.getHorizontalPos();
-        int vertical = testSquare.getVerticalPos();
+        Tile testTile = testTelepathyBoard.getTile(0, 0, testTelepathyBoard);
+        int horizontal = testTile.getHorizontalPos();
+        int vertical = testTile.getVerticalPos();
     
         assertTrue(horizontal == 0);
         assertTrue(vertical == 0);
     }
 
-    
-    @Test
+
+
     @DisplayName ("Test generateColours returns an array of colour constants")
+    @Test
     public void testGenerateColours(){
+        Board board = new Board();
        
         ArrayList<Object> expectedList = new ArrayList<>();
         expectedList.add(Colours.RED);
@@ -92,16 +93,17 @@ public class TelepathyBoardTests{
         expectedList.add(Colours.GREEN);
         expectedList.add(Colours.GREY);
 
-        ArrayList<Object> actualList = Board.generateColours();
+        ArrayList<Object> actualList = board.generateColours();
 
         assertEquals(expectedList, actualList);
       
     } 
 
 
-    @Test
     @DisplayName ("Test generateSymbols returns an array of symbol constants")
+    @Test
     public void testGenerateSymbols(){
+        Board board = new Board();
        
         ArrayList<Object> expectedList = new ArrayList<>();
         expectedList.add(Symbols.HEARTS);
@@ -114,7 +116,7 @@ public class TelepathyBoardTests{
         expectedList.add(Symbols.QUESTION_MARKS);
         expectedList.add(Symbols.EXCALAMATION_MARKS);
 
-        ArrayList<Object> actualList = Board.generateSymbols();
+        ArrayList<Object> actualList = board.generateSymbols();
         
 
         assertEquals(expectedList, actualList);
