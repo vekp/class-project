@@ -18,6 +18,8 @@ import javax.swing.JPanel;
 // import javax.swing.JTextField;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.awt.FlowLayout; // Import FlowLayout from the java.awt package
+
 
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
@@ -73,6 +75,8 @@ public class GameShow implements GameClient {
     JPanel gameSelect;
     JLabel gameSelectInstructions;
     JPanel guessContainer;
+    JPanel inputPanel;
+    JPanel outcomeContainer;
 
     JButton wordScramble;
     JButton imageGuesser;
@@ -167,6 +171,8 @@ public class GameShow implements GameClient {
         gameContainer.repaint();
     }
 
+
+
     public void startImageGuesser(String imageFileName, int gameId) {
         gameContainer.removeAll();
         gameContainer.validate();
@@ -196,20 +202,27 @@ public class GameShow implements GameClient {
         timer.start();
 
 
-        // Create a panel for the guess input and submit button
-        JPanel inputPanel = new JPanel(new BorderLayout(10, 10));
+       // Create a panel for the guess input and submit button
+        inputPanel = new JPanel(new BorderLayout(10, 0));
         inputPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+        outcomeContainer = new JPanel(new BorderLayout(10, 0));
+
+
+        JPanel inputComponents = new JPanel(); // Create a container for fixed-size components
+        inputComponents.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20)); // You can adjust the layout manager as needed
 
         JTextField guessField = new JTextField(20);
         JButton submitButton = new JButton("Submit Guess");
         submitButton.addActionListener((evt) -> sendCommand(new JsonObject()
-                .put("command", "guess")
-                .put("guessImage", guessField.getText())
+                .put("command", "guessImage")
+                .put("guess", guessField.getText())
                 .put("gameId", gameId)));
 
-        inputPanel.add(guessField, BorderLayout.CENTER);
-        inputPanel.add(submitButton, BorderLayout.EAST);
+        inputComponents.add(guessField);
+        inputComponents.add(submitButton);
 
+        inputPanel.add(inputComponents, BorderLayout.CENTER); // Add the container with fixed-size components
+        inputPanel.add(outcomeContainer, BorderLayout.SOUTH);
         // Add the grid panel to the center of the container
         gameContainer.add(gridPanel, BorderLayout.CENTER);
         gameContainer.add(inputPanel, BorderLayout.SOUTH);
@@ -219,7 +232,25 @@ public class GameShow implements GameClient {
     }
 
 
+    public void imageGuesserGuess(boolean correct) {
+        if (!correct) {
+            JLabel tryAgain = new JLabel("That's not quite right :( Try again!",
+                    SwingConstants.CENTER);
+            outcomeContainer.add(tryAgain, BorderLayout.CENTER);
+        } else {
+            outcomeContainer.removeAll();
+            outcomeContainer.validate();
+            outcomeContainer.repaint();
+            JLabel congrats = new JLabel("Congratulations! You Win :)",
+                    SwingConstants.CENTER);
+            outcomeContainer.add(congrats, BorderLayout.CENTER);
+        }
+        logger.log(Level.INFO, "GameShow instance created");
 
+
+        inputPanel.validate();
+        inputPanel.repaint();
+    }
 
     public void wordScrambleGuess(boolean correct) {
         if (!correct) {
@@ -291,9 +322,13 @@ public class GameShow implements GameClient {
             }
             case "startImageGuesser" -> {
                 this.startImageGuesser(
-                        command.getString("image"),
+                        command.getString("imageFilePath"),
                         (int) command.getInteger("gameId"));
             }
+            case "guessImageOutcome" -> {
+                imageGuesserGuess(command.getBoolean("outcome"));
+            }
+
         }
 
     }

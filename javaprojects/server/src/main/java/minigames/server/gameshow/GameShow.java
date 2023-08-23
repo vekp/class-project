@@ -38,7 +38,7 @@ public class GameShow {
     HashMap<String, GameShowPlayer> players = new HashMap<>();
 
     List<WordScramble> wordScrambleGames = new ArrayList<>();
-    // List<Int> imageGuesserGames = new ArrayList<>();
+    List<ImageGuesser> imageGuesserGames = new ArrayList<>();
 
 
     /** The players currently playing this game */
@@ -80,16 +80,16 @@ public class GameShow {
                         .put("gameId", gameId));
             }
             case "imageGuesser" -> {
-                // wordScrambleGames.add(new WordScramble("wordList.txt"));
-                // int gameId = wordScrambleGames.size() - 1;
-                int gameId = 1;
+                imageGuesserGames.add(new ImageGuesser());
+                int gameId = imageGuesserGames.size() - 1;
 
-                // String image = wordScrambleGames.get(gameId).getImage();
-                String image = "gameshow_image_1.jpg";
+                String image = imageGuesserGames.get(gameId).getImageName();
+                String imageFilePath = imageGuesserGames.get(gameId).getImageFileName();
                 renderingCommands.
                     add(new JsonObject()
                         .put("command", "startImageGuesser")
                         .put("image", image)
+                        .put("imageFilePath", imageFilePath)
                         .put("gameId", gameId));
             }
             case "guess" -> {
@@ -101,15 +101,15 @@ public class GameShow {
                         .put("command", "guessOutcome")
                         .put("outcome", outcome));
             }
-            // case "guessImage" -> {
-            //     String guess = cp.commands().get(0).getString("guess");
-            //     int gameId = (int) cp.commands().get(0).getInteger("gameId");
-            //     boolean outcome = wordScrambleGames.get(gameId).guess(guess);
-            //     renderingCommands.
-            //         add(new JsonObject()
-            //             .put("command", "guessOutcome")
-            //             .put("outcome", outcome));
-            // }
+            case "guessImage" -> {
+                String guess = cp.commands().get(0).getString("guess");
+                int gameId = (int) cp.commands().get(0).getInteger("gameId");
+                boolean outcome = imageGuesserGames.get(gameId).guess(guess);
+                renderingCommands.
+                    add(new JsonObject()
+                        .put("command", "guessImageOutcome")
+                        .put("outcome", outcome));
+            }
         }
 
         return new RenderingPackage(this.gameMetadata(), renderingCommands);
