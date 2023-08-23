@@ -15,8 +15,10 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.*;
 import java.util.List;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.Timer;
 
 /**
  * COSC220 Assessment 3
@@ -62,7 +64,8 @@ public class Memory implements GameClient, ActionListener, MouseListener {
     // Game variable
     boolean gameStarted = false;
     int matchesCounter = 0;
-    int [] timeElapsed = {0, 0}; // {mins, seconds}
+    int [] timeElapsed = {1, 0}; // {mins, seconds}
+    Timer timer;
 
     /** Initialize Swing components */
     public Memory() {
@@ -300,6 +303,42 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         }
     }
 
+    // FIX - How to revert back to original (e.g. 1 minute) once Game Over message pops up and player clicks "OK"?
+    // TimerListener implementing ActionListener - Define timer countdown & call method to update stopwatch
+    public class TimerListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (timeElapsed[1] == 0) {
+                if (timeElapsed[0] == 0) {
+                    ((Timer) e.getSource()).stop();
+                    JOptionPane.showMessageDialog(null, "Game Over!");
+                } 
+                else {
+                    timeElapsed[0]--;
+                    timeElapsed[1] = 59;
+                }
+            } 
+            else {
+                timeElapsed[1]--;
+            }
+            updateStopwatch();
+        }
+    }
+
+    // Method to update stopwatch
+    private void updateStopwatch() {
+        stopwatch.setText(String.format("Time elapsed: %02d:%02d", timeElapsed[0], timeElapsed[1]));
+    }
+
+    // Run
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new Memory();
+            }
+        });
+    }
+
     /** 
      * Sends a command to the game at the server.
      * This being a text adventure, all our commands are just plain text strings our gameserver will interpret.
@@ -324,6 +363,15 @@ public class Memory implements GameClient, ActionListener, MouseListener {
 
         // Add our components to the north, south, east, west, or centre of the main window's BorderLayout
         mnClient.getMainWindow().addCenter(mainPanel);  
+        
+        // FIX - Ask player which level difficulty they want to try before this pops up?
+        // Set popup message to ask if player wants to start game: YES or NO
+        int choice = JOptionPane.showConfirmDialog(null, "Start the game?", "Memory Card Game", JOptionPane.YES_NO_OPTION);
+        if (choice == JOptionPane.YES_OPTION) {
+            // On selection of YES - Timer for stopwatch starts countdown
+            timer = new Timer(1000, new TimerListener());
+            timer.start();
+        }
 
         textArea.append("Starting...");
 
