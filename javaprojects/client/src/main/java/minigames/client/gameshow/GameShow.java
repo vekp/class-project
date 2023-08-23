@@ -1,5 +1,7 @@
 package minigames.client.gameshow;
 
+import minigames.client.gameshow.GridPanel;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -7,6 +9,13 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.util.Collections;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.swing.JButton;
+import javax.swing.JPanel;
+// import javax.swing.JTextArea;
+// import javax.swing.JTextField;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
@@ -15,6 +24,16 @@ import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
 import minigames.rendering.GameMetadata;
 import minigames.commands.CommandPackage;
+
+import java.awt.AlphaComposite;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.util.Random;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+
+
 
 /**
  * A very simple interface for a text-based game.
@@ -56,6 +75,7 @@ public class GameShow implements GameClient {
     JPanel guessContainer;
 
     JButton wordScramble;
+    JButton imageGuesser;
     JButton memoryGame;
     JButton guessingGame;
 
@@ -89,30 +109,32 @@ public class GameShow implements GameClient {
 
         gameSelect.add(gameSelectInstructions, BorderLayout.CENTER);
 
-        gameArea = new JPanel(new BorderLayout(10, 10));
+        gameArea = new JPanel();
+        gameArea.setLayout(new BoxLayout(gameArea, BoxLayout.Y_AXIS));
         gameArea.setBackground(new Color(255, 106, 210));
 
-        gameArea.add(gameSelect, BorderLayout.NORTH);
-
         wordScramble = new JButton("Word Scramble");
-        wordScramble.setPreferredSize(new Dimension(100, 50));
+        wordScramble.setAlignmentX(Component.CENTER_ALIGNMENT);
         wordScramble.addActionListener((evt) -> sendCommand(new JsonObject().put("command", "wordScramble")));
+        gameArea.add(wordScramble);
 
-        gameArea.add(wordScramble, BorderLayout.NORTH);
+        imageGuesser = new JButton("Image Guesser");
+        imageGuesser.setAlignmentX(Component.CENTER_ALIGNMENT);
+        imageGuesser.addActionListener((evt) -> sendCommand(new JsonObject().put("command", "imageGuesser")));
+        gameArea.add(imageGuesser);
 
         memoryGame = new JButton("Memory Game");
-        memoryGame.setPreferredSize(new Dimension(100, 50));
-
-        gameArea.add(memoryGame, BorderLayout.CENTER);
+        memoryGame.setAlignmentX(Component.CENTER_ALIGNMENT);
+        gameArea.add(memoryGame);
 
         guessingGame = new JButton("Guess the Animal");
-        guessingGame.setPreferredSize(new Dimension(100, 50));
-
-        gameArea.add(guessingGame, BorderLayout.SOUTH);
+        guessingGame.setAlignmentX(Component.CENTER_ALIGNMENT);
+        gameArea.add(guessingGame);
 
         gameContainer.add(gameArea);
 
         background.add(gameContainer);
+
     }
 
     public void startWordScramble(String scrambledWord, int gameId) {
@@ -145,6 +167,60 @@ public class GameShow implements GameClient {
         gameContainer.repaint();
     }
 
+    public void startImageGuesser(String imageFileName, int gameId) {
+        gameContainer.removeAll();
+        gameContainer.validate();
+        gameContainer.repaint();
+
+
+        String imageFolderLocation = "src/main/resources/images/memory_game_pics/" + imageFileName;
+        ImageIcon imageIcon = new ImageIcon(imageFolderLocation);
+
+        // Load the image
+        JLabel imageLabel = new JLabel(imageIcon);
+
+        GridPanel gridPanel = new GridPanel(imageIcon);
+
+        Timer timer = new Timer(1000, e -> {
+            boolean cellVisible = true;
+            while (cellVisible) {
+                Random random = new Random();
+                int randomX = random.nextInt(10);
+                int randomY = random.nextInt(10);
+                if (!gridPanel.isCellVisible(randomX, randomY)) {
+                    gridPanel.setFadeCell(randomX, randomY);
+                    cellVisible = false; // Set to false to exit the loop when a non-visible cell is found
+                }
+            }
+        });
+        timer.start();
+
+
+        // Create a panel for the guess input and submit button
+        JPanel inputPanel = new JPanel(new BorderLayout(10, 10));
+        inputPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+
+        JTextField guessField = new JTextField(20);
+        JButton submitButton = new JButton("Submit Guess");
+        submitButton.addActionListener((evt) -> sendCommand(new JsonObject()
+                .put("command", "guess")
+                .put("guessImage", guessField.getText())
+                .put("gameId", gameId)));
+
+        inputPanel.add(guessField, BorderLayout.CENTER);
+        inputPanel.add(submitButton, BorderLayout.EAST);
+
+        // Add the grid panel to the center of the container
+        gameContainer.add(gridPanel, BorderLayout.CENTER);
+        gameContainer.add(inputPanel, BorderLayout.SOUTH);
+
+        gameContainer.validate();
+        gameContainer.repaint();
+    }
+
+
+
+
     public void wordScrambleGuess(boolean correct) {
         if (!correct) {
             JLabel tryAgain = new JLabel("That's not quite right :( Try again!",
@@ -174,7 +250,7 @@ public class GameShow implements GameClient {
      */
     public void sendCommand(JsonObject json) {
         // Collections.singletonList() is a quick way of getting a "list of one item"
-        logger.log(Level.INFO, "sendCommand called with command: {0}", command);
+        // logger.log(Level.INFO, "sendCommand called with command: {0}", command);
         logger.log(Level.INFO, "Sending JSON: {0}", json.toString());
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), this.player, Collections.singletonList(json)));
     }
@@ -212,6 +288,11 @@ public class GameShow implements GameClient {
             }
             case "guessOutcome" -> {
                 wordScrambleGuess(command.getBoolean("outcome"));
+            }
+            case "startImageGuesser" -> {
+                this.startImageGuesser(
+                        command.getString("image"),
+                        (int) command.getInteger("gameId"));
             }
         }
 

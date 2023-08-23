@@ -38,6 +38,8 @@ public class GameShow {
     HashMap<String, GameShowPlayer> players = new HashMap<>();
 
     List<WordScramble> wordScrambleGames = new ArrayList<>();
+    // List<Int> imageGuesserGames = new ArrayList<>();
+
 
     /** The players currently playing this game */
     public String[] getPlayerNames() {
@@ -77,6 +79,19 @@ public class GameShow {
                         .put("scrambledWord", scrambledWord)
                         .put("gameId", gameId));
             }
+            case "imageGuesser" -> {
+                // wordScrambleGames.add(new WordScramble("wordList.txt"));
+                // int gameId = wordScrambleGames.size() - 1;
+                int gameId = 1;
+
+                // String image = wordScrambleGames.get(gameId).getImage();
+                String image = "gameshow_image_1.jpg";
+                renderingCommands.
+                    add(new JsonObject()
+                        .put("command", "startImageGuesser")
+                        .put("image", image)
+                        .put("gameId", gameId));
+            }
             case "guess" -> {
                 String guess = cp.commands().get(0).getString("guess");
                 int gameId = (int) cp.commands().get(0).getInteger("gameId");
@@ -86,6 +101,15 @@ public class GameShow {
                         .put("command", "guessOutcome")
                         .put("outcome", outcome));
             }
+            // case "guessImage" -> {
+            //     String guess = cp.commands().get(0).getString("guess");
+            //     int gameId = (int) cp.commands().get(0).getInteger("gameId");
+            //     boolean outcome = wordScrambleGames.get(gameId).guess(guess);
+            //     renderingCommands.
+            //         add(new JsonObject()
+            //             .put("command", "guessOutcome")
+            //             .put("outcome", outcome));
+            // }
         }
 
         return new RenderingPackage(this.gameMetadata(), renderingCommands);
