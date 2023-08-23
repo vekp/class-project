@@ -129,26 +129,26 @@ public class Grid {
 //    }
     /**
      * Set the Cell at a specific x and y coordinate
-     * @param y
-     * @param x
+     * @param row
+     * @param col
      * @param cell
      */
-    public void setCell(int x, int y, Cell cell){
-        this.grid[y][x - 1] = cell;
+    public void setCell(int row, int col, Cell cell){
+        this.grid[row][col - 1] = cell;
     }
 
-    public void shootCell(int x, int y){
-        this.grid[y][x].shoot();
+    public void shootCell(int row, int col){
+        this.grid[row][col].shoot();
     }
 
     /**
      * Function to set a particular cell's CellType in the grid
-     * @param x x index
-     * @param y y index
+     * @param row row index
+     * @param col column index
      * @param cellType enum value to set the Cell's parameter to
      */
-    public void setCellType(int x, int y, CellType cellType){
-        this.grid[x][y].setCellType(cellType);
+    public void setCellType(int row, int col, CellType cellType){
+        this.grid[row][col].setCellType(cellType);
     }
 
     /**
@@ -156,33 +156,33 @@ public class Grid {
      * @param vesselClass string value describing the ship class
      * @param parts vertical or horizontal list of ship parts
      * @param size size of ship, eg Carrier = 6
-     * @param y vertical location in grid
-     * @param x horizontal location in grid
+     * @param col vertical location in grid
+     * @param row horizontal location in grid
      * @return Ship object
      */
-    public Ship placeShip(String vesselClass, CellType[] parts, int size, int y, int x) {
+    public Ship placeShip(String vesselClass, CellType[] parts, int size, int col, int row) {
         Cell[] newShipParts = new Cell[size];
 
         for (int i=0; i<size; i++) {
-            newShipParts[i] = new Cell(x, y);
+            newShipParts[i] = new Cell(row, col);
         }
 
         // If horizontal
         if (parts[0].equals(CellType.SHIP_LEFT)) {
-            if (x + parts.length < 10) {
-                this.grid[y][x].setCellType(parts[0]);
+            if (row + parts.length < 10) {
+                this.grid[col][row].setCellType(parts[0]);
                 newShipParts[0].setCellType(parts[0]);
                 for (int i = 1; i < size; i++) {
                     if (i<size-1) {
-                        this.grid[y][x + i].setCellType(parts[1]);
+                        this.grid[col][row + i].setCellType(parts[1]);
                         newShipParts[i].setCellType(parts[1]);
-                        newShipParts[i].setHorizontalCoord(x + i);
-                        newShipParts[i].setVerticalCoord(y);
+                        newShipParts[i].setHorizontalCoord(row + i);
+                        newShipParts[i].setVerticalCoord(col);
                     } else {
-                        this.grid[y][x + i].setCellType(parts[2]);
+                        this.grid[col][row + i].setCellType(parts[2]);
                         newShipParts[i].setCellType(parts[2]);
-                        newShipParts[i].setHorizontalCoord(x + i);
-                        newShipParts[i].setVerticalCoord(y);
+                        newShipParts[i].setHorizontalCoord(row + i);
+                        newShipParts[i].setVerticalCoord(col);
                     }
                 }
             }
@@ -190,20 +190,20 @@ public class Grid {
 
         // If vertical
         if (parts[0].equals(CellType.SHIP_UP)) {
-            if (y + parts.length < 10) {
-                this.grid[y][x].setCellType(parts[0]);
+            if (col + parts.length < 10) {
+                this.grid[col][row].setCellType(parts[0]);
                 newShipParts[0].setCellType(parts[0]);
                 for (int i = 1; i < size; i++) {
                     if (i<size-1) {
-                        this.grid[y + i][x].setCellType(parts[1]);
+                        this.grid[col + i][row].setCellType(parts[1]);
                         newShipParts[i].setCellType(parts[1]);
-                        newShipParts[i].setHorizontalCoord(x);
-                        newShipParts[i].setVerticalCoord(y + i);
+                        newShipParts[i].setHorizontalCoord(row);
+                        newShipParts[i].setVerticalCoord(col + i);
                     } else {
-                        this.grid[y + i][x].setCellType(parts[2]);
+                        this.grid[col + i][row].setCellType(parts[2]);
                         newShipParts[i].setCellType(parts[2]);
-                        newShipParts[i].setHorizontalCoord(x);
-                        newShipParts[i].setVerticalCoord(y + i);
+                        newShipParts[i].setHorizontalCoord(row);
+                        newShipParts[i].setVerticalCoord(col + i);
                     }
                 }
             }

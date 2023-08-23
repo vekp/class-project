@@ -225,22 +225,22 @@ public class BattleshipGame {
      * true or false. The boolean value is used in another function to determine the response
      *
      * @param player current player - Board object
-     * @param x      horizontal coordinate
-     * @param y      vertical coordinate
+     * @param row      horizontal coordinate
+     * @param col      vertical coordinate
      * @return true if player has hit a ship, false if player hit water or previously missed cell
      */
-    private boolean shotOutcome(Board player, int x, int y) {
+    private boolean shotOutcome(Board player, int row, int col) {
 
         // TODO Remove this after showing Nathan
         printUsername(); // test call to printUsername function
         // Get players current grid
         Cell[][] grid = player.getGrid();
         // Get cell type of player's coordinate
-        CellType currentState = grid[x][y].getCellType();
+        CellType currentState = grid[row][col].getCellType();
 //        System.out.println("Cell Type: "+ currentState.toString());
         // If player hit ocean set CellType to Miss and return false
         if (currentState.equals(CellType.OCEAN)) {
-            player.setGridCell(x, y, CellType.MISS);
+            player.setGridCell(row, col, CellType.MISS);
             return false;
         // If the Cell is a MISS cell, return false and check for Slow Learner Achievement
         } else if (currentState.equals(CellType.MISS)) {
@@ -254,7 +254,7 @@ public class BattleshipGame {
             return true;
         } else {
             // If the cell is not an ocean, miss, or hit cell, set the cell to a "hit"
-            player.setGridCell(x, y, CellType.HIT);
+            player.setGridCell(row, col, CellType.HIT);
 
             // Update the ships to include the hit in their cells
 
@@ -262,13 +262,13 @@ public class BattleshipGame {
 
             vessels.forEach((key, value) ->{
                 Ship current = value;
-                current.updateShipStatus(x, y);
+                current.updateShipStatus(row, col);
                 vessels.replace(key, current);
             });
 
             player.setVessels(vessels);
 
-            if (sunk(player, x, y)) {
+            if (sunk(player, row, col)) {
                 respondToInput(player, GameState.SHIP_SUNK, "",true);
             }
             return true;
@@ -277,7 +277,7 @@ public class BattleshipGame {
 
     }
 
-    private boolean sunk(Board player, int x, int y) {
+    private boolean sunk(Board player, int row, int col) {
          Cell[][] grid = player.getGrid();
          return true;
     }
@@ -322,10 +322,10 @@ public class BattleshipGame {
                     if (player.getGameState().equals(GameState.CALC_PLAYER)) {
                         // Take user input and determine the result of shooting that coordinate
                         String coordVert = validatedInput.split(",")[0];
-                        int x = chars.indexOf(coordVert);
-                        int y = Integer.parseInt(validatedInput.split(",")[1]);
+                        int row = chars.indexOf(coordVert);
+                        int col = Integer.parseInt(validatedInput.split(",")[1]);
                         // Pass in the other players board to see if it hit their ship
-                        boolean result = shotOutcome(playerBoard, x, y);
+                        boolean result = shotOutcome(playerBoard, row, col);
                         respondToInput(player, player.getGameState(), "", result);
                         player.setGameState(GameState.CALC_ENEMY);
                     }

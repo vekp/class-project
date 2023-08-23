@@ -117,17 +117,17 @@ public class Board {
 
     /**
      * Sets the CellType for a given coordinate in the grid
-     * @param x horizontal position
-     * @param y vertical position
+     * @param col horizontal position
+     * @param row vertical position
      * @param cellType enum value representing the cell state changing to
      */
-    public void setGridCell(int x, int y, CellType cellType){
-        this.grid.setCellType(x, y, cellType);
+    public void setGridCell(int col, int row, CellType cellType){
+        this.grid.setCellType(col, row, cellType);
         // if the cell is being changed to a "hit" or "miss" cell, update the cell's shotAt boolean to be true
         // This function is also used to update the grid when placing ships, it was causing issues because all parts of the
         // ships were being read as "shotAt"
         if(cellType.toString().equals("X") || cellType.toString().equals(".")) {
-            this.grid.shootCell(x, y);
+            this.grid.shootCell(col, row);
         }
     }
 
