@@ -47,6 +47,9 @@ public class BattleshipGame {
 
     HashMap<String, Board> players = new HashMap<>();
 
+    //-Nathan- Working on player classes
+    BattleshipPlayer[] bPlayers = new BattleshipPlayer[2];
+    int currentTurn = 0;
 
     public BattleshipGame(String gameName, String playerName) {
         this.gameName = gameName;
@@ -55,6 +58,12 @@ public class BattleshipGame {
         this.player1 = new Board(playerName, welcomeMessage);
         this.player2 = new Board("CPU", welcomeMessage);
         players.put("CPU", player2);
+
+        //set up 1 human player (in slot 1) and 1 computer player (slot 2)
+        bPlayers[0] = new BattleshipPlayer(playerName,
+                new Board(playerName, welcomeMessage), true);
+        bPlayers[1] = new BattleshipPlayer("Computer",
+                new Board("computer", welcomeMessage), false);
     }
 
     static String welcomeMessage = """
@@ -63,7 +72,7 @@ public class BattleshipGame {
             ...
             """;
 
-    String chars = "ABCDEFGHIJ";
+    public static String chars = "ABCDEFGHIJ";
 
 
     /**
@@ -349,6 +358,26 @@ public class BattleshipGame {
         String userInput = String.valueOf(cp.commands().get(0).getValue("command"));
         // Update players message history
         calcUserInput(p, userInput);
+
+        //-Nathan -
+        //Sample of how the player turn switching could work
+        //this alternates between 1 and 0 for the next turn
+        int nextPlayer = 1 - currentTurn;
+        BattleshipPlayer currentTurnPlayer = bPlayers[currentTurn];
+        BattleshipPlayer opponentPlayer = bPlayers[nextPlayer];
+        //make sure the client who sent the command actually belongs to the current turn's player
+        if(cp.player().equals(currentTurnPlayer.getName())){
+            BattleShipTurnResult result = currentTurnPlayer.processTurn(userInput, opponentPlayer.getBoard());
+            //if the opponent is AI, do their turn immediately, otherwise switch turns to next player
+            if(opponentPlayer.isAIControlled()){
+                BattleShipTurnResult opponentResult = opponentPlayer.processAITurn(currentTurnPlayer.getBoard());
+            } else {
+                //opponent is human, switch turn flag so they go next
+                currentTurn = nextPlayer;
+            }
+        } else {
+            //todo display some sort of 'not your turn' error?
+        }
 
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         renderingCommands.add(new JsonObject().put("command", "clearText"));
