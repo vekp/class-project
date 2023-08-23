@@ -37,6 +37,8 @@ public class GameShow {
 
     HashMap<String, GameShowPlayer> players = new HashMap<>();
 
+    List<WordScramble> wordScrambleGames = new ArrayList<>();
+
     /** The players currently playing this game */
     public String[] getPlayerNames() {
         return players.keySet().toArray(String[]::new);
@@ -47,16 +49,44 @@ public class GameShow {
         return new GameMetadata("GameShow", name, getPlayerNames(), true);
     }
 
+    /** Describes the state of a player */
+    private String describeState(GameShowPlayer p) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(String.format("[%d,%d] \n\n", p.x, p.y));
+
+        return sb.toString();
+    }
 
 
     public RenderingPackage runCommands(CommandPackage cp) {
         logger.info("Received command package {}", cp);
-        GameShowPlayer p = players.get(cp.player());
 
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
 
-         // Add buttons to the rendering commands
-         renderingCommands.add(new JsonObject().put("command", "imageGame"));
+        String cmd = cp.commands().get(0).getString("command");
+
+        switch (cmd) {
+            case "wordScramble" -> {
+                wordScrambleGames.add(new WordScramble("wordList.txt"));
+                int gameId = wordScrambleGames.size() - 1;
+                String scrambledWord = wordScrambleGames.get(gameId).getScrambledWord();
+                renderingCommands.
+                    add(new JsonObject()
+                        .put("command", "startWordScramble")
+                        .put("scrambledWord", scrambledWord)
+                        .put("gameId", gameId));
+            }
+            case "guess" -> {
+                String guess = cp.commands().get(0).getString("guess");
+                int gameId = (int) cp.commands().get(0).getInteger("gameId");
+                boolean outcome = wordScrambleGames.get(gameId).guess(guess);
+                renderingCommands.
+                    add(new JsonObject()
+                        .put("command", "guessOutcome")
+                        .put("outcome", outcome));
+            }
+        }
 
         return new RenderingPackage(this.gameMetadata(), renderingCommands);
     }
@@ -76,7 +106,6 @@ public class GameShow {
 
             ArrayList<JsonObject> renderingCommands = new ArrayList<>();
             renderingCommands.add(new LoadClient("GameShow", "GameShow", name, playerName).toJson());
-            renderingCommands.add(new JsonObject().put("command", "imageGame"));
 
             return new RenderingPackage(gameMetadata(), renderingCommands);
         }
