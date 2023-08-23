@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.vertx.core.json.impl.JsonUtil;
 import minigames.server.achievements.AchievementHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,8 +39,8 @@ public class BattleshipGame {
      */
     String gameName;
     String playerName;
-    Board player1;
-    Board player2;
+    Board CPUBoard;
+    Board playerBoard;
 
     AchievementHandler achievementHandler;
 
@@ -55,9 +54,9 @@ public class BattleshipGame {
         this.gameName = gameName;
         this.achievementHandler = new AchievementHandler(BattleshipServer.class);
         this.playerName = playerName;
-        this.player1 = new Board(playerName, welcomeMessage);
-        this.player2 = new Board("CPU", welcomeMessage);
-        players.put("CPU", player2);
+        this.CPUBoard = new Board("CPU", welcomeMessage);
+        this.playerBoard = new Board(playerName, welcomeMessage);
+        players.put("CPU", playerBoard);
 
         //set up 1 human player (in slot 1) and 1 computer player (slot 2)
         bPlayers[0] = new BattleshipPlayer(playerName,
@@ -326,17 +325,17 @@ public class BattleshipGame {
                         int x = chars.indexOf(coordVert);
                         int y = Integer.parseInt(validatedInput.split(",")[1]);
                         // Pass in the other players board to see if it hit their ship
-                        boolean result = shotOutcome(player2, x, y);
+                        boolean result = shotOutcome(playerBoard, x, y);
                         respondToInput(player, player.getGameState(), "", result);
                         player.setGameState(GameState.CALC_ENEMY);
                     }
                     if (player.getGameState().equals(GameState.CALC_ENEMY)) {
                         // Determine the result of enemy action
-                        int[] cpuCoord = generateCoordinate(player1);
+                        int[] cpuCoord = generateCoordinate(CPUBoard);
                         String cpuCoordStr = chars.charAt(cpuCoord[0]) + "," + cpuCoord[1];
                         //System.out.println(cpuCoordStr);
 
-                        boolean result = shotOutcome(player1, cpuCoord[0], cpuCoord[1]);
+                        boolean result = shotOutcome(CPUBoard, cpuCoord[0], cpuCoord[1]);
                         respondToInput(player, player.getGameState(), cpuCoordStr, result);
                         player.setGameState(GameState.INPUT_CALC);
                     }
@@ -383,8 +382,8 @@ public class BattleshipGame {
         renderingCommands.add(new JsonObject().put("command", "clearText"));
         renderingCommands.add(new JsonObject().put("command", "updateHistory").put("history", p.getMessageHistory()));
         renderingCommands.add(new JsonObject().put("command", "updatePlayerName").put("player", p.getPlayerName()));
-        renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, player1.getGrid())));
-        renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.showEnemyBoard(enemy, player2.getGrid())));
+        renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, CPUBoard.getGrid())));
+        renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.showEnemyBoard(enemy, playerBoard.getGrid())));
         return new RenderingPackage(this.gameMetadata(), renderingCommands);
     }
 
@@ -415,8 +414,8 @@ public class BattleshipGame {
             renderingCommands.add(new JsonObject().put("command", "clearText"));
             renderingCommands.add(new JsonObject().put("command", "updateHistory").put("history", messageHistory(p)));
             renderingCommands.add(new JsonObject().put("command", "updatePlayerName").put("player", playerName));
-            renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, player1.getGrid())));
-            renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.showEnemyBoard(enemy, player2.getGrid())));
+            renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, CPUBoard.getGrid())));
+            renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.showEnemyBoard(enemy, playerBoard.getGrid())));
 
             return new RenderingPackage(gameMetadata(), renderingCommands);
         }
