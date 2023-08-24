@@ -30,8 +30,8 @@ public class TelepathyTests {
         TelepathyGame.Player[] gamePlayers = game.getPlayers();
         
         assertTrue(gamePlayers.length == 2);
-        assertTrue(gamePlayers[0].name().equals("Empty"));
-        assertTrue(gamePlayers[1].name().equals("Empty"));
+        assertTrue(gamePlayers[0] == null);
+        assertTrue(gamePlayers[1] == null);
     }
 
     @Test
@@ -45,7 +45,7 @@ public class TelepathyTests {
         assertTrue(metadata.gameServer().equals("Telepathy"));
         assertTrue(metadata.name().equals(testGameName));
 
-        assertTrue(metadata.players().length == 2);
+        assertTrue(metadata.players().length == 0);
         // Check that game is joinable to start
         assertTrue(metadata.joinable());
     }
@@ -66,7 +66,7 @@ public class TelepathyTests {
         
         TelepathyGame.Player players[] = game.getPlayers();
         assertTrue(players[0].name().equals("Bob"));
-        assertTrue(players[1].name().equals("Empty"));
+        assertTrue(players[1] == null);
 
         // Check another player can join a game with a free spot
         renderingPackage = game.joinGame("Alice");
@@ -112,7 +112,7 @@ public class TelepathyTests {
         server.newGame("Bob");
         
         assertTrue(server.getGamesInProgress().length == 1);
-        assertTrue(server.getGamesInProgress()[0].name().equals("Bob's game"));
+        assertTrue(server.getGamesInProgress()[0].name().equals("Bob"));
     }
 
     @Test 
@@ -120,7 +120,7 @@ public class TelepathyTests {
     public void testServerJoinGame(){
         TelepathyServer server = new TelepathyServer();
         server.newGame("Bob");
-        server.joinGame("Bob's game", "Alice");
+        server.joinGame("Bob", "Alice");
 
         // Assert that Alice is in Bob's game
         GameMetadata[] games = server.getGamesInProgress();
