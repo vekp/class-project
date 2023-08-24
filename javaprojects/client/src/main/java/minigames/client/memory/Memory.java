@@ -50,6 +50,7 @@ public class Memory implements GameClient, ActionListener, MouseListener {
     JButton newGameButton;
     JButton restartLevelButton;
     JButton exitButton;
+    JButton achievementsButton;
     JPanel gridContainerPanel; // Wraps the cardGridPanel
     JPanel cardGridPanel; // Sets the grid for the playing cards
 
@@ -107,11 +108,14 @@ public class Memory implements GameClient, ActionListener, MouseListener {
 
         // Create the game options panel which hosts new game, restart level, and exit buttons
         gameOptionsPanel = new JPanel();
-        gameOptionsPanel.setLayout(new GridLayout(1, 4));
+        gameOptionsPanel.setLayout(new GridLayout(1, 5));
+
         newGameButton = new JButton("New Game");
         newGameButton.setFont(new Font("Arial", Font.BOLD, 16));
+
         restartLevelButton = new JButton("Restart Level");
         restartLevelButton.setFont(new Font("Arial", Font.BOLD, 16));
+
         exitButton = new JButton("Exit");
         exitButton.setFont(new Font("Arial", Font.BOLD, 16));
         exitButton.addActionListener(e -> mnClient.runMainMenuSequence());
@@ -121,8 +125,15 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         difficultyComboBox.setFont(new Font("Arial", Font.BOLD, 16));
         difficultyComboBox.setSelectedItem("Medium");
 
+        // Create achievements button that talks to the API
+        achievementsButton = new JButton("Achievements");
+        achievementsButton.setFont(new Font("Arial", Font.BOLD, 16));
+        //achievementsButton.addActionListener(e -> mnClient.getGameAchievements(player, gm.gameServer()));
+
+
         // Add game options to gameOptionsPanel
         gameOptionsPanel.add(difficultyComboBox);
+        gameOptionsPanel.add(achievementsButton);
         gameOptionsPanel.add(newGameButton);
         gameOptionsPanel.add(restartLevelButton);
         gameOptionsPanel.add(exitButton);

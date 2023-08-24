@@ -10,6 +10,8 @@ import minigames.rendering.NativeCommands.LoadClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import minigames.server.achievements.AchievementHandler;
+import static minigames.server.battleship.achievements.*;
 /**
  * Represents an actual Memory game in progress.
  * Used and adapted MuddleGame.java
@@ -28,6 +30,11 @@ public class MemoryGame {
     public MemoryGame(String name) {
         this.name = name;
     }
+
+    /** Achievement handler for this game */
+    // Code snippet from AchievementHandler.java
+    // private static final
+    AchievementHandler achievementHandler;
 
     // Players
     HashMap<String, MemoryPlayer> players = new HashMap<>();

@@ -13,14 +13,55 @@ import minigames.rendering.RenderingPackage;
 import minigames.server.ClientType;
 import minigames.server.GameServer;
 
+import minigames.server.achievements.AchievementHandler;
+
 /**
  * Our MemoryServer holds MemoryGame. 
  * When it receives a CommandPackage, it finds the MemoryGame and calls it.
  * Used and adapted MuddleServer.java
  */
+
+enum achievements {
+
+    @Override
+    public String toString(){
+        switch(this) {
+            case PERFECT_MATCH: return "Perfect Match";
+            case SPEED_RUNNER: return "Speed Runner";
+            case ACE_MATCHER: return "Ace Matcher";
+            case MEMORY_MASTER: return "Memory Master";
+            default: return "";
+        }
+    }
+
+    PERFECT_MATCH, // Earned by matching all of the cards in one turn.
+    SPEED_RUNNER, // Earned by matching all of the cards in under a certain amount of time.
+    ACE_MATCHER, // Earned by matching all of the cards in a single game.
+    MEMORY_MASTER, // Earned by earning all of the achievements in the game.
+    };
+
 public class MemoryServer implements GameServer {
 
     static final String chars = "abcdefghijklmopqrstuvwxyz";
+    AchievementHandler achievementHandler;
+
+    public MemoryServer(){
+        achievementHandler = new AchievementHandler(MemoryServer.class);
+        // Create the achievements and give them to the handler
+        Achievement perfectMatchAchievement = new Achievement(achievements.PERFECT_MATCH.toString(),
+                "Earned by matching all of the cards in one turn.",
+                100);
+        Achievement speedRunnerAchievement = new Achievement(achievements.SPEED_RUNNER.toString(),
+                "Earned by matching all of the cards in under 10 seconds.",
+                200);
+        Achievement aceMatcherAchievement = new Achievement(achievements.ACE_MATCHER.toString(),
+                "Earned by matching all of the cards in a single game.",
+                300);
+        Achievement memoryMasterAchievement = new Achievement(achievements.MEMORY_MASTER.toString(),
+                "Earned by earning all of the achievements in the game.",
+                400);
+    }
+
 
     /** A random name. We could do with something more memorable, like Docker has. */
     static String randomName() {
