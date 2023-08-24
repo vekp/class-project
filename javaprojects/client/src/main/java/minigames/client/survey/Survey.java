@@ -33,8 +33,12 @@ public class Survey extends JPanel implements ActionListener {
     private ButtonGroup uiRatingButtonGroup, enjoymentButtonGroup, functionalityButtonGroup;
 
     // Colours
-    private Color bgColour = new Color(255,255,255);
-    private Color fgColour = new Color(0,0,0);
+    // Colours of panels, buttons and radio buttons
+    private Color bgColour = new Color(255,255,255); // background
+    private Color fgColour = new Color(0,0,0); // foreground
+
+    // Background colour of main panel
+    private Color mainBgColour = Color.CYAN;
 
     // Public variables
     // Sets the Frame Title (top left corner)
@@ -47,7 +51,7 @@ public class Survey extends JPanel implements ActionListener {
         this.setPreferredSize(new Dimension(800, 600));
         this.setLayout(new GridLayout(0, 1));
         this.setLayout(new BorderLayout());
-        this.setBackground(Color.CYAN);
+        this.setBackground(mainBgColour);
         this.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
 
         // Title Panel
@@ -230,8 +234,6 @@ public class Survey extends JPanel implements ActionListener {
             rb.setBackground(bgColour);
             rb.setForeground(fgColour);
         }
-
-
 
         // Change colour of buttons
         JButton buttons[] = {backButton, submitButton};
