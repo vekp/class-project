@@ -106,8 +106,8 @@ public class KrumGame implements GameClient {
 
     private void initializePlayers(){
         players = new KrumPlayer[2];
-        players[0] = new KrumPlayer(235, 0, "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, true, alphaRaster, 0, players);
-        players[1] = new KrumPlayer(600, 0, "kangaroo_sprite/kangaroo_bazooka_0.png", 8, 31, false, alphaRaster, 1, players);
+        players[0] = new KrumPlayer(235, 0, "kangaroo_sprite/", 8, 31, true, alphaRaster, 0, players);
+        players[1] = new KrumPlayer(600, 0, "kangaroo_sprite/", 8, 31, false, alphaRaster, 1, players);
         players[0].joey.otherPlayer = players[1];
         players[1].joey.otherPlayer = players[0];
         playerTurn = 0;

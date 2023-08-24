@@ -31,7 +31,9 @@ public class KrumPlayer {
     boolean active;
     double aimAngleRadians;
 
+    String spriteDir;
     BufferedImage sprite;
+    BufferedImage spriteGun;
     WritableRaster alphaRaster; // alpha values (opacities) of player sprite pixels
     WritableRaster levelRaster; // alpha values of level pixels
 
@@ -150,6 +152,7 @@ public class KrumPlayer {
         this.active = false;
         this.aimAngleRadians = 0;
         this.hp = 100;
+        this.spriteDir = spriteFileName;
 
         BufferedImage joeySprite = KrumHelpers.readSprite("joey.png");
 
@@ -158,7 +161,7 @@ public class KrumPlayer {
         // Reading sprites
         projectileSprite = KrumHelpers.readSprite("carrot_s.png");
         grenadeSprite = KrumHelpers.readSprite("grenade.png");
-        sprite = KrumHelpers.readSprite(spriteFileName);
+        sprite = KrumHelpers.readSprite(spriteDir + "default.png");
         
         alphaRaster = sprite.getAlphaRaster();
 
@@ -302,8 +305,18 @@ public class KrumPlayer {
      * @param g
      */
     void draw(Graphics2D g){
+
+        //Sprite Drawing
+        spriteLook();
+        spriteGun();
+
         if (flashFramesLeft <= 0 || flashFramesLeft % 4 == 0) {
             g.drawImage(sprite, null, (int)xpos, (int)ypos);
+            if (calcAimAngle() >= 1.571 || calcAimAngle() <= -1.571) {
+                g.drawImage(spriteGun, null, (int)xpos, (int)ypos + 6);
+            } else {
+                g.drawImage(spriteGun, null, (int)xpos + 10, (int)ypos + 6);
+            }
         }        
         if (firing) {
             aimAngleRadians = calcAimAngle(); 
@@ -842,6 +855,73 @@ public class KrumPlayer {
         }
         return false;
     }
+
+    void spriteLook() {
+        String spriteLooking = "default.png";
+        boolean flipSprite = false;
+        if (calcAimAngle() <= 3.146 && calcAimAngle() >= 2.749 ) {
+            spriteLooking = "0.png";
+            flipSprite = true;
+        } else if (calcAimAngle() <= 2.749 && calcAimAngle() >= 1.963 ) {
+            spriteLooking = "45_UP.png";
+            flipSprite = true;
+        } else if (calcAimAngle() <= 1.963 && calcAimAngle() >= 1.571) {
+            spriteLooking = "90_UP.png";
+            flipSprite = true;
+        } else if (calcAimAngle() <= 1.571 && calcAimAngle() >= 1.178) {
+            spriteLooking = "90_UP.png";
+        } else if (calcAimAngle() <= 1.178 && calcAimAngle() >= 0.392   ) {
+            spriteLooking = "45_UP.png";
+        } else if (calcAimAngle() <= 0.392 && calcAimAngle() >= -0.392 ) {
+            spriteLooking = "0.png";
+        } else if (calcAimAngle() <= -0.392 && calcAimAngle() >= -1.178 ) {
+            spriteLooking = "45_DOWN.png";
+        } else if (calcAimAngle() <= -1.178 && calcAimAngle() >= -1.571 ) {
+            spriteLooking = "90_DOWN.png";
+        } else if (calcAimAngle() <= -1.571 && calcAimAngle() >= -1.963 ) {
+            spriteLooking = "90_DOWN.png";
+            flipSprite = true;
+        } else if (calcAimAngle() <= -1.963 && calcAimAngle() >= -2.749 ) {
+            spriteLooking = "45_DOWN.png";
+            flipSprite = true;
+        } else if (calcAimAngle() <= -2.749 && calcAimAngle() >= -3.146 ) {
+            spriteLooking = "0.png";
+            flipSprite = true;
+        } 
+    
+
+        this.sprite = KrumHelpers.readSprite(spriteDir + spriteLooking);
+
+        if (flipSprite) {
+            BufferedImage flipped = new BufferedImage(this.sprite.getWidth(), this.sprite.getHeight(), this.sprite.getType());
+            AffineTransform tran = AffineTransform.getTranslateInstance(this.sprite.getWidth(), 0);
+            AffineTransform flip = AffineTransform.getScaleInstance(-1d, 1d);
+            tran.concatenate(flip);
+            Graphics2D g = flipped.createGraphics();
+            g.setTransform(tran);
+            g.drawImage(this.sprite, 0, 0, null);
+            g.dispose();
+
+            this.sprite = flipped;
+        }
+    }
+
+    void spriteGun() {
+        this.spriteGun = KrumHelpers.readSprite(spriteDir + "bazooka.png");
+
+        int width = this.spriteGun.getWidth();
+        int height = this.spriteGun.getHeight();
+
+        BufferedImage rotatedImage = new BufferedImage(this.spriteGun.getWidth(), this.spriteGun.getHeight(),this.spriteGun.getType());
+        Graphics2D g = rotatedImage.createGraphics();
+        g.rotate(-calcAimAngle(), width/2, height/2);
+        g.drawImage(this.spriteGun, null, 0, 0);
+        g.dispose();
+
+        this.spriteGun = rotatedImage;
+
+
+    };
 
     double calcAimAngle() {
         int mx = MouseInfo.getPointerInfo().getLocation().x - xoff;
