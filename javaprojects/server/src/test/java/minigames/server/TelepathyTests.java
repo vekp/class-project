@@ -112,7 +112,7 @@ public class TelepathyTests {
         server.newGame("Bob");
         
         assertTrue(server.getGamesInProgress().length == 1);
-        assertTrue(server.getGamesInProgress()[0].name().equals("Bob"));
+        assertTrue(server.getGamesInProgress()[0].name().equals("BobTelepathyGame"));
     }
 
     @Test 
@@ -120,7 +120,7 @@ public class TelepathyTests {
     public void testServerJoinGame(){
         TelepathyServer server = new TelepathyServer();
         server.newGame("Bob");
-        server.joinGame("Bob", "Alice");
+        server.joinGame("BobTelepathyGame", "Alice");
 
         // Assert that Alice is in Bob's game
         GameMetadata[] games = server.getGamesInProgress();

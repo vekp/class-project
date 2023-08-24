@@ -10,9 +10,10 @@ import minigames.rendering.GameMetadata;
 import minigames.rendering.NativeCommands;
 import minigames.rendering.RenderingCommand;
 import minigames.rendering.RenderingPackage;
-
+import minigames.rendering.NativeCommands.QuitToMenu;
 import minigames.telepathy.TelepathyCommands;
 
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -68,6 +69,7 @@ public class TelepathyGame {
         // Switch case to choose which function to call - default case returns empty RenderingPackage
         switch(command){
             case QUIT -> response = quitGame(commandPackage);
+            case SYSTEMQUIT -> response = fullQuitGame(commandPackage);
             default -> {
                 ArrayList<JsonObject> renderingCommands = new ArrayList<>();
                 response = new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
@@ -123,16 +125,31 @@ public class TelepathyGame {
         ArrayList<JsonObject> renderingCommands =  new ArrayList<>();
         
         String leavingPlayer = commandPackage.player();
+        removePlayer(leavingPlayer);
+        
+        renderingCommands.add(new NativeCommands.QuitToMenu().toJson());
+        return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
+    }
+
+    public RenderingPackage fullQuitGame(CommandPackage commandPackage){
+        ArrayList<JsonObject> renderingCommands = new ArrayList<>();
+        String leavingPlayer = commandPackage.player();
+        removePlayer(leavingPlayer);
+
+        renderingCommands.add(new JsonObject().put("command", TelepathyCommands.QUIT));
+        return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
+    }
+
+    private void removePlayer(String playerName){
         for(int i = 0; i < this.players.length; i++){
             if(this.players[i] == null) continue;
-            if(this.players[i].name().equals(leavingPlayer)){
+            if(this.players[i].name().equals(playerName)){
                 this.players[i] = null;
                 continue;
             }
         }
-
-        return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
     }
+
 
     /**
      * Checks if a name is valid for use.

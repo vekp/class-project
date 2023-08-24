@@ -5,6 +5,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Collections;
 
 import javax.swing.JButton;
@@ -15,8 +17,10 @@ import javax.swing.border.EmptyBorder;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import minigames.client.Animator;
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
+import minigames.client.Tickable;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.NativeCommands;
 import minigames.telepathy.TelepathyCommands;
@@ -28,7 +32,7 @@ import java.lang.String;
 
 
  
-public class Telepathy implements GameClient {
+public class Telepathy implements GameClient, Tickable {
 
     MinigameNetworkClient mnClient;
 
@@ -51,6 +55,9 @@ public class Telepathy implements GameClient {
     
     JButton[][] buttonGrid = new JButton[ROWS][COLS]; // 2D button array
 
+    // Tick information
+    private boolean ticking = true;
+    private long last = System.nanoTime();
     
 
 
@@ -91,7 +98,6 @@ public class Telepathy implements GameClient {
         JButton backButton = new JButton("Back");
         backButton.addActionListener(e -> {
             sendCommand(TelepathyCommands.QUIT.toString());
-            mnClient.runMainMenuSequence();
         });
     
         //temporary panel to display xy button coordinates
@@ -137,6 +143,7 @@ public class Telepathy implements GameClient {
         telepathyBoard.add(gridIndexNorth, BorderLayout.NORTH, SwingConstants.CENTER);
         telepathyBoard.add(board, BorderLayout.CENTER);
 
+        
     }
 
     
@@ -176,30 +183,74 @@ public class Telepathy implements GameClient {
         this.mnClient = mnClient;
         this.gm = game;
         this.player = player;
+        this.ticking = true;
 
         // Add our components to the north, south, east, west, or centre of the main window's BorderLayout
         mnClient.getMainWindow().addCenter(telepathyBoard);
+
+        // Window listener to properly close game if window is closed
+        mnClient.getMainWindow().getFrame().addWindowListener(
+            new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e){
+                    sendCommand(TelepathyCommands.SYSTEMQUIT.toString());
+                }
+            }
+        );
        
+        // Begin requesting ticks to get updates from the server
+        mnClient.getAnimator().requestTick(this);
          
         // Don't forget to call pack - it triggers the window to resize and repaint itself
         mnClient.getMainWindow().pack();     
     }
 
-
-
-    //FIXME: need to implement this method related to Telepathy 
-
+    /**
+     * Execute commands received from the server that are not NativeCommands.
+     * 
+     * @param game Metadata associated with the game this client is connected to.
+     * @param command The custom command stored in a JsonObject.
+     */
     @Override
-    public void execute(GameMetadata game, JsonObject command) {
+    public void execute(GameMetadata game, JsonObject jsonCommand) {
         this.gm = game;
 
+        // TODO handle TelepathyCommands from the server
+        TelepathyCommands command = TelepathyCommands.valueOf(jsonCommand.getString("command"));
+        switch(command){
+            case QUIT -> closeGame();
+            default -> {}
+        }
     }
 
+    /**
+     * Actions that need to be taken when closing the game.
+     * 
+     * Sets ticking to false so that the client stops requesting game updates
+     * from the server.
+     */
     @Override
     public void closeGame() {
-        // Nothing to do        
+        this.ticking = false; // Stop receiving updates from server
+        
     }
     
-    
+    /**
+     * Action to take on each tick of the animator.
+     * 
+     * Every 5 seconds, ask the server for an update of the current game
+     * state.
+     * @param al The animator containing the list of 'tickable' objects
+     * @param now The system time at the time of this tick
+     * @param delta The time delta between now and the last tick
+     */
+    @Override
+    public void tick(Animator al, long now, long delta){
+        if(now - last > 1000000000){
+            sendCommand(TelepathyCommands.UPDATECLIENT.toString());
+            last = now;
+        }
 
+        if(this.ticking) al.requestTick(this);
+    }
 }
