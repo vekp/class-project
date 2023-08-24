@@ -182,7 +182,7 @@ public class AchievementPresenter {
         panel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
         if (!isUnlocked) {
-            panel.add(new JLabel("<html><h1>403 Forbidden</h1>You must unlock this achievement to have access.</html>"));
+            panel.add(new JLabel("<html><body style='text-align: center'><h1>403 Forbidden</h1>You must unlock this achievement to have access.</body></html>"));
             return panel;
         }
 
