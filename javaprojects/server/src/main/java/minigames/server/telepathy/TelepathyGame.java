@@ -8,10 +8,12 @@ import io.vertx.core.json.JsonObject;
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.NativeCommands;
+import minigames.rendering.RenderingCommand;
 import minigames.rendering.RenderingPackage;
-
+import minigames.rendering.NativeCommands.QuitToMenu;
 import minigames.telepathy.TelepathyCommands;
 
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -37,9 +39,6 @@ public class TelepathyGame {
      */
     public TelepathyGame(String name) {
         this.name = name;
-        
-        this.players[0] = new Player("Empty");
-        this.players[1] = new Player("Empty");
     }
 
     /**
@@ -49,19 +48,36 @@ public class TelepathyGame {
      *         game can be joined.
      */
     public GameMetadata telepathyGameMetadata() {
-        String[] playerNames = {players[0].name, players[1].name};
-        return new GameMetadata("Telepathy", name, playerNames, true);
+        ArrayList<String> playerNames = new ArrayList<>();
+        for(Player player : this.players){
+            if(player != null){
+                playerNames.add(player.name());
+            }
+        }
+        return new GameMetadata("Telepathy", name, playerNames.toArray(new String[playerNames.size()]), true);
     }
 
     public RenderingPackage runCommands(CommandPackage commandPackage) {
         logger.info("Received command package {}", commandPackage);
 
-        // TODO handle the commands received
+        // The response that is to be sent back to client
+        RenderingPackage response;
 
-        // TODO Create a response to the command to send back
+        // The TelepathyCommand used to specify how to handle the package
+        TelepathyCommands command = TelepathyCommands.valueOf(commandPackage.commands().get(0).getString("command"));
+       
+        // Switch case to choose which function to call - default case returns empty RenderingPackage
+        switch(command){
+            case QUIT -> response = quitGame(commandPackage);
+            case SYSTEMQUIT -> response = fullQuitGame(commandPackage);
+            default -> {
+                ArrayList<JsonObject> renderingCommands = new ArrayList<>();
+                response = new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
+            }
+        }
 
         // Return the response
-        return new RenderingPackage(this.telepathyGameMetadata(), null);
+        return response;
     }
 
     /**
@@ -72,28 +88,85 @@ public class TelepathyGame {
      * @return RenderingPackage with instructions for the client.
      */
     public RenderingPackage joinGame(String playerName) {
+        logger.info(playerName + " wants to join Telepathy game"+ this.name);
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
 
-        if(this.players[0].name.equals("Empty")){
-            this.players[0] = new Player(playerName);
-            renderingCommands.add(new NativeCommands.LoadClient("Telepathy", "Telepathy", this.name, playerName).toJson());
-            renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMESUCCESS));
-        } else{
-            if(this.players[0].name.equals(playerName)){ // Name taken
-                renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMEFAIL).put("message", "Name taken"));
-            }
-            else if(!this.players[1].name.equals("Empty")){ // Spot already taken
-                renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMEFAIL).put("message", "No spots available"));
+
+        if(!validName(playerName)){
+            renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMEFAIL).put("message", "Not a valid name"));
+        } else if(this.players[0] == null || this.players[1] == null){
+            if(this.players[0] == null){
+                if(this.players[1] != null && this.players[1].name.equals(playerName)){
+                    renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMEFAIL).put("message", "Name taken"));
+                } else{
+                    this.players[0] = new Player(playerName);
+                    renderingCommands.add(new NativeCommands.LoadClient("Telepathy", "Telepathy", this.name, playerName).toJson());
+                    renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMESUCCESS));
+                }
             } else{
-                this.players[1] = new Player(playerName);
-                renderingCommands.add(new NativeCommands.LoadClient("Telepathy", "Telepathy", this.name, this.players[0].name()).toJson());
-                renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMESUCCESS));
+                if(this.players[0] != null && this.players[0].name.equals(playerName)){
+                    renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMEFAIL).put("message", "Name taken"));
+                } else{
+                    this.players[1] = new Player(playerName);
+                    renderingCommands.add(new NativeCommands.LoadClient("Telepathy", "Telepathy", this.name, playerName).toJson());
+                    renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMESUCCESS));
+                }
             }
+        } else{
+            renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMEFAIL).put("message", "No space available"));
         }
         
         // NOTE: The rendering commands used are temporary and can be changed in the future   
         // Possibly use an enum to represent the value to assign commands?     
         return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
+    }
+
+    public RenderingPackage quitGame(CommandPackage commandPackage){
+        ArrayList<JsonObject> renderingCommands =  new ArrayList<>();
+        
+        String leavingPlayer = commandPackage.player();
+        removePlayer(leavingPlayer);
+        
+        renderingCommands.add(new NativeCommands.QuitToMenu().toJson());
+        return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
+    }
+
+    public RenderingPackage fullQuitGame(CommandPackage commandPackage){
+        ArrayList<JsonObject> renderingCommands = new ArrayList<>();
+        String leavingPlayer = commandPackage.player();
+        removePlayer(leavingPlayer);
+
+        renderingCommands.add(new JsonObject().put("command", TelepathyCommands.QUIT));
+        return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
+    }
+
+    private void removePlayer(String playerName){
+        for(int i = 0; i < this.players.length; i++){
+            if(this.players[i] == null) continue;
+            if(this.players[i].name().equals(playerName)){
+                this.players[i] = null;
+                continue;
+            }
+        }
+    }
+
+
+    /**
+     * Checks if a name is valid for use.
+     * 
+     * Invalid names include:
+     *  Empty strings
+     *  Names only containing white space
+     *  Names containing spaces
+     * @param name String containing name to be validated
+     * @return Boolean value with result of validation
+     */
+    private boolean validName(String name){
+        if(name == null) return false;
+        if(name.isBlank()) return false;
+        if(name.contains(" ")) return false;
+
+        return true;
     }
 
     // Accessor methods
