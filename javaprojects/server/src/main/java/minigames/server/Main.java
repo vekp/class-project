@@ -48,7 +48,7 @@ public class Main extends AbstractVerticle {
      * Provides access to high-score management and retrieval functionalities
      * for all game components via `Main.highScoreAPI`.
      */
-    public static HighScoreAPI highScoreAPI;
+    public static HighScoreAPI highScoreAPI = new HighScoreAPI();
 
     //todo replace this with a proper user profile/account system
     /**
@@ -68,12 +68,6 @@ public class Main extends AbstractVerticle {
         gameRegistry.registerGameServer("Muddle", new MuddleServer());
         gameRegistry.registerGameServer("Battleship", new BattleshipServer());
         gameRegistry.registerGameServer("Telepathy", new TelepathyServer());
-
-        // Initialize the HighScoreAPI
-        HighScoreStorage highScoreStorage = new StubHighScoreStorage();
-        HighScoreManager highScoreManager = new HighScoreManager(highScoreStorage);
-        GlobalLeaderboard globalLeaderboard = new GlobalLeaderboard(highScoreStorage);
-        highScoreAPI = new HighScoreAPI(highScoreManager, globalLeaderboard);
 
         //adding some dummy/default names to the player list
         players.add("James");
