@@ -84,18 +84,21 @@ public class Telepathy implements GameClient {
         //a panel for the 2D button array
         board = new JPanel();
         board.setLayout(new GridLayout(ROWS, COLS, GAP, GAP));
-        board.setMaximumSize(new Dimension(400, 400));
+        board.setMaximumSize(new Dimension(350, 350));
         board.setBorder(new EmptyBorder(10, 10, 10, 10));
-
-
+        
+        JButton backButton = new JButton("Back");
+        backButton.addActionListener(e -> mnClient.runMainMenuSequence());
+    
         //temporary panel to display xy button coordinates
         JPanel gridCheck = new JPanel();
-        gridCheck.setLayout(new BorderLayout());
+        gridCheck.setLayout(new BoxLayout(gridCheck, BoxLayout.X_AXIS));
         JLabel label = new JLabel("xy button coordinates: (y, x)");
-        JTextField xyCheck = new JTextField();
-        gridCheck.add(label, BorderLayout.NORTH);
-        gridCheck.add(xyCheck, BorderLayout.SOUTH);
-
+        JTextField xyCheck = new JTextField(4);
+        gridCheck.add(label);
+        gridCheck.add(xyCheck);
+        gridCheck.add(backButton);
+        
 
         //FIXME: the action listener accesses coordinates: but no current functionality
         //also need to implement switch code somewhere - i.e. 0,0 == A,1; 0,1 == A,2 etc
@@ -124,6 +127,7 @@ public class Telepathy implements GameClient {
         }
 
         // added components to the telepathyBoard panel
+       
         telepathyBoard.add(gridCheck, BorderLayout.SOUTH); //temporary panel
         telepathyBoard.add(gridIndexWest, BorderLayout.WEST, SwingConstants. CENTER);
         telepathyBoard.add(gridIndexNorth, BorderLayout.NORTH, SwingConstants.CENTER);
@@ -171,6 +175,7 @@ public class Telepathy implements GameClient {
 
         // Add our components to the north, south, east, west, or centre of the main window's BorderLayout
         mnClient.getMainWindow().addCenter(telepathyBoard);
+       
          
         // Don't forget to call pack - it triggers the window to resize and repaint itself
         mnClient.getMainWindow().pack();     

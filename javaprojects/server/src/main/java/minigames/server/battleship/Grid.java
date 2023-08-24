@@ -137,6 +137,10 @@ public class Grid {
         this.grid[y][x - 1] = cell;
     }
 
+    public void shootCell(int x, int y){
+        this.grid[y][x].shoot();
+    }
+
     /**
      * Function to set a particular cell's CellType in the grid
      * @param x x index

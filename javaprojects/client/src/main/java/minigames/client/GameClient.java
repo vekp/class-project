@@ -2,7 +2,6 @@ package minigames.client;
 
 import io.vertx.core.json.JsonObject;
 import minigames.rendering.GameMetadata;
-import minigames.rendering.RenderingPackage;
 
 
 /**
