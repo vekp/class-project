@@ -10,6 +10,7 @@ import minigames.server.GameServer;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.ArrayList;
 /**
  * The Telepathy Server containing any Telepathy games being run on the
  * server.
@@ -45,6 +46,20 @@ public class TelepathyServer implements GameServer {
      *         the current Telepathy games being played.
      */
     public GameMetadata[] getGamesInProgress() {
+        // Perform house keeping - removing empty games
+        ArrayList<String> gamesToRemove = new ArrayList<>();
+        for(String key : games.keySet()){
+            GameMetadata metadata = games.get(key).telepathyGameMetadata();
+            if(metadata.players().length == 0){
+                gamesToRemove.add(games.get(key).getName());
+            }
+        }
+
+        for(String game : gamesToRemove){
+            games.remove(game);
+        }
+        
+        // Get games in progress
         HashSet<GameMetadata> gameData = new HashSet<>();
         for(String key : games.keySet()){
             TelepathyGame g = games.get(key);

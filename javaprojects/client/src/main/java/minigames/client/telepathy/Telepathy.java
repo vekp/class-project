@@ -18,6 +18,7 @@ import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
 import minigames.rendering.GameMetadata;
+import minigames.rendering.NativeCommands;
 import minigames.telepathy.TelepathyCommands;
 import minigames.commands.CommandPackage;
 
@@ -88,7 +89,10 @@ public class Telepathy implements GameClient {
         board.setBorder(new EmptyBorder(10, 10, 10, 10));
         
         JButton backButton = new JButton("Back");
-        backButton.addActionListener(e -> mnClient.runMainMenuSequence());
+        backButton.addActionListener(e -> {
+            sendCommand(TelepathyCommands.QUIT.toString());
+            mnClient.runMainMenuSequence();
+        });
     
         //temporary panel to display xy button coordinates
         JPanel gridCheck = new JPanel();

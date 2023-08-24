@@ -18,13 +18,14 @@ public enum TelepathyCommands {
     *      Attributes: Coordinates of button pushed.
     */
  
-    JOINGAMESUCCESS, JOINGAMEFAIL, BUTTONPRESS;
+    JOINGAMESUCCESS, JOINGAMEFAIL, BUTTONPRESS, QUIT;
 
     public String toString(){
         return switch(this){
             case JOINGAMESUCCESS -> "JOINGAMESUCCESS";
             case JOINGAMEFAIL -> "JOINGAMEFAIL";
             case BUTTONPRESS -> "BUTTONPRESS";
+            case QUIT -> "QUIT";
             default -> "null";
         };
     }
