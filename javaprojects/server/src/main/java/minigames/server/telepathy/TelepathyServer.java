@@ -62,7 +62,7 @@ public class TelepathyServer implements GameServer {
      * @return Future object where player has joined the new game.
      */
     public Future<RenderingPackage> newGame(String playerName) {
-        TelepathyGame game = new TelepathyGame(playerName + "'s game");
+        TelepathyGame game = new TelepathyGame(playerName);
         games.put(game.getName(), game);
         return Future.succeededFuture(game.joinGame(playerName));
     }

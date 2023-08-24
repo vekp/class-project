@@ -72,6 +72,7 @@ public class TelepathyGame {
      * @return RenderingPackage with instructions for the client.
      */
     public RenderingPackage joinGame(String playerName) {
+        logger.info(playerName + " wants to join Telepathy game"+ this.name);
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
 
         if(this.players[0].name.equals("Empty")){

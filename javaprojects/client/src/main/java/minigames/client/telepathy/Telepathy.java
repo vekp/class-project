@@ -153,11 +153,8 @@ public class Telepathy implements GameClient {
      */
     public void sendCommand(String command, String... attributes){
         JsonObject json = new JsonObject().put("command", command);
-        if(attributes.length == 0){ 
-            System.out.println("null value");
-            attributes = new String[0];
-        }
-        json.put("attributes", new JsonArray().add(attributes));
+        
+        if(attributes.length > 0) {json.put("attributes", new JsonArray().add(attributes));}
 
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
     }
