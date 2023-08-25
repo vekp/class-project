@@ -2,6 +2,7 @@ package minigames.server;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
+import minigames.server.database.DerbyDatabase;
 import minigames.server.battleship.BattleshipServer;
 import minigames.server.highscore.*;
 import minigames.server.muddle.MuddleServer;
@@ -48,14 +49,14 @@ public class Main extends AbstractVerticle {
      * Provides pooled connection access to the database.
      * See `DerbyHighScoreStorage` class for example usage.
      */
-    public static DerbyDatabaseAPI derbyDatabase = new DerbyDatabaseAPI();
+    public static DerbyDatabase derbyDatabase;
 
     /**
      * HighScoreAPI static reference (INCOMPLETE don't try to use yet)
      * Provides access to high-score management and retrieval functionalities
      * for all game components via `Main.highScoreAPI`.
      */
-    public static HighScoreAPI highScoreAPI = new HighScoreAPI(derbyDatabase);
+    public static HighScoreAPI highScoreAPI;
 
     //todo replace this with a proper user profile/account system
     /**
@@ -75,6 +76,22 @@ public class Main extends AbstractVerticle {
         gameRegistry.registerGameServer("Muddle", new MuddleServer());
         gameRegistry.registerGameServer("Battleship", new BattleshipServer());
         gameRegistry.registerGameServer("Telepathy", new TelepathyServer());
+
+        try {
+            // Initialise the Derby database
+            derbyDatabase = new DerbyDatabase();
+            // Before shutting down application, release all Derby database connections
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                if (derbyDatabase != null) {
+                    derbyDatabase.disconnect();
+                }
+            }));
+        } catch (Exception e) {
+            logger.error("Failed to initialize or interact with the database.", e);
+        }
+
+        // Initialise the HighScoreAPI
+        highScoreAPI = new HighScoreAPI(derbyDatabase);
 
         //adding some dummy/default names to the player list
         players.add("James");
