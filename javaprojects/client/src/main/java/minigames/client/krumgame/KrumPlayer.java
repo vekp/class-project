@@ -968,6 +968,7 @@ public class KrumPlayer {
             spriteIndex = (spriteIndex + sprites.length / 2) % sprites.length;
             sprite = sprites[spriteIndex];
             alphaRaster = sprite.getAlphaRaster();
+            facingRight = !facingRight;
             walking = false;
         }
         if (facingRight != Math.cos(lastAimAngle) > 0) {
