@@ -23,8 +23,8 @@ public class KrumC {
     // player sprite pixels outside this rectangle are ignored in movement collision detection (but not ignored in projectile hit detection)
     // todo: different values for each sprite
     // this one is designed for the kangaroo, so that his tail doesn't get in the way too much
-    static final int HITBOX_X_S = 11;
-    static final int HITBOX_X_F = 33;
+    static final int HITBOX_X_S = 10;
+    static final int HITBOX_X_F = 32;
     static final int HITBOX_Y_S = 1;
     static final int HITBOX_Y_F = 37;
 
