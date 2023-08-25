@@ -1,5 +1,7 @@
 package minigames.client.survey;
 
+import minigames.client.MinigameNetworkClient;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -22,6 +24,8 @@ import java.awt.*;
 
 public class Survey extends JPanel implements ActionListener {
 
+    MinigameNetworkClient mnClient;
+
     // Private variables 
     // (labels and buttons need to be registered here)
     private JPanel titlePanel, counterPanel, backPanel, gameNamePanel, surveyQuestionsPanelGroup, surveyQuestionsPanelLeft, surveyQuestionsPanelRight, feedbackPanel, submitPanel, footerPanel, uiRatingPanel, enjoymentPanel, functionalityPanel; 
@@ -37,7 +41,7 @@ public class Survey extends JPanel implements ActionListener {
     public static final String FRAME_TITLE = "Game Survey";
 
     // Main Survey Class
-    public Survey(ActionListener goBack) {
+    public Survey(MinigameNetworkClient mnClient) {
 
         // Survey main panel layout
         this.setPreferredSize(new Dimension(800, 600));
@@ -195,7 +199,7 @@ public class Survey extends JPanel implements ActionListener {
         // Back Button
         backPanel = new JPanel();
         backButton = new JButton("Back");
-        backButton.addActionListener(goBack);
+        backButton.addActionListener(e -> mnClient.runMainMenuSequence());
         backPanel.add(backButton);
         
         // Submit Button
@@ -211,9 +215,6 @@ public class Survey extends JPanel implements ActionListener {
         this.add(footerPanel, BorderLayout.SOUTH);
 
         // ADD REQUEST TO ENDPOINTS HERE!!!
-
-
-
     }
 
     public void submit() {
