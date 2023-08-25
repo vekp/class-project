@@ -37,6 +37,8 @@ public class KrumPlayer {
     WritableRaster alphaRaster; // alpha values (opacities) of player sprite pixels
     WritableRaster levelRaster; // alpha values of level pixels
 
+    BufferedImage[] sprites;
+
     boolean firing;
     boolean firingGrenade;
     long fireStart;
@@ -103,6 +105,8 @@ public class KrumPlayer {
     long grenadePower;
     boolean grenadeNextFrame;
 
+    int spriteIndex = 0;
+
     boolean detachRopeNextFrame = false;
     boolean shootRopeNextFrame = false;
 
@@ -113,12 +117,16 @@ public class KrumPlayer {
     double shootAimAngle;
     double ropeAimAngle;
 
+
+    double lastAimAngle;
+    double lastMouseX;
+    double lastMouseY;
     
     BufferedImage projectileSprite;
     BufferedImage grenadeSprite;
 
     ArrayList<Double> ropeSegmentLengths;
-
+ 
     int playerIndex;
 
     int empty[];
@@ -161,7 +169,24 @@ public class KrumPlayer {
         // Reading sprites
         projectileSprite = KrumHelpers.readSprite("carrot_s.png");
         grenadeSprite = KrumHelpers.readSprite("grenade.png");
-        sprite = KrumHelpers.readSprite(spriteDir + "default.png");
+        
+
+        sprites = new BufferedImage[]{ 
+            KrumHelpers.readSprite(spriteDir + "0.png"),
+            KrumHelpers.readSprite(spriteDir + "45_UP.png"),
+            KrumHelpers.readSprite(spriteDir + "45_DOWN.png"),
+            KrumHelpers.readSprite(spriteDir + "90_UP.png"),
+            KrumHelpers.readSprite(spriteDir + "90_DOWN.png"),
+            KrumHelpers.readSprite(spriteDir + "0_L.png"),
+            KrumHelpers.readSprite(spriteDir + "45_UP_L.png"),
+            KrumHelpers.readSprite(spriteDir + "45_DOWN_L.png"),
+            KrumHelpers.readSprite(spriteDir + "90_UP_L.png"),
+            KrumHelpers.readSprite(spriteDir + "90_DOWN_L.png")
+        };
+        sprite = sprites[0];
+        
+
+        
         
         alphaRaster = sprite.getAlphaRaster();
 
@@ -252,6 +277,8 @@ public class KrumPlayer {
         }
 
         setDirection(direction, level); // this could modify alphaRaster, so keep it below the outline-determining code, which assumes it's acting on a right-facing sprite
+        lastAimAngle = facingRight ? 0 : Math.PI;
+        spriteGun();
         lastShotTime = System.nanoTime();
         lastGrenadeShotTime = System.nanoTime();
         grenadeSeconds = 3;
@@ -260,6 +287,7 @@ public class KrumPlayer {
         jumpNextFrame = false;
         tick = 0;
         playerIndex = index;
+        this.spriteGun = KrumHelpers.readSprite(spriteDir + "bazooka.png");
     }
 
     void stop() {
@@ -304,15 +332,16 @@ public class KrumPlayer {
      * called by KrumGame.draw() every time a frame is painted
      * @param g
      */
-    void draw(Graphics2D g){
+    void draw(Graphics2D g, int playerTurn){
 
         //Sprite Drawing
-        spriteLook();
+        if (playerTurn == this.playerIndex) {
+            spriteLook();            
+        }       
         spriteGun();
-
         if (flashFramesLeft <= 0 || flashFramesLeft % 4 == 0) {
-            g.drawImage(sprite, null, (int)xpos, (int)ypos);
-            if (calcAimAngle() >= 1.571 || calcAimAngle() <= -1.571) {
+            g.drawImage(sprite, null, (int)xpos, (int)ypos);               
+            if (!facingRight) {
                 g.drawImage(spriteGun, null, (int)xpos, (int)ypos + 6);
             } else {
                 g.drawImage(spriteGun, null, (int)xpos + 10, (int)ypos + 6);
@@ -856,54 +885,47 @@ public class KrumPlayer {
         return false;
     }
 
-    void spriteLook() {
-        String spriteLooking = "default.png";
-        boolean flipSprite = false;
-        if (calcAimAngle() <= 3.146 && calcAimAngle() >= 2.749 ) {
-            spriteLooking = "0.png";
-            flipSprite = true;
-        } else if (calcAimAngle() <= 2.749 && calcAimAngle() >= 1.963 ) {
-            spriteLooking = "45_UP.png";
-            flipSprite = true;
-        } else if (calcAimAngle() <= 1.963 && calcAimAngle() >= 1.571) {
-            spriteLooking = "90_UP.png";
-            flipSprite = true;
-        } else if (calcAimAngle() <= 1.571 && calcAimAngle() >= 1.178) {
-            spriteLooking = "90_UP.png";
-        } else if (calcAimAngle() <= 1.178 && calcAimAngle() >= 0.392   ) {
-            spriteLooking = "45_UP.png";
-        } else if (calcAimAngle() <= 0.392 && calcAimAngle() >= -0.392 ) {
-            spriteLooking = "0.png";
-        } else if (calcAimAngle() <= -0.392 && calcAimAngle() >= -1.178 ) {
-            spriteLooking = "45_DOWN.png";
-        } else if (calcAimAngle() <= -1.178 && calcAimAngle() >= -1.571 ) {
-            spriteLooking = "90_DOWN.png";
-        } else if (calcAimAngle() <= -1.571 && calcAimAngle() >= -1.963 ) {
-            spriteLooking = "90_DOWN.png";
-            flipSprite = true;
-        } else if (calcAimAngle() <= -1.963 && calcAimAngle() >= -2.749 ) {
-            spriteLooking = "45_DOWN.png";
-            flipSprite = true;
-        } else if (calcAimAngle() <= -2.749 && calcAimAngle() >= -3.146 ) {
-            spriteLooking = "0.png";
-            flipSprite = true;
-        } 
-    
-
-        this.sprite = KrumHelpers.readSprite(spriteDir + spriteLooking);
-
-        if (flipSprite) {
-            BufferedImage flipped = new BufferedImage(this.sprite.getWidth(), this.sprite.getHeight(), this.sprite.getType());
-            AffineTransform tran = AffineTransform.getTranslateInstance(this.sprite.getWidth(), 0);
-            AffineTransform flip = AffineTransform.getScaleInstance(-1d, 1d);
-            tran.concatenate(flip);
-            Graphics2D g = flipped.createGraphics();
-            g.setTransform(tran);
-            g.drawImage(this.sprite, 0, 0, null);
-            g.dispose();
-
-            this.sprite = flipped;
+    void spriteLook() {    
+        if (walking) {
+            int oldSpriteIndex = spriteIndex;
+            lastAimAngle = facingRight ? 0 : Math.PI;
+            spriteIndex = facingRight ? 0 : sprites.length / 2;
+            sprite = sprites[spriteIndex];
+            if (spriteIndex != oldSpriteIndex)
+                alphaRaster = sprite.getAlphaRaster();
+            return;
         }
+        if (lastMouseX == MouseInfo.getPointerInfo().getLocation().x && lastMouseY == MouseInfo.getPointerInfo().getLocation().y)
+            return;
+        lastAimAngle = calcAimAngle();     
+        lastMouseX = MouseInfo.getPointerInfo().getLocation().x;
+        lastMouseY = MouseInfo.getPointerInfo().getLocation().y;
+        if (lastAimAngle <= 3.146 && lastAimAngle >= 2.749 ) {
+            spriteIndex = 5;
+        } else if (lastAimAngle <= 2.749 && lastAimAngle >= 1.963 ) {
+            spriteIndex = 6;
+        } else if (lastAimAngle <= 1.963 && lastAimAngle >= 1.571) { 
+            spriteIndex = 8;
+        } else if (lastAimAngle <= 1.571 && lastAimAngle >= 1.178) {
+            spriteIndex = 3;
+        } else if (lastAimAngle <= 1.178 && lastAimAngle >= 0.392   ) {
+            spriteIndex = 1;
+        } else if (lastAimAngle <= 0.392 && lastAimAngle >= -0.392 ) {
+            spriteIndex = 0;
+        } else if (lastAimAngle <= -0.392 && lastAimAngle >= -1.178 ) {
+            spriteIndex = 2;
+        } else if (lastAimAngle <= -1.178 && lastAimAngle >= -1.571 ) {
+            spriteIndex = 4;
+        } else if (lastAimAngle <= -1.571 && lastAimAngle >= -1.963 ) {
+            spriteIndex = 9;
+        } else if (lastAimAngle <= -1.963 && lastAimAngle >= -2.749 ) {
+            spriteIndex = 7;
+        } else if (lastAimAngle <= -2.749 && lastAimAngle >= -3.146 ) {
+            spriteIndex = 5;
+        } 
+        sprite = sprites[spriteIndex];
+        if (Math.cos(lastAimAngle) > 0 != facingRight)
+            setDirection(Math.cos(lastAimAngle) > 0, levelRaster);
     }
 
     void spriteGun() {
@@ -914,7 +936,7 @@ public class KrumPlayer {
 
         BufferedImage rotatedImage = new BufferedImage(this.spriteGun.getWidth(), this.spriteGun.getHeight(),this.spriteGun.getType());
         Graphics2D g = rotatedImage.createGraphics();
-        g.rotate(-calcAimAngle(), width/2, height/2);
+        g.rotate(-lastAimAngle, width/2, height/2);
         g.drawImage(this.spriteGun, null, 0, 0);
         g.dispose();
 
@@ -935,19 +957,22 @@ public class KrumPlayer {
      * @param levelRaster
      */
     void setDirection(boolean right, WritableRaster levelRaster) {
-        if (right == facingRight) return;        
         facingRight = right;
-        AffineTransform tx = AffineTransform.getScaleInstance(-1, 1); 
-        tx.translate(-sprite.getWidth(null), 0);        
-        AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);        
-        sprite = op.filter(sprite, null);
+        if (right != (spriteIndex < sprites.length / 2)) {
+            spriteIndex = (spriteIndex + sprites.length / 2) % sprites.length;
+            sprite = sprites[spriteIndex];
+        }
         alphaRaster = sprite.getAlphaRaster();
         if (levelRaster == null) return;
         if (collisionCheck(levelRaster, (facingRight ? 1 : 0))) {
-            facingRight = !facingRight;                  
-            sprite = op.filter(sprite, null);
+            spriteIndex = (spriteIndex + sprites.length / 2) % sprites.length;
+            sprite = sprites[spriteIndex];
             alphaRaster = sprite.getAlphaRaster();
             walking = false;
+        }
+        if (facingRight != Math.cos(lastAimAngle) > 0) {
+            lastAimAngle = (Math.PI - lastAimAngle) % (Math.PI * 2);
+            spriteGun();
         }
     }
 

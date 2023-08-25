@@ -263,7 +263,7 @@ public class KrumGame implements GameClient {
     /**
      * Called once per frame to update game state
      */
-    void update() {
+    void update() {        
         if (playBackTurn) {
             playingBackTurn = true;
             recordingTurn = false;
@@ -358,7 +358,7 @@ public class KrumGame implements GameClient {
     void draw(Graphics2D g) {
         g.drawImage(background, null, 0, 0);
         for (KrumPlayer p : players) {
-            p.draw(g);
+            p.draw(g, playerTurn);
             if (p.projectile != null) p.projectile.draw(g);
             if (p.grenade != null) p.grenade.draw(g);
             if (p.joey.active) p.joey.draw(g);
