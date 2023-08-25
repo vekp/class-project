@@ -1,8 +1,7 @@
-package minigames.client.achievementui;
+package minigames.client.achievements;
 
 import minigames.achievements.Achievement;
 import minigames.achievements.GameAchievementState;
-import minigames.achievements.PlayerAchievementRecord;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**

@@ -1,4 +1,4 @@
-package minigames.client.achievementui;
+package minigames.client.achievements;
 
 import minigames.achievements.Achievement;
 import minigames.achievements.GameAchievementState;

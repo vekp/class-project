@@ -4,8 +4,8 @@ import javax.swing.*;
 
 import java.awt.event.ActionListener;
 
-import minigames.client.achievementui.AchievementNotificationHandler;
-import minigames.client.achievementui.AchievementUI;
+import minigames.client.achievements.AchievementNotificationHandler;
+import minigames.client.achievements.AchievementUI;
 import minigames.client.survey.Survey;
 import minigames.client.backgrounds.Starfield;
 import minigames.rendering.GameMetadata;

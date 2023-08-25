@@ -89,17 +89,16 @@ public class Ship {
 
     /**
      * Updates the cells within the current Ship Object, should be performed after every round of enemy firing.
-     * NOTE: These are reversed because the player enters the y coord before the x coord e.g. C1
-     * @param x The x coordinate for the target
-     * @param y The y coord
+     * @param row The x coordinate for the target
+     * @param col The y coord
      */
-    public Ship updateShipStatus(int y, int x) {
-        // booleans that can be set to reduce console spam
+    public Ship updateShipStatus(int col, int row) {
         hits = 0;
-        boolean iWantPrintouts = false;
+        // booleans that can be set to reduce console spam
+        boolean iWantPrintouts = true;
         boolean iWantMorePrintouts = false;
         // Get the length of the Cell array within the Ship (the ship's size) and put this within an int variable called "size"
-        Cell target = new Cell(x, y);
+        Cell target = new Cell(row, col);
 
         Cell[] shipParts = this.getShipParts();
 
@@ -123,7 +122,7 @@ public class Ship {
             if(current.getBothCoords().equals(target.getBothCoords())){
 
                 shipParts[i].shoot();
-                if(iWantPrintouts){
+                if(iWantMorePrintouts){
                     System.out.println("Shot on target");
                     System.out.println("Hit here: " + current.getBothCoords());
                     System.out.println("Target coords: " + target.getBothCoords());
@@ -139,7 +138,7 @@ public class Ship {
             System.out.println("to hit: " + this.size);
         }
         // if all cells within the Ship have been hit, sink the ship
-        if(this.size==hits ){
+        if(this.size==hits && !this.sunk){
             this.sink();
             if(this.getShipClass().equals("Carrier")){
                 achievementHandler.unlockAchievement(owner, THE_BIGGER_THEY_ARE.toString());
