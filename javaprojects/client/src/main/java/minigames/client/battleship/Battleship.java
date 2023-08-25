@@ -22,7 +22,10 @@ import java.util.Collections;
 
 public class Battleship implements GameClient {
 
-    public static class BattleshipUpdateHandler implements Tickable {
+    /**
+     * Class to interact with the animator to get constant updates to each client
+     */
+    public class BattleshipUpdateHandler implements Tickable {
         private final MinigameNetworkClient client;
         int tickInterval = 10;
         int tickTimer = 0;
@@ -43,7 +46,11 @@ public class Battleship implements GameClient {
             if (tickTimer > tickInterval) {
                 tickTimer = 0; //reset timer
 
-                al.requestTick(this);
+                sendCommand("refresh");
+                // All three of these seem to do the same thing...
+                // client.getAnimator().requestTick(this);
+                // animator.requestTick(this);
+                 al.requestTick(this);
             } else {
                 al.requestTick(this);
             }
