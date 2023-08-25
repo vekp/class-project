@@ -201,7 +201,6 @@ public class MinigameNetworkClientWindow {
         achievementsButton.addActionListener(e -> {
             clearAll();
             JPanel achievements = new AchievementUI(networkClient);
-            frame.setTitle(AchievementUI.TITLE);
             center.add(achievements);
             pack();
         });
