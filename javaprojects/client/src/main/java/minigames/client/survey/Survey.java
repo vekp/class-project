@@ -36,7 +36,6 @@ public class Survey extends JPanel implements ActionListener {
     // Colours of panels, buttons and radio buttons
     private Color bgColour = new Color(255,255,255); // background
     private Color fgColour = new Color(0,0,0); // foreground
-
     // Background colour of main panel
     private Color mainBgColour = Color.CYAN;
 
@@ -227,7 +226,7 @@ public class Survey extends JPanel implements ActionListener {
             panel.setForeground(fgColour);
         }
 
-        // Change background colour of radio buttons
+        // Change colour of radio buttons
         JRadioButton rbuttons[] = {uiRatingOne, uiRatingTwo, uiRatingThree, uiRatingFour, uiRatingFive, enjoymentOne,
             enjoymentTwo, enjoymentThree, enjoymentFour, enjoymentFive, functionalityOne, functionalityTwo, functionalityThree, functionalityFour, functionalityFive};
         for(JRadioButton rb: rbuttons){
