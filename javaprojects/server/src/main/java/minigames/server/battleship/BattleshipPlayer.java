@@ -1,10 +1,8 @@
 package minigames.server.battleship;
 
 import minigames.server.achievements.AchievementHandler;
-import org.apache.derby.impl.sql.compile.IsNullNode;
 
 import java.util.HashMap;
-import java.util.IntSummaryStatistics;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,7 +16,7 @@ public class BattleshipPlayer {
     private boolean controlledByPlayer;
     private final Board playerBoard;
     private String messageHistory;  // String of all valid messages, both game and player
-    private GameState gameState;
+    private boolean ready;
 
     // Constructor
     /**
@@ -32,7 +30,7 @@ public class BattleshipPlayer {
         this.playerBoard = playerBoard;
         this.controlledByPlayer = controlledByPlayer;
         this.messageHistory = messageHistory;
-        this.gameState = GameState.SHIP_PLACEMENT;
+        this.ready = false;
     }
 
     // Methods
@@ -54,12 +52,12 @@ public class BattleshipPlayer {
      */
     public BattleShipTurnResult processTurn(String input, Board opponent) {
         BattleShipTurnResult invalidResult = new BattleShipTurnResult(false, "Invalid Input");
-        if (playerBoard.getGameState().equals(GameState.SHIP_PLACEMENT)) {
-            if (input.toUpperCase().matches("READY")) {
-                updateHistory("Ready");
-                setGameState(GameState.INPUT_CALC);
-            }
+        if (input.equalsIgnoreCase("Ready")) {
+            updateHistory("Ready");
+            setReadyState();
+//                String message = BattleShipTurnResult.instruction().message();
         }
+
         if (!validateInput(input)) {
             return invalidResult;
         }
@@ -220,13 +218,12 @@ public class BattleshipPlayer {
 
     // Setters
 
-
     public void updateHistory(String input) {
         this.messageHistory = playerMessageHistory() + input;
     }
 
-    public void setGameState(GameState gameState) {
-        this.gameState = gameState;
+    public void setReadyState() {
+        this.ready = true;
     }
 }
 

@@ -21,11 +21,11 @@ public class Board {
      * The Constructor takes only the player's name as a parameter
 //     * @param   String representing the name of the player
      */
-    public Board(){
+    public Board(int choice){
         this.turnNumber = 0;
         this.vessels = new HashMap<>();
         this.grid = new Grid(); // Create a default grid
-        chooseGrid();
+        chooseGrid(choice); // Fake name while I sort this out
 
         this.gameState = GameState.SHIP_PLACEMENT;
         // Set the player to be the owner for all ships on this board
@@ -224,12 +224,12 @@ public class Board {
     // placeShip() method, which puts a ship on the grid and then returns a ship object which is added to the hashmap
     // and finally returns the players grid after all this is complete (in defaultGrid() below)
 
-    public Cell[][] chooseGrid(){
-//        if(playerName.equals("Computer")){
-//            return otherGrid();
-//        } else {
+    public Cell[][] chooseGrid(int choice){
+        if(choice==1){
+            return otherGrid();
+        } else {
             return defaultGrid();
-//        }
+        }
     }
 
     /**

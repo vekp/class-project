@@ -14,24 +14,31 @@ public record BattleShipTurnResult(
 ) {
     public static BattleShipTurnResult playerHitEnemy(){
         String[] playerHitEnemy = {"Enemy ship hit! Well done Sir.", "Straight into their hull!", "Direct Hit!"};
-        return new BattleShipTurnResult(true, getRandomMessage(playerHitEnemy));
+        return new BattleShipTurnResult(true, lineBreak+getRandomMessage(playerHitEnemy));
     }
     public static BattleShipTurnResult playerMissedEnemy(){
         String[] playerMissedEnemy = {"Salvo Missed.", "Target not hit.", "Adjust your coordinates."};
-        return new BattleShipTurnResult(true, getRandomMessage(playerMissedEnemy));
+        return new BattleShipTurnResult(true, lineBreak+getRandomMessage(playerMissedEnemy));
     }
     public static BattleShipTurnResult enemyHitPlayer(){
         String[] enemyHitPlayer = {"Enemy has hit our fleet,", "We've been hit!", "We're under fire!"};
-        return new BattleShipTurnResult(true, getRandomMessage(enemyHitPlayer));
+        return new BattleShipTurnResult(true, lineBreak+getRandomMessage(enemyHitPlayer));
     }
     public static BattleShipTurnResult enemyMissedPlayer(){
         String[] enemyMissedPlayer = {"Enemy has missed!", "Enemy missed another salvo.", "They missed us."};
-        return new BattleShipTurnResult(true, getRandomMessage(enemyMissedPlayer));
+        return new BattleShipTurnResult(true, lineBreak+getRandomMessage(enemyMissedPlayer));
     }
 
     public static BattleShipTurnResult alreadyHitCell(){
-        return new BattleShipTurnResult(true, "You already hit this cell!");
+        return new BattleShipTurnResult(true, lineBreak+"You already hit this cell!");
     }
+
+    public static BattleShipTurnResult instruction(){
+        return new BattleShipTurnResult(false, lineBreak+"To fire at the enemy, enter grid coordinates: (eg, A4)");
+    }
+
+
+    static String lineBreak = "\n\n";
 
     static String getRandomMessage(String[] messages){
         if(messages.length == 0 ) return "";

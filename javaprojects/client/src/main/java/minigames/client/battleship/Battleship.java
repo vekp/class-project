@@ -21,6 +21,8 @@ public class Battleship implements GameClient {
     MinigameNetworkClient mnClient;
     // Needed for sending commands to the server
     GameMetadata gm;
+    BattleshipUpdateHandler updateHandler;
+
     // Player name
     String player;
 
@@ -59,6 +61,8 @@ public class Battleship implements GameClient {
      */
     public Battleship() {
         //TODO: Add current player label functionality
+
+        this.updateHandler = new BattleshipUpdateHandler(mnClient);
 
         // Heading
         heading = new JPanel(new GridBagLayout());  // Game title, Current player and Menu button
@@ -275,6 +279,7 @@ public class Battleship implements GameClient {
         // Note that this uses the -> version of case statements, not the : version
         // (which means we don't nead to say "break;" at the end of our cases)
         switch (command.getString("command")) {
+            case "inputAllowable" -> userCommand.setEditable(Boolean.parseBoolean(command.getString("allowed")));
             case "clearText" -> {
                 nauticalText.setText("");
                 targetText.setText("");
