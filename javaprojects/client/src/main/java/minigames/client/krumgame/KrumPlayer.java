@@ -768,7 +768,7 @@ public class KrumPlayer {
 
 
     boolean nonDirectionalCollisionCheck() {
-        for (int x = KrumC.HITBOX_X_S; x <= KrumC.HITBOX_X_F; x++) {
+        for (int x = facingRight ? KrumC.HITBOX_X_S : sprite.getWidth() - 1 - KrumC.HITBOX_X_F; x <= (facingRight ? KrumC.HITBOX_X_F : sprite.getWidth() - KrumC.HITBOX_X_S); x++) {
             if (x + xpos < 0) continue;
             if (x + xpos >= levelRaster.getWidth()) break;
             for (int y = KrumC.HITBOX_Y_S; y <= KrumC.HITBOX_Y_F; y++) {
@@ -965,11 +965,20 @@ public class KrumPlayer {
         alphaRaster = sprite.getAlphaRaster();
         if (levelRaster == null) return;
         if (collisionCheck(levelRaster, (facingRight ? 1 : 0))) {
-            spriteIndex = (spriteIndex + sprites.length / 2) % sprites.length;
-            sprite = sprites[spriteIndex];
-            alphaRaster = sprite.getAlphaRaster();
-            facingRight = !facingRight;
-            walking = false;
+            for (int i = 0; i < KrumC.WALK_CLIMB; i++) {
+                ypos--;
+                if (!collisionCheck(levelRaster, (facingRight ? 1 : 0))) {
+                    break;
+                }
+            }
+            if (collisionCheck(levelRaster, (facingRight ? 1 : 0))) {  
+                ypos += KrumC.WALK_CLIMB;   
+                spriteIndex = (spriteIndex + sprites.length / 2) % sprites.length;
+                sprite = sprites[spriteIndex];
+                alphaRaster = sprite.getAlphaRaster();
+                facingRight = !facingRight;
+                walking = false;
+            }            
         }
         if (facingRight != Math.cos(lastAimAngle) > 0) {
             lastAimAngle = (Math.PI - lastAimAngle) % (Math.PI * 2);
