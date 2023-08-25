@@ -8,109 +8,71 @@ import javax.swing.JPanel;
 
 public class GameShowUI {
 
-    private final static String hSBackgroundPath = "./GameShowImages/homescreen-background.jpg";
-    private static final ImageIcon hScreenBackground = new ImageIcon(hSBackgroundPath);
+        private final static String hSBackgroundPath = "./GameShowImages/homescreen-background.jpg";
+        private static final ImageIcon hScreenBackground = new ImageIcon(hSBackgroundPath);
 
-    private final static String singleButtonPath = "./GameShowImages/single-button.png";
-    private static final ImageIcon singleButton = new ImageIcon(singleButtonPath);
+        private final static String lobbyButtonPath = "./GameShowImages/lobby-button.png";
+        private static final ImageIcon lobbyButton = new ImageIcon(lobbyButtonPath);
 
-    private final static String multiButtonPath = "./GameShowImages/multi-button.png";
-    private static final ImageIcon multiButton = new ImageIcon(multiButtonPath);
+        // private final static String multiButtonPath =
+        // "./GameShowImages/multi-button.png";
+        // private static final ImageIcon multiButton = new ImageIcon(multiButtonPath);
 
-    private final static String invisableButtonPath = "./GameShowImages/invisable-button.png";
-    private static final ImageIcon invisableButton = new ImageIcon(invisableButtonPath);
+        // private final static String invisableButtonPath =
+        // "./GameShowImages/invisable-button.png";
+        // private static final ImageIcon invisableButton = new
+        // ImageIcon(invisableButtonPath);
 
-    public static JPanel generateHomeScreen() {
+        /**
+         * method to generate the home screen
+         * 
+         * @return a JPanel representing the home screen
+         */
 
-        JLabel background;
-        JPanel homeScreenPanel;
+        public static JPanel generateHomeScreen() {
 
-        JButton singlePlayer;
-        JButton multiPlayer;
-        JButton singlePlayer1;
-        JButton multiPlayer1;
+                JLabel background;
+                JPanel homeScreenPanel;
 
-        homeScreenPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
+                JButton lobby;
 
-        // gbc.ipadx = 20;
-        singlePlayer = new JButton(
-                new ImageIcon(singleButton.getImage().getScaledInstance(300, 130, Image.SCALE_DEFAULT)));
-        singlePlayer.setContentAreaFilled(false);
-        singlePlayer.setFocusPainted(false);
-        singlePlayer.setBorderPainted(false);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.anchor = GridBagConstraints.SOUTHEAST;
-        gbc.gridx = 1;
-        gbc.gridy = 3;
-        // gbc.gridheight = 4;
-        // gbc.gridwidth = 4;
-        homeScreenPanel.add(singlePlayer, gbc);
+                homeScreenPanel = new JPanel(new GridBagLayout());
+                GridBagConstraints gbc = new GridBagConstraints();
 
-        singlePlayer1 = new JButton(
-                new ImageIcon(invisableButton.getImage().getScaledInstance(300, 130, Image.SCALE_DEFAULT)));
-        // singlePlayer1.setVisible(false);
-        singlePlayer1.setContentAreaFilled(false);
-        singlePlayer1.setFocusPainted(false);
-        singlePlayer1.setBorderPainted(false);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.anchor = GridBagConstraints.SOUTHEAST;
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        // gbc.gridheight = 4;
-        // gbc.gridwidth = 4;
-        homeScreenPanel.add(singlePlayer1, gbc);
+                lobby = new JButton(
+                                new ImageIcon(lobbyButton.getImage().getScaledInstance(300, 130, Image.SCALE_DEFAULT)));
+                lobby.setContentAreaFilled(false);
+                lobby.setFocusPainted(false);
+                lobby.setBorderPainted(false);
+                gbc.fill = GridBagConstraints.HORIZONTAL;
+                gbc.anchor = GridBagConstraints.SOUTH;
+                gbc.gridx = 0;
+                gbc.gridy = 0;
+                homeScreenPanel.add(lobby, gbc);
 
-        multiPlayer = new JButton(
-                new ImageIcon(multiButton.getImage().getScaledInstance(300, 130, Image.SCALE_DEFAULT)));
-        multiPlayer.setContentAreaFilled(false);
-        multiPlayer.setFocusPainted(false);
-        multiPlayer.setBorderPainted(false);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.anchor = GridBagConstraints.SOUTH;
-        gbc.gridx = 3;
-        gbc.gridy = 3;
-        // gbc.gridheight = 4;
-        // gbc.gridwidth = 4;
-        homeScreenPanel.add(multiPlayer, gbc);
+                background = new JLabel(
+                                new ImageIcon(hScreenBackground.getImage()));
+                gbc.fill = GridBagConstraints.HORIZONTAL;
+                gbc.gridx = 0;
+                gbc.gridy = 0;
+                gbc.ipadx = 10;
+                gbc.ipady = 20;
+                gbc.gridheight = 1;
+                gbc.gridwidth = 1;
+                homeScreenPanel.add(background, gbc);
 
-        multiPlayer1 = new JButton(
-                new ImageIcon(invisableButton.getImage().getScaledInstance(300, 130, Image.SCALE_DEFAULT)));
-        multiPlayer1.setContentAreaFilled(false);
-        multiPlayer1.setFocusPainted(false);
-        multiPlayer1.setBorderPainted(false);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.anchor = GridBagConstraints.SOUTH;
-        gbc.gridx = 4;
-        gbc.gridy = 3;
-        // gbc.gridheight = 4;
-        // gbc.gridwidth = 4;
-        homeScreenPanel.add(multiPlayer1, gbc);
+                lobby.addActionListener(e -> {
 
-        background = new JLabel(
-                new ImageIcon(hScreenBackground.getImage()));// .getScaledInstance(1300,
-                                                             // 667,Image.SCALE_DEFAULT)
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        // gbc.anchor = GridBagConstraints.CENTER;
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.ipadx = 10;
-        gbc.ipady = 20;
-        gbc.gridheight = 4;
-        gbc.gridwidth = 5;
+                });
 
-        homeScreenPanel.add(background, gbc);
+                return homeScreenPanel;
+        }
 
-        singlePlayer.addActionListener(e -> {
+        public static JPanel generateConsistentPanel() {
 
-        });
-
-        multiPlayer.addActionListener(e -> {
-
-        });
-
-        return homeScreenPanel;
-
-    }
+                JPanel consistentPanel;
+                consistentPanel = new JPanel(null, false);
+                return consistentPanel;
+        }
 
 }
