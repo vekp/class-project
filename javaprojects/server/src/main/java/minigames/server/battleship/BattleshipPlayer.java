@@ -13,39 +13,66 @@ import static minigames.server.battleship.achievements.*;
 
 public class BattleshipPlayer {
 
+    // Fields
     private String name;
     private boolean controlledByPlayer;
     private final Board playerBoard;
+    private String messageHistory;  // String of all valid messages, both game and player
+    private GameState gameState;
 
-    public BattleshipPlayer(String name, Board playerBoard, boolean controlledByPlayer) {
+    // Constructor
+    /**
+     *
+     * @param name
+     * @param playerBoard
+     * @param controlledByPlayer
+     */
+    public BattleshipPlayer(String name, Board playerBoard, boolean controlledByPlayer, String messageHistory) {
         this.name = name;
         this.playerBoard = playerBoard;
         this.controlledByPlayer = controlledByPlayer;
+        this.messageHistory = messageHistory;
+        this.gameState = GameState.SHIP_PLACEMENT;
     }
 
+    // Methods
+
+    /**
+     *
+     * @param opponent
+     * @return
+     */
     public BattleShipTurnResult processAITurn(Board opponent){
         return processTurn(generateCoordinate(), opponent);
     }
+
+    /**
+     *
+     * @param input
+     * @param opponent
+     * @return
+     */
     public BattleShipTurnResult processTurn(String input, Board opponent) {
         BattleShipTurnResult invalidResult = new BattleShipTurnResult(false, "Invalid Input");
+        if (playerBoard.getGameState().equals(GameState.SHIP_PLACEMENT)) {
+            if (input.toUpperCase().matches("READY")) {
+                updateHistory("Ready");
+                setGameState(GameState.INPUT_CALC);
+            }
+        }
         if (!validateInput(input)) {
             return invalidResult;
         }
         String[] validatedInput = formatInput(input).split(",");
 
-        //try to get a valid column, return failed turn if not
-        int x = BattleshipGame.chars.indexOf(validatedInput[0]);
-        if(x == -1) return invalidResult;
-
-        //try to get a valid row, return failed turn if not
-        int y = -1;
+        int col = BattleshipGame.chars.indexOf(validatedInput[0]);
+        int row = -1;
         try {
-            y = Integer.parseInt(validatedInput[1]);
-        } catch (NumberFormatException e){
-            //invalid input supplied
+            row = Integer.parseInt(validatedInput[1]);
+        } catch (NumberFormatException e) {
             return invalidResult;
         }
-        return shotOutcome(opponent, x, y);
+        return shotOutcome(opponent, col, row);
     }
 
     private BattleShipTurnResult shotOutcome(Board opponent, int x, int y) {
@@ -99,12 +126,25 @@ public class BattleshipPlayer {
         // TODO: increment turn number?
     }
 
+    /**
+     * Format the user input for better readability
+     *
+     * @param input String input from the console
+     * @return formatted string
+     */
     private String formatInput(String input) {
         input = input.toUpperCase();
         String a = String.valueOf(input.charAt(0));
         String b = String.valueOf(input.charAt(1));
         return a + "," + b;
     }
+
+    /**
+     * This function is responsible for validating user input
+     *
+     * @param input The raw coordinate string that the user has entered into the console
+     * @return true if the coordinate is valid, false if not
+     */
     private boolean validateInput(String input) {
         // If the player enters C120 as the coordinates give them the COSC120 inside joke achievement
         if (input.equals("C120") && isHumanControlled()) {
@@ -132,6 +172,8 @@ public class BattleshipPlayer {
         String cpuCoordStr = BattleshipGame.chars.charAt(randX) + "," + randY;
         return cpuCoordStr;
     }
+
+    // Getters
 
     /**
      * The game will not continue if player 1 is not human controlled
@@ -165,6 +207,26 @@ public class BattleshipPlayer {
 
     public Board getBoard() {
         return playerBoard;
+    }
+
+    /**
+     * Returns the current message history for the player
+     *
+     * @return The String to be displayed to the player
+     */
+    public String playerMessageHistory() {
+        return this.messageHistory;
+    }
+
+    // Setters
+
+
+    public void updateHistory(String input) {
+        this.messageHistory = playerMessageHistory() + input;
+    }
+
+    public void setGameState(GameState gameState) {
+        this.gameState = gameState;
     }
 }
 

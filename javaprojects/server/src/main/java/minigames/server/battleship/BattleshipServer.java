@@ -114,6 +114,9 @@ public class BattleshipServer implements GameServer {
     @Override
     public GameMetadata[] getGamesInProgress() {
         return games.keySet().stream().map((name) -> {
+            if (games.get(name).getPlayerNames().length == 2 && !games.get(name).getPlayerNames()[1].equals("Computer")) {
+                return new GameMetadata("Battleship", name, games.get(name).getPlayerNames(), false);
+            }
             return new GameMetadata("Battleship", name, games.get(name).getPlayerNames(), true);
         }).toArray(GameMetadata[]::new);
     }

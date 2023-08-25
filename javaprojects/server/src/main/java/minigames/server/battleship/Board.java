@@ -10,27 +10,23 @@ import static java.lang.Math.round;
  * The Board Class contains all the information about the current state of a player's game board, including the player's name
  */
 public class Board {
-    private String playerName;
-    private String boardTitle;
     private Grid grid; // A two-dimensional array of Cells for drawing the game board
     private HashMap<String, Ship> vessels;  // A hashmap containing each of the five ship types for the current board
     private int turnNumber;  // The current turn number
-    private String messageHistory;  // String of all valid messages, both game and player
+
     private GameState gameState;
 
 
     /**
      * The Constructor takes only the player's name as a parameter
-     * @param playerName A String representing the name of the player
+//     * @param   String representing the name of the player
      */
-    public Board(String playerName, String message){
-        this.playerName = playerName;
+    public Board(){
         this.turnNumber = 0;
         this.vessels = new HashMap<>();
         this.grid = new Grid(); // Create a default grid
         chooseGrid();
 
-        this.messageHistory = message;
         this.gameState = GameState.SHIP_PLACEMENT;
         // Set the player to be the owner for all ships on this board
         this.setPlayerOwner();
@@ -52,7 +48,7 @@ public class Board {
      * Getter for the player name
      * @return The String of the player that owns the board
      */
-    public String getPlayerName() {return this.playerName;}
+//    public String getPlayerName() {return this.playerName;}
 
     /**
      * Getter for the current turn number
@@ -64,9 +60,9 @@ public class Board {
      * Getter for the player's message history
      * @return the message history string
      */
-    public String getMessageHistory() {
-        return messageHistory;
-    }
+//    public String getMessageHistory() {
+//        return messageHistory;
+//    }
 
     /**
      * Getter for the player's current game state
@@ -110,7 +106,7 @@ public class Board {
     public void setPlayerOwner(){
         this.vessels.forEach((key, value) ->{
             Ship current = value;
-            current.setOwner(this.playerName);
+//            current.setOwner(this.playerName);
             vessels.replace(key, current);
         });
     }
@@ -136,9 +132,9 @@ public class Board {
      * Adds the user's input to the message history
      * @param input user's input
      */
-    public void updateMessageHistory(String input) {
-        this.messageHistory = getMessageHistory() + input;
-    }
+//    public void updateMessageHistory(String input) {
+//        this.messageHistory = getMessageHistory() + input;
+//    }
 
     /**
      * Increments the turn number
@@ -229,11 +225,11 @@ public class Board {
     // and finally returns the players grid after all this is complete (in defaultGrid() below)
 
     public Cell[][] chooseGrid(){
-        if(playerName == "CPU"){
-            return otherGrid();
-        } else {
+//        if(playerName.equals("Computer")){
+//            return otherGrid();
+//        } else {
             return defaultGrid();
-        }
+//        }
     }
 
     /**
