@@ -1,6 +1,5 @@
 package minigames.client.achievements;
 
-import minigames.achievements.Achievement;
 import minigames.achievements.GameAchievementState;
 import minigames.achievements.PlayerAchievementRecord;
 import minigames.client.MinigameNetworkClient;
@@ -8,10 +7,11 @@ import minigames.client.MinigameNetworkClient;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.util.Random;
 
 public class AchievementUI extends JPanel {
     private final JScrollPane achievementScrollPane;
+    private final MinigameNetworkClient mnClient;
+    private final JPanel buttonPanel;
 
     /**
      * Creates a new JPanel containing a user interface for viewing achievements.
@@ -19,6 +19,7 @@ public class AchievementUI extends JPanel {
      * @param mnClient the MinigameNetworkClient to be used for communicating with server.
      */
     public AchievementUI(MinigameNetworkClient mnClient) {
+        this.mnClient = mnClient;
         this.setPreferredSize(new Dimension(800, 600));
         this.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -72,12 +73,11 @@ public class AchievementUI extends JPanel {
         achievementScrollPane.getVerticalScrollBar().setUnitIncrement(5);
         this.add(achievementScrollPane, gbc);
 
-        JPanel buttonPanel = new JPanel(new BorderLayout());
+        buttonPanel = new JPanel(new BorderLayout());
         // Add a back button
         JButton backButton = new JButton("Back");
         backButton.addActionListener(e -> mnClient.runMainMenuSequence());
         buttonPanel.add(backButton, BorderLayout.EAST);
-        mnClient.getMainWindow().addSouth(buttonPanel);
     }
 
     /**
@@ -88,6 +88,17 @@ public class AchievementUI extends JPanel {
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         return scrollPane;
+    }
+
+    /**
+     * Display the achievement viewer UI in the main window, with buttons below.
+     */
+    public void load() {
+        mnClient.getMainWindow().clearAll();
+        mnClient.getMainWindow().addCenter(this);
+        mnClient.getMainWindow().addSouth(buttonPanel);
+        mnClient.getMainWindow().pack();
+
     }
 
     /**

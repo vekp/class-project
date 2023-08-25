@@ -199,10 +199,8 @@ public class MinigameNetworkClientWindow {
         // Create a button for the Achievement UI.
         JButton achievementsButton = new JButton("Achievements");
         achievementsButton.addActionListener(e -> {
-            clearAll();
-            JPanel achievements = new AchievementUI(networkClient);
-            center.add(achievements);
-            pack();
+            AchievementUI achievements = new AchievementUI(networkClient);
+            achievements.load();
         });
         south.add(achievementsButton);
 
