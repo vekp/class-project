@@ -184,10 +184,9 @@ public class MinigameNetworkClient {
                 .onSuccess((resp) -> {
                     //re-create the player's GameAchievementState from the JSON we should have been sent, and
                     //display it in a message dialog in a background thread
-                    AchievementPresenterRegistry ac = new AchievementPresenterRegistry(GameAchievementState.fromJSON(resp.bodyAsString()));
                     vertx.executeBlocking(getGameAchievements -> {
-                        JOptionPane.showMessageDialog(getMainWindow().frame, ac.achievementListPanel(),
-                                gameID + " achievements", JOptionPane.PLAIN_MESSAGE);
+                        AchievementPresenterRegistry ac = new AchievementPresenterRegistry(GameAchievementState.fromJSON(resp.bodyAsString()));
+                        ac.showGameAchievements(getMainWindow().getFrame());
                         getGameAchievements.complete();
                     });
                     logger.info(resp.bodyAsString());

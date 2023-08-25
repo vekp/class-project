@@ -83,7 +83,7 @@ public class AchievementUI extends JPanel {
     /**
      * Create a vertical scroll pane of the given content
      */
-    private JScrollPane generateScrollPane(Component content) {
+    public static JScrollPane generateScrollPane(Component content) {
         JScrollPane scrollPane = new JScrollPane(content);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);

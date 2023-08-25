@@ -60,6 +60,24 @@ public class AchievementPresenterRegistry {
         return panel;
     }
 
+    /**
+     * Display the player's achievements for the current game in a scroll pane message dialog
+     * @param frame the parent frame
+     */
+    public void showGameAchievements(JFrame frame) {
+        JScrollPane scrollPane = AchievementUI.generateScrollPane(achievementListPanel());
+        // Set pane size to fit inside frame
+        scrollPane.setPreferredSize(new Dimension(
+            Math.min(700, scrollPane.getPreferredSize().width + 50),
+            Math.min(500, scrollPane.getPreferredSize().height)
+            )
+        );
+        scrollPane.getVerticalScrollBar().setUnitIncrement(5);
+        scrollPane.setBorder(null);
+        JOptionPane.showMessageDialog(frame, scrollPane,
+                gameID + " achievements", JOptionPane.PLAIN_MESSAGE);
+    }
+
     //TODO: create function that returns scroll panel containing achievementListPanel, for in-game achievement list
 
     /**
