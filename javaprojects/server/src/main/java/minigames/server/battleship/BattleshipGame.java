@@ -347,6 +347,11 @@ public class BattleshipGame {
         BattleshipPlayer p = bPlayers.get(cp.player());
         // Get user input typed into the console
         String userInput = String.valueOf(cp.commands().get(0).getValue("command"));
+        if (cp.commands().get(0).containsKey("exitGame")) {
+            System.out.println("This should exit");
+
+            // TODO: remove this game from the list
+        };
 
         BattleshipPlayer otherPlayer = null;
         for (String name: getPlayerNames()) {
@@ -373,7 +378,6 @@ public class BattleshipGame {
         if(cp.player().equals(currentTurnPlayer.getName())){
             renderingCommands.add(new JsonObject().put("command", "inputAllowable").put("allowed", true));
             BattleShipTurnResult result = currentTurnPlayer.processTurn(userInput, opponentPlayer.getBoard());
-
             //if the opponent is AI, do their turn immediately, otherwise switch turns to next player
             if (result.successful()) {
                 if (opponentPlayer.isAIControlled()) {
@@ -386,7 +390,6 @@ public class BattleshipGame {
         } else {
             renderingCommands.add(new JsonObject().put("command", "inputAllowable").put("allowed", false));
         }
-
 
         renderingCommands.add(new JsonObject().put("command", "clearText"));
         renderingCommands.add(new JsonObject().put("command", "updateHistory").put("history", p.playerMessageHistory()));
@@ -451,6 +454,7 @@ public class BattleshipGame {
                 renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.showEnemyBoard(enemy, bPlayers.get(getPlayerNames()[0]).getBoard().getGrid())));
             }
             //System.out.println(Arrays.toString(getPlayerNames()));
+//            renderingCommands.add(new JsonObject().put("command", "refresh").put("bool", true));
 
             return new RenderingPackage(gameMetadata(), renderingCommands);
         }

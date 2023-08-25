@@ -1,8 +1,10 @@
 package minigames.client.battleship;
 
 import io.vertx.core.json.JsonObject;
+import minigames.client.Animator;
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
+import minigames.client.Tickable;
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 
@@ -16,7 +18,37 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
+
+
 public class Battleship implements GameClient {
+
+    public static class BattleshipUpdateHandler implements Tickable {
+        private final MinigameNetworkClient client;
+        int tickInterval = 10;
+        int tickTimer = 0;
+        Animator animator;
+
+        /**
+         * @param mnClient
+         */
+        public BattleshipUpdateHandler(MinigameNetworkClient mnClient) {
+            this.client = mnClient;
+            this.animator = mnClient.getAnimator();
+            animator.requestTick(this);
+        }
+
+        @Override
+        public void tick(Animator al, long now, long delta) {
+            tickTimer++;
+            if (tickTimer > tickInterval) {
+                tickTimer = 0; //reset timer
+
+                al.requestTick(this);
+            } else {
+                al.requestTick(this);
+            }
+        }
+    }
 
     MinigameNetworkClient mnClient;
     // Needed for sending commands to the server
@@ -60,9 +92,6 @@ public class Battleship implements GameClient {
      * Creates the panels and layout for the game
      */
     public Battleship() {
-        //TODO: Add current player label functionality
-
-        this.updateHandler = new BattleshipUpdateHandler(mnClient);
 
         // Heading
         heading = new JPanel(new GridBagLayout());  // Game title, Current player and Menu button
@@ -99,8 +128,7 @@ public class Battleship implements GameClient {
         title = new JLabel("< BattleShip >");
         title.setFont(fonts.get(0));
 
-        //TODO: set player name
-        currentPlayerName = new JLabel("Current Player: Mitcho");
+        currentPlayerName = new JLabel("Current Player: ");
         currentPlayerName.setFont(fonts.get(3));
         gbc.gridwidth = 3;
         gbc.insets = new Insets(5,5,0,0);
@@ -264,6 +292,8 @@ public class Battleship implements GameClient {
                 Color.decode(bgColourHover),
                 fonts.get(0).getFontName(),
                 buttonBorder);
+
+        updateHandler = new BattleshipUpdateHandler(mnClient);
     }
 
     /**
@@ -293,7 +323,6 @@ public class Battleship implements GameClient {
             case "placePlayer1Board" -> nauticalText.setText(nauticalText.getText() + command.getString("text"));
             case "placePlayer2Board" -> targetText.setText(targetText.getText() + command.getString("text"));
         }
-
     }
 
     /**
@@ -302,5 +331,6 @@ public class Battleship implements GameClient {
     @Override
     public void closeGame() {
         // Nothing to do
+        sendCommand("exitGame");
     }
 }
