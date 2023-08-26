@@ -130,38 +130,52 @@ public class BattleshipGame {
             //todo this shouldnt clear list, just remove 1 player?
             bPlayers.clear();
             System.out.println(getPlayerNames().length);
+            //probably just return a render package immediately here?
+
         } else if (false) { //todo change this to test if other player has left
             //todo here is where we should check if the OTHER player had left the game, and tell this client
             //to pop up a window saying other player has left
+            //also just return a render package immediately here
+        }
 
-        } else if(gameState.equals(GameState.SHIP_PLACEMENT) && userInput.equalsIgnoreCase("ready")){
-            BattleshipPlayer currentClient = bPlayers.get(cp.player());
-            currentClient.setReady(true);
-
-            //if the other player is also ready or are AI, we are good to start the game
-            gameState = GameState.IN_PROGRESS;
-            //the gamestate assumes all players are ready. On checking this loop, if we find any players that are
-            //not yet ready, set the state back to placement/waiting
-            for (BattleshipPlayer player : bPlayers.values()) {
-                if(!(player.isReady() || player.isAIControlled())){
-                    gameState = GameState.SHIP_PLACEMENT;
+        //if the game hasnt been aborted, we can move on to processing commands based on what the gamestate is
+        switch (gameState) {
+            case SHIP_PLACEMENT -> {
+                if(userInput.equalsIgnoreCase("ready")){
+                    BattleshipPlayer currentClient = bPlayers.get(cp.player());
+                    currentClient.setReady(true);
+                    //if the other player is also ready or are AI, we are good to start the game
+                    gameState = GameState.IN_PROGRESS;
+                    //the gamestate assumes all players are ready. On checking this loop, if we find any players that are
+                    //not yet ready, set the state back to placement/waiting
+                    for (BattleshipPlayer player : bPlayers.values()) {
+                        if(!(player.isReady() || player.isAIControlled())){
+                            gameState = GameState.SHIP_PLACEMENT;
+                        }
+                    }
                 }
             }
-        }
-        else if (userInput.equals("refresh") || !currentTurnPlayer.equals(cp.player())){
-            //refresh is called periodically while the client is waiting for its turn.
-            //once the client of the current turn's player asks for a refresh, we will inform
-            //it that it is now that players turn and it can prepare to send input.
-            //otherwise, we send a wait command for the client to continue waiting for turn
-            if(currentTurnPlayer.equals(cp.player())){
-                commands.add(new JsonObject().put("command", "prepareTurn"));
-            } else {
-                commands.add(new JsonObject().put("command", "wait"));
+            case IN_PROGRESS -> {
+                if (userInput.equals("refresh") || !currentTurnPlayer.equals(cp.player())){
+                    //refresh is called periodically while the client is waiting for its turn.
+                    //once the client of the current turn's player asks for a refresh, we will inform
+                    //it that it is now that players turn, and it can prepare to send input.
+                    //otherwise, we send a wait command for the client to continue waiting for turn
+                    if(currentTurnPlayer.equals(cp.player())){
+                        commands.add(new JsonObject().put("command", "prepareTurn"));
+                    } else {
+                        commands.add(new JsonObject().put("command", "wait"));
+                    }
+                } else {
+                    //if no other commands are present, and it is this player's turn, we can process the game turn
+                    commands = runGameCommand(bPlayers.get(cp.player()), userInput);
+                }
+                return new RenderingPackage(gameMetadata(), commands);
             }
-        } else {
-            //if no other commands are present, and it is this player's turn, we can process the game turn
-            commands = runGameCommand(bPlayers.get(cp.player()), userInput);
+            case GAME_OVER -> {
+            }
         }
+
         return new RenderingPackage(gameMetadata(), commands);
     }
 
