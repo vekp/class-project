@@ -58,6 +58,8 @@ public class KrumPlayer {
     
     int flashFramesLeft = 0;
 
+    int stuckFrames = 0;
+
     boolean airborne;
     boolean jumping;
     long jumpStart;
@@ -568,7 +570,12 @@ public class KrumPlayer {
             //     double xv = xvel > 0 ? -mag : mag;
             //     xpos += xv * 35;
             // }
-            if (nonDirectionalCollisionCheck()){
+            if (nonDirectionalCollisionCheck() && stuckFrames <= 10){
+                stuckFrames++;
+                if (stuckFrames > 10) {
+                    xvel *= -1;
+                    stuckFrames = 0;
+                }
                 int inc = Math.abs(Math.max((int)xvel, (int)yvel));
                 inc++;
                 int i = inc;
@@ -588,6 +595,9 @@ public class KrumPlayer {
                 //     ypos -= yvel / inc;
                 //     xpos -= xvel / inc;
                 // }                
+            }
+            else {
+                stuckFrames = 0;
             }
             if ((l && xvel < 0) || (r && xvel > 0)) {
                 double mag = Math.max(Math.abs(xvel) * -0.5, 0.2);
