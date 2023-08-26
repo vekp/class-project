@@ -22,7 +22,7 @@ public class SpacePlayer extends SpaceEntity {
 
     // method for calculating the score, could update on the UI (reduce as game progesses) or be called at the end.
     public int calculateScore(long timeTaken, int initialSCore) {
-        int reductionFactor = 50;
+        int reductionFactor = 20;
 
         // To add to the score between each level.
         int subTotalScore = (int)(initialSCore - (reductionFactor*timeTaken));

@@ -29,6 +29,8 @@ public class SpaceMazeGame {
     // The instance of MazeControl for this individual game
     MazeControl mazeControl;
 
+    int level;
+
     /**
      * Constructor
      * @param name to identify the individual game
@@ -38,6 +40,7 @@ public class SpaceMazeGame {
         this.mazeControl = new MazeControl();
         this.player = new SpacePlayer(new Point(1,0));
         players.put(name, this.player);
+        this.level = 1;
     }
 
     // Players in this game
@@ -78,14 +81,17 @@ public class SpaceMazeGame {
             case "EXIT" ->  renderingCommands.add(new JsonObject().put("command", "exit"));
             case "onExit" -> {
                 mazeControl.newLevel();
+                player.calculateScore(mazeControl.timeTaken, 8000);
+                String playerScoreString = String.valueOf(player.getPlayerScore());
+                this.level++;
                 if (!mazeControl.gameFinished) {
                     JsonObject serializedMazeArray = new JsonObject()
                             .put("command", "newLevel")
-                            .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()));
+                            .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()))
+                            .put("totalScore", playerScoreString)
+                            .put("level", Integer.toString(level));
                     renderingCommands.add(serializedMazeArray);
                 } else {
-                    player.calculateScore(mazeControl.timeTaken, 8000);
-                    String playerScoreString = String.valueOf(player.getPlayerScore());
                     renderingCommands.add(new JsonObject().put("command", "gameOver").put("totalScore", playerScoreString));
                 }
             }

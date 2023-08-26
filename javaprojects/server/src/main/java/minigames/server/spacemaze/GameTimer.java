@@ -75,6 +75,13 @@ public class GameTimer {
     }
 
     /**
+     * @return The current time ellapsed between each level
+     */
+    public int getSubTotalTime() {
+        return (int) (prePausedTime / 1000);
+    }
+
+    /**
      * Calculates the total time the game has been running
      * @return String of the time in minutes and seconds
      */

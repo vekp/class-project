@@ -188,6 +188,10 @@ public class SpaceMaze implements GameClient {
                     char[][] mazeMap = deserialiseJsonMaze(mazeList);
                     maze.newLevel(mazeMap);
                 }
+                String totalScore = command.getString("totalScore");
+                statusBar.updateScore(totalScore);
+                String levelNumber = command.getString("level");
+                statusBar.updateLevel(levelNumber);
             }
             case "updateMaze" -> {
                 JsonArray serialisedArray = command.getJsonArray("mazeArray");
@@ -206,7 +210,7 @@ public class SpaceMaze implements GameClient {
             case "gameOver" -> {
                 statusBar.stopTimer();
                 String totalScore = command.getString("totalScore");
-                // Do something with the score
+                statusBar.updateScore(totalScore);
             }
             case "viewHighScore" -> headerText.setText("View High Score");
             case "mainMenu" -> headerText.setText("Go to Main Menu");

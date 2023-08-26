@@ -313,8 +313,10 @@ public class MazeControl {
         // Initalise keyStatus with collected = false
         setKeyStatus(keyLocationsList);
 
-        // Reposition bots
+        // Current time taken to update score
+        timeTaken = mazeTimer.getSubTotalTime();
 
+        // Reposition bots
 
         // Re-position player's start location -- this will be problematic for >1 players
         // Select random location from startLocationsList and calls playerEntersMaze

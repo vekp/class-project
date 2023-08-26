@@ -23,6 +23,7 @@ public class StatusBar extends JPanel {
     JPanel statusBar;
     JLabel gameTimer;
     JLabel score;
+    JLabel level;
     Timer timer;
     SpaceMaze spaceMaze;
 
@@ -56,6 +57,12 @@ public class StatusBar extends JPanel {
         score.setForeground(Color.GREEN);
         score.setFont(new Font("Monospaced", Font.PLAIN, 18));
 
+        //Tracks the level the player is on
+        level = new JLabel("Level: 1 ");
+        level.setForeground(Color.GREEN);
+        level.setFont(new Font("Monospaced", Font.PLAIN, 18));
+
+        statusBar.add(level);
         statusBar.add(gameTimer);
         statusBar.add(score);
 
@@ -77,6 +84,28 @@ public class StatusBar extends JPanel {
             gameTimer.setText("Time: " + currentTime + "  ");
             statusBar.revalidate();
             statusBar.repaint();
+    }
+
+    /**
+     * Method ot update the JLabel with the current level
+     * @param currentLevel int for current level
+     */
+    public void updateLevel(String currentLevel) {
+        level.setText("Level: " + currentLevel);
+    }
+
+    /**
+     * Method to update the displayed score
+     * @param newScore String of the current score
+     */
+    public void updateScore(String newScore) {
+        if (Integer.parseInt(newScore) < 0) {
+            score.setText("Score: 0 ");
+        } else {
+            score.setText("Score: " + newScore + " ");
+        }
+        statusBar.revalidate();
+        statusBar.repaint();
     }
 
     /**

@@ -41,9 +41,9 @@ public class MazeDisplay extends JPanel {
     public MazeDisplay (char[][] mazeArray, SpaceMaze spaceMaze) {
         this.spaceMaze = spaceMaze;
         this.mazeMap = mazeArray;
-        this.playerPos = findPlayerPos(mazeArray);
+        this.playerPos = findCharOnMap('P');
         this.moveTo = new Point(playerPos);
-        this.exitPoint = findExit(mazeArray);
+        this.exitPoint = findCharOnMap('E');
         this.tileWidth = jPanelWidth / mazeMap[0].length;
         this.tileHeight = jPanelHeight / mazeMap.length;
         this.setLayout(new BorderLayout());
@@ -104,8 +104,8 @@ public class MazeDisplay extends JPanel {
      */
     public void newLevel(char[][] mazeMap){
         this.mazeMap = mazeMap;
-        this.playerPos = findPlayerPos(mazeMap);
-        this.exitPoint = findExit(mazeMap);
+        this.playerPos = findCharOnMap('P');;
+        this.exitPoint = findCharOnMap('E');;
         repaint();
     }
 
@@ -116,12 +116,7 @@ public class MazeDisplay extends JPanel {
     public void updatePlayerPoint() {
         this.playerPos.x = moveTo.x;
         this.playerPos.y = moveTo.y;
-    }
 
-    /**
-     * Checks if the player is on the exit
-     */
-    public void checkForExit() {
         if (playerPos.equals(exitPoint)) {
             logger.info("playerPos == exit");
             spaceMaze.sendCommand("onExit");
@@ -142,10 +137,12 @@ public class MazeDisplay extends JPanel {
      * @param e the Event
      */
     public void handleKeyPressed(KeyEvent e) {
+        Point nextPoint;
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:
                 logger.info("Info up:");
-                if (isMoveValid(getMazeMap(), "up")){
+                nextPoint = moveTo("up");
+                if (isMoveValid(nextPoint)){
                     // These commands currently only tell the server where to move the player
                     spaceMaze.sendCommand("keyUp");
                     if (mazeMap[moveTo.y][moveTo.x] == 'K') {
@@ -157,12 +154,12 @@ public class MazeDisplay extends JPanel {
                     }
                     // Updates our recorded player point
                     updatePlayerPoint();
-                    checkForExit();
                 }
                 break;
             case KeyEvent.VK_DOWN:
                 logger.info("Info Down:");
-                if (isMoveValid(getMazeMap(), "down")){
+                nextPoint = moveTo("down");
+                if (isMoveValid(nextPoint)){
                     spaceMaze.sendCommand("keyDown");
                     if (mazeMap[moveTo.y][moveTo.x] == 'K') {
                         spaceMaze.sendCommand("updateMaze");
@@ -170,12 +167,12 @@ public class MazeDisplay extends JPanel {
                         movePlayerImage();
                     }
                     updatePlayerPoint();
-                    checkForExit();
                 }
                 break;
             case KeyEvent.VK_LEFT:
                 logger.info("Info left:");
-                if (isMoveValid(getMazeMap(), "left")){
+                nextPoint = moveTo("left");
+                if (isMoveValid(nextPoint)){
                     spaceMaze.sendCommand("keyLeft");
                     if (mazeMap[moveTo.y][moveTo.x] == 'K') {
                         spaceMaze.sendCommand("updateMaze");
@@ -183,12 +180,12 @@ public class MazeDisplay extends JPanel {
                         movePlayerImage();
                     }
                     updatePlayerPoint();
-                    checkForExit();
                 }
                 break;
             case KeyEvent.VK_RIGHT:
                 logger.info("Info right:");
-                if (isMoveValid(getMazeMap(), "right")){
+                nextPoint = moveTo("right");
+                if (isMoveValid(nextPoint)){
                     spaceMaze.sendCommand("keyRight");
                     if (mazeMap[moveTo.y][moveTo.x] == 'K') {
                         spaceMaze.sendCommand("updateMaze");
@@ -196,7 +193,6 @@ public class MazeDisplay extends JPanel {
                         movePlayerImage();
                     }
                     updatePlayerPoint();
-                    checkForExit();
                 }
                 break;
         }
@@ -230,88 +226,37 @@ public class MazeDisplay extends JPanel {
         switch (mazeMap[r][c]) {
             case 'W':
                 g2.setColor(Color.BLACK);
-                // "c * tileWidth" to give the top left corner pixel location
-                // Might have to adjust depending if the images are the same size as the grid tiles
-                //g2.drawImage(wallImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, this);
                 break;
             case 'S':
                 g2.setColor(Color.GRAY);
-                //g2.drawImage(wallImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, this);
                 break;
             case '.':
                 g2.setColor(Color.WHITE);
-                //g2.drawImage(pathImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, this);
                 break;
             case 'K':
                 g2.setColor(Color.YELLOW);
-                //g2.drawImage(keyImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, this);
                 break;
             case 'P':
                 g2.setColor(Color.BLUE);
-                //g2.drawImage(playerImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, this);
                 break;
             case 'E':
                 g2.setColor(Color.RED);
-                //g2.drawImage(lockedExitImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, this);
                 break;
             case 'U':
                 g2.setColor(Color.GREEN);
-                //g2.drawImage(unlockedExitImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, this);
                 break;
             case 'B':
                 g2.setColor(Color.ORANGE);
-                //g2.drawImage(unlockedExitImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, this);
                 break;
         }
     }
 
     /**
-     * Method to find the player in the maze
-     * @param mazeMap char[][] of the maze layout
-     * @return a new point of the players position
+     * Method to update the nextPoint
+     * @param direction String of the direction the object is moving
+     * @return new Point
      */
-    public Point findPlayerPos(char[][] mazeMap) {
-        for (int r = 0; r < mazeMap.length; r++) {
-            for (int c = 0; c < mazeMap[r].length; c++) {
-                if (mazeMap[r][c] == 'P') {
-                    return new Point(c, r);
-                }
-            }
-        }
-        logger.info("No player found in the maze");
-        return null; // No player in the maze
-    }
-
-    public Point findExit(char[][] mazeMap) {
-        for (int r = 0; r < mazeMap.length; r++) {
-            for (int c = 0; c < mazeMap[r].length; c++) {
-                if (mazeMap[r][c] == 'E') {
-                    return new Point(c, r);
-                }
-            }
-        }
-        logger.info("No Exit found in the maze");
-        return null; // No Exit in the maze
-    }
-
-    /**
-     * @return A nested char array of the maze map
-     */
-    public char[][] getMazeMap() {
-        return this.mazeMap;
-    }
-
-    /**
-     * Method to check whether a move is valid
-     * Used to save time by not sending invalid moves to the server
-     * @param mazeMap char[][] of the maze
-     * @param direction requested direction from key input
-     * @return boolean of true if valid or false if not a valid move
-     */
-    public boolean isMoveValid(char[][] mazeMap, String direction) {
-
-        boolean isWallOrExit = true;
-
+    public Point moveTo(String direction){
         switch(direction) {
             case "up":
                 moveTo.y = playerPos.y-1;
@@ -329,9 +274,44 @@ public class MazeDisplay extends JPanel {
                 moveTo.x = playerPos.x+1;
                 moveTo.y = playerPos.y;
                 break;
-            default:
-                return false;
         }
+        return moveTo;
+    }
+
+    /**
+     * Method to find a char in the maze
+     * @param mazeMap char[][] of the maze layout
+     * @param letter the char to find
+     * @return a new point of the chars position
+     */
+    public Point findCharOnMap(char letter) {
+        for (int r = 0; r < mazeMap.length; r++) {
+            for (int c = 0; c < mazeMap[r].length; c++) {
+                if (mazeMap[r][c] == letter) {
+                    return new Point(c, r);
+                }
+            }
+        }
+        logger.info("character not found in the maze");
+        return null;
+    }
+
+    /**
+     * @return A nested char array of the maze map
+     */
+    public char[][] getMazeMap() {
+        return this.mazeMap;
+    }
+
+    /**
+     * Method to check whether a move is valid
+     * Used to save time by not sending invalid moves to the server
+     * @param moveTo point to move to
+     * @return boolean of true if valid or false if not a valid move
+     */
+    public boolean isMoveValid(Point moveTo) {
+
+        boolean isWallOrExit = true;
 
         boolean outOfBounds = (moveTo.x < 0 || moveTo.y < 0
                 || moveTo.y >= mazeMap.length || moveTo.x >= mazeMap[0].length);
