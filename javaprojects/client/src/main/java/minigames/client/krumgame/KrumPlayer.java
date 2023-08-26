@@ -551,11 +551,11 @@ public class KrumPlayer {
             //     double xv = xvel > 0 ? -mag : mag;
             //     xpos += xv * 35;
             // }
-            if (collision){
+            if (nonDirectionalCollisionCheck()){
                 int inc = Math.abs(Math.max((int)xvel, (int)yvel));
                 inc++;
                 int i = inc;
-                while(collisionCheck(levelRaster, -2) && i > 0) {
+                while(nonDirectionalCollisionCheck() && i > 0) {
                     xpos -= xvel / inc;
                     ypos -= yvel / inc;
                     i--;
@@ -573,7 +573,7 @@ public class KrumPlayer {
                 // }                
             }
             if ((l && xvel < 0) || (r && xvel > 0)) {
-                double mag = Math.max(Math.abs(xvel) * -0.1, 0.2);
+                double mag = Math.max(Math.abs(xvel) * -0.5, 0.2);
                 xvel = xvel > 0 ? -mag : mag;
                 if (land && !deferredLanding) {
                     land = false;   
