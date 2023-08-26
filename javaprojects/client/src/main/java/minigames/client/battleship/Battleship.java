@@ -27,7 +27,7 @@ public class Battleship implements GameClient {
      */
     public class BattleshipUpdateHandler implements Tickable {
         private final MinigameNetworkClient client;
-        int tickInterval = 10;
+        int tickInterval = 60;
         int tickTimer = 0;
         Animator animator;
 
@@ -50,9 +50,10 @@ public class Battleship implements GameClient {
                 // All three of these seem to do the same thing...
                 // client.getAnimator().requestTick(this);
                 // animator.requestTick(this);
-                 al.requestTick(this);
-            } else {
-                al.requestTick(this);
+                // al.requestTick(this);
+            }
+            else {
+                if (!isQuitting) al.requestTick(this);
             }
         }
     }
@@ -94,6 +95,7 @@ public class Battleship implements GameClient {
     JTextArea messages;
     JScrollPane commandTerminal;
     JTextField userCommand;
+    boolean isQuitting;
 
     /**
      * Creates the panels and layout for the game
@@ -263,6 +265,7 @@ public class Battleship implements GameClient {
      * { "command": command }
      */
     public void sendCommand(String command) {
+        if (isQuitting) return;
         JsonObject json = new JsonObject().put("command", command);
 
         // Collections.singletonList() is a quick way of getting a "list of one item"
@@ -339,5 +342,7 @@ public class Battleship implements GameClient {
     public void closeGame() {
         // Nothing to do
         sendCommand("exitGame");
+        isQuitting = true;
+        // JOptionPane.showMessageDialog(mainPanel, "You will be returned to the main menu", "Exit", JOptionPane.INFORMATION_MESSAGE, null);
     }
 }

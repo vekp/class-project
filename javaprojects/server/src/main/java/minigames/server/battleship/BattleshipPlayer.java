@@ -17,13 +17,15 @@ public class BattleshipPlayer {
     private final Board playerBoard;
     private String messageHistory;  // String of all valid messages, both game and player
     private boolean ready;
+    String chars = "ABCDEFGHIJ";
 
     // Constructor
+
     /**
-     *
-     * @param name
-     * @param playerBoard
-     * @param controlledByPlayer
+     * Constructor to create a BattleshipPlayer
+     * @param name String value of a player's name
+     * @param playerBoard Board object representing the player's grid
+     * @param controlledByPlayer boolean value representing if they are a human player
      */
     public BattleshipPlayer(String name, Board playerBoard, boolean controlledByPlayer, String messageHistory) {
         this.name = name;
@@ -36,44 +38,68 @@ public class BattleshipPlayer {
     // Methods
 
     /**
-     *
-     * @param opponent
-     * @return
+     * Method to determine if the player's input is "ready", if so, update the message history and set the player's
+     * ready state to true. It then returns the first instructional message. If input is not valid return unsuccessful
+     * @param input player's input
+     * @return BattleshipTurnResult containing a boolean for successful input, whether a ship was hit, and a message
      */
-    public BattleShipTurnResult processAITurn(Board opponent){
+    public BattleshipTurnResult checkReady(String input) {
+        if (input.equalsIgnoreCase("Ready")) {
+            updateHistory("Ready");
+            setReadyState();
+            return BattleshipTurnResult.firstInstruction();
+        } else {
+            return new BattleshipTurnResult(false, false,"Invalid Input");
+        }
+    }
+
+    /**
+     * Method to process a turn for an AI player
+     * @param opponent the other player's board
+     * @return BattleshipTurnResult containing a boolean for successful input, whether a ship was hit, and a message
+     */
+    public BattleshipTurnResult processAITurn(Board opponent){
         return processTurn(generateCoordinate(), opponent);
     }
 
     /**
-     *
-     * @param input
-     * @param opponent
-     * @return
+     * Method to determine if the player's input was valid, then format the input and update the player's message history.
+     * Then determines the result of shooting the other player's board at that coordinate
+     * @param input player's input
+     * @param opponent other player's board
+     * @return BattleshipTurnResult containing a boolean for successful input, whether a ship was hit, and a message
      */
-    public BattleShipTurnResult processTurn(String input, Board opponent) {
-        BattleShipTurnResult invalidResult = new BattleShipTurnResult(false, "Invalid Input");
-        if (input.equalsIgnoreCase("Ready")) {
-            updateHistory("Ready");
-            setReadyState();
-//                String message = BattleShipTurnResult.instruction().message();
-        }
-
+    public BattleshipTurnResult processTurn(String input, Board opponent) {
+        // System.out.println(input);
+        BattleshipTurnResult invalidResult = new BattleshipTurnResult(false, false, "");
+        // Check input entered is a coordinate
         if (!validateInput(input)) {
             return invalidResult;
         }
+        // Get formatted input and spit it to be passed into shotOutcome()
         String[] validatedInput = formatInput(input).split(",");
 
         int col = BattleshipGame.chars.indexOf(validatedInput[0]);
         int row = -1;
+        // This technically should not need error handling as only valid input can get to this stage - precautionary
         try {
             row = Integer.parseInt(validatedInput[1]);
         } catch (NumberFormatException e) {
             return invalidResult;
         }
+        updateHistory(formatInput(input));
         return shotOutcome(opponent, col, row);
     }
 
-    private BattleShipTurnResult shotOutcome(Board opponent, int x, int y) {
+    /**
+     * TODO: add method description
+     * @param opponent
+     * @param x
+     * @param y
+     * @return
+     */
+    private BattleshipTurnResult shotOutcome(Board opponent, int x, int y) {
+        String input = formatInput(chars.charAt(x)+""+y);
         // Get players current grid
         Cell[][] grid = opponent.getGrid();
         //todo this should check if the cell coordinate is valid and return failed
@@ -84,21 +110,21 @@ public class BattleshipPlayer {
         if (currentState.equals(CellType.OCEAN)) {
             opponent.setGridCell(x, y, CellType.MISS);
             //todo these messages arent really correct - they wont display properly on the opponent client i think
-            return isHumanControlled() ? BattleShipTurnResult.playerMissedEnemy() :
-                    BattleShipTurnResult.enemyMissedPlayer();
+            return isHumanControlled() ? BattleshipTurnResult.playerMissedEnemy() :
+                    BattleshipTurnResult.enemyMissedPlayer(input);
             // If the Cell is a MISS cell, return false and check for Slow Learner Achievement
         } else if (currentState.equals(CellType.MISS)) {
             //no need to check for already unlocked as handler will do that
             System.out.println("Slow Learner Achievement - Requirements met for " + getName());
             AchievementHandler handler = new AchievementHandler(BattleshipServer.class);
             handler.unlockAchievement(getName(), SLOW_LEARNER.toString());
-            return isHumanControlled() ? BattleShipTurnResult.playerMissedEnemy() :
-                    BattleShipTurnResult.enemyMissedPlayer();
+            return isHumanControlled() ? BattleshipTurnResult.playerMissedEnemy() :
+                    BattleshipTurnResult.enemyMissedPlayer(input);
         } else if (currentState.equals(CellType.HIT)) {
             System.out.println("You Got Him Achievement - Requirements met for " + getName());
             AchievementHandler handler = new AchievementHandler(BattleshipServer.class);
             handler.unlockAchievement(getName(), YOU_GOT_HIM.toString());
-            return BattleShipTurnResult.alreadyHitCell();
+            return BattleshipTurnResult.alreadyHitCell();
         } else {
             // If the cell is not an ocean, miss, or hit cell, set the cell to a "hit"
             opponent.setGridCell(x, y, CellType.HIT);
@@ -115,11 +141,7 @@ public class BattleshipPlayer {
 
             opponent.setVessels(vessels);
 
-            //I dunno what this is so i've commented it out, reimplement?
-//            if (sunk(opponent, x, y)) {
-//                respondToInput(opponent, GameState.SHIP_SUNK, "",true);
-//            }
-            return isHumanControlled() ? BattleShipTurnResult.playerHitEnemy() : BattleShipTurnResult.enemyHitPlayer();
+            return isHumanControlled() ? BattleshipTurnResult.playerHitEnemy() : BattleshipTurnResult.enemyHitPlayer(input);
         }
         // TODO: increment turn number?
     }
@@ -153,21 +175,26 @@ public class BattleshipPlayer {
         // Regex to check that the coordinate string is valid
         String regex = "^[A-J][0-9]$";
         Pattern pattern = Pattern.compile(regex);
-        //convert the coordinates to uppercase
+        // Convert the coordinates to uppercase
         input = input.toUpperCase();
         Matcher matcher = pattern.matcher(input);
         // If the coordinates don't match it will return false
         return matcher.matches();
     }
 
+    /**
+     * TODO: add method description etc
+     * @return
+     */
     private String generateCoordinate() {
 
         // Generate random coordinates
-        //todo needs better error checking to ensure we stay in board bounds? current limits are hard coded
+        // TODO: needs better error checking to ensure we stay in board bounds? current limits are hard coded
         Random rand = new Random();
         int randX = rand.nextInt(10);
         int randY = rand.nextInt(10);
-        String cpuCoordStr = BattleshipGame.chars.charAt(randX) + "," + randY;
+        String cpuCoordStr = chars.charAt(randX) + "" + randY;
+        System.out.println(cpuCoordStr);
         return cpuCoordStr;
     }
 
@@ -175,7 +202,6 @@ public class BattleshipPlayer {
 
     /**
      * The game will not continue if player 1 is not human controlled
-     *
      * @return whether this is a human controlled player
      */
     public boolean isHumanControlled() {
@@ -194,6 +220,10 @@ public class BattleshipPlayer {
         return !controlledByPlayer;
     }
 
+    /**
+     * Returns the player's name, or a fake name if the BattleshipPlayer is an AI
+     * @return a String representing the player's name
+     */
     public String getName() {
         if (isAIControlled()) {
             //computer controlled opponents don't have a proper name, just return
@@ -203,25 +233,43 @@ public class BattleshipPlayer {
         return name;
     }
 
+    /**
+     * Returns the player's board
+     * @return A Board object
+     */
     public Board getBoard() {
         return playerBoard;
     }
 
     /**
      * Returns the current message history for the player
-     *
      * @return The String to be displayed to the player
      */
     public String playerMessageHistory() {
         return this.messageHistory;
     }
 
+    /**
+     * @return whether the player is ready
+     */
+    public boolean isReady() {
+        return ready;
+    }
+
     // Setters
 
+    /**
+     * Takes players existing messages and adds a new one to the string
+     * NOTE: this should only be called when the input is valid
+     * @param input String message - eg, console input, response from server
+     */
     public void updateHistory(String input) {
         this.messageHistory = playerMessageHistory() + input;
     }
 
+    /**
+     * Sets the player's ready state to true
+     */
     public void setReadyState() {
         this.ready = true;
     }
