@@ -35,6 +35,8 @@ public class KrumPlayer {
 
     boolean firstLanding;
 
+    boolean dead = false;;
+
     boolean active;
     double aimAngleRadians;
 
@@ -404,6 +406,7 @@ public class KrumPlayer {
      * @param levelRaster
      */
     void update(double windX, double windY, WritableRaster levelRaster, long tick, KrumTurn recordingTurn, KrumInputFrame playbackFrame, boolean turnOver){
+        if (dead) return;
         KrumInputFrame recordingFrame = new KrumInputFrame();
         recordingFrame.activePlayer = playerIndex;
         recordingFrame.frameCount = tick;
@@ -1193,7 +1196,9 @@ public class KrumPlayer {
     }
 
     public void die() {
+        if (dead) return;
         System.out.println("Player " + playerIndex + " died");
+        dead = true;
     }
 
     public void damage(int damage) {

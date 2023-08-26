@@ -36,6 +36,9 @@ public class KrumGame implements GameClient {
     int playerTurn;
     boolean turnOver = false;
     boolean readyToStartTurn = false;
+    boolean ending = false;
+    int winner = -1;
+    double waterLevel;
 
     // Player information
     String player;
@@ -80,6 +83,7 @@ public class KrumGame implements GameClient {
         rand = new Random(); 
         firstRun = true;
         updateCount = 0;
+        waterLevel = KrumC.RES_Y - 1;
         // Initializing the background image
         backgroundComponent = new Background("chameleon.png");
         //backgroundComponent = new Background("ropetestmap.png");
@@ -153,6 +157,15 @@ public class KrumGame implements GameClient {
         players[playerTurn].jumping = false;
     }
 
+    int numLivingPlayers() {
+        int n = 0;
+        for (KrumPlayer p : players) {
+            if (!p.dead)
+                n++;
+        }
+        return n;
+    }
+
     /*
      * Called when turn time has expired. Next turn won't be started until
      * projectiles have exploded or fallen off the bottom of the screen, and 
@@ -167,6 +180,25 @@ public class KrumGame implements GameClient {
         turnOver = true;
         readyToStartTurn = false;
         turnOverFrame = updateCount;
+        int playersAlive = numLivingPlayers();        
+        if (playersAlive < 2) {
+            if (playersAlive == 0) {
+                gameOver(-1);
+            }
+            else {
+                for (KrumPlayer p : players) {
+                    if (!p.dead) {
+                        gameOver(p.playerIndex);
+                    }
+                }
+            }
+        }
+    }
+
+    void gameOver(int w) {
+        winner = w;        
+        running = false;
+        ending = true;
     }
 
     /**
@@ -297,6 +329,12 @@ public class KrumGame implements GameClient {
                 }                
             }  
             p.update(windX, windY, alphaRaster, updateCount, rt, pf, turnOver);
+            if (p.ypos > waterLevel) p.die();
+            if (p.dead) {
+                if (numLivingPlayers() < 2) {
+                    turnEndFrame = updateCount;
+                }
+            }
             if (p.projectile != null) {
                 if(p.projectile.collisionCheck()) {
                     explode((int)p.projectile.x, (int)p.projectile.y, p.projectile);                    
@@ -371,17 +409,25 @@ public class KrumGame implements GameClient {
      * @param g
      */
     void draw(Graphics2D g) {
+        //draw background
         g.drawImage(background, null, 0, 0);
+
+        //draw players and their weapons
         for (KrumPlayer p : players) {
+            if (p.dead) continue;
             p.draw(g, playerTurn);
             if (p.projectile != null) p.projectile.draw(g);
             if (p.grenade != null) p.grenade.draw(g);
             if (p.joey.active) p.joey.draw(g);
         }        
+
+        //draw wind info
         g.setColor(Color.red);
         if (windX > 0) g.setColor(Color.blue);        
         g.setFont(new Font("Courier New", 1, 24));
         g.drawString(windString, 300, 25);
+
+        //draw timer
         g.setFont(new Font("Courier New", 1, 26));
         String timerString = "";
         if (turnEndFrame - updateCount > KrumC.TARGET_FRAMERATE * 3) {
@@ -396,11 +442,15 @@ public class KrumGame implements GameClient {
             g.setColor(Color.red);
             timerString += "0";
         }
+
+        //draw replay text
         g.drawString(timerString, 5, 20);
         if (playingBackTurn) {
             g.setColor(Color.gray);
             g.drawString("REPLAY", 325, 60);
         }
+
+        //draw explosions
         g.setColor(Color.red);
         for (int i = 0; i < explosions.size(); i++) {
             ExplosionDetails e = explosions.get(i);
@@ -410,6 +460,25 @@ public class KrumGame implements GameClient {
                 explosions.remove(e);
                 i--;
             }                
+        }
+
+        //draw water
+        if (waterLevel < KrumC.RES_Y - 1) {
+            g.setColor(new Color(0x64, 0x2c, 0xa9, 200));
+            g.fillRect(0, (int)waterLevel, KrumC.RES_X - 1, KrumC.RES_Y - 1);
+        }
+        if (ending) {
+            String resultString = "";
+            int w = winner + 1;
+            if (winner == -1) {
+                resultString += "Game drawn!";
+            }
+            else {
+                resultString += "Player " + w + " wins!";
+            }
+            g.setColor(Color.BLACK);
+            g.setFont(new Font("Courier New", 1, 42));
+            g.drawString(resultString, KrumC.RES_X / 2 - 160, 120);
         }
     }
 
@@ -428,6 +497,9 @@ public class KrumGame implements GameClient {
                 update();
                 panel.repaint();                
             }            
+        }
+        while (ending) {
+
         }
     }
 
