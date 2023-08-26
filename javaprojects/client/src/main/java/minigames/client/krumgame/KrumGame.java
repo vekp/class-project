@@ -81,8 +81,8 @@ public class KrumGame implements GameClient {
         firstRun = true;
         updateCount = 0;
         // Initializing the background image
-        //backgroundComponent = new Background("chameleon.png");
-        backgroundComponent = new Background("ropetestmap.png");
+        backgroundComponent = new Background("chameleon.png");
+        //backgroundComponent = new Background("ropetestmap.png");
         background = backgroundComponent.getImage();
         alphaRaster = backgroundComponent.getAlphaRaster();
         initializePanel();

@@ -573,13 +573,12 @@ public class KrumPlayer {
             //     double xv = xvel > 0 ? -mag : mag;
             //     xpos += xv * 35;
             // }
-            if (nonDirectionalCollisionCheck(new int[] {0,0,0,1}) && stuckFrames <= 10){
+            if (nonDirectionalCollisionCheck(new int[] {1,1,1,1}) && stuckFrames <= 10){
                 //System.out.println("player " + playerIndex + " may be stuck");
                 collision = true;
                 stuckFrames++;
                 if (stuckFrames > 10) {
-                    xvel *= -1;
-                    stuckFrames = 0;
+                    xvel *= -1;                    
                     System.out.println("player " + playerIndex + " IS STUCK");
                 }
                 int inc = Math.abs(Math.max((int)xvel, (int)yvel));
