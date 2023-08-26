@@ -150,6 +150,7 @@ public class KrumGame implements GameClient {
         currentTurn = savedTurns[playerTurn];
         recordingTurn = true;
         turnOver = false;
+        players[playerTurn].jumping = false;
     }
 
     /*
