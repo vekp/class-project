@@ -95,6 +95,7 @@ public class Battleship implements GameClient, Tickable {
     JScrollPane commandTerminal;
     JTextField userCommand;
     boolean isQuitting;
+    boolean waiting;
 
     /**
      * Creates the panels and layout for the game
@@ -336,10 +337,16 @@ public class Battleship implements GameClient, Tickable {
                 messages.setCaretPosition(messages.getDocument().getLength());
             }
             case "wait" -> {
-                messages.setText("Waiting for turn");
+                if(!waiting) {
+                    messages.append("\nWaiting for turn");
+                    waiting = true;
+                }
             }
             case "prepareTurn" -> {
-                messages.setText("It is now your turn! Type in a coordinate");
+                if(waiting) {
+                    waiting = false;
+                    messages.append("\nIt is now your turn! Type in a coordinate");
+                }
             }
             case "updatePlayerName" -> currentPlayerName.setText("Current Player: " + command.getString("player"));
             case "placePlayer1Board" -> nauticalText.setText(nauticalText.getText() + command.getString("text"));
