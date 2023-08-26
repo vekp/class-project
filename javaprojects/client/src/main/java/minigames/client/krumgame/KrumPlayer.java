@@ -380,7 +380,7 @@ public class KrumPlayer {
         }
 
         //draw hp
-        if (!onRope && !airborne && !walking) {
+        if (!onRope) {
             g.setFont(new Font("Courier New", 1, 12));
             g.setColor(new Color(64, 192, 64));
             String hpString = "";
