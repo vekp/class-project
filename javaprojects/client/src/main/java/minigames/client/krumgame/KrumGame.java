@@ -337,10 +337,8 @@ public class KrumGame implements GameClient {
             }  
             p.update(windX, windY, alphaRaster, updateCount, rt, pf, turnOver);
             if (p.ypos > waterLevel) p.die();
-            if (p.dead) {
-                if (numLivingPlayers() < 2) {
-                    turnEndFrame = updateCount;
-                }
+            if (numLivingPlayers() < 2) {
+                turnEndFrame = updateCount;
             }
             if (p.projectile != null) {
                 if(p.projectile.collisionCheck()) {
