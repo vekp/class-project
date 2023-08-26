@@ -24,6 +24,7 @@ public class KrumJoey extends KrumProjectile {
     final double KNOCKBACK_POWER = 8;
     final int EXPLOSION_RADIUS = 50;
     final int TIMER_SECONDS = 6;
+    final int MAX_DAMAGE = 30;
     long explosionTick;
     long startTick;
     double jumpPower = 3;
@@ -48,6 +49,7 @@ public class KrumJoey extends KrumProjectile {
     long currentTick;
     KrumJoey(int xpos, int ypos, double xvel, double yvel, int seconds, BufferedImage sprite, WritableRaster ground, long tick) {
         super(xpos, ypos, xvel, yvel, sprite, ground);
+        maxDamage = MAX_DAMAGE;
         this.flash = false;
         this.facingRight = true;
         this.xpos = xpos;
@@ -252,6 +254,11 @@ public class KrumJoey extends KrumProjectile {
             g.drawImage(sprite, null, (int)xpos, (int)ypos);
         }        
     }
+
+    double[] centre(){
+        return new double[] {xpos + sprite.getWidth() / 2, ypos + sprite.getHeight() / 2};
+    }
+
     void update(long tick) {
         this.currentTick = tick;
         yvel += KrumC.GRAVITY;

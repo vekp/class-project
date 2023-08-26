@@ -16,6 +16,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.geom.Point2D;
 
 import java.awt.Color;
+import java.awt.Font;
 
 /*
  * Class representing a player-controlled character
@@ -346,7 +347,9 @@ public class KrumPlayer {
             } else {
                 g.drawImage(spriteGun, null, (int)xpos + 10, (int)ypos + 6);
             }
-        }        
+        }  
+        
+        //draw shot power bar
         if (firing) {
             aimAngleRadians = calcAimAngle(); 
             long power = System.nanoTime() - fireStart;
@@ -361,6 +364,8 @@ public class KrumPlayer {
             g.setColor(Color.green);
             g.drawLine((int)shotOrigin().x, (int)shotOrigin().y, (int)(shotOrigin().x + Math.cos(aimAngleRadians) * power), (int)(shotOrigin().y - Math.sin(aimAngleRadians) * power));
         }
+        
+        //draw rope
         g.setColor(Color.orange);
         if (shootingRope) {            
             g.drawLine((int)ropeOrigin().x, (int)ropeOrigin().y, (int)(ropeOrigin().x + Math.cos(ropeAngleRadians) * ropeLength), (int)(ropeOrigin().y - Math.sin(ropeAngleRadians) * ropeLength));
@@ -372,6 +377,15 @@ public class KrumPlayer {
                 g.drawLine((int)o.x, (int)o.y, (int)p.x, (int)p.y);
                 o = p;
             }
+        }
+
+        //draw hp
+        if (!onRope && !airborne && !walking) {
+            g.setFont(new Font("Courier New", 1, 12));
+            g.setColor(new Color(64, 192, 64));
+            String hpString = "";
+            hpString += this.hp;
+            g.drawString(hpString, (int)this.xpos + (int)sprite.getWidth() / 4, (int)this.ypos - 12);
         }
     }
 
@@ -1134,10 +1148,22 @@ public class KrumPlayer {
         this.yoff = y;
     }
 
+    public void die() {
+        System.out.println("Player " + playerIndex + " died");
+    }
+
     /**
      * called when this player is hit by a projectile
      */
-    public void hit() {
+    public void hit(int maxDamage, double distance, double radius) {
         flashFramesLeft += 30; // currently just showing that the hit was registered by making the sprite flash
+        
+        int damage = maxDamage;
+        if (distance > 0) {
+            damage *= (1 - distance/radius);
+        }
+        hp -=  damage;
+        if (hp <= 0)
+            die();       
     }
 }

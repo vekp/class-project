@@ -81,8 +81,8 @@ public class KrumGame implements GameClient {
         firstRun = true;
         updateCount = 0;
         // Initializing the background image
-        backgroundComponent = new Background("chameleon.png");
-        //backgroundComponent = new Background("ropetestmap.png");
+        //backgroundComponent = new Background("chameleon.png");
+        backgroundComponent = new Background("ropetestmap.png");
         background = backgroundComponent.getImage();
         alphaRaster = backgroundComponent.getAlphaRaster();
         initializePanel();
@@ -299,24 +299,37 @@ public class KrumGame implements GameClient {
             p.update(windX, windY, alphaRaster, updateCount, rt, pf, turnOver);
             if (p.projectile != null) {
                 if(p.projectile.collisionCheck()) {
-                    explode((int)p.projectile.x, (int)p.projectile.y, p.projectile);
+                    explode((int)p.projectile.x, (int)p.projectile.y, p.projectile);                    
+                    for (KrumPlayer pl : players) {
+                        double distance = KrumHelpers.distanceBetween(p.projectile.centre()[0], p.projectile.centre()[1], pl.playerCentre().x, pl.playerCentre().y);
+                        if (distance <= p.projectile.explosionRadius) {
+                            pl.hit(p.projectile.maxDamage, distance, p.projectile.explosionRadius);
+                        }
+                    }
                     p.projectile = null;
                 }
                 if (p.projectile != null) {
                     int n = p.projectile.playerCollisionCheck(players);
                     if (n >= 0) {
                         explode((int)p.projectile.x, (int)p.projectile.y, p.projectile);
-                        p.projectile = null;
-                        players[n].hit();
+                        players[n].hit(p.projectile.maxDamage, 0, p.projectile.explosionRadius);
+                        for (int i = 0; i < players.length; i++) {
+                            if (i == n) continue;
+                            double distance = KrumHelpers.distanceBetween(p.projectile.centre()[0], p.projectile.centre()[1], players[i].playerCentre().x, players[i].playerCentre().y);
+                            if (distance <= p.projectile.explosionRadius) {
+                                players[i].hit(p.projectile.maxDamage, distance, p.projectile.explosionRadius);
+                            }
+                        }
+                        p.projectile = null;                        
                     }
                 }
             }
             if (p.grenade != null) {
                 if (p.grenade.timerCheck(updateCount)) {
-                    System.out.println("EX");
                     for (KrumPlayer pl : players) {
-                        if (KrumHelpers.distanceBetween(p.grenade.x, p.grenade.y, pl.playerCentre().x, pl.playerCentre().y) <= p.grenade.explosionRadius) {
-                            pl.hit();
+                        double distance = KrumHelpers.distanceBetween(p.grenade.centre()[0], p.grenade.centre()[1], pl.playerCentre().x, pl.playerCentre().y);
+                        if (distance <= p.grenade.explosionRadius) {
+                            pl.hit(p.grenade.maxDamage, distance, p.grenade.explosionRadius);
                         }
                     }
                     explode((int)p.grenade.x, (int)p.grenade.y, p.grenade);
@@ -326,8 +339,9 @@ public class KrumGame implements GameClient {
             if (p.joey.active) {
                 if (p.joey.timerCheck(updateCount)) {
                     for (KrumPlayer pl : players) {
-                        if (KrumHelpers.distanceBetween(p.joey.xpos, p.joey.ypos, pl.playerCentre().x, pl.playerCentre().y) <= p.joey.explosionRadius) {
-                            pl.hit();
+                        double distance = KrumHelpers.distanceBetween(p.joey.centre()[0], p.joey.centre()[1], pl.playerCentre().x, pl.playerCentre().y);
+                        if (distance <= p.joey.explosionRadius) {
+                            pl.hit(p.joey.maxDamage, distance, p.joey.explosionRadius);
                         }
                     }
                     explode((int)p.joey.xpos, (int)p.joey.ypos, p.joey);

@@ -21,6 +21,7 @@ public class KrumProjectile {
     int radius;
     WritableRaster ground;
     int explosionRadius;
+    int maxDamage;
     KrumProjectile(int xpos, int ypos, double xvel, double yvel, BufferedImage sprite, WritableRaster ground) {
         this.x = xpos;
         this.y = ypos;
@@ -33,6 +34,7 @@ public class KrumProjectile {
         radius = KrumC.PROJ_RADIUS;
         this.ground = ground;
         explosionRadius = 20;
+        maxDamage = 30;
     }
     void draw(Graphics2D g) {
         g.drawImage(sprite, null, (int)x - radius, (int)y - radius);
@@ -69,6 +71,10 @@ public class KrumProjectile {
             }
         }
         return false;
+    }
+
+    double[] centre() {
+        return new double[] {x, y};
     }
 
     /**
