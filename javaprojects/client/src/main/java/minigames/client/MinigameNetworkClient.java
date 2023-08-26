@@ -310,6 +310,7 @@ public class MinigameNetworkClient {
         // TODO implement properly. tests to run the UI on init.
         UserAccountFrame login = new UserAccountFrame();
         login.UserAccount();
+        login.setVisible(true);
 
         ping().flatMap((s) -> getGameServers()).map((list) -> {
             logger.info("Got servers {}", list);
