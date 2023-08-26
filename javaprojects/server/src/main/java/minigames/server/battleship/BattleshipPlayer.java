@@ -16,6 +16,7 @@ public class BattleshipPlayer {
     private boolean controlledByPlayer;
     private final Board playerBoard;
     private String messageHistory;  // String of all valid messages, both game and player
+    private boolean historyDirty; //whether the history has been changed since the game last asked for it
     private boolean ready;
     String chars = "ABCDEFGHIJ";
 
@@ -32,6 +33,7 @@ public class BattleshipPlayer {
         this.playerBoard = playerBoard;
         this.controlledByPlayer = controlledByPlayer;
         this.messageHistory = messageHistory;
+        historyDirty = true;
         this.ready = false;
     }
 
@@ -250,6 +252,17 @@ public class BattleshipPlayer {
     }
 
     /**
+     * Used to determine whether the message history has been updated since the last time we asked for it.
+     * Will be set to true every time the player's history is changed
+     * @return whether the player's message history has had changes since the last status request
+     */
+    public boolean messageHistoryStatus(){
+        boolean status = historyDirty;
+        historyDirty = false;
+        return status;
+    }
+
+    /**
      * @return whether the player is ready
      */
     public boolean isReady() {
@@ -271,6 +284,7 @@ public class BattleshipPlayer {
      */
     public void updateHistory(String input) {
         this.messageHistory = playerMessageHistory() + input;
+        historyDirty = true;
     }
 
     /**

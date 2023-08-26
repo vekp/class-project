@@ -153,26 +153,37 @@ public class BattleshipGame {
                             gameState = GameState.SHIP_PLACEMENT;
                         }
                     }
+                    if (gameState.equals(GameState.IN_PROGRESS)) {
+                        //if the game is ready to start, we force a refresh, telling the respective players whose turn it is
+                        if (currentClient.getName().equals(getPlayerNames()[currentTurn])) {
+                            commands.add(new JsonObject().put("command", "prepareTurn"));
+                        } else {
+                            commands.add(new JsonObject().put("command", "wait"));
+                        }
+                    }
                 }
             }
             case IN_PROGRESS -> {
                 BattleshipPlayer current = bPlayers.get(cp.player());
-                if (userInput.equals("refresh") || !currentTurnPlayer.equals(cp.player())) {
+                BattleshipPlayer opponent = null;
+                for (String name : getPlayerNames()) {
+                    if (!name.equals(current.getName())) {
+                        opponent = bPlayers.get(name);
+                        assert opponent != null;
+                    }
+                }
+                if (userInput.equals("refresh")) {
                     //refresh is called periodically while the client is waiting for its turn.
                     //once the client of the current turn's player asks for a refresh, we will inform
                     //it that it is now that players turn, and it can prepare to send input.
-                    //otherwise, we send a wait command for the client to continue waiting for turn
+                    //otherwise, it will stay in its waiting state
                     if (currentTurnPlayer.equals(cp.player())) {
+                        commands.addAll(getGameRender(current, opponent));
                         commands.add(new JsonObject().put("command", "prepareTurn"));
-                        commands.add(new JsonObject().put("command", "inputAllowable").put("allowed", true));
-                    } else {
-                        commands.add(new JsonObject().put("command", "wait"));
-                        // If it is not the players turn, lock their console from input
-                        commands.add(new JsonObject().put("command", "inputAllowable").put("allowed", false));
                     }
                 } else {
                     //if no other commands are present, and it is this player's turn, we can process the game turn
-                    commands = runGameCommand(bPlayers.get(cp.player()), userInput);
+                    commands = runGameCommand(current, opponent, userInput);
                 }
                 return new RenderingPackage(gameMetadata(), commands);
             }
@@ -191,34 +202,26 @@ public class BattleshipGame {
      * @param userInput the user input that client entered (should be a shot coordinate)
      * @return a list of commands to put in a rendering package
      */
-    public ArrayList<JsonObject> runGameCommand(BattleshipPlayer p, String userInput) {
-        ArrayList<JsonObject> renderingCommands = new ArrayList<>();
-        // Get other battleship player - there can only be one other actual player
-        BattleshipPlayer otherPlayer = null;
-        for (String name : getPlayerNames()) {
-            if (!name.equals(p.getName())) {
-                otherPlayer = bPlayers.get(name);
-                assert otherPlayer != null;
-            }
-        }
+    public ArrayList<JsonObject> runGameCommand(BattleshipPlayer p, BattleshipPlayer opponent, String userInput) {
+
         //this alternates between 1 and 0 for the next turn -Nathan
         int nextPlayer = 1 - currentTurn;
 
 
-        BattleshipTurnResult result = p.processTurn(userInput, otherPlayer.getBoard());
+        BattleshipTurnResult result = p.processTurn(userInput, opponent.getBoard());
         //if the opponent is AI, do their turn immediately, otherwise switch turns to next player
         if (result.successful()) {
             // Update current player's message history with the result
             p.updateHistory(result.message());
             // Determine response to other player based on their result
             if (result.shipHit()) {
-                otherPlayer.updateHistory(BattleshipTurnResult.enemyHitPlayer(formatInput(userInput)).message());
+                opponent.updateHistory(BattleshipTurnResult.enemyHitPlayer(formatInput(userInput)).message());
             } else {
-                otherPlayer.updateHistory(BattleshipTurnResult.enemyMissedPlayer(formatInput(userInput)).message());
+                opponent.updateHistory(BattleshipTurnResult.enemyMissedPlayer(formatInput(userInput)).message());
             }
 
-            if (otherPlayer.isAIControlled()) {
-                BattleshipTurnResult opponentResult = otherPlayer.processAITurn(p.getBoard());
+            if (opponent.isAIControlled()) {
+                BattleshipTurnResult opponentResult = opponent.processAITurn(p.getBoard());
                 // System.out.println(opponentResult.message());
                 p.updateHistory(opponentResult.message());
             } else {
@@ -227,15 +230,31 @@ public class BattleshipGame {
             }
         }
 
-        renderingCommands.add(new JsonObject().put("command", "clearText"));
-        renderingCommands.add(new JsonObject().put("command", "updateHistory").put("history", p.playerMessageHistory()));
-        renderingCommands.add(new JsonObject().put("command", "updatePlayerName").put("player", p.getName()));
-        renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").
-                put("text", Board.generateBoard(player, p.getBoard().getGrid())));
-        renderingCommands.add(new JsonObject().put("command", "placePlayer2Board")
-                .put("text", Board.showEnemyBoard(enemy, otherPlayer.getBoard().getGrid())));
-
+        ArrayList<JsonObject> renderingCommands = new ArrayList<>(getGameRender(p, opponent));
         renderingCommands.add(new JsonObject().put("command", "wait"));
+        return renderingCommands;
+    }
+
+    /**
+     * Helper function to get all of the commands related to redrawing the entire game screen, the boards, player names,
+     * messages, etc
+     *
+     * @param targetPlayer the player who owns the client
+     * @param opponent     the player's opponent
+     * @return a list of json objects with the commands for rendering the main game
+     */
+    private ArrayList<JsonObject> getGameRender(BattleshipPlayer targetPlayer, BattleshipPlayer opponent) {
+        ArrayList<JsonObject> renderingCommands = new ArrayList<>();
+        renderingCommands.add(new JsonObject().put("command", "clearText"));
+        renderingCommands.add(new JsonObject().put("command", "updateHistory")
+                .put("history", targetPlayer.playerMessageHistory())
+                .put("historyUpdated", targetPlayer.messageHistoryStatus()));
+        renderingCommands.add(new JsonObject().put("command", "updatePlayerName")
+                .put("player", targetPlayer.getName()));
+        renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").
+                put("text", Board.generateBoard(player, targetPlayer.getBoard().getGrid())));
+        renderingCommands.add(new JsonObject().put("command", "placePlayer2Board")
+                .put("text", Board.showEnemyBoard(enemy, opponent.getBoard().getGrid())));
         return renderingCommands;
     }
 

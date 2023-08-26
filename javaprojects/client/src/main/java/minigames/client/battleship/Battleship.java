@@ -21,46 +21,12 @@ import java.util.Collections;
 
 public class Battleship implements GameClient, Tickable {
 
-
-    /**
-     * Class to interact with the animator to get constant updates to each client
-     */
-    public class BattleshipUpdateHandler implements Tickable {
-        private final MinigameNetworkClient client;
-        int tickInterval = 60;
-        int tickTimer = 0;
-        Animator animator;
-
-        /**
-         * @param mnClient
-         */
-        public BattleshipUpdateHandler(MinigameNetworkClient mnClient) {
-            this.client = mnClient;
-            this.animator = mnClient.getAnimator();
-            animator.requestTick(this);
-        }
-
-        @Override
-        public void tick(Animator al, long now, long delta) {
-            tickTimer++;
-            if (tickTimer > tickInterval) {
-                tickTimer = 0; //reset timer
-
-                //  sendCommand("refresh");
-            } else {
-                if (!isQuitting) al.requestTick(this);
-            }
-        }
-    }
-
     // Needed for sending commands to the server
     MinigameNetworkClient mnClient;
     int tickInterval = 60;
     int tickTimer = 0;
-    boolean checkForUpdates;
 
     GameMetadata gm;
-    BattleshipUpdateHandler updateHandler;
 
     // Player name
     String player;
@@ -95,7 +61,11 @@ public class Battleship implements GameClient, Tickable {
     JScrollPane commandTerminal;
     JTextField userCommand;
     boolean isQuitting;
+
+    //flag to indicate whether this client is in wait mode (which means it will be constantly asking
+    // for info refreshes from the server
     boolean waiting;
+
 
     /**
      * Creates the panels and layout for the game
@@ -289,7 +259,7 @@ public class Battleship implements GameClient, Tickable {
     public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {
         this.mnClient = mnClient;
         mnClient.getAnimator().requestTick(this);
-        checkForUpdates = true;
+        waiting = true; //this ensures we get at least 1 refresh to start
         this.gm = game;
         this.player = player;
 
@@ -309,7 +279,6 @@ public class Battleship implements GameClient, Tickable {
                 fonts.get(0).getFontName(),
                 buttonBorder);
 
-        updateHandler = new BattleshipUpdateHandler(mnClient);
     }
 
     /**
@@ -337,16 +306,16 @@ public class Battleship implements GameClient, Tickable {
                 messages.setCaretPosition(messages.getDocument().getLength());
             }
             case "wait" -> {
-                if(!waiting) {
-                    messages.append("\nWaiting for turn");
-                    waiting = true;
-                }
+                messages.append("\nWaiting for Turn");
+                userCommand.setEditable(false);
+                waiting = true;
             }
             case "prepareTurn" -> {
-                if(waiting) {
-                    waiting = false;
-                    messages.append("\nIt is now your turn! Type in a coordinate");
-                }
+                //we only set this messaging on the first instance that we are told our turn is ready
+                waiting = false;
+                messages.append("\nIt is now your turn! Type in a coordinate");
+                userCommand.setEditable(true);
+
             }
             case "updatePlayerName" -> currentPlayerName.setText("Current Player: " + command.getString("player"));
             case "placePlayer1Board" -> nauticalText.setText(nauticalText.getText() + command.getString("text"));
@@ -366,15 +335,23 @@ public class Battleship implements GameClient, Tickable {
     }
 
 
+    /**
+     * This client will constantly tick at some interval. If we're in the waiting state (e.g waiting for another
+     * player to take their turn), we will ask the server for updates in order to get any messages or info about the
+     * players turn, and also to be notified when it is now our turn.
+     * @param al the animator
+     * @param now current time
+     * @param delta delta time (time since last tick)
+     */
     @Override
     public void tick(Animator al, long now, long delta) {
+        al.requestTick(this);
         tickTimer++;
         if (tickTimer > tickInterval) {
             tickTimer = 0;
-            sendCommand("refresh");
-        }
-        if (checkForUpdates) {
-            al.requestTick(this);
+            if(waiting) {
+                sendCommand("refresh");
+            }
         }
     }
 }
