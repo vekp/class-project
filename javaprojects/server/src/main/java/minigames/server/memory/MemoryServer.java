@@ -21,7 +21,7 @@ import minigames.server.achievements.AchievementHandler;
  * Used and adapted MuddleServer.java
  */
 
-enum achievements {
+/*enum achievements {
     PERFECT_MATCH, SPEED_RUNNER, ACE_MATCHER, MEMORY_MASTER;
     @Override
     public String toString(){
@@ -33,13 +33,13 @@ enum achievements {
             default:                    return "Unknown Achievement";
         }
     }
-}
+}*/
 
 public class MemoryServer implements GameServer {
     static final String chars = "abcdefghijklmopqrstuvwxyz";
     AchievementHandler achievementHandler;
 
-    public MemoryServer(){
+    /*public MemoryServer(){
         achievementHandler = new AchievementHandler(MemoryServer.class);
         /* Create the achievements and give them to the handler
         achievementHandler.registerAchievement(new Achievement(achievements.PERFECT_MATCH.toString(),
@@ -51,7 +51,7 @@ public class MemoryServer implements GameServer {
         achievementHandler.registerAchievement(new Achievement(achievements.MEMORY_MASTER.toString(),
                 "Earned by earning all of the achievements in the game.", 25, "confused", false));*/
 
-    }
+
 
 
     /** A random name. We could do with something more memorable, like Docker has. */
@@ -66,6 +66,14 @@ public class MemoryServer implements GameServer {
 
     /** Holds the game in progress in memory (no db). */
     HashMap<String, MemoryGame> games = new HashMap<>();
+    public MemoryServer() {
+        achievementHandler = new AchievementHandler(MemoryServer.class);
+        // Register all achievements with handler
+        for (MemoryAchievement a : MemoryAchievement.values()) {
+            achievementHandler.registerAchievement(a.achievement);
+        }
+    }
+
 
     @Override
     public GameServerDetails getDetails() {
@@ -86,10 +94,11 @@ public class MemoryServer implements GameServer {
 
     @Override
     public Future<RenderingPackage> newGame(String playerName) {
-        MemoryGame g = new MemoryGame(randomName());
+        MemoryGame g = new MemoryGame(randomName(), playerName);
         games.put(g.name, g);
         return Future.succeededFuture(g.joinGame(playerName));
     }
+
 
     @Override
     public Future<RenderingPackage> joinGame(String game, String playerName) {
