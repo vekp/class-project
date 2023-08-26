@@ -2,6 +2,7 @@ package minigames.client.survey;
 
 import minigames.client.MinigameNetworkClient;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -30,6 +31,7 @@ import java.awt.*;
 public class Survey extends JPanel implements ActionListener {
 
     MinigameNetworkClient mnClient;
+    JSONArray feedbackArray;
 
     // Private variables
 
@@ -129,6 +131,9 @@ public class Survey extends JPanel implements ActionListener {
         uiRatingPanel.add(uiRatingThree);
         uiRatingPanel.add(uiRatingFour);
         uiRatingPanel.add(uiRatingFive);
+
+        // Initialise the feedbackArray
+        feedbackArray = new JSONArray();
 
         // Ensures only one of the radio buttons are selected at a time
         uiRatingButtonGroup= new ButtonGroup();
@@ -253,7 +258,6 @@ public class Survey extends JPanel implements ActionListener {
         footerPanel.add(submitPanel, BorderLayout.EAST);
         this.add(footerPanel, BorderLayout.SOUTH);
 
-
         // Change colour of panels
         JPanel panels[] = {titlePanel, backPanel, gameNamePanel, surveyQuestionsPanelGroup, surveyQuestionsPanelLeft,
             surveyQuestionsPanelRight, feedbackPanel, submitPanel, footerPanel, uiRatingPanel, enjoymentPanel, functionalityPanel};
@@ -303,8 +307,10 @@ public class Survey extends JPanel implements ActionListener {
         feedbackObject.put("timestamp", getCurrentTimestamp());
         feedbackObject.put("feedback_text", text);
     
+        feedbackArray.add(feedbackObject);
+
         // Save JSON object to a local file
-        saveFeedbackToJsonFile(feedbackObject);
+        saveFeedbackToJsonFile(feedbackArray);
     }
 
     @Override
@@ -318,10 +324,10 @@ public class Survey extends JPanel implements ActionListener {
         return now.format(formatter);
     }
     
-    private void saveFeedbackToJsonFile(JSONObject feedbackObject) {
-        try (FileWriter fileWriter = new FileWriter("feedback.json", true)) {
+    private void saveFeedbackToJsonFile(JSONArray feedbackArray) {
+        try (FileWriter fileWriter = new FileWriter("feedback.json", false)) {
             // Append feedback to existing JSON file, otherwise create new one
-            fileWriter.write(feedbackObject.toJSONString());
+            fileWriter.write(feedbackArray.toJSONString());
             fileWriter.write("\n");
             fileWriter.flush();
         } catch (IOException e) {
