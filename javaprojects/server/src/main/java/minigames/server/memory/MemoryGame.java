@@ -11,7 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import minigames.server.achievements.AchievementHandler;
-import static minigames.server.battleship.achievements.*;
+import static minigames.server.memory.achievements.*;
 /**
  * Represents an actual Memory game in progress.
  * Used and adapted MuddleGame.java
