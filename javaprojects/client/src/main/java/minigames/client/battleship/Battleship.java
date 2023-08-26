@@ -305,6 +305,10 @@ public class Battleship implements GameClient, Tickable {
                 messages.setText(command.getString("history"));
                 messages.setCaretPosition(messages.getDocument().getLength());
             }
+            case "waitReady" -> {
+                messages.append("\nWaiting for other players to Ready");
+                userCommand.setEditable(false);
+            }
             case "wait" -> {
                 messages.append("\nWaiting for Turn");
                 userCommand.setEditable(false);

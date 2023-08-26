@@ -160,6 +160,8 @@ public class BattleshipGame {
                         } else {
                             commands.add(new JsonObject().put("command", "wait"));
                         }
+                    } else {
+                        commands.add(new JsonObject().put("command", "waitReady"));
                     }
                 }
             }
