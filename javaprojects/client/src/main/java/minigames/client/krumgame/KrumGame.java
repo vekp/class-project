@@ -10,7 +10,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import io.vertx.core.json.JsonObject;
-import java.util.Random;
+//import java.util.Random;
 import javax.swing.SwingUtilities;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,7 +21,7 @@ import minigames.commands.CommandPackage;
 
 import java.awt.geom.Point2D;
 
-import minigames.client.krumgame.components.Background;
+import minigames.client.krumgame.components.*;
 /**
  * The state of each running game will be represented by an instance of KrumGame on the server and an instance on each participating client
  */
@@ -41,6 +41,7 @@ public class KrumGame implements GameClient {
     String player;
 
     // Wind properties
+    WindManager windManager;
     double windX;
     double windY;
     String windString;
@@ -53,7 +54,7 @@ public class KrumGame implements GameClient {
     long lastFrameTime;
 
     // Random number generator
-    Random rand;
+    //Random rand;
 
     // Game loop and update controls
     boolean firstRun;
@@ -77,17 +78,25 @@ public class KrumGame implements GameClient {
     ArrayList<ExplosionDetails> explosions;
 
     public KrumGame() {  
-        rand = new Random(); 
+        //rand = new Random(); 
         firstRun = true;
         updateCount = 0;
+
         // Initializing the background image
         backgroundComponent = new Background("chameleon.png");
         //backgroundComponent = new Background("ropetestmap.png");
         background = backgroundComponent.getImage();
         alphaRaster = backgroundComponent.getAlphaRaster();
+
+        // Starting the Wind Manager
+        windManager = new WindManager();
+        windX = windManager.getWindX();
+        windY = windManager.getWindY();
+        windString = windManager.getWindString();
+
         initializePanel();
         initializePlayers();
-        initializeWind();
+        //initializeWind();
         startTurn();
 
         explosions = new ArrayList<ExplosionDetails>();
@@ -114,12 +123,16 @@ public class KrumGame implements GameClient {
         savedTurns = new KrumTurn[] {new KrumTurn(players, background, windX, windY, updateCount), new KrumTurn(players, background, windX, windY, updateCount)};       
         currentTurn = savedTurns[playerTurn];
     }
-
+    
+    /*
     private void initializeWind(){
         windY = 0;
         windX = -0.02;
         windString = "Wind: left 2.00";
     }
+    
+*/
+
     /*
      * Represents the details of an explosion, for use in the draw loop
      */
@@ -141,10 +154,17 @@ public class KrumGame implements GameClient {
      */
     void startTurn() {
         System.out.println("Start turn");
-        windX = (rand.nextDouble() - 0.5) / 10;
-        windString = "Wind: ";
-        windString += windX > 0 ? "right " : "left ";
-        windString += Math.round(windX * 10000.0) / 100.0;
+        
+        //System.out.println("Wind: " + windX);
+        windString = windManager.updateWindString();
+        windX = windManager.getWindX();
+        //System.out.println("Wind: " + windX);
+        
+        //windX = (rand.nextDouble() - 0.5) / 10;
+        //windString = "Wind: ";
+        //windString += windX > 0 ? "right " : "left ";
+        //windString += Math.round(windX * 10000.0) / 100.0;
+        
         turnEndFrame = updateCount + KrumC.TURN_TIME_LIMIT_FRAMES;
         savedTurns[playerTurn] = new KrumTurn(players, background, windX, windY, updateCount);
         currentTurn = savedTurns[playerTurn];
@@ -583,7 +603,7 @@ public class KrumGame implements GameClient {
     public void setPlayerTurn(int playerTurn) {
         this.playerTurn = playerTurn;
     }
-
+/*
     public double getWindX() {
         return windX;
     }
@@ -599,6 +619,7 @@ public class KrumGame implements GameClient {
     public void setWindY(double windY) {
         this.windY = windY;
     }
+*/
 /*
     public BufferedImage getBackground() {
         return background;
@@ -631,7 +652,7 @@ public class KrumGame implements GameClient {
     public void setLastFrameTime(long lastFrameTime) {
         this.lastFrameTime = lastFrameTime;
     }
-
+    /*
     public Random getRand() {
         return rand;
     }
@@ -648,6 +669,7 @@ public class KrumGame implements GameClient {
         this.windString = windString;
     }
 
+    */
     public boolean isFirstRun() {
         return firstRun;
     }
