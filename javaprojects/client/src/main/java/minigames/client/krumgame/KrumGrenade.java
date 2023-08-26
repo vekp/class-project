@@ -12,7 +12,7 @@ public class KrumGrenade extends KrumProjectile {
     final double KNOCKBACK_DISTANCE = 60;
     final double KNOCKBACK_POWER = 7.5;
     final int EXPLOSION_RADIUS = 40;
-    final int MAX_DAMAGE = 30;
+    final int MAX_DAMAGE = 50;
     long explosionTick; 
     KrumGrenade(int xpos, int ypos, double xvel, double yvel, int seconds, BufferedImage sprite, WritableRaster ground, long tick) {
         super(xpos, ypos, xvel, yvel, sprite, ground);        

@@ -11,7 +11,6 @@ import java.awt.event.MouseEvent;
 import java.awt.image.WritableRaster;
 
 import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 
 import java.awt.geom.Point2D;
 
@@ -23,11 +22,16 @@ import java.awt.Font;
  */
 
 public class KrumPlayer {
+    final double FALL_DAMAGE_VELOCITY_THRESHOLD = 3.0;
+    final int FALL_DAMAGE_MAX = 25;
+
     int hp;
     double xpos;
     double ypos;
     double xvel;
     double yvel;
+
+    boolean firstLanding;
 
     boolean active;
     double aimAngleRadians;
@@ -162,6 +166,7 @@ public class KrumPlayer {
         this.aimAngleRadians = 0;
         this.hp = 100;
         this.spriteDir = spriteFileName;
+        firstLanding = true;
 
         BufferedImage joeySprite = KrumHelpers.readSprite("joey.png");
 
@@ -380,13 +385,11 @@ public class KrumPlayer {
         }
 
         //draw hp
-        if (!onRope) {
-            g.setFont(new Font("Courier New", 1, 12));
-            g.setColor(new Color(64, 192, 64));
-            String hpString = "";
-            hpString += this.hp;
-            g.drawString(hpString, (int)this.xpos + (int)sprite.getWidth() / 4, (int)this.ypos - 12);
-        }
+        g.setFont(new Font("Courier New", 1, 12));
+        g.setColor(new Color(64, 192, 64));
+        String hpString = "";
+        hpString += this.hp;
+        g.drawString(hpString, (int)this.xpos + (int)sprite.getWidth() / 4, (int)this.ypos - 12);
     }
 
     /**
@@ -598,12 +601,19 @@ public class KrumPlayer {
                 yvel = 0;
             }
             if (land) {
+                if (firstLanding) {
+                    firstLanding = false;
+                }
+                else if (yvel > FALL_DAMAGE_VELOCITY_THRESHOLD) {
+                    fallDamage(yvel);
+                }
                 yvel = 0;
                 xvel = 0;
                 airborne = false;
                 walkedOffEdge = false;
                 shootingRope = false;
                 wasOnRope = false;
+                
             }
         }
         if (walking && (!airborne || walkedOffEdge)) {
@@ -1152,18 +1162,27 @@ public class KrumPlayer {
         System.out.println("Player " + playerIndex + " died");
     }
 
+    public void damage(int damage) {
+        hp -=  damage;
+        if (hp <= 0)
+            die(); 
+        else
+            flashFramesLeft += damage * 1.5;    
+    }
+
     /**
      * called when this player is hit by a projectile
      */
-    public void hit(int maxDamage, double distance, double radius) {
-        flashFramesLeft += 30; // currently just showing that the hit was registered by making the sprite flash
-        
+    public void hit(int maxDamage, double distance, double radius) {    
         int damage = maxDamage;
         if (distance > 0) {
             damage *= (1 - distance/radius);
         }
-        hp -=  damage;
-        if (hp <= 0)
-            die();       
+        damage(damage);
+    }
+
+
+    void fallDamage(double vel) {
+        damage(Math.min((int)((vel - FALL_DAMAGE_VELOCITY_THRESHOLD) * 10), FALL_DAMAGE_MAX));
     }
 }
