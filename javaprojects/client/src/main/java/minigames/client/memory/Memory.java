@@ -389,7 +389,7 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         textArea.append("Starting...");
 
         // Don't forget to call pack - it triggers the window to resize and repaint itself
-        mnClient.getMainWindow().pack();     
+        mnClient.getMainWindow().pack();
     }
 
     @Override
@@ -416,17 +416,14 @@ public class Memory implements GameClient, ActionListener, MouseListener {
 
         if (e.getSource() == newGameButton) {
             //TODO
-            mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(new JsonObject().put("command", "newGame"))));
             System.out.println("New game started");
         }
         if (e.getSource() == restartLevelButton) {
             //TODO
-           mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(new JsonObject().put("command", "restartLevel"))));
             System.out.println("Level Restarted...");
         }
         if (e.getSource() == exitButton) {
             //TODO
-            closeGame();
             System.out.println("Testing...");
         }
 

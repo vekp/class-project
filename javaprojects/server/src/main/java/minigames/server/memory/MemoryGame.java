@@ -36,8 +36,6 @@ public class MemoryGame {
 
         // Unlock TEST_THAT_MEMORY achievement for starting a new game
         achievementHandler.unlockAchievement(playerName, TEST_THAT_MEMORY.toString());
-
-
     }
 
     /** Achievement handler for this game */

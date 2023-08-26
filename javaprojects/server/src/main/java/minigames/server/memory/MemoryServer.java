@@ -13,6 +13,7 @@ import minigames.rendering.RenderingPackage;
 import minigames.server.ClientType;
 import minigames.server.GameServer;
 
+import minigames.achievements.Achievement;
 import minigames.server.achievements.AchievementHandler;
 
 /**
