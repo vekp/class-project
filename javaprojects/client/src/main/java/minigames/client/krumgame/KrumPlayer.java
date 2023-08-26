@@ -546,23 +546,31 @@ public class KrumPlayer {
                     return;
                 }
             }
-            if ((l && xvel < 0) || (r && xvel > 0)) {                
-                double mag = Math.max(Math.abs(xvel) * -0.1, 0.2);
-                double xv = xvel > 0 ? -mag : mag;
-                xpos += xv * 35;
-            }
+            // if ((l && xvel < 0) || (r && xvel > 0)) {                
+            //     double mag = Math.max(Math.abs(xvel) * -0.1, 0.2);
+            //     double xv = xvel > 0 ? -mag : mag;
+            //     xpos += xv * 35;
+            // }
             if (collision){
-                int inc = (xvel > 3 || yvel > 3) ? 50 : 20;
-                if (collisionCheck(levelRaster, 3)) {
-                    for (int i = 0; i < inc; i ++) {
-                        ypos -= KrumC.WALK_CLIMB / inc;
-                        if(!collisionCheck(levelRaster, 3)) break;
-                    }
-                }                
-                while (collisionCheck(levelRaster, -3)) {
-                    ypos -= yvel / inc;
+                int inc = Math.abs(Math.max((int)xvel, (int)yvel));
+                inc++;
+                int i = inc;
+                while(collisionCheck(levelRaster, -2) && i > 0) {
                     xpos -= xvel / inc;
-                }                
+                    ypos -= yvel / inc;
+                    i--;
+                }
+                // int inc = (xvel > 3 || yvel > 3) ? 50 : 20;
+                // if (collisionCheck(levelRaster, 3)) {
+                //     for (int i = 0; i < inc; i ++) {
+                //         ypos -= KrumC.WALK_CLIMB / inc;
+                //         if(!collisionCheck(levelRaster, 3)) break;
+                //     }
+                // }                
+                // while (collisionCheck(levelRaster, -3)) {
+                //     ypos -= yvel / inc;
+                //     xpos -= xvel / inc;
+                // }                
             }
             if ((l && xvel < 0) || (r && xvel > 0)) {
                 double mag = Math.max(Math.abs(xvel) * -0.1, 0.2);
