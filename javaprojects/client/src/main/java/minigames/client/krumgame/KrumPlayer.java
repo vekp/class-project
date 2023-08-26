@@ -31,6 +31,8 @@ public class KrumPlayer {
     double xvel;
     double yvel;
 
+    boolean canShootRope;
+
     boolean firstLanding;
 
     boolean active;
@@ -169,6 +171,7 @@ public class KrumPlayer {
         this.hp = 100;
         this.spriteDir = spriteFileName;
         firstLanding = true;
+        canShootRope = true;
 
         BufferedImage joeySprite = KrumHelpers.readSprite("joey.png");
 
@@ -571,6 +574,7 @@ public class KrumPlayer {
             //     xpos += xv * 35;
             // }
             if (nonDirectionalCollisionCheck() && stuckFrames <= 10){
+                collision = true;
                 stuckFrames++;
                 if (stuckFrames > 10) {
                     xvel *= -1;
@@ -622,8 +626,11 @@ public class KrumPlayer {
                 airborne = false;
                 walkedOffEdge = false;
                 shootingRope = false;
-                wasOnRope = false;
-                
+                wasOnRope = false;     
+                canShootRope = true;           
+            }
+            if (collision && wasOnRope) {
+                canShootRope = false;
             }
         }
         if (walking && (!airborne || walkedOffEdge)) {
@@ -1076,6 +1083,7 @@ public class KrumPlayer {
     }
 
     void shootRope() {
+        if (!canShootRope) return;
         shootingRope = true;        
         ropeAttachmentPoints.clear();
         walking = false;
