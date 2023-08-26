@@ -60,10 +60,7 @@ public class Survey extends JPanel implements ActionListener {
 
     // Background image variable declaration
     private Image image;
-
-
-    // public static final JLabel backgroundImageLabel = new JLabel(new ImageIcon("javaprojects\\client\\src\\main\\java\\minigames\\client\\survey\\nebula.jpg"));
-
+    private final String imageFolderPath = "src/main/resources/images/backgrounds/";
 
     // Public variables
     // Sets the Frame Title (top left corner)
@@ -281,11 +278,7 @@ public class Survey extends JPanel implements ActionListener {
     public Image readBackgroundImage() {
         try
         {
-            // Currently only the full file path works for me
-
-            image = javax.imageio.ImageIO.read(new File("C:\\Users\\Hawk9\\Desktop\\Programming\\Cosc220\\classproject\\javaprojects\\client\\src\\main\\java\\minigames\\client\\survey\\nebula.jpg"));
-
-            // image = javax.imageio.ImageIO.read(new File("\\javaprojects\\client\\src\\main\\java\\minigames\\client\\survey\\nebula.jpg"));
+            image = javax.imageio.ImageIO.read(new File(imageFolderPath + "nebula.jpg"));
         }
         catch (Exception e) { e.printStackTrace(); /*handled in paintComponent()*/ }
         return(image);
