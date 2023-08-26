@@ -115,7 +115,7 @@ public class KrumGame implements GameClient {
         players[0].joey.otherPlayer = players[1];
         players[1].joey.otherPlayer = players[0];
         playerTurn = 0;
-        savedTurns = new KrumTurn[] {new KrumTurn(players, background, windX, windY, updateCount), new KrumTurn(players, background, windX, windY, updateCount)};       
+        savedTurns = new KrumTurn[] {new KrumTurn(players, background, windX, windY, updateCount, ending, running, winner, waterLevel), new KrumTurn(players, background, windX, windY, updateCount, ending, running, winner, waterLevel)};       
         currentTurn = savedTurns[playerTurn];
     }
 
@@ -150,7 +150,7 @@ public class KrumGame implements GameClient {
         windString += windX > 0 ? "right " : "left ";
         windString += Math.round(windX * 10000.0) / 100.0;
         turnEndFrame = updateCount + KrumC.TURN_TIME_LIMIT_FRAMES;
-        savedTurns[playerTurn] = new KrumTurn(players, background, windX, windY, updateCount);
+        savedTurns[playerTurn] = new KrumTurn(players, background, windX, windY, updateCount, ending, running, winner, waterLevel);
         currentTurn = savedTurns[playerTurn];
         recordingTurn = true;
         turnOver = false;
@@ -175,7 +175,7 @@ public class KrumGame implements GameClient {
         for (KrumPlayer p : players)
             p.stop();
         recordingTurn = false;
-        currentTurn.endState = new KrumGameState(players, background, windX, windY, updateCount);
+        currentTurn.endState = new KrumGameState(players, background, windX, windY, updateCount, ending, running, winner, waterLevel);
         playerTurn = 1 - playerTurn;        
         turnOver = true;
         readyToStartTurn = false;
@@ -240,6 +240,10 @@ public class KrumGame implements GameClient {
         turnEndFrame = state.endTick;
         windX = state.windX;
         windY = state.windY;
+        ending = state.ending;
+        running = state.running;
+        winner = state.winner;
+        waterLevel = state.waterLevel;
         for (int i = 0; i < Math.min(players.length, state.playerStates.size()); i++) {
             KrumPlayerState ps = state.playerStates.get(i);
             players[i].hp = ps.hp;
@@ -290,6 +294,9 @@ public class KrumGame implements GameClient {
             players[i].joey.active = false;
             players[i].grenade = null;
             players[i].projectile = null;
+            players[i].canShootRope = ps.canShootRope;
+            players[i].dead = ps.dead;
+            players[i].firstLanding = ps.firstLanding;
         }
     }
 

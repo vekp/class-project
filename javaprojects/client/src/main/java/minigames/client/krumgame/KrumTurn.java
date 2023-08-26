@@ -13,9 +13,9 @@ public class KrumTurn {
     KrumGameState startState;
     KrumGameState endState;
     BufferedImage background;
-    KrumTurn(KrumPlayer[] players, BufferedImage background, double windX, double windY, long tick) {
+    KrumTurn(KrumPlayer[] players, BufferedImage background, double windX, double windY, long tick, boolean ending, boolean running, int winner, double waterLevel) {
         frames = new ArrayList<KrumInputFrame>();
-        startState = new KrumGameState(players, background, windX, windY, tick);
+        startState = new KrumGameState(players, background, windX, windY, tick, ending, running, winner, waterLevel);
         endState = null;
         this.background = background;
     }
