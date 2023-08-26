@@ -258,29 +258,6 @@ public class Survey extends JPanel implements ActionListener {
         footerPanel.add(submitPanel, BorderLayout.EAST);
         this.add(footerPanel, BorderLayout.SOUTH);
 
-        // Change colour of panels
-        JPanel panels[] = {titlePanel, backPanel, gameNamePanel, surveyQuestionsPanelGroup, surveyQuestionsPanelLeft,
-            surveyQuestionsPanelRight, feedbackPanel, submitPanel, footerPanel, uiRatingPanel, enjoymentPanel, functionalityPanel};
-        for(JPanel panel: panels){
-            panel.setBackground(bgColour);
-            panel.setForeground(fgColour);
-        }
-
-        // Change colour of radio buttons
-        JRadioButton rbuttons[] = {uiRatingOne, uiRatingTwo, uiRatingThree, uiRatingFour, uiRatingFive, enjoymentOne,
-            enjoymentTwo, enjoymentThree, enjoymentFour, enjoymentFive, functionalityOne, functionalityTwo, functionalityThree, functionalityFour, functionalityFive};
-        for(JRadioButton rb: rbuttons){
-            rb.setBackground(bgColour);
-            rb.setForeground(fgColour);
-        }
-
-        // Change colour of buttons
-        JButton buttons[] = {backButton, submitButton};
-        for(JButton button: buttons){
-            button.setBackground(bgColour);
-            button.setForeground(fgColour);
-        }
-
         // ADD REQUEST TO ENDPOINTS HERE!!!
     }
 
@@ -311,6 +288,35 @@ public class Survey extends JPanel implements ActionListener {
 
         // Save JSON object to a local file
         saveFeedbackToJsonFile(feedbackArray);
+    }
+
+    // Change colour of panels
+    public void panelColourChange(Color backColour, Color foreColour) {
+        JPanel panels[] = {titlePanel, backPanel, gameNamePanel, surveyQuestionsPanelGroup, surveyQuestionsPanelLeft,
+            surveyQuestionsPanelRight, feedbackPanel, submitPanel, footerPanel, uiRatingPanel, enjoymentPanel, functionalityPanel};
+        for(JPanel panel: panels){
+            panel.setBackground(backColour);
+            panel.setForeground(foreColour);
+        }
+    }
+
+    // Change colour of radio buttons
+    public void radioColourChange(Color backColour, Color foreColour) {
+        JRadioButton rbuttons[] = {uiRatingOne, uiRatingTwo, uiRatingThree, uiRatingFour, uiRatingFive, enjoymentOne,
+            enjoymentTwo, enjoymentThree, enjoymentFour, enjoymentFive, functionalityOne, functionalityTwo, functionalityThree, functionalityFour, functionalityFive};
+        for(JRadioButton rb: rbuttons){
+            rb.setBackground(backColour);
+            rb.setForeground(foreColour);
+        }
+    }
+
+    // Change colour of buttons
+    public void buttonColourChange(Color backColour, Color foreColour) {
+        JButton buttons[] = {backButton, submitButton};
+        for(JButton button: buttons){
+            button.setBackground(backColour);
+            button.setForeground(foreColour);
+        }
     }
 
     @Override
