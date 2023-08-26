@@ -66,7 +66,7 @@ public class Survey extends JPanel implements ActionListener {
 
         // gameName Label
         gameNameLabel = new JLabel();
-        gameNameLabel.setText("Name: ");
+        gameNameLabel.setText("Game Name: ");
         gameNameLabel.setFont(new Font("Calibri", Font.PLAIN, 18));
 
         // gameName Panel
