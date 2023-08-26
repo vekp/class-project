@@ -28,6 +28,8 @@ import minigames.rendering.NativeCommands.QuitToMenu;
 import minigames.rendering.NativeCommands.ShowMenuError;
 import minigames.rendering.RenderingPackage;
 
+import useraccount.*;
+
 /**
  * The central cub of the client.
  * <p>
@@ -304,6 +306,10 @@ public class MinigameNetworkClient {
      */
     public void runMainMenuSequence() {
         mainWindow.showStarfieldMessage("Minigame Network");
+
+        // TODO implement properly. tests to run the UI on init.
+        UserAccountFrame login = new UserAccountFrame();
+        login.UserAccount();
 
         ping().flatMap((s) -> getGameServers()).map((list) -> {
             logger.info("Got servers {}", list);
