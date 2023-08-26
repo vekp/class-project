@@ -36,6 +36,13 @@ public class Survey extends JPanel implements ActionListener {
     private JRadioButton uiRatingOne, uiRatingTwo, uiRatingThree, uiRatingFour, uiRatingFive, enjoymentOne, enjoymentTwo, enjoymentThree, enjoymentFour, enjoymentFive, functionalityOne, functionalityTwo, functionalityThree, functionalityFour, functionalityFive;
     private ButtonGroup uiRatingButtonGroup, enjoymentButtonGroup, functionalityButtonGroup;
 
+    // Colours
+    // Colours of panels, buttons and radio buttons
+    private Color bgColour = new Color(255,255,255); // background
+    private Color fgColour = new Color(0,0,0); // foreground
+    // Background colour of main panel
+    private Color mainBgColour = Color.CYAN;
+
     // Public variables
     // Sets the Frame Title (top left corner)
     public static final String FRAME_TITLE = "Game Survey";
@@ -47,7 +54,7 @@ public class Survey extends JPanel implements ActionListener {
         this.setPreferredSize(new Dimension(800, 600));
         this.setLayout(new GridLayout(0, 1));
         this.setLayout(new BorderLayout());
-        this.setBackground(Color.CYAN);
+        this.setBackground(mainBgColour);
         this.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
 
         // Title Panel
@@ -213,6 +220,30 @@ public class Survey extends JPanel implements ActionListener {
         footerPanel.add(backPanel, BorderLayout.WEST);
         footerPanel.add(submitPanel, BorderLayout.EAST);
         this.add(footerPanel, BorderLayout.SOUTH);
+
+
+        // Change colour of panels
+        JPanel panels[] = {titlePanel, backPanel, gameNamePanel, surveyQuestionsPanelGroup, surveyQuestionsPanelLeft,
+            surveyQuestionsPanelRight, feedbackPanel, submitPanel, footerPanel, uiRatingPanel, enjoymentPanel, functionalityPanel};
+        for(JPanel panel: panels){
+            panel.setBackground(bgColour);
+            panel.setForeground(fgColour);
+        }
+
+        // Change colour of radio buttons
+        JRadioButton rbuttons[] = {uiRatingOne, uiRatingTwo, uiRatingThree, uiRatingFour, uiRatingFive, enjoymentOne,
+            enjoymentTwo, enjoymentThree, enjoymentFour, enjoymentFive, functionalityOne, functionalityTwo, functionalityThree, functionalityFour, functionalityFive};
+        for(JRadioButton rb: rbuttons){
+            rb.setBackground(bgColour);
+            rb.setForeground(fgColour);
+        }
+
+        // Change colour of buttons
+        JButton buttons[] = {backButton, submitButton};
+        for(JButton button: buttons){
+            button.setBackground(bgColour);
+            button.setForeground(fgColour);
+        }
 
         // ADD REQUEST TO ENDPOINTS HERE!!!
     }
