@@ -29,7 +29,6 @@ public class BattleshipGame {
     AchievementHandler achievementHandler;
     GameState gameState;
 
-    //-Nathan- Working on player classes
     LinkedHashMap<String, BattleshipPlayer> bPlayers = new LinkedHashMap<>();
     int currentTurn = 0;
     int gameTurn = 0;
@@ -44,7 +43,6 @@ public class BattleshipGame {
     // Constructor
 
     /**
-     *
      * @param gameName
      * @param playerName
      */
@@ -68,6 +66,7 @@ public class BattleshipGame {
 
     /**
      * Returns the names of the players currently playing the game
+     *
      * @return An array containing the names of current players
      */
     public String[] getPlayerNames() {
@@ -90,6 +89,7 @@ public class BattleshipGame {
 
     /**
      * Return the meta-data for the in-progress game
+     *
      * @return a GameMetadata Object containing the information for the current game
      */
     public GameMetadata gameMetadata() {
@@ -118,26 +118,61 @@ public class BattleshipGame {
     public RenderingPackage runCommands(CommandPackage cp) {
         logger.info("Received command package {}", cp);
 
-        ArrayList<JsonObject> renderingCommands = new ArrayList<>();
+        ArrayList<JsonObject> commands = new ArrayList<>();
 
-        BattleshipPlayer p = bPlayers.get(cp.player());
         // Get user input typed into the console
         String userInput = String.valueOf(cp.commands().get(0).getValue("command"));
+        String currentTurnPlayer = getPlayerNames()[currentTurn];
 
-        // Handle game exit command
+        //Handle exit game commands
         if (userInput.equals("exitGame")) {
             System.out.println("This should exit that game");
+            //todo this shouldnt clear list, just remove 1 player?
             bPlayers.clear();
             System.out.println(getPlayerNames().length);
-            // TODO: remove this game from the list
-        }
+        } else if (false) { //todo change this to test if other player has left
+            //todo here is where we should check if the OTHER player had left the game, and tell this client
+            //to pop up a window saying other player has left
 
+        } else if(gameState.equals(GameState.SHIP_PLACEMENT) && userInput.equalsIgnoreCase("ready")){
+            BattleshipPlayer currentClient = bPlayers.get(cp.player());
+            currentClient.setReady(true);
+
+            //if the other player is also ready or are AI, we are good to start the game
+            gameState = GameState.IN_PROGRESS;
+            //the gamestate assumes all players are ready. On checking this loop, if we find any players that are
+            //not yet ready, set the state back to placement/waiting
+            for (BattleshipPlayer player : bPlayers.values()) {
+                if(!(player.isReady() || player.isAIControlled())){
+                    gameState = GameState.SHIP_PLACEMENT;
+                }
+            }
+        }
+        else if (userInput.equals("refresh") || !currentTurnPlayer.equals(cp.player())){
+            //refresh is called periodically while the client is waiting for its turn.
+            //once the client of the current turn's player asks for a refresh, we will inform
+            //it that it is now that players turn and it can prepare to send input.
+            //otherwise, we send a wait command for the client to continue waiting for turn
+            if(currentTurnPlayer.equals(cp.player())){
+                commands.add(new JsonObject().put("command", "prepareTurn"));
+            } else {
+                commands.add(new JsonObject().put("command", "wait"));
+            }
+        } else {
+            //if no other commands are present, and it is this player's turn, we can process the game turn
+            commands = runGameCommand(bPlayers.get(cp.player()), userInput);
+        }
+        return new RenderingPackage(gameMetadata(), commands);
+    }
+
+    public ArrayList<JsonObject> runGameCommand(BattleshipPlayer p, String userInput) {
+        ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         // Get other battleship player - there can only be one other actual player
         BattleshipPlayer otherPlayer = null;
-        for (String name: getPlayerNames()) {
+        for (String name : getPlayerNames()) {
             if (!name.equals(p.getName())) {
                 otherPlayer = bPlayers.get(name);
-                assert otherPlayer!=null;
+                assert otherPlayer != null;
             }
         }
 
@@ -153,7 +188,7 @@ public class BattleshipGame {
             // System.out.println("Next Player:   "+ opponentPlayer.getName());
 
             //make sure the client who sent the command actually belongs to the current turn's player
-            if (cp.player().equals(currentTurnPlayer.getName())) {
+            if (p.getName().equals(currentTurnPlayer.getName())) {
                 // Allow current player to input text to their console
                 renderingCommands.add(new JsonObject().put("command", "inputAllowable").put("allowed", true));
                 BattleshipTurnResult result = currentTurnPlayer.processTurn(userInput, opponentPlayer.getBoard());
@@ -181,11 +216,14 @@ public class BattleshipGame {
                 // If it is not the players turn, lock their console from input
                 renderingCommands.add(new JsonObject().put("command", "inputAllowable").put("allowed", false));
             }
+            renderingCommands.add(new JsonObject().put("command", "wait"));
             renderingCommands.add(new JsonObject().put("command", "clearText"));
             renderingCommands.add(new JsonObject().put("command", "updateHistory").put("history", p.playerMessageHistory()));
             renderingCommands.add(new JsonObject().put("command", "updatePlayerName").put("player", currentTurnPlayer.getName()));
-            renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, p.getBoard().getGrid())));
-            renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.showEnemyBoard(enemy, otherPlayer.getBoard().getGrid())));
+            renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").
+                    put("text", Board.generateBoard(player, p.getBoard().getGrid())));
+            renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").
+                    put("text", Board.showEnemyBoard(enemy, otherPlayer.getBoard().getGrid())));
         } else {
             // Determine if both players are ready to start the game
             BattleshipTurnResult pReady = p.checkReady(userInput);
@@ -201,7 +239,7 @@ public class BattleshipGame {
             }
             renderingCommands.add(new JsonObject().put("command", "updateHistory").put("history", p.playerMessageHistory()));
         }
-        return new RenderingPackage(this.gameMetadata(), renderingCommands);
+        return renderingCommands;
     }
 
     /**

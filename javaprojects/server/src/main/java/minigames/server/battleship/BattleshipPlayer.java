@@ -256,6 +256,12 @@ public class BattleshipPlayer {
         return ready;
     }
 
+    /**
+     * Sets player ready in response to a client command
+     * @param value true if player is ready, false otherwise
+     */
+    public void setReady(boolean value){ ready = value;}
+
     // Setters
 
     /**
