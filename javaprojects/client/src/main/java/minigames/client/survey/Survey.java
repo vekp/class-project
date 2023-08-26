@@ -12,11 +12,16 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import java.awt.BorderLayout;
+import javax.swing.BorderFactory; 
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
+import javax.swing.border.EtchedBorder;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.Color;
 
+import java.io.*;
 import javax.swing.*;
 import java.awt.*;
 
@@ -26,7 +31,8 @@ public class Survey extends JPanel implements ActionListener {
 
     MinigameNetworkClient mnClient;
 
-    // Private variables 
+    // Private variables
+
     // (labels and buttons need to be registered here)
     private JPanel titlePanel, counterPanel, backPanel, gameNamePanel, surveyQuestionsPanelGroup, surveyQuestionsPanelLeft, surveyQuestionsPanelRight, feedbackPanel, submitPanel, footerPanel, uiRatingPanel, enjoymentPanel, functionalityPanel; 
     private JLabel counterLabel, headingLabel, testLabel, gameNameLabel, feedbackLabel, uiRatingLabel, enjoymentLabel, functionalityLabel;
@@ -35,13 +41,23 @@ public class Survey extends JPanel implements ActionListener {
     private JTextArea feedbackText;
     private JRadioButton uiRatingOne, uiRatingTwo, uiRatingThree, uiRatingFour, uiRatingFive, enjoymentOne, enjoymentTwo, enjoymentThree, enjoymentFour, enjoymentFive, functionalityOne, functionalityTwo, functionalityThree, functionalityFour, functionalityFive;
     private ButtonGroup uiRatingButtonGroup, enjoymentButtonGroup, functionalityButtonGroup;
-
+    private Border borderPosition, raisedBevel, loweredBevel, outerColourBorder, styledOuterBorder, innerColourBorder, styledInnerBorder, styledBorders, finalBorder;
     // Colours
     // Colours of panels, buttons and radio buttons
     private Color bgColour = new Color(255,255,255); // background
     private Color fgColour = new Color(0,0,0); // foreground
     // Background colour of main panel
-    private Color mainBgColour = Color.CYAN;
+    private Color mainBgColour = new Color(14,7,121,255);
+    private Color outerBorderLineColour = new Color(22,59,121,255);
+    private Color innerborderLineColour = new Color(51,167,202);
+
+
+    // Background image variable declaration
+    private Image image;
+
+
+    // public static final JLabel backgroundImageLabel = new JLabel(new ImageIcon("javaprojects\\client\\src\\main\\java\\minigames\\client\\survey\\nebula.jpg"));
+
 
     // Public variables
     // Sets the Frame Title (top left corner)
@@ -54,8 +70,24 @@ public class Survey extends JPanel implements ActionListener {
         this.setPreferredSize(new Dimension(800, 600));
         this.setLayout(new GridLayout(0, 1));
         this.setLayout(new BorderLayout());
-        this.setBackground(mainBgColour);
-        this.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
+        readBackgroundImage();
+
+        //This creates a nice main Survey frame.
+
+        // Frame size and position
+        borderPosition = BorderFactory.createEmptyBorder(80, 80, 80, 80);
+        // Creates a raised coloured bevel border
+        raisedBevel = BorderFactory.createRaisedBevelBorder();
+        outerColourBorder = BorderFactory.createLineBorder(outerBorderLineColour, 4);
+        styledOuterBorder = BorderFactory.createCompoundBorder(outerColourBorder, raisedBevel);
+        // Creates a lowered coloured bevel border
+        loweredBevel = BorderFactory.createLoweredBevelBorder();
+        innerColourBorder = BorderFactory.createLineBorder(innerborderLineColour, 4);
+        styledInnerBorder = BorderFactory.createCompoundBorder(innerColourBorder, loweredBevel);
+        // Combines the borders and sets them
+        styledBorders = BorderFactory.createCompoundBorder(styledOuterBorder, styledInnerBorder);
+        finalBorder = BorderFactory.createCompoundBorder(borderPosition, styledBorders);
+        this.setBorder(finalBorder);
 
         // Title Panel
         titlePanel = new JPanel();
@@ -248,6 +280,20 @@ public class Survey extends JPanel implements ActionListener {
         // ADD REQUEST TO ENDPOINTS HERE!!!
     }
 
+    // Public Functions
+    public Image readBackgroundImage() {
+        try
+        {
+            // Currently only the full file path works for me
+
+            image = javax.imageio.ImageIO.read(new File("C:\\Users\\Hawk9\\Desktop\\Programming\\Cosc220\\classproject\\javaprojects\\client\\src\\main\\java\\minigames\\client\\survey\\nebula.jpg"));
+
+            // image = javax.imageio.ImageIO.read(new File("\\javaprojects\\client\\src\\main\\java\\minigames\\client\\survey\\nebula.jpg"));
+        }
+        catch (Exception e) { e.printStackTrace(); /*handled in paintComponent()*/ }
+        return(image);
+    }
+
     public void submit() {
         String text = feedbackText.getText();
     
@@ -265,6 +311,7 @@ public class Survey extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
     }
 
+    // Private Functions
     private String getCurrentTimestamp() {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -279,6 +326,21 @@ public class Survey extends JPanel implements ActionListener {
             fileWriter.flush();
         } catch (IOException e) {
             e.printStackTrace(); // Add proper exception handling
+        }
+    }
+
+    // Protected Functions
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        if(image != null) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.drawImage(image, 0, 0, getWidth(), getHeight(), this);
+            g2.dispose();
+        }
+        else {
+            System.out.println("no image to process");
         }
     }
 }
