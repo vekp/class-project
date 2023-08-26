@@ -340,8 +340,8 @@ public class KrumGame implements GameClient {
                     explode((int)p.projectile.x, (int)p.projectile.y, p.projectile);                    
                     for (KrumPlayer pl : players) {
                         double distance = KrumHelpers.distanceBetween(p.projectile.centre()[0], p.projectile.centre()[1], pl.playerCentre().x, pl.playerCentre().y);
-                        if (distance <= p.projectile.explosionRadius) {
-                            pl.hit(p.projectile.maxDamage, distance, p.projectile.explosionRadius);
+                        if (distance <= p.projectile.damageRadius) {
+                            pl.hit(p.projectile.maxDamage, distance, p.projectile.damageRadius);
                         }
                     }
                     p.projectile = null;
@@ -350,12 +350,12 @@ public class KrumGame implements GameClient {
                     int n = p.projectile.playerCollisionCheck(players);
                     if (n >= 0) {
                         explode((int)p.projectile.x, (int)p.projectile.y, p.projectile);
-                        players[n].hit(p.projectile.maxDamage, 0, p.projectile.explosionRadius);
+                        players[n].hit(p.projectile.maxDamage, 0, p.projectile.damageRadius);
                         for (int i = 0; i < players.length; i++) {
                             if (i == n) continue;
                             double distance = KrumHelpers.distanceBetween(p.projectile.centre()[0], p.projectile.centre()[1], players[i].playerCentre().x, players[i].playerCentre().y);
-                            if (distance <= p.projectile.explosionRadius) {
-                                players[i].hit(p.projectile.maxDamage, distance, p.projectile.explosionRadius);
+                            if (distance <= p.projectile.damageRadius) {
+                                players[i].hit(p.projectile.maxDamage, distance, p.projectile.damageRadius);
                             }
                         }
                         p.projectile = null;                        
@@ -366,8 +366,8 @@ public class KrumGame implements GameClient {
                 if (p.grenade.timerCheck(updateCount)) {
                     for (KrumPlayer pl : players) {
                         double distance = KrumHelpers.distanceBetween(p.grenade.centre()[0], p.grenade.centre()[1], pl.playerCentre().x, pl.playerCentre().y);
-                        if (distance <= p.grenade.explosionRadius) {
-                            pl.hit(p.grenade.maxDamage, distance, p.grenade.explosionRadius);
+                        if (distance <= p.grenade.damageRadius) {
+                            pl.hit(p.grenade.maxDamage, distance, p.grenade.damageRadius);
                         }
                     }
                     explode((int)p.grenade.x, (int)p.grenade.y, p.grenade);
@@ -378,8 +378,8 @@ public class KrumGame implements GameClient {
                 if (p.joey.timerCheck(updateCount)) {
                     for (KrumPlayer pl : players) {
                         double distance = KrumHelpers.distanceBetween(p.joey.centre()[0], p.joey.centre()[1], pl.playerCentre().x, pl.playerCentre().y);
-                        if (distance <= p.joey.explosionRadius) {
-                            pl.hit(p.joey.maxDamage, distance, p.joey.explosionRadius);
+                        if (distance <= p.joey.damageRadius) {
+                            pl.hit(p.joey.maxDamage, distance, p.joey.damageRadius);
                         }
                     }
                     explode((int)p.joey.xpos, (int)p.joey.ypos, p.joey);

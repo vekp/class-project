@@ -57,6 +57,7 @@ public class KrumJoey extends KrumProjectile {
         knockbackDistance = KNOCKBACK_DISTANCE;
         knockbackPower = KNOCKBACK_POWER;
         explosionRadius = EXPLOSION_RADIUS; 
+        damageRadius = explosionRadius + 20;
         explosionTick = tick + KrumC.TARGET_FRAMERATE * TIMER_SECONDS;
         topEdgeLeft = -1;
         topEdgeRight = -1;

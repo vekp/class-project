@@ -22,6 +22,7 @@ public class KrumGrenade extends KrumProjectile {
         explosionRadius = EXPLOSION_RADIUS;    
         explosionTick = tick + (long)seconds * KrumC.TARGET_FRAMERATE;
         maxDamage = MAX_DAMAGE;
+        damageRadius = explosionRadius + 20;
     }
     @Override
     void update(double windX, double windY) {
