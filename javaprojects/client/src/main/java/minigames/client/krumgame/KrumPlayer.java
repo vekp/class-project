@@ -906,6 +906,8 @@ public class KrumPlayer {
                 if (ypos + i >= levelRaster.getHeight()) break;
                 if ((int)xpos >= 0 && (int)xpos + sprite.getWidth() < levelRaster.getWidth()) {
                     int x = facingRight ? leftEdge[i] : alphaRaster.getWidth() - 1 - rightEdge[i];
+                    if ((int)xpos + x >= levelRaster.getWidth()) break;
+                    if ((int) xpos + x < 0) continue;
                     if (alphaRaster.getPixel(x, i, empty)[0] > KrumC.OPACITY_THRESHOLD && levelRaster.getPixel((int)xpos + x, (int)ypos + i, empty)[0] > KrumC.OPACITY_THRESHOLD) {
                         return true;
                     }
@@ -918,6 +920,8 @@ public class KrumPlayer {
                 if (ypos + i >= levelRaster.getHeight()) break;
                 if ((int)xpos >= 0 && (int)xpos + sprite.getWidth() < levelRaster.getWidth()) {
                     int x = facingRight ? rightEdge[i] : alphaRaster.getWidth() - 1 - leftEdge[i];
+                    if ((int)xpos + x >= levelRaster.getWidth()) break;
+                    if ((int) xpos + x < 0) continue;
                     if (alphaRaster.getPixel(x, i, empty)[0] > KrumC.OPACITY_THRESHOLD && levelRaster.getPixel((int)xpos + x, (int)ypos + i, empty)[0] > KrumC.OPACITY_THRESHOLD) {
                         return true;
                     }
@@ -930,6 +934,8 @@ public class KrumPlayer {
                 if (xpos + i >= levelRaster.getWidth()) break;
                 if ((int)ypos >= 0 && (int)ypos < levelRaster.getHeight()) {
                     int y = facingRight ? topEdge[i] : topEdgeFlipped[i];
+                    if ((int)ypos + y >= levelRaster.getHeight()) break;
+                    if ((int)ypos + y < 0) continue;
                     if (alphaRaster.getPixel(i, y, empty)[0] > KrumC.OPACITY_THRESHOLD && levelRaster.getPixel((int)xpos + i, (int)ypos + y, empty)[0] > KrumC.OPACITY_THRESHOLD) {
                         return true;
                     }
@@ -943,6 +949,8 @@ public class KrumPlayer {
                 if (xpos + i >= levelRaster.getWidth()) break;
                 if ((int)ypos >= 0 && (int)ypos + sprite.getHeight() < levelRaster.getHeight()) {
                     int y = facingRight ? bottomEdge[i] : bottomEdgeFlipped[i];
+                    if ((int)ypos + y >= levelRaster.getHeight()) break;
+                    if ((int)ypos + y < 0) continue;
                     if (alphaRaster.getPixel(i, y, empty)[0] > KrumC.OPACITY_THRESHOLD && levelRaster.getPixel((int)xpos + i, (int)ypos + y, empty)[0] > KrumC.OPACITY_THRESHOLD) {
                         hits++;
                         if (hits > 1) return true;
