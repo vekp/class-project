@@ -44,8 +44,8 @@ public class AchievementPresenterRegistryTest {
         JPanel panel = apRegistry.achievementListPanel();
         for (int i = 0; i < panel.getComponents().length; i++) {
             Component component = panel.getComponent(i);
-            // For unlocked, expect 1 MouseListener for hover border effects and 1 for click to show carousel.
-            if (i < 5) assertEquals(2, component.getMouseListeners().length);
+            // For unlocked, expect 1 MouseListener.
+            if (i < 5) assertEquals(1, component.getMouseListeners().length);
             // If locked, no MouseListeners should be present
             else assertEquals(0, component.getMouseListeners().length);
         }
