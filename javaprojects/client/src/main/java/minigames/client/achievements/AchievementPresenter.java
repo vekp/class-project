@@ -1,4 +1,4 @@
-package minigames.client.achievementui;
+package minigames.client.achievements;
 
 import minigames.achievements.Achievement;
 
@@ -74,7 +74,7 @@ public class AchievementPresenter {
     }
 
     /**
-     * Create a very small panel to present to user, to be used in popup notifications.
+     * Create a small panel to present to user, to be used in popup notifications.
      * @return a JPanel
      */
     public JPanel smallAchievementPanel() {
@@ -82,7 +82,6 @@ public class AchievementPresenter {
 
         JLabel name = new JLabel(achievement.name());
 
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         JLabel image = new JLabel(achievementImage(20));
         image.setPreferredSize(new Dimension(20, 20));
 
@@ -92,11 +91,11 @@ public class AchievementPresenter {
             name.setForeground(hiddenUnlockedColour);
         }
         image.setBorder(smallEmptyBorder);
+
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         panel.add(image);
         panel.add(Box.createRigidArea(new Dimension(10, 0)));
-        JPanel textPanel = new JPanel(new BorderLayout());
-        textPanel.add(name, BorderLayout.NORTH);
-        panel.add(textPanel);
+        panel.add(name);
         if (!isUnlocked) {
             name.setForeground(achievement.hidden()? hiddenLockedColour : lockedColour);
         }
@@ -105,7 +104,7 @@ public class AchievementPresenter {
     }
 
     /**
-     * Create a medium panel with achievement details to be shown in a list
+     * Create a medium-sized panel with achievement details to be shown in a list
      * @param isClickable whether panel should be able to be clicked on to display larger panel
      * @return A JPanel
      */
@@ -183,7 +182,7 @@ public class AchievementPresenter {
         panel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
         if (!isUnlocked) {
-            panel.add(new JLabel("<html><h1>403 Forbidden</h1>You must unlock this achievement to have access.</html>"));
+            panel.add(new JLabel("<html><body style='text-align: center'><h1>403 Forbidden</h1>You must unlock this achievement to have access.</body></html>"));
             return panel;
         }
 
