@@ -20,7 +20,6 @@ public class PeggleUI {
     private static final String achievementsButtonFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/achievementsBTN.png";
     private static final String leaderboardButtonFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/leaderboardBTN.png";
     private static final String settingsButtonFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/settingsBTN.png";
-
     private static JFrame mainWindow = null;
 
     // Main function initialises the UI and starts the game
@@ -69,21 +68,8 @@ public class PeggleUI {
         buttonsPanel.setOpaque(false);
         buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS)); // Vertical alignment
 
-        //Start button
-        JButton startButton = createImageButton(startButtonFilePath, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                startGame();
-            }
-        }, 0.5); //scaling
-
-        //Exit button
-        JButton exitButton = createImageButton(exitButtonFilePath, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.exit(0);
-            }
-        }, 0.5); //scaling
+        JButton startButton = createImageButton(startButtonFilePath, e -> startGame(), 0.5); //scaling
+        JButton exitButton = createImageButton(exitButtonFilePath, e -> System.exit(0), 0.5); //scaling
 
         // Add buttons
         buttonsPanel.add(startButton);
@@ -98,37 +84,10 @@ public class PeggleUI {
         JPanel topRightButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         topRightButtonsPanel.setOpaque(false);
 
-        // Achievements button
-        topRightButtonsPanel.add(createImageButton(achievementsButtonFilePath, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                checkAchievements();
-            }
-        }, 0.3)); //scaling
-
-        //Leaderboard button
-        topRightButtonsPanel.add(createImageButton(leaderboardButtonFilePath, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                checkLeaderboard();
-            }
-        }, 0.3)); //scaling
-
-        //Instructions button
-        topRightButtonsPanel.add(createImageButton(instructionsButtonFilePath, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                checkInstructions();
-            }
-        }, 0.3)); //scaling
-
-        //Settings button
-        topRightButtonsPanel.add(createImageButton(settingsButtonFilePath, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                checkSettings();
-            }
-        }, 0.3)); //scaling
+        topRightButtonsPanel.add(createImageButton(achievementsButtonFilePath, e -> checkAchievements(), 0.3));
+        topRightButtonsPanel.add(createImageButton(leaderboardButtonFilePath, e -> checkLeaderboard(), 0.3));
+        topRightButtonsPanel.add(createImageButton(instructionsButtonFilePath, e -> checkInstructions(), 0.3));
+        topRightButtonsPanel.add(createImageButton(settingsButtonFilePath, e -> checkSettings(), 0.3));
 
         return topRightButtonsPanel;
     }
@@ -149,12 +108,18 @@ public class PeggleUI {
         return button;
     }
 
+    public static void showMainMenu() {
+        JPanel titleScreen = generateMainMenu();
+        mainWindow.setContentPane(titleScreen);
+        mainWindow.setPreferredSize(new Dimension(500, 850));
+        mainWindow.revalidate();
+    }
+
     // Starts the game by switching to the InGameUI
     private static void startGame() {
         InGameUI gameSession = new InGameUI();
         mainWindow.setContentPane(gameSession);
         mainWindow.setPreferredSize(new Dimension(1000, 750));
-        mainWindow.pack();
         mainWindow.revalidate();
     }
 
@@ -178,7 +143,6 @@ public class PeggleUI {
         InstructionsUI instructionsUI = new InstructionsUI();
         mainWindow.setContentPane(instructionsUI);
         mainWindow.setPreferredSize(new Dimension(500, 850));
-        mainWindow.pack();
         mainWindow.revalidate();
     }
 
