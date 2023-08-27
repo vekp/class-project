@@ -40,22 +40,6 @@ public class BattleshipPlayer {
     // Methods
 
     /**
-     * Method to determine if the player's input is "ready", if so, update the message history and set the player's
-     * ready state to true. It then returns the first instructional message. If input is not valid return unsuccessful
-     * @param input player's input
-     * @return BattleshipTurnResult containing a boolean for successful input, whether a ship was hit, and a message
-     */
-    public BattleshipTurnResult checkReady(String input) {
-        if (input.equalsIgnoreCase("Ready")) {
-            updateHistory("Ready");
-            setReadyState();
-            return BattleshipTurnResult.firstInstruction();
-        } else {
-            return new BattleshipTurnResult(false, false,"Invalid Input");
-        }
-    }
-
-    /**
      * Method to process a turn for an AI player
      * @param opponent the other player's board
      * @return BattleshipTurnResult containing a boolean for successful input, whether a ship was hit, and a message
@@ -73,7 +57,9 @@ public class BattleshipPlayer {
      */
     public BattleshipTurnResult processTurn(String input, Board opponent) {
         // System.out.println(input);
-        BattleshipTurnResult invalidResult = new BattleshipTurnResult(false, false, "");
+        //todo fix this so it actually tells user the input was invalid and prompt for a new input - move to the
+        // battleShipTurnResult class
+        BattleshipTurnResult invalidResult = new BattleshipTurnResult(false, false, "", "");
         // Check input entered is a coordinate
         if (!validateInput(input)) {
             return invalidResult;
@@ -111,22 +97,19 @@ public class BattleshipPlayer {
         // If player hit ocean set CellType to Miss and return false
         if (currentState.equals(CellType.OCEAN)) {
             opponent.setGridCell(x, y, CellType.MISS);
-            //todo these messages arent really correct - they wont display properly on the opponent client i think
-            return isHumanControlled() ? BattleshipTurnResult.playerMissedEnemy() :
-                    BattleshipTurnResult.enemyMissedPlayer(input);
+            return BattleshipTurnResult.missTarget(input);
             // If the Cell is a MISS cell, return false and check for Slow Learner Achievement
         } else if (currentState.equals(CellType.MISS)) {
             //no need to check for already unlocked as handler will do that
             System.out.println("Slow Learner Achievement - Requirements met for " + getName());
             AchievementHandler handler = new AchievementHandler(BattleshipServer.class);
             handler.unlockAchievement(getName(), SLOW_LEARNER.toString());
-            return isHumanControlled() ? BattleshipTurnResult.playerMissedEnemy() :
-                    BattleshipTurnResult.enemyMissedPlayer(input);
+            return BattleshipTurnResult.missTarget(input);
         } else if (currentState.equals(CellType.HIT)) {
             System.out.println("You Got Him Achievement - Requirements met for " + getName());
             AchievementHandler handler = new AchievementHandler(BattleshipServer.class);
             handler.unlockAchievement(getName(), YOU_GOT_HIM.toString());
-            return BattleshipTurnResult.alreadyHitCell();
+            return BattleshipTurnResult.alreadyHitCell(input);
         } else {
             // If the cell is not an ocean, miss, or hit cell, set the cell to a "hit"
             opponent.setGridCell(x, y, CellType.HIT);
@@ -143,7 +126,7 @@ public class BattleshipPlayer {
 
             opponent.setVessels(vessels);
 
-            return isHumanControlled() ? BattleshipTurnResult.playerHitEnemy() : BattleshipTurnResult.enemyHitPlayer(input);
+            return BattleshipTurnResult.hitTarget(input);
         }
         // TODO: increment turn number?
     }

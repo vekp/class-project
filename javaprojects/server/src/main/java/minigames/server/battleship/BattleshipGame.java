@@ -30,7 +30,8 @@ public class BattleshipGame {
     GameState gameState;
 
     LinkedHashMap<String, BattleshipPlayer> bPlayers = new LinkedHashMap<>();
-    int currentTurn = 0;
+    String activePlayer;    //the player whose turn it currently is
+    String opponentPlayer; //the opponent player (not their turn yet)
     int gameTurn = 0;
     static final String player = "Nautical Map";
     static final String enemy = "Target Map";
@@ -97,19 +98,6 @@ public class BattleshipGame {
     }
 
     /**
-     * Format the user input for better readability
-     *
-     * @param input String input from the console
-     * @return formatted string
-     */
-    private String formatInput(String input) {
-        input = input.toUpperCase();
-        String a = String.valueOf(input.charAt(0));
-        String b = String.valueOf(input.charAt(1));
-        return a + "," + b;
-    }
-
-    /**
      * Run the commands received from the BattleshipServer class
      *
      * @param cp The CommandPackage Object containing the commands to be run
@@ -122,7 +110,6 @@ public class BattleshipGame {
 
         // Get user input typed into the console
         String userInput = String.valueOf(cp.commands().get(0).getValue("command"));
-        String currentTurnPlayer = getPlayerNames()[currentTurn];
 
         //Handle exit game commands
         if (userInput.equals("exitGame")) {
@@ -138,58 +125,69 @@ public class BattleshipGame {
             //also just return a render package immediately here
         }
 
-        //if the game hasnt been aborted, we can move on to processing commands based on what the gamestate is
+        //if the game hasn't been aborted, we can move on to processing commands based on what the gamestate is
         switch (gameState) {
             case SHIP_PLACEMENT -> {
                 if (userInput.equalsIgnoreCase("ready")) {
+                    //set this player to ready
                     BattleshipPlayer currentClient = bPlayers.get(cp.player());
                     currentClient.setReady(true);
+
                     //if the other player is also ready or are AI, we are good to start the game
-                    gameState = GameState.IN_PROGRESS;
                     //the gamestate assumes all players are ready. On checking this loop, if we find any players that are
                     //not yet ready, set the state back to placement/waiting
+                    gameState = GameState.IN_PROGRESS;
                     for (BattleshipPlayer player : bPlayers.values()) {
                         if (!(player.isReady() || player.isAIControlled())) {
                             gameState = GameState.SHIP_PLACEMENT;
                         }
                     }
+                    //once all players are ready, pick a starting player and begin the game
                     if (gameState.equals(GameState.IN_PROGRESS)) {
-                        //if the game is ready to start, we force a refresh, telling the respective players whose turn it is
-                        if (currentClient.getName().equals(getPlayerNames()[currentTurn])) {
-                            commands.add(new JsonObject().put("command", "prepareTurn"));
-                        } else {
-                            commands.add(new JsonObject().put("command", "wait"));
+                        Random rng = new Random();
+                        //50% chance for either player to start first
+                        int firstPlayer = rng.nextInt(0, 1);
+                        String[] names = getPlayerNames();
+                        if (names.length != 2) {
+                            //todo if we're trying to start a game without 2 players, something has gone wrong - deal
+                            // with error
                         }
+                        //set up the first turn player and their opponent
+                        activePlayer = names[firstPlayer];
+                        opponentPlayer = names[1 - firstPlayer];
+
+                        //both players can go into the 'wait' stage - they will refresh during IN_PROGRESS, and the
+                        //player whose turn it is will be prompted shortly after
+                        commands.add(new JsonObject().put("command", "wait"));
+
                     } else {
                         commands.add(new JsonObject().put("command", "waitReady"));
                     }
                 }
             }
             case IN_PROGRESS -> {
-                BattleshipPlayer current = bPlayers.get(cp.player());
-                BattleshipPlayer opponent = null;
-                for (String name : getPlayerNames()) {
-                    if (!name.equals(current.getName())) {
-                        opponent = bPlayers.get(name);
-                        assert opponent != null;
-                    }
+                BattleshipPlayer current = bPlayers.get(activePlayer);
+                BattleshipPlayer opponent = bPlayers.get(opponentPlayer);
+
+                //No gameplay is progressed unless it is this players turn.
+                if (!Objects.equals(current.getName(), cp.player())) {
+                    return new RenderingPackage(gameMetadata(), commands);
                 }
+
+                //the refresh command is only sent by currently waiting clients
                 if (userInput.equals("refresh")) {
-                    //refresh is called periodically while the client is waiting for its turn.
-                    //once the client of the current turn's player asks for a refresh, we will inform
-                    //it that it is now that players turn, and it can prepare to send input.
-                    //otherwise, it will stay in its waiting state
-                    if (currentTurnPlayer.equals(cp.player())) {
-                        commands.addAll(getGameRender(current, opponent));
-                        commands.add(new JsonObject().put("command", "prepareTurn"));
-                    }
+                    //if we got past the above check, it is now this player's turn, inform them to switch to a
+                    //prepare turn state
+                    commands.addAll(getGameRender(current, opponent));
+                    commands.add(new JsonObject().put("command", "prepareTurn"));
                 } else {
-                    //if no other commands are present, and it is this player's turn, we can process the game turn
+                    //if this was not a refresh request, we assume it's an input, so we can process the player's turn
                     commands = runGameCommand(current, opponent, userInput);
                 }
                 return new RenderingPackage(gameMetadata(), commands);
             }
             case GAME_OVER -> {
+                //todo do game over stuff
             }
         }
 
@@ -200,39 +198,41 @@ public class BattleshipGame {
      * Function called during gameplay for the current turn's player. Processes the player's input and
      * returns a shot result
      *
-     * @param p         the current player whose turn we wish to process
+     * @param currentPlayer         the current player whose turn we wish to process
      * @param userInput the user input that client entered (should be a shot coordinate)
      * @return a list of commands to put in a rendering package
      */
-    public ArrayList<JsonObject> runGameCommand(BattleshipPlayer p, BattleshipPlayer opponent, String userInput) {
+    public ArrayList<JsonObject> runGameCommand(BattleshipPlayer currentPlayer, BattleshipPlayer opponent, String userInput) {
+        //tell the player to take their turn - if they provided invalid input for any reason, this will
+        //fail and they will be prompted to provide another input
+        BattleshipTurnResult result = currentPlayer.processTurn(userInput, opponent.getBoard());
 
-        //this alternates between 1 and 0 for the next turn -Nathan
-        int nextPlayer = 1 - currentTurn;
-
-
-        BattleshipTurnResult result = p.processTurn(userInput, opponent.getBoard());
         //if the opponent is AI, do their turn immediately, otherwise switch turns to next player
         if (result.successful()) {
             // Update current player's message history with the result
-            p.updateHistory(result.message());
+            currentPlayer.updateHistory(result.playerMessage());
             // Determine response to other player based on their result
             if (result.shipHit()) {
-                opponent.updateHistory(BattleshipTurnResult.enemyHitPlayer(formatInput(userInput)).message());
+                opponent.updateHistory(result.opponentMessage());
             } else {
-                opponent.updateHistory(BattleshipTurnResult.enemyMissedPlayer(formatInput(userInput)).message());
+                opponent.updateHistory(result.opponentMessage());
             }
 
+            //if the opponent is ai, do their turn immediately. No turn changing required as the player can
+            //just take their next turn right away, otherwise, switch the active and opponent players around
             if (opponent.isAIControlled()) {
-                BattleshipTurnResult opponentResult = opponent.processAITurn(p.getBoard());
+                BattleshipTurnResult opponentResult = opponent.processAITurn(currentPlayer.getBoard());
                 // System.out.println(opponentResult.message());
-                p.updateHistory(opponentResult.message());
+                currentPlayer.updateHistory(opponentResult.opponentMessage());
             } else {
-                // opponent is human, switch turn flag so they go next
-                currentTurn = nextPlayer;
+                //swapping player turns
+                String temp = activePlayer;
+                activePlayer = opponentPlayer;
+                opponentPlayer = temp;
             }
         }
 
-        ArrayList<JsonObject> renderingCommands = new ArrayList<>(getGameRender(p, opponent));
+        ArrayList<JsonObject> renderingCommands = new ArrayList<>(getGameRender(currentPlayer, opponent));
         renderingCommands.add(new JsonObject().put("command", "wait"));
         return renderingCommands;
     }
@@ -284,7 +284,7 @@ public class BattleshipGame {
                             new NativeCommands.ShowMenuError("That name's not available")
                     }).map((r) -> r.toJson()).toList()
             );
-        } else if (currentTurn > 0) {
+        } else if (gameState.equals(GameState.IN_PROGRESS)) {
             // TODO: if current turn alternates between 1,0 it should be getting an overall turn value for the entire game
             // Don't allow a player to join if the game has started
             return new RenderingPackage(
@@ -323,226 +323,3 @@ public class BattleshipGame {
         }
     }
 }
-
-//
-//    /**
-//     * This function is responsible for validating user input
-//     *
-//     * @param coordinates The raw coordinate string that the user has entered into the console
-//     * @return true if the coordinate is valid, false if not
-//     */
-//    private boolean validate(String coordinates) {
-//        // If the player enters C120 as the coordinates give them the COSC120 inside joke achievement
-//        if(coordinates.equals("C120")){
-//            achievementHandler.unlockAchievement(playerName, C_120.toString());
-//        }
-//        // Craig's code split off and moved here by Mitch
-//        // Regex to check that the coordinate string is valid
-//        String regex = "^[A-J][0-9]$";
-//        Pattern pattern = Pattern.compile(regex);
-//        //convert the coordinates to uppercase
-//        coordinates = coordinates.toUpperCase();
-//        Matcher matcher = pattern.matcher(coordinates);
-//        // If the coordinates don't match it will return false
-//        return matcher.matches();
-//    }
-//
-//
-//
-//    /**
-//     * Function to create an appropriate message to the player after their input
-//     *
-//     * @param player     player
-//     * @param gameState  player's current game state
-//     * @param coordinate coordinate of enemy
-//     */
-//    private void respondToInput(Board player, GameState gameState, String coordinate, boolean hit) {
-//        //TODO: Clean up, it's a bit messy too
-//
-//        // Response strings
-//        String inputPending = "...";
-//        String initialInstruction = "To fire at the enemy, enter grid coordinates: (eg, A4)";
-//        String incoming = "Prepare for incoming fire!";
-//        String enterCoords = "Enter grid coordinates:";
-//        String coordTag = "Return fire!";
-//        String shipSunk = "Enemy ship has been sunk!";
-//
-//        // Currently a simple implementation with a couple options that could be chosen at random
-//        String[] playerHitEnemy = {"Enemy ship hit! Well done Sir.", "Straight into their hull!", "Direct Hit!"};
-//        String[] playerMissedEnemy = {"Salvo Missed.", "Target not hit.", "Adjust your coordinates."};
-//        String[] enemyHitPlayer = {"Enemy has hit our fleet,", "We've been hit!", "We're under fire!"};
-//        String[] enemyMissedPlayer = {"Enemy has missed!", "Enemy missed another salvo.", "They missed us."};
-//
-//        // Generate a random number to pick a response string
-//        Random rand = new Random();
-//        int randomNum = rand.nextInt(3);
-//
-//        StringBuilder sb = new StringBuilder();
-//        switch (gameState) {
-//            case SHIP_PLACEMENT -> {
-//                sb.append("\n\n").append(initialInstruction).append("\n").append(inputPending);
-//            }
-//            case CALC_PLAYER -> {
-//                if (hit) {
-//                    sb.append("\n\n").append(playerHitEnemy[randomNum]).append(" ").append(incoming);
-//                } else {
-//                    sb.append("\n\n").append(playerMissedEnemy[randomNum]).append(" ").append(incoming);
-//                }
-//            }
-//            case CALC_ENEMY -> {
-//                if (hit) {
-//                    //TODO: append appropriate ship class value? or remove and leave just coordinates
-//                    sb.append("\n").append(enemyHitPlayer[randomNum]);  //.append(" Ship-Class:").append(" Carrier");
-//                    sb.append(" enemy fired at coordinates: [").append(coordinate).append("]");
-//                    sb.append("\n\n").append(coordTag).append(" ").append(enterCoords).append("\n").append(inputPending);
-//                } else {
-//                    sb.append("\n").append(enemyMissedPlayer[randomNum]).append(" Salvo fired at: coordinates: [");
-//                    sb.append(coordinate).append("]");
-//                    sb.append("\n\n").append(coordTag).append(" ").append(enterCoords).append("\n").append(inputPending);
-//                }
-//            }
-//            case SHIP_SUNK -> {
-//                sb.append("\n").append(shipSunk);
-//            }
-//        }
-////        player.updateMessageHistory(sb.toString());
-//    }
-//
-//    /**
-//     * Test function to print the current user's name to see if it could be implemented into the login framework
-//     */
-//    public void printUsername(){
-//        // "USER" is where the user's name is stored for UNIX based systems
-//        String username = System.getenv("USER");
-//        // For Windows the above query will return null, as on windows the variable for the user is USERNAME
-//        if (username == null) {
-//            username = System.getenv("USERNAME");
-//        }
-//        System.out.println("Username: " + username);
-//    }
-//
-//    /**
-//     * Function to determine whether the player's input has hit a ship. Sets the CellType accordingly and returns
-//     * true or false. The boolean value is used in another function to determine the response
-//     *
-//     * @param player current player - Board object
-//     * @param row      horizontal coordinate
-//     * @param col      vertical coordinate
-//     * @return true if player has hit a ship, false if player hit water or previously missed cell
-//     */
-//    private boolean shotOutcome(Board player, int row, int col) {
-//
-//        // TODO Remove this after showing Nathan
-//        printUsername(); // test call to printUsername function
-//        // Get players current grid
-//        Cell[][] grid = player.getGrid();
-//        // Get cell type of player's coordinate
-//        CellType currentState = grid[row][col].getCellType();
-////        System.out.println("Cell Type: "+ currentState.toString());
-//        // If player hit ocean set CellType to Miss and return false
-//        if (currentState.equals(CellType.OCEAN)) {
-//            player.setGridCell(row, col, CellType.MISS);
-//            return false;
-//            // If the Cell is a MISS cell, return false and check for Slow Learner Achievement
-//        } else if (currentState.equals(CellType.MISS)) {
-//            //no need to check for already unlocked as handler will do that
-//            System.out.println("Slow Learner Achievement - Requirements met for " + playerName);
-//            achievementHandler.unlockAchievement(playerName, SLOW_LEARNER.toString());
-//            return false;
-//        } else if (currentState.equals(CellType.HIT)) {
-//            System.out.println("You Got Him Achievement - Requirements met for " + playerName);
-//            achievementHandler.unlockAchievement(playerName, YOU_GOT_HIM.toString());
-//            return true;
-//        } else {
-//            // If the cell is not an ocean, miss, or hit cell, set the cell to a "hit"
-//            player.setGridCell(row, col, CellType.HIT);
-//
-//            // Update the ships to include the hit in their cells
-//
-//            HashMap<String, Ship> vessels = player.getVessels();
-//
-//            vessels.forEach((key, value) ->{
-//                Ship current = value;
-//                current.updateShipStatus(row, col);
-//                vessels.replace(key, current);
-//            });
-//
-//            player.setVessels(vessels);
-//
-//            if (sunk(player, row, col)) {
-//                respondToInput(player, GameState.SHIP_SUNK, "",true);
-//            }
-//            return true;
-//        }
-//        // TODO: increment turn number?
-//
-//    }
-//
-//    private boolean sunk(Board player, int row, int col) {
-//        Cell[][] grid = player.getGrid();
-//        return true;
-//    }
-//
-//    private int[] generateCoordinate(Board player) {
-//
-//        // Generate random coordinates
-//        Random rand = new Random();
-//        int randX = rand.nextInt(10);
-//        int randY = rand.nextInt(10);
-//
-//        return new int[]{randX, randY};
-//    }
-//
-//    /**
-//     * Function to determine what to do with user input based on the current game state
-//     *
-//     * @param player current player - Board object
-//     * @param input  user input from the console
-//     */
-//    private void calcUserInput(Board player, String input) {
-//        // TODO: Tidy up
-//        // Convert the input to uppercase
-//        input = input.toUpperCase();
-//        // Respond to the user's input in relation to game state
-//        switch (player.getGameState()) {
-//            case SHIP_PLACEMENT -> {
-//                // Check if the users input was "ready", to start the game
-//                if (input.matches("READY")) {
-////                    player.updateMessageHistory("Ready");
-//                    respondToInput(player, player.getGameState(), "", false);
-//                    player.setGameState(GameState.INPUT_CALC);
-//                }
-//            }
-//            case INPUT_CALC -> {
-//
-//                // Check if coordinates are valid, if so, format and add to message history
-//                if (validate(input)) {
-//                    Board playerBoard = new Board(0);
-//                    Board CPUBoard = new Board(2);
-//                    String validatedInput = formatInput(input);
-////                    player.updateMessageHistory(validatedInput);
-//                    player.setGameState(GameState.CALC_PLAYER);
-//                    if (player.getGameState().equals(GameState.CALC_PLAYER)) {
-//                        // Take user input and determine the result of shooting that coordinate
-//                        String coordVert = validatedInput.split(",")[0];
-//                        int row = chars.indexOf(coordVert);
-//                        int col = Integer.parseInt(validatedInput.split(",")[1]);
-//                        // Pass in the other players board to see if it hit their ship
-//                        boolean result = shotOutcome(playerBoard, row, col);
-//                        respondToInput(player, player.getGameState(), "", result);
-//                        player.setGameState(GameState.CALC_ENEMY);
-//                    }
-//                    if (player.getGameState().equals(GameState.CALC_ENEMY)) {
-//                        // Determine the result of enemy action
-//                        int[] cpuCoord = generateCoordinate(CPUBoard);
-//                        String cpuCoordStr = chars.charAt(cpuCoord[0]) + "," + cpuCoord[1];
-//                        //System.out.println(cpuCoordStr);
-//
-//                        boolean result = shotOutcome(CPUBoard, cpuCoord[0], cpuCoord[1]);
-//                        respondToInput(player, player.getGameState(), cpuCoordStr, result);
-//                        player.setGameState(GameState.INPUT_CALC);
-//                    }
-//                }
-//            }
-//        }
-//    }
