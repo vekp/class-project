@@ -51,7 +51,7 @@ public class AchievementPresenterRegistry {
                     @Override
                     public void mouseClicked(MouseEvent e) {
                         JOptionPane.showMessageDialog(panel.getTopLevelAncestor(), achievementCarousel(index),
-                                gameID, JOptionPane.PLAIN_MESSAGE);
+                                gameID + " achievements", JOptionPane.PLAIN_MESSAGE);
                     }
                 });
             }
@@ -68,7 +68,7 @@ public class AchievementPresenterRegistry {
         JScrollPane scrollPane = AchievementUI.generateScrollPane(achievementListPanel());
         // Set pane size to fit inside frame
         scrollPane.setPreferredSize(new Dimension(
-            Math.min(700, scrollPane.getPreferredSize().width + 50),
+            Math.min(700, scrollPane.getPreferredSize().width + 20), // add some padding on the right
             Math.min(500, scrollPane.getPreferredSize().height)
             )
         );
@@ -77,8 +77,6 @@ public class AchievementPresenterRegistry {
         JOptionPane.showMessageDialog(frame, scrollPane,
                 gameID + " achievements", JOptionPane.PLAIN_MESSAGE);
     }
-
-    //TODO: create function that returns scroll panel containing achievementListPanel, for in-game achievement list
 
     /**
      * Create a carousel view with large images of unlocked achievements
