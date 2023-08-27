@@ -1093,7 +1093,13 @@ public class KrumPlayer {
      * @param power number of nanoseconds the jump key was held for
      */
     void jump(long power, int type) {
+        System.out.println(power);
+        power += KrumC.JUMP_MIN_POWER;
+        System.out.println(power);
+        power = Math.min(power, KrumC.JUMP_MAX_POWER);
+        System.out.println(power);
         power /= 100000000;
+        System.out.println(power);
         double p = (double)power;
         p /= 2.5;
         if (type == 0) {

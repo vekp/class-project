@@ -56,5 +56,8 @@ public class KrumC {
     static final int TURN_TIME_LIMIT_SECONDS = 15;
     static final int TURN_TIME_LIMIT_FRAMES = TURN_TIME_LIMIT_SECONDS * TARGET_FRAMERATE;
 
-    static final int BILLION = 1000000000; // to help avoid typos when converting between seconds and nanoseconds
+    static final long BILLION = 1000000000; // to help avoid typos when converting between seconds and nanoseconds
+
+    static final long JUMP_MIN_POWER = BILLION / 2;
+    static final long JUMP_MAX_POWER = BILLION * 3;
 }
