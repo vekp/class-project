@@ -204,15 +204,10 @@ public class MinigameNetworkClientWindow {
         });
         south.add(achievementsButton);
 
-        // Added action listener back in for back btn in Survey
-        ActionListener returnAction = (a) -> {
-            showGameServers(servers);
-        }; 
-
         JButton surveyButton = new JButton("Survey");
         surveyButton.addActionListener(e -> {
             clearAll();
-            JPanel survey = new Survey(returnAction);
+            JPanel survey = new Survey(networkClient);
             frame.setTitle(Survey.FRAME_TITLE);
             center.add(survey);
             pack();

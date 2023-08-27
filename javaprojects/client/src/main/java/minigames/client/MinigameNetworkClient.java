@@ -19,6 +19,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.HttpResponse;
 
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
@@ -294,6 +295,20 @@ public class MinigameNetworkClient {
                 .onSuccess((rp) -> runRenderingPackage(rp))
                 .onFailure((resp) -> {
                     logger.error("Failed: {} ", resp.getMessage());
+                });
+    }
+
+    /*
+     * Sends a JSON object of survey responses to the server for saving to a database
+     */
+    public Future<HttpResponse<Buffer>> sendSurveyData(JsonObject surveyData) {
+        return webClient.post(port, host, "/sendSurveyData")
+                .sendJson(surveyData)
+                .onSuccess((resp) -> {
+                    logger.info("Survey data sent successfully.");
+                })
+                .onFailure((resp) -> {
+                    logger.error("Failed to send survey data: {}", resp.getMessage());
                 });
     }
 
