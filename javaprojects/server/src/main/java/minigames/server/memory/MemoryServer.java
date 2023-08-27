@@ -13,6 +13,7 @@ import minigames.rendering.RenderingPackage;
 import minigames.server.ClientType;
 import minigames.server.GameServer;
 
+import minigames.achievements.Achievement;
 import minigames.server.achievements.AchievementHandler;
 
 /**
@@ -21,46 +22,37 @@ import minigames.server.achievements.AchievementHandler;
  * Used and adapted MuddleServer.java
  */
 
-enum achievements {
-
+/*enum achievements {
+    PERFECT_MATCH, SPEED_RUNNER, ACE_MATCHER, MEMORY_MASTER;
     @Override
     public String toString(){
         switch(this) {
-            case PERFECT_MATCH: return "Perfect Match";
-            case SPEED_RUNNER: return "Speed Runner";
-            case ACE_MATCHER: return "Ace Matcher";
-            case MEMORY_MASTER: return "Memory Master";
-            default: return "";
+            case PERFECT_MATCH:         return "Perfect Match";
+            case SPEED_RUNNER:          return "Speed Runner";
+            case ACE_MATCHER:           return "Ace Matcher";
+            case MEMORY_MASTER:         return "Memory Master";
+            default:                    return "Unknown Achievement";
         }
     }
-
-    PERFECT_MATCH, // Earned by matching all of the cards in one turn.
-    SPEED_RUNNER, // Earned by matching all of the cards in under a certain amount of time.
-    ACE_MATCHER, // Earned by matching all of the cards in a single game.
-    MEMORY_MASTER, // Earned by earning all of the achievements in the game.
-    };
+}*/
 
 public class MemoryServer implements GameServer {
-
     static final String chars = "abcdefghijklmopqrstuvwxyz";
     AchievementHandler achievementHandler;
 
-    public MemoryServer(){
+    /*public MemoryServer(){
         achievementHandler = new AchievementHandler(MemoryServer.class);
-        // Create the achievements and give them to the handler
-        Achievement perfectMatchAchievement = new Achievement(achievements.PERFECT_MATCH.toString(),
-                "Earned by matching all of the cards in one turn.",
-                100);
-        Achievement speedRunnerAchievement = new Achievement(achievements.SPEED_RUNNER.toString(),
-                "Earned by matching all of the cards in under 10 seconds.",
-                200);
-        Achievement aceMatcherAchievement = new Achievement(achievements.ACE_MATCHER.toString(),
-                "Earned by matching all of the cards in a single game.",
-                300);
-        Achievement memoryMasterAchievement = new Achievement(achievements.MEMORY_MASTER.toString(),
-                "Earned by earning all of the achievements in the game.",
-                400);
-    }
+        /* Create the achievements and give them to the handler
+        achievementHandler.registerAchievement(new Achievement(achievements.PERFECT_MATCH.toString(),
+                "Earned by matching all of the cards in one turn.", 25, "", false));
+        achievementHandler.registerAchievement(new Achievement(achievements.SPEED_RUNNER.toString(),
+                "Earned by matching all of the cards in under a certain amount of time.", 25, "", false));
+        achievementHandler.registerAchievement(new Achievement(achievements.ACE_MATCHER.toString(),
+                "Earned by matching all of the cards in a single game.", 25, "", false));
+        achievementHandler.registerAchievement(new Achievement(achievements.MEMORY_MASTER.toString(),
+                "Earned by earning all of the achievements in the game.", 25, "confused", false));*/
+
+
 
 
     /** A random name. We could do with something more memorable, like Docker has. */
@@ -75,6 +67,14 @@ public class MemoryServer implements GameServer {
 
     /** Holds the game in progress in memory (no db). */
     HashMap<String, MemoryGame> games = new HashMap<>();
+    public MemoryServer() {
+        achievementHandler = new AchievementHandler(MemoryServer.class);
+        // Register all achievements with handler
+        for (MemoryAchievement a : MemoryAchievement.values()) {
+            achievementHandler.registerAchievement(a.achievement);
+        }
+    }
+
 
     @Override
     public GameServerDetails getDetails() {
@@ -95,10 +95,11 @@ public class MemoryServer implements GameServer {
 
     @Override
     public Future<RenderingPackage> newGame(String playerName) {
-        MemoryGame g = new MemoryGame(randomName());
+        MemoryGame g = new MemoryGame(randomName(), playerName);
         games.put(g.name, g);
         return Future.succeededFuture(g.joinGame(playerName));
     }
+
 
     @Override
     public Future<RenderingPackage> joinGame(String game, String playerName) {

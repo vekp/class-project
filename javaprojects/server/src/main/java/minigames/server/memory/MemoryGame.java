@@ -11,7 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import minigames.server.achievements.AchievementHandler;
-import static minigames.server.battleship.achievements.*;
+import static minigames.server.memory.MemoryAchievement.*;
 /**
  * Represents an actual Memory game in progress.
  * Used and adapted MuddleGame.java
@@ -26,15 +26,21 @@ public class MemoryGame {
 
     /** Uniquely identifies this game */
     String name;
+    String playerName;
+    AchievementHandler achievementHandler;
 
-    public MemoryGame(String name) {
+    public MemoryGame(String name, String playerName) {
         this.name = name;
+        this.playerName = playerName;
+        this.achievementHandler = new AchievementHandler(MemoryServer.class);
+
+        // Unlock TEST_THAT_MEMORY achievement for starting a new game
+        achievementHandler.unlockAchievement(playerName, TEST_THAT_MEMORY.toString());
     }
 
     /** Achievement handler for this game */
     // Code snippet from AchievementHandler.java
     // private static final
-    AchievementHandler achievementHandler;
 
     // Players
     HashMap<String, MemoryPlayer> players = new HashMap<>();

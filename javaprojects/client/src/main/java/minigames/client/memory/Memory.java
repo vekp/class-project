@@ -10,8 +10,6 @@ import minigames.rendering.GameMetadata;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.*;
 import java.util.List;
@@ -25,7 +23,7 @@ import javax.swing.Timer;
  * @author Melinda Luo, Lyam Talbot, Scott Lehmann, William Koller
  * Memory Card Game
  */
-public class Memory implements GameClient, ActionListener, MouseListener {
+public class Memory implements GameClient {
 
     // Client instance
     MinigameNetworkClient mnClient;
@@ -56,10 +54,10 @@ public class Memory implements GameClient, ActionListener, MouseListener {
 
     ImageIcon cardBackImage = new ImageIcon(getClass().getResource("/memory/images/playing_cards/back/card_back_black.png"));
     //ImageIcon clubs_2 = new ImageIcon(getClass().getResource("/memory/images/playing_cards/2_of_clubs.png"));
-    
+
     // Path to card images directory (card front images only)
     String cardImagesDirectory = getClass().getResource("/memory/images/playing_cards/front/").getPath();
-        
+
     JTextArea textArea;
 
     // Game variable
@@ -67,6 +65,8 @@ public class Memory implements GameClient, ActionListener, MouseListener {
     int matchesCounter = 0;
     int [] timeElapsed = {1, 0}; // {mins, seconds}
     Timer timer;
+    int rows = 4; // Default rows
+    int columns = 4; // Default columns
 
     /** Initialize Swing components */
     public Memory() {
@@ -80,14 +80,14 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         // Create the game menu panel
         gameMenuPanel = new JPanel();
         gameMenuPanel.setLayout(new GridLayout(3, 0));
-        gameMenuPanel.setBorder((new EmptyBorder(0,0,15,0)));
+        gameMenuPanel.setBorder((new EmptyBorder(0, 0, 15, 0)));
         gameMenuPanel.add(headingPanel); // Add heading panel to the game menu panel
 
         // Create the player panel
         playerPanel = new JPanel();
         playerPanel.setLayout(new GridLayout(1, 2));
-        playerPanel.setPreferredSize(new Dimension(800,30));
-        
+        playerPanel.setPreferredSize(new Dimension(800, 30));
+
         playerName = new JLabel("Player: " + player); // Placeholder text for player name
         playerName.setFont(new Font("Arial", Font.BOLD, 16));
         playerName.setHorizontalAlignment(JLabel.LEFT);
@@ -95,11 +95,11 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         matches = new JLabel("Pairs matched: " + matchesCounter + "/8"); // Placeholder text for matched pairs
         matches.setFont(new Font("Arial", Font.BOLD, 16));
         matches.setHorizontalAlignment(JLabel.CENTER);
-        
+
         stopwatch = new JLabel(String.format("Time elapsed: %02d:%02d", timeElapsed[0], timeElapsed[1])); // Placeholder text for Timer
         stopwatch.setFont(new Font("Arial", Font.BOLD, 16));
         stopwatch.setHorizontalAlignment(JLabel.RIGHT);
-        
+
         // Add the player information to the player panel
         playerPanel.add(playerName);
         playerPanel.add(matches);
@@ -149,7 +149,7 @@ public class Memory implements GameClient, ActionListener, MouseListener {
 
         // Add all card images available
         if (cardImageFiles != null) {
-            for (File file: cardImageFiles) {
+            for (File file : cardImageFiles) {
                 if (file.isFile()) {
                     cardImages.add(new ImageIcon(file.getAbsolutePath()));
                 }
@@ -205,21 +205,21 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         difficultyComboBox.addActionListener((ActionEvent e) -> {
             // Get the selected difficulty from the JComboBox
             String selectedDifficulty = (String) difficultyComboBox.getSelectedItem();
-            int rows = 4; // Default rows
-            int columns = 4; // Default columns
-
             // Update rows and columns based on the selected difficulty
-            if (selectedDifficulty.equals("Easy")) {
-                rows = 3;
-                columns = 4;
-            } else if (selectedDifficulty.equals("Medium")) {
-                rows = 4;
-                columns = 4;
-            } else if (selectedDifficulty.equals("Hard")) {
-                rows = 5;
-                columns = 4;
+            switch (Objects.requireNonNull(selectedDifficulty)) {
+                case "Easy" -> {
+                    rows = 3;
+                    columns = 4;
+                }
+                case "Medium" -> {
+                    rows = 4;
+                    columns = 4;
+                }
+                case "Hard" -> {
+                    rows = 5;
+                    columns = 4;
+                }
             }
-
             // Update the grid layout of cardGridPanel
             cardGridPanel.setLayout(new GridLayout(rows, columns, 0, 0));
 
@@ -228,19 +228,19 @@ public class Memory implements GameClient, ActionListener, MouseListener {
             cardGridPanel.repaint();
         });
 
-        
         int cardImageIndex = 0;
-       
-        for (int i = 0; i < 16; i++) {
-            final JPanel cards; 
+        // Add cards to the grid based on difficulty with the card images and "flip" buttons
+        //for (int i = 0; i < 16; i++) {
+        for (int i = 0; i < rows * columns; i++) {
+            final JPanel cards;
             final String FLIP = "Flip";
 
             JPanel cardBack = new JPanel();
-            cardBack.add(new JLabel(resizeImageIcon(cardBackImage,50,-1)));
+            cardBack.add(new JLabel(resizeImageIcon(cardBackImage, 50, -1)));
 
             JPanel cardFront = new JPanel();
             //cardFront.add(new JLabel(resizeImageIcon(clubs_2,50,-1))); // need to make this change to the random card - DONE
-            
+
             // Get the next card image from cardPairs
             ImageIcon image = cardPairs.get(cardImageIndex);
             // Define and append to each section (16 total)
@@ -278,14 +278,14 @@ public class Memory implements GameClient, ActionListener, MouseListener {
 
         // Container for the card grid
         gridContainerPanel = new JPanel(new BorderLayout());
-        gridContainerPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2,true)); // Set border around player grid to separate the UI elements
+        gridContainerPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true)); // Set border around player grid to separate the UI elements
         gridContainerPanel.setPreferredSize(new Dimension(750, 450));
         gridContainerPanel.add(cardGridPanel, BorderLayout.CENTER); // Add the cardGridPanel to the container
 
         // Create the command panel
         commandPanel = new JPanel();
         commandPanel.setLayout(new BorderLayout());
-        commandPanel.setBorder((new EmptyBorder(15,10,0,10)));
+        commandPanel.setBorder((new EmptyBorder(15, 10, 0, 10)));
         textArea = new JTextArea();
         textArea.setEditable(false);
         textArea.setFont(new Font("Arial", Font.BOLD, 16));
@@ -299,19 +299,9 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         //mainPanel.add(commandPanel, BorderLayout.SOUTH);
 
 
-        for (Component c:  new Component[] {title, headingPanel, playerName, newGameButton, restartLevelButton, exitButton,
+        for (Component c : new Component[]{title, headingPanel, playerName, newGameButton, restartLevelButton, exitButton,
                 cardGridPanel, commandPanel, textArea, gameMenuPanel, playerPanel, gridContainerPanel, mainPanel})
-            //c.setBackground(Color.decode("#B2C6B2"));
-
-        // Add ActionListeners to the buttons
-        newGameButton.addActionListener(this);
-        restartLevelButton.addActionListener(this);
-        exitButton.addActionListener(this);
-
-        // Add ActionListeners to the card grid
-        for (Component c : cardGridPanel.getComponents()) {
-            c.addMouseListener(this);
-        }
+            c.setBackground(Color.decode("#eeeeee"));
     }
 
     // FIX - How to revert back to original (e.g. 1 minute) once Game Over message pops up and player clicks "OK"?
@@ -389,7 +379,7 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         textArea.append("Starting...");
 
         // Don't forget to call pack - it triggers the window to resize and repaint itself
-        mnClient.getMainWindow().pack();     
+        mnClient.getMainWindow().pack();
     }
 
     @Override
@@ -405,83 +395,6 @@ public class Memory implements GameClient, ActionListener, MouseListener {
         }
     }
 
-
-    /**
-     * Invoked when an action occurs.
-     *
-     * @param e the event to be processed
-     */
-    @Override
-    public void actionPerformed(ActionEvent e) {
-
-        if (e.getSource() == newGameButton) {
-            //TODO
-            mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(new JsonObject().put("command", "newGame"))));
-            System.out.println("New game started");
-        }
-        if (e.getSource() == restartLevelButton) {
-            //TODO
-           mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(new JsonObject().put("command", "restartLevel"))));
-            System.out.println("Level Restarted...");
-        }
-        if (e.getSource() == exitButton) {
-            //TODO
-            closeGame();
-            System.out.println("Testing...");
-        }
-
-    }
-
-    /**
-     * Invoked when the mouse button has been clicked (pressed
-     * and released) on a component.
-     *
-     * @param e the event to be processed
-     */
-    @Override
-    public void mouseClicked(MouseEvent e) {
-
-    }
-
-    /**
-     * Invoked when a mouse button has been pressed on a component.
-     *
-     * @param e the event to be processed
-     */
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    /**
-     * Invoked when a mouse button has been released on a component.
-     *
-     * @param e the event to be processed
-     */
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    /**
-     * Invoked when the mouse enters a component.
-     *
-     * @param e the event to be processed
-     */
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    /**
-     * Invoked when the mouse exits a component.
-     *
-     * @param e the event to be processed
-     */
-    @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
     /**
      * a method to resize the ImageIcon's image and return the resized ImageIcon
      * @param originalImageIcon the original ImageIcon to be resized
