@@ -60,4 +60,6 @@ public class KrumC {
 
     static final long JUMP_MIN_POWER = BILLION / 2;
     static final long JUMP_MAX_POWER = BILLION * 3;
+
+    static final long PROJECTILES_MAX_POWER = BILLION * 2;
 }

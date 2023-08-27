@@ -531,6 +531,13 @@ public class KrumPlayer {
             rightKeyDown = false;
         }
         if (flashFramesLeft > 0) flashFramesLeft--;
+
+        //fire weapons if at max power
+        if (firingGrenade && System.nanoTime() - fireGrenadeStart >= KrumGrenade.maxPower)
+            endGrenadeFire(null);
+        if (firing && System.nanoTime() - fireStart >= KrumProjectile.maxPower)
+            endFire(null);
+
         if (airborne) {
             double oldx = xpos;
             double oldy = ypos;
@@ -1159,6 +1166,7 @@ public class KrumPlayer {
     void endGrenadeFire(MouseEvent e) {
         firingGrenade = false;
         grenadePower = System.nanoTime() - fireGrenadeStart;
+        grenadePower = Math.min(grenadePower, KrumGrenade.maxPower);
         grenadeNextFrame = true;
         grenadeAimAngle = calcAimAngle();
     }
@@ -1185,6 +1193,7 @@ public class KrumPlayer {
     void endFire(MouseEvent e) {
         firing = false;
         shotPower = System.nanoTime() - fireStart;
+        shotPower = Math.min(shotPower, KrumProjectile.maxPower);
         shootNextFrame = true;
         shootAimAngle = calcAimAngle();
     }

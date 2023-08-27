@@ -23,6 +23,7 @@ public class KrumProjectile {
     int explosionRadius;
     int damageRadius;
     int maxDamage;
+    final static long maxPower = KrumC.PROJECTILES_MAX_POWER;
     KrumProjectile(int xpos, int ypos, double xvel, double yvel, BufferedImage sprite, WritableRaster ground) {
         this.x = xpos;
         this.y = ypos;

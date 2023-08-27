@@ -516,9 +516,9 @@ public class KrumGame implements GameClient {
             players[playerTurn].startGrenadeFire(e);
     }
     void mouseUp(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON1)
+        if (e.getButton() == MouseEvent.BUTTON1 && players[playerTurn].firing)
             players[playerTurn].endFire(e);
-        else 
+        else if (players[playerTurn].firingGrenade)
             players[playerTurn].endGrenadeFire(e);
     }
     void keyDown(KeyEvent e) {
