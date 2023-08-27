@@ -30,8 +30,13 @@ import java.awt.*; // not the best coding practice - to update
 import javax.swing.*; // not the best coding practice - to update
 import java.lang.String;
 
-
- 
+/**
+ * A Telepathy GameClient. Handles displaying information of a Telepathy game running on the
+ * server to the player.
+ * 
+ * Implements Tickable to animate and keep the client up to date with the current state of the 
+ * game running on the server.
+ */
 public class Telepathy implements GameClient, Tickable {
 
     MinigameNetworkClient mnClient;
@@ -60,12 +65,10 @@ public class Telepathy implements GameClient, Tickable {
     private long last = System.nanoTime();
     
 
-
     /**
      * the beginings of a Telepathy board UI. A 9 x 9 2D array of Jbuttons with coordinates around the 
      * border.  
      */
-
     public Telepathy(){
 
         telepathyBoard = new JPanel();
@@ -146,21 +149,6 @@ public class Telepathy implements GameClient, Tickable {
         
     }
 
-    
-    /** COMMENTED OUT - Deprecated by sendCommand(String, String...)
-     * Sends a command to the game at the server.
-     * This being a text adventure, all our commands are just plain text strings our gameserver will interpret.
-     * We're sending these as 
-     * { "command": command }
-     
-    public void sendCommand(String command) {
-        JsonObject json = new JsonObject().put("command", command);
-
-        // Collections.singletonList() is a quick way of getting a "list of one item"
-        mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
-    }
-    */
-
     /**
      * Sends a command to the Telepathy game running on the server.
      * @param command: The TelepathyCommand used to specify the type of command.
@@ -238,7 +226,7 @@ public class Telepathy implements GameClient, Tickable {
     /**
      * Action to take on each tick of the animator.
      * 
-     * Every 5 seconds, ask the server for an update of the current game
+     * Every second, ask the server for an update of the current game
      * state.
      * @param al The animator containing the list of 'tickable' objects
      * @param now The system time at the time of this tick
@@ -247,7 +235,7 @@ public class Telepathy implements GameClient, Tickable {
     @Override
     public void tick(Animator al, long now, long delta){
         if(now - last > 1000000000){
-            sendCommand(TelepathyCommands.UPDATECLIENT.toString());
+            sendCommand(TelepathyCommands.REQUESTUPDATE.toString());
             last = now;
         }
 

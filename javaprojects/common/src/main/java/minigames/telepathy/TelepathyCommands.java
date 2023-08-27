@@ -16,24 +16,26 @@ public enum TelepathyCommands {
     * BUTTONPRESS: Used in CommandPackages sent from the client to the server when the
     *       player presses a button on the Telepathy board.
     *       Attributes: Coordinates of button pushed.
-    * UPDATECLIENT: Used by the client to request an update of the current state
+    * REQUESTUPDATE: Used by the client to request an update of the current state
     *       from the server.
     * SYSTEMQUIT: Used by the client to signal that the game window has been closed
     *       on the client (sends a regular RenderingPackage).
     * QUIT: Used by the client to signal that the client has exited Telepathy but
     *       the window remains open.
+    * INVALIDCOMMAND: Used to respond to an invalid CommandPackage.
     */
  
-    JOINGAMESUCCESS, JOINGAMEFAIL, BUTTONPRESS, UPDATECLIENT, SYSTEMQUIT, QUIT;
+    JOINGAMESUCCESS, JOINGAMEFAIL, BUTTONPRESS, REQUESTUPDATE, SYSTEMQUIT, QUIT, INVALIDCOMMAND;
 
     public String toString(){
         return switch(this){
             case JOINGAMESUCCESS -> "JOINGAMESUCCESS";
             case JOINGAMEFAIL -> "JOINGAMEFAIL";
             case BUTTONPRESS -> "BUTTONPRESS";
-            case UPDATECLIENT -> "UPDATECLIENT";
+            case REQUESTUPDATE -> "REQUESTUPDATE";
             case QUIT -> "QUIT";
             case SYSTEMQUIT -> "SYSTEMQUIT";
+            case INVALIDCOMMAND -> "INVALIDCOMMAND";
             default -> "null";
         };
     }
