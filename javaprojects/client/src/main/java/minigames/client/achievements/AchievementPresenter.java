@@ -95,69 +95,36 @@ public class AchievementPresenter {
 
         JLabel name = new JLabel("<html><p style='font-size: 1.2em'>Achievement unlocked</p>"
                  + achievement.name() + "</html>");
-        if (achievement.hidden() && isUnlocked) {
-            image.setBackground(Color.YELLOW);
-            image.setOpaque(true);
-            name.setForeground(hiddenUnlockedColour);
-        }
+        if (achievement.hidden()) name.setForeground(hiddenUnlockedColour);
 
         panel.add(image);
         panel.add(Box.createRigidArea(new Dimension(10, 0)));
         panel.add(name);
-        if (achievement.hidden()) name.setForeground(hiddenUnlockedColour);
 
         return panel;
     }
 
     /**
      * Create a medium-sized panel with achievement details to be shown in a list
-     * @param isClickable whether panel should be able to be clicked on to display larger panel
      * @return A JPanel
      */
-    public JPanel mediumAchievementPanel(boolean isClickable) {
-        Border smallEmptyBorder = new EmptyBorder(4, 4, 4, 4);
-        Border largeEmptyBorder = new EmptyBorder(10, 10, 10, 10);
-
+    public JPanel mediumAchievementPanel() {
         JLabel text = new JLabel("<html><h3 style='margin: 0'>" + achievement.name() +
                 "</h3>" + achievement.description() + "</html>");
 
         JPanel panel = new JPanel();
         JLabel image = new JLabel(achievementImage(50));
         image.setPreferredSize(new Dimension(50, 50));
-        image.setBorder(smallEmptyBorder);
+        image.setBorder(new EmptyBorder(4, 4, 4, 4));
 
         panel.add(image);
         panel.add(Box.createRigidArea(new Dimension(10, 0)));
         panel.add(text);
 
-        if (!isUnlocked) {
-            text.setForeground(achievement.hidden()? hiddenLockedColour : lockedColour);
-        } else if (achievement.hidden()) text.setForeground(hiddenUnlockedColour);
+        if (!isUnlocked) text.setForeground(achievement.hidden()? hiddenLockedColour : lockedColour);
+        else if (achievement.hidden()) text.setForeground(hiddenUnlockedColour);
 
-        panel.setBorder(largeEmptyBorder);
-        Border mouseOverBorder = new CompoundBorder(new CompoundBorder(smallEmptyBorder,
-                new BevelBorder(BevelBorder.RAISED)), smallEmptyBorder);
-        Border mouseDownBorder = new CompoundBorder(new CompoundBorder(smallEmptyBorder,
-                new BevelBorder(BevelBorder.LOWERED)), smallEmptyBorder);
-        if (isUnlocked && isClickable) {
-            panel.addMouseListener(new MouseAdapter() {
-                // Set border for mouse events
-                @Override
-                public void mousePressed(MouseEvent e) {
-                    panel.setBorder(mouseDownBorder);
-                }
-
-                @Override
-                public void mouseEntered(MouseEvent e) {
-                    panel.setBorder(mouseOverBorder);
-                }
-
-                @Override
-                public void mouseExited(MouseEvent e) {
-                    panel.setBorder(largeEmptyBorder);
-                }
-            });
-        }
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         return panel;
     }
@@ -181,7 +148,7 @@ public class AchievementPresenter {
 
         JLabel image = new JLabel(achievementImage(192));
         JLabel name = new JLabel("<html><h1 style='text-align:center'>" + achievement.name() + "</h1></html>", SwingConstants.CENTER);
-        JLabel description = new JLabel("<html><h2 style='text-align:center'>" + achievement.description() + "</h2></html>", SwingConstants.CENTER);
+        JLabel description = new JLabel("<html><h2 style='text-align:center; font-weight:normal;'>" + achievement.description() + "</h2></html>", SwingConstants.CENTER);
 
         if (achievement.hidden()) {
             name.setForeground(hiddenUnlockedColour);
