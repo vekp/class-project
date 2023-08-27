@@ -2,15 +2,7 @@ package minigames.client.survey;
 
 import minigames.client.MinigameNetworkClient;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-import java.io.FileWriter;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import io.vertx.core.json.JsonObject;
 
 import java.awt.BorderLayout;
 import javax.swing.BorderFactory; 
@@ -26,14 +18,7 @@ import java.io.*;
 import javax.swing.*;
 import java.awt.*;
 
-// import javax.swing.Dimension;
-
 public class Survey extends JPanel implements ActionListener {
-
-    MinigameNetworkClient mnClient;
-    JSONArray feedbackArray;
-
-    // Private variables
 
     // (labels and buttons need to be registered here)
     private JPanel titlePanel, counterPanel, backPanel, gameNamePanel, surveyQuestionsPanelGroup, surveyQuestionsPanelLeft, surveyQuestionsPanelRight, feedbackPanel, submitPanel, footerPanel, uiRatingPanel, enjoymentPanel, functionalityPanel; 
@@ -134,9 +119,6 @@ public class Survey extends JPanel implements ActionListener {
         uiRatingPanel.add(uiRatingFour);
         uiRatingPanel.add(uiRatingFive);
         uiRatingPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-
-        // Initialise the feedbackArray
-        feedbackArray = new JSONArray();
 
         // Ensures only one of the radio buttons are selected at a time
         uiRatingButtonGroup= new ButtonGroup();
@@ -257,7 +239,7 @@ public class Survey extends JPanel implements ActionListener {
         submitPanel = new JPanel();
         submitButton = new JButton("Submit");
         submitButton.setFont(fontButton);
-        submitButton.addActionListener(e -> submit());
+        submitButton.addActionListener(e -> submit(mnClient));
         submitPanel.add(submitButton);
 
         panelColourChange(mainBgColour, fgColour);
@@ -284,19 +266,13 @@ public class Survey extends JPanel implements ActionListener {
         return(image);
     }
 
-    public void submit() {
+    public void submit(MinigameNetworkClient mnClient) {
         String text = feedbackText.getText();
-    
-        // JSON object to store the feedback data
-        JSONObject feedbackObject = new JSONObject();
-        feedbackObject.put("user_id", "123"); // Replace with real user ID
-        feedbackObject.put("timestamp", getCurrentTimestamp());
-        feedbackObject.put("feedback_text", text);
-    
-        feedbackArray.add(feedbackObject);
+        JsonObject surveyData = new JsonObject()
+        .put("user_id", 111)
+        .put("feedback_text", text);
 
-        // Save JSON object to a local file
-        saveFeedbackToJsonFile(feedbackArray);
+        mnClient.sendSurveyData(surveyData).onSuccess(e -> mnClient.runMainMenuSequence());
     }
 
     // Change colour of panels (overrides singular setting of colour)
@@ -335,24 +311,6 @@ public class Survey extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-    }
-
-    // Private Functions
-    private String getCurrentTimestamp() {
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return now.format(formatter);
-    }
-    
-    private void saveFeedbackToJsonFile(JSONArray feedbackArray) {
-        try (FileWriter fileWriter = new FileWriter("feedback.json", false)) {
-            // Append feedback to existing JSON file, otherwise create new one
-            fileWriter.write(feedbackArray.toJSONString());
-            fileWriter.write("\n");
-            fileWriter.flush();
-        } catch (IOException e) {
-            e.printStackTrace(); // Add proper exception handling
-        }
     }
 
     // Protected Functions
