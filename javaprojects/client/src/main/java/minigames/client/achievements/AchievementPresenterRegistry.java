@@ -4,6 +4,10 @@ import minigames.achievements.Achievement;
 import minigames.achievements.GameAchievementState;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -38,29 +42,69 @@ public class AchievementPresenterRegistry {
     public JPanel achievementListPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-
         for (int i = 0; i < achievements.size(); i++) {
             AchievementPresenter ap = achievements.get(i);
-            JPanel achievementPanel = ap.mediumAchievementPanel(true);
+            JPanel achievementPanel = ap.mediumAchievementPanel();
             achievementPanel.setLayout(new BoxLayout(achievementPanel, BoxLayout.X_AXIS));
             achievementPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-            int index = i;
             // If achievement is unlocked, add mouse click listener to view it in carousel
-            if (ap.isUnlocked) {
-                achievementPanel.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        JOptionPane.showMessageDialog(panel.getTopLevelAncestor(), achievementCarousel(index),
-                                gameID, JOptionPane.PLAIN_MESSAGE);
-                    }
-                });
-            }
+            if (ap.isUnlocked) makeClickable(achievementPanel, i);
             panel.add(achievementPanel);
         }
         return panel;
     }
 
-    //TODO: create function that returns scroll panel containing achievementListPanel, for in-game achievement list
+    /**
+     * Makes an achievement panel clickable with border effects and click action to display large panel
+     * @param panel the achievement panel
+     * @param index the position in the carousel
+     */
+    private void makeClickable(JPanel panel, int index) {
+        Border smallEmptyBorder = BorderFactory.createEmptyBorder(4, 4, 4, 4);
+        Border mouseOverBorder = BorderFactory.createCompoundBorder(BorderFactory.createCompoundBorder(smallEmptyBorder,
+                BorderFactory.createBevelBorder(BevelBorder.RAISED)), smallEmptyBorder);
+        Border mouseDownBorder = BorderFactory.createCompoundBorder(BorderFactory.createCompoundBorder(smallEmptyBorder,
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED)), smallEmptyBorder);
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                JOptionPane.showMessageDialog(panel.getTopLevelAncestor(), achievementCarousel(index),
+                        gameID + " achievements", JOptionPane.PLAIN_MESSAGE);
+            }
+            @Override
+            public void mousePressed(MouseEvent e) {
+                panel.setBorder(mouseDownBorder);
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                panel.setBorder(mouseOverBorder);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            }
+        });
+    }
+
+    /**
+     * Display the player's achievements for the current game in a scroll pane message dialog
+     * @param frame the parent frame
+     */
+    public void showGameAchievements(JFrame frame) {
+        JScrollPane scrollPane = AchievementUI.generateScrollPane(achievementListPanel());
+        // Set pane size to fit inside frame
+        scrollPane.setPreferredSize(new Dimension(
+            Math.min(700, scrollPane.getPreferredSize().width + 20), // add some padding on the right
+            Math.min(500, scrollPane.getPreferredSize().height)
+            )
+        );
+        scrollPane.getVerticalScrollBar().setUnitIncrement(5);
+        scrollPane.setBorder(null);
+        JOptionPane.showMessageDialog(frame, scrollPane,
+                gameID + " achievements", JOptionPane.PLAIN_MESSAGE);
+    }
 
     /**
      * Create a carousel view with large images of unlocked achievements

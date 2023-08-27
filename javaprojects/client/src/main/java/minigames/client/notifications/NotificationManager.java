@@ -91,7 +91,7 @@ public class NotificationManager implements Tickable {
             notificationPanel.setBorder(border);
         }
         // apply custom styling of colours and font
-        applyStyling(notificationPanel);
+        if (applyColourAndFontStyling) applyStyling(notificationPanel);
         // make dismissible
         if (isDismissible) {
             notificationPanel.addMouseListener(new MouseAdapter() {
