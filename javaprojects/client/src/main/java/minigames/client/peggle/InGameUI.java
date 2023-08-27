@@ -1,9 +1,9 @@
 package minigames.client.peggle;
 
-import javax.swing.JPanel;
-import java.awt.Color;
-import java.awt.Graphics;
+import javax.swing.*;
+import java.awt.*;
 
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 //import javax.swing.event.MouseInputAdapter;
@@ -25,6 +25,12 @@ public class InGameUI extends JPanel {
 
     InGameUI() {
         setBackground(background);
+
+        JButton returnButton = new JButton("Return to Main Menu");
+        ActionListener returnActionListener = e -> PeggleUI.showMainMenu();
+        returnButton.addActionListener(returnActionListener);
+        add(returnButton, BorderLayout.NORTH);
+
         // Creates the cannon at position (0, 0)
         cannon = new Cannon(0, 0);
 

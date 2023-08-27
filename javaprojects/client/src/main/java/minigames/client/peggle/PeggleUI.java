@@ -22,11 +22,13 @@ public class PeggleUI {
     private static final String settingsButtonFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/settingsBTN.png";
     private static JFrame mainWindow = null;
 
+    private static JFrame mainWindow = null;
+
     // Main function initialises the UI and starts the game
     public static void main(String[] args) {
         mainWindow = new JFrame(gameName);
         mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainWindow.setPreferredSize(new Dimension(500, 850));
+        mainWindow.setPreferredSize(new Dimension(1000, 750));
         mainWindow.setIconImage(new ImageIcon(iconFilePath).getImage());
 
         JPanel titleScreen = generateMainMenu();
@@ -108,18 +110,23 @@ public class PeggleUI {
         return button;
     }
 
+
     public static void showMainMenu() {
         JPanel titleScreen = generateMainMenu();
         mainWindow.setContentPane(titleScreen);
-        mainWindow.setPreferredSize(new Dimension(500, 850));
+        mainWindow.setPreferredSize(new Dimension(1000, 750));
+        mainWindow.pack();
         mainWindow.revalidate();
     }
+
+
 
     // Starts the game by switching to the InGameUI
     private static void startGame() {
         InGameUI gameSession = new InGameUI();
         mainWindow.setContentPane(gameSession);
         mainWindow.setPreferredSize(new Dimension(1000, 750));
+        mainWindow.pack();
         mainWindow.revalidate();
     }
 
@@ -142,7 +149,8 @@ public class PeggleUI {
     private static void checkInstructions() {
         InstructionsUI instructionsUI = new InstructionsUI();
         mainWindow.setContentPane(instructionsUI);
-        mainWindow.setPreferredSize(new Dimension(500, 850));
+        mainWindow.setPreferredSize(new Dimension(1000, 750));
+        mainWindow.pack();
         mainWindow.revalidate();
     }
 
@@ -150,4 +158,3 @@ public class PeggleUI {
     private void pauseMenu(){
         System.out.println("Pause Menu");
     }
-}
