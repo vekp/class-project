@@ -113,7 +113,8 @@ public class MazeDisplay extends JPanel {
             @Override
             public void run() {
                 for (SpaceBot bot : bots ) {
-                    bot.moveBot();
+                    bot.validMoveBot();
+                    detectAndSendCollisions();
                 }
                 repaint();
             }
@@ -220,6 +221,7 @@ public class MazeDisplay extends JPanel {
                     }
                     // Updates our recorded player point
                     updatePlayerPoint();
+                    detectAndSendCollisions();
                 }
                 break;
             case KeyEvent.VK_DOWN:
@@ -233,6 +235,7 @@ public class MazeDisplay extends JPanel {
                         movePlayerImage();
                     }
                     updatePlayerPoint();
+                    detectAndSendCollisions();
                 }
                 break;
             case KeyEvent.VK_LEFT:
@@ -246,6 +249,7 @@ public class MazeDisplay extends JPanel {
                         movePlayerImage();
                     }
                     updatePlayerPoint();
+                    detectAndSendCollisions();
                 }
                 break;
             case KeyEvent.VK_RIGHT:
@@ -259,6 +263,7 @@ public class MazeDisplay extends JPanel {
                         movePlayerImage();
                     }
                     updatePlayerPoint();
+                    detectAndSendCollisions();
                 }
                 break;
         }
@@ -405,5 +410,22 @@ public class MazeDisplay extends JPanel {
         }
 
         return (!outOfBounds && !isWallOrExit);
+    }
+    /*
+     * Method for detecting collisions between bots and players.
+     * 
+     */
+    public void detectAndSendCollisions() {
+
+        // iterate through the bots and compare position with the players.
+            for (SpaceBot bot : bots) {
+                Point botPosition = bot.getLocation();
+
+                if(playerPos.x == botPosition.x && playerPos.y == botPosition.y) {
+                    logger.info("Collision detected");
+                    spaceMaze.sendCommand("botCollision");
+                }
+                
+            }
     }
 }

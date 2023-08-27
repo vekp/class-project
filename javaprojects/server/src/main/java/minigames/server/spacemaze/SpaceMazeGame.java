@@ -128,6 +128,11 @@ public class SpaceMazeGame {
             renderingCommands.add(new JsonObject().put("command", "timer")
                     .put("time", currentTime));
         }
+        // Bot collision detected on client.
+        if(commandString.startsWith("botCollision")) {
+            logger.info("bot collision detected on server from client");
+
+        }
 
         return new RenderingPackage(this.gameMetadata(), renderingCommands);
     }
