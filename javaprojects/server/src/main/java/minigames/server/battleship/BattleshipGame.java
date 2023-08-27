@@ -178,6 +178,11 @@ public class BattleshipGame {
                 if (userInput.equals("refresh")) {
                     //if we got past the above check, it is now this player's turn, inform them to switch to a
                     //prepare turn state
+                    //todo need to implement the global turn counter. If this is turn 1 or 2, it will be the first
+                    // turn for this player - so we should add the FirstInstruction() turn result message to the
+                    // player's history here
+
+                    //if (turn <=2) current.updateHistory(BattleShipTurnResult.firstInstruction().playerMessage());
                     commands.addAll(getGameRender(current, opponent));
                     commands.add(new JsonObject().put("command", "prepareTurn"));
                 } else {
