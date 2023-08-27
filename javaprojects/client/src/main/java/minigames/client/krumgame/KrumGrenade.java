@@ -9,9 +9,10 @@ import java.util.ArrayList;
  * out.
  */
 public class KrumGrenade extends KrumProjectile {
-    static double KNOCKBACK_DISTANCE = 60;
-    static double KNOCKBACK_POWER = 7.5;
-    static int EXPLOSION_RADIUS = 40;
+    final double KNOCKBACK_DISTANCE = 60;
+    final double KNOCKBACK_POWER = 7.5;
+    final int EXPLOSION_RADIUS = 40;
+    final int MAX_DAMAGE = 50;
     long explosionTick; 
     KrumGrenade(int xpos, int ypos, double xvel, double yvel, int seconds, BufferedImage sprite, WritableRaster ground, long tick) {
         super(xpos, ypos, xvel, yvel, sprite, ground);        
@@ -20,6 +21,8 @@ public class KrumGrenade extends KrumProjectile {
         radius = (int)(sprite.getWidth() / 2);        
         explosionRadius = EXPLOSION_RADIUS;    
         explosionTick = tick + (long)seconds * KrumC.TARGET_FRAMERATE;
+        maxDamage = MAX_DAMAGE;
+        damageRadius = explosionRadius + 20;
     }
     @Override
     void update(double windX, double windY) {

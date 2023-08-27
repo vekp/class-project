@@ -13,7 +13,11 @@ public class KrumGameState {
     double windY;
     long startTick;
     long endTick;
-    KrumGameState(KrumPlayer[] players, BufferedImage background, double windX, double windY, long tick) {
+    boolean ending;
+    boolean running;
+    int winner;
+    double waterLevel;
+    KrumGameState(KrumPlayer[] players, BufferedImage background, double windX, double windY, long tick, boolean ending, boolean running, int winner, double waterLevel) {
         playerStates = new ArrayList<KrumPlayerState>();
         for (KrumPlayer p : players) {
             playerStates.add(new KrumPlayerState(p));
@@ -23,5 +27,9 @@ public class KrumGameState {
         this.windY = windY;
         this.startTick = tick;
         this.endTick = tick + KrumC.TURN_TIME_LIMIT_FRAMES;
+        this.ending = ending;
+        this.running = running;
+        this.winner = winner;
+        this.waterLevel = waterLevel;
     }
 }

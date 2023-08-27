@@ -36,6 +36,9 @@ public class KrumGame implements GameClient {
     int playerTurn;
     boolean turnOver = false;
     boolean readyToStartTurn = false;
+    boolean ending = false;
+    int winner = -1;
+    double waterLevel;
 
     // Player information
     String player;
@@ -81,7 +84,7 @@ public class KrumGame implements GameClient {
         //rand = new Random(); 
         firstRun = true;
         updateCount = 0;
-
+        waterLevel = KrumC.RES_Y - 1;
         // Initializing the background image
         backgroundComponent = new Background("chameleon.png");
         //backgroundComponent = new Background("ropetestmap.png");
@@ -120,7 +123,7 @@ public class KrumGame implements GameClient {
         players[0].joey.otherPlayer = players[1];
         players[1].joey.otherPlayer = players[0];
         playerTurn = 0;
-        savedTurns = new KrumTurn[] {new KrumTurn(players, background, windX, windY, updateCount), new KrumTurn(players, background, windX, windY, updateCount)};       
+        savedTurns = new KrumTurn[] {new KrumTurn(players, background, windX, windY, updateCount, ending, running, winner, waterLevel), new KrumTurn(players, background, windX, windY, updateCount, ending, running, winner, waterLevel)};       
         currentTurn = savedTurns[playerTurn];
     }
     
@@ -166,11 +169,20 @@ public class KrumGame implements GameClient {
         //windString += Math.round(windX * 10000.0) / 100.0;
         
         turnEndFrame = updateCount + KrumC.TURN_TIME_LIMIT_FRAMES;
-        savedTurns[playerTurn] = new KrumTurn(players, background, windX, windY, updateCount);
+        savedTurns[playerTurn] = new KrumTurn(players, background, windX, windY, updateCount, ending, running, winner, waterLevel);
         currentTurn = savedTurns[playerTurn];
         recordingTurn = true;
         turnOver = false;
         players[playerTurn].jumping = false;
+    }
+
+    int numLivingPlayers() {
+        int n = 0;
+        for (KrumPlayer p : players) {
+            if (!p.dead)
+                n++;
+        }
+        return n;
     }
 
     /*
@@ -182,11 +194,30 @@ public class KrumGame implements GameClient {
         for (KrumPlayer p : players)
             p.stop();
         recordingTurn = false;
-        currentTurn.endState = new KrumGameState(players, background, windX, windY, updateCount);
+        currentTurn.endState = new KrumGameState(players, background, windX, windY, updateCount, ending, running, winner, waterLevel);
         playerTurn = 1 - playerTurn;        
         turnOver = true;
         readyToStartTurn = false;
         turnOverFrame = updateCount;
+        int playersAlive = numLivingPlayers();        
+        if (playersAlive < 2) {
+            if (playersAlive == 0) {
+                gameOver(-1);
+            }
+            else {
+                for (KrumPlayer p : players) {
+                    if (!p.dead) {
+                        gameOver(p.playerIndex);
+                    }
+                }
+            }
+        }
+    }
+
+    void gameOver(int w) {
+        winner = w;        
+        running = false;
+        ending = true;
     }
 
     /**
@@ -228,6 +259,10 @@ public class KrumGame implements GameClient {
         turnEndFrame = state.endTick;
         windX = state.windX;
         windY = state.windY;
+        ending = state.ending;
+        running = state.running;
+        winner = state.winner;
+        waterLevel = state.waterLevel;
         for (int i = 0; i < Math.min(players.length, state.playerStates.size()); i++) {
             KrumPlayerState ps = state.playerStates.get(i);
             players[i].hp = ps.hp;
@@ -278,6 +313,9 @@ public class KrumGame implements GameClient {
             players[i].joey.active = false;
             players[i].grenade = null;
             players[i].projectile = null;
+            players[i].canShootRope = ps.canShootRope;
+            players[i].dead = ps.dead;
+            players[i].firstLanding = ps.firstLanding;
         }
     }
 
@@ -317,26 +355,43 @@ public class KrumGame implements GameClient {
                 }                
             }  
             p.update(windX, windY, alphaRaster, updateCount, rt, pf, turnOver);
+            if (p.ypos > waterLevel) p.die();
+            if (numLivingPlayers() < 2) {
+                turnEndFrame = updateCount;
+            }
             if (p.projectile != null) {
                 if(p.projectile.collisionCheck()) {
-                    explode((int)p.projectile.x, (int)p.projectile.y, p.projectile);
+                    explode((int)p.projectile.x, (int)p.projectile.y, p.projectile);                    
+                    for (KrumPlayer pl : players) {
+                        double distance = KrumHelpers.distanceBetween(p.projectile.centre()[0], p.projectile.centre()[1], pl.playerCentre().x, pl.playerCentre().y);
+                        if (distance <= p.projectile.damageRadius) {
+                            pl.hit(p.projectile.maxDamage, distance, p.projectile.damageRadius);
+                        }
+                    }
                     p.projectile = null;
                 }
                 if (p.projectile != null) {
                     int n = p.projectile.playerCollisionCheck(players);
                     if (n >= 0) {
                         explode((int)p.projectile.x, (int)p.projectile.y, p.projectile);
-                        p.projectile = null;
-                        players[n].hit();
+                        players[n].hit(p.projectile.maxDamage, 0, p.projectile.damageRadius);
+                        for (int i = 0; i < players.length; i++) {
+                            if (i == n) continue;
+                            double distance = KrumHelpers.distanceBetween(p.projectile.centre()[0], p.projectile.centre()[1], players[i].playerCentre().x, players[i].playerCentre().y);
+                            if (distance <= p.projectile.damageRadius) {
+                                players[i].hit(p.projectile.maxDamage, distance, p.projectile.damageRadius);
+                            }
+                        }
+                        p.projectile = null;                        
                     }
                 }
             }
             if (p.grenade != null) {
                 if (p.grenade.timerCheck(updateCount)) {
-                    System.out.println("EX");
                     for (KrumPlayer pl : players) {
-                        if (KrumHelpers.distanceBetween(p.grenade.x, p.grenade.y, pl.playerCentre().x, pl.playerCentre().y) <= p.grenade.explosionRadius) {
-                            pl.hit();
+                        double distance = KrumHelpers.distanceBetween(p.grenade.centre()[0], p.grenade.centre()[1], pl.playerCentre().x, pl.playerCentre().y);
+                        if (distance <= p.grenade.damageRadius) {
+                            pl.hit(p.grenade.maxDamage, distance, p.grenade.damageRadius);
                         }
                     }
                     explode((int)p.grenade.x, (int)p.grenade.y, p.grenade);
@@ -346,8 +401,9 @@ public class KrumGame implements GameClient {
             if (p.joey.active) {
                 if (p.joey.timerCheck(updateCount)) {
                     for (KrumPlayer pl : players) {
-                        if (KrumHelpers.distanceBetween(p.joey.xpos, p.joey.ypos, pl.playerCentre().x, pl.playerCentre().y) <= p.joey.explosionRadius) {
-                            pl.hit();
+                        double distance = KrumHelpers.distanceBetween(p.joey.centre()[0], p.joey.centre()[1], pl.playerCentre().x, pl.playerCentre().y);
+                        if (distance <= p.joey.damageRadius) {
+                            pl.hit(p.joey.maxDamage, distance, p.joey.damageRadius);
                         }
                     }
                     explode((int)p.joey.xpos, (int)p.joey.ypos, p.joey);
@@ -377,17 +433,25 @@ public class KrumGame implements GameClient {
      * @param g
      */
     void draw(Graphics2D g) {
+        //draw background
         g.drawImage(background, null, 0, 0);
+
+        //draw players and their weapons
         for (KrumPlayer p : players) {
+            if (p.dead) continue;
             p.draw(g, playerTurn);
             if (p.projectile != null) p.projectile.draw(g);
             if (p.grenade != null) p.grenade.draw(g);
             if (p.joey.active) p.joey.draw(g);
         }        
+
+        //draw wind info
         g.setColor(Color.red);
         if (windX > 0) g.setColor(Color.blue);        
         g.setFont(new Font("Courier New", 1, 24));
         g.drawString(windString, 300, 25);
+
+        //draw timer
         g.setFont(new Font("Courier New", 1, 26));
         String timerString = "";
         if (turnEndFrame - updateCount > KrumC.TARGET_FRAMERATE * 3) {
@@ -402,11 +466,15 @@ public class KrumGame implements GameClient {
             g.setColor(Color.red);
             timerString += "0";
         }
+
+        //draw replay text
         g.drawString(timerString, 5, 20);
         if (playingBackTurn) {
             g.setColor(Color.gray);
             g.drawString("REPLAY", 325, 60);
         }
+
+        //draw explosions
         g.setColor(Color.red);
         for (int i = 0; i < explosions.size(); i++) {
             ExplosionDetails e = explosions.get(i);
@@ -416,6 +484,25 @@ public class KrumGame implements GameClient {
                 explosions.remove(e);
                 i--;
             }                
+        }
+
+        //draw water
+        if (waterLevel < KrumC.RES_Y - 1) {
+            g.setColor(new Color(0x64, 0x2c, 0xa9, 200));
+            g.fillRect(0, (int)waterLevel, KrumC.RES_X - 1, KrumC.RES_Y - 1);
+        }
+        if (ending) {
+            String resultString = "";
+            int w = winner + 1;
+            if (winner == -1) {
+                resultString += "Game drawn!";
+            }
+            else {
+                resultString += "Player " + w + " wins!";
+            }
+            g.setColor(Color.BLACK);
+            g.setFont(new Font("Courier New", 1, 42));
+            g.drawString(resultString, KrumC.RES_X / 2 - 160, 120);
         }
     }
 
@@ -435,6 +522,9 @@ public class KrumGame implements GameClient {
                 panel.repaint();                
             }            
         }
+        while (ending) {
+
+        }
     }
 
     // mouse and key Down/Up functions are triggered via the listeners in KrumPanel
@@ -445,9 +535,9 @@ public class KrumGame implements GameClient {
             players[playerTurn].startGrenadeFire(e);
     }
     void mouseUp(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON1)
+        if (e.getButton() == MouseEvent.BUTTON1 && players[playerTurn].firing)
             players[playerTurn].endFire(e);
-        else 
+        else if (players[playerTurn].firingGrenade)
             players[playerTurn].endGrenadeFire(e);
     }
     void keyDown(KeyEvent e) {

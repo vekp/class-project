@@ -11,22 +11,31 @@ import java.awt.event.MouseEvent;
 import java.awt.image.WritableRaster;
 
 import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 
 import java.awt.geom.Point2D;
 
 import java.awt.Color;
+import java.awt.Font;
 
 /*
  * Class representing a player-controlled character
  */
 
 public class KrumPlayer {
+    final double FALL_DAMAGE_VELOCITY_THRESHOLD = 3.0;
+    final int FALL_DAMAGE_MAX = 25;
+
     int hp;
     double xpos;
     double ypos;
     double xvel;
     double yvel;
+
+    boolean canShootRope;
+
+    boolean firstLanding;
+
+    boolean dead = false;;
 
     boolean active;
     double aimAngleRadians;
@@ -52,6 +61,8 @@ public class KrumPlayer {
     int grenadeSeconds;
     
     int flashFramesLeft = 0;
+
+    int stuckFrames = 0;
 
     boolean airborne;
     boolean jumping;
@@ -161,6 +172,8 @@ public class KrumPlayer {
         this.aimAngleRadians = 0;
         this.hp = 100;
         this.spriteDir = spriteFileName;
+        firstLanding = true;
+        canShootRope = true;
 
         BufferedImage joeySprite = KrumHelpers.readSprite("joey.png");
 
@@ -346,7 +359,9 @@ public class KrumPlayer {
             } else {
                 g.drawImage(spriteGun, null, (int)xpos + 10, (int)ypos + 6);
             }
-        }        
+        }  
+        
+        //draw shot power bar
         if (firing) {
             aimAngleRadians = calcAimAngle(); 
             long power = System.nanoTime() - fireStart;
@@ -361,6 +376,8 @@ public class KrumPlayer {
             g.setColor(Color.green);
             g.drawLine((int)shotOrigin().x, (int)shotOrigin().y, (int)(shotOrigin().x + Math.cos(aimAngleRadians) * power), (int)(shotOrigin().y - Math.sin(aimAngleRadians) * power));
         }
+        
+        //draw rope
         g.setColor(Color.orange);
         if (shootingRope) {            
             g.drawLine((int)ropeOrigin().x, (int)ropeOrigin().y, (int)(ropeOrigin().x + Math.cos(ropeAngleRadians) * ropeLength), (int)(ropeOrigin().y - Math.sin(ropeAngleRadians) * ropeLength));
@@ -373,6 +390,13 @@ public class KrumPlayer {
                 o = p;
             }
         }
+
+        //draw hp
+        g.setFont(new Font("Courier New", 1, 12));
+        g.setColor(new Color(64, 192, 64));
+        String hpString = "";
+        hpString += this.hp;
+        g.drawString(hpString, (int)this.xpos + (int)sprite.getWidth() / 4, (int)this.ypos - 12);
     }
 
     /**
@@ -382,6 +406,7 @@ public class KrumPlayer {
      * @param levelRaster
      */
     void update(double windX, double windY, WritableRaster levelRaster, long tick, KrumTurn recordingTurn, KrumInputFrame playbackFrame, boolean turnOver){
+        if (dead) return;
         KrumInputFrame recordingFrame = new KrumInputFrame();
         recordingFrame.activePlayer = playerIndex;
         recordingFrame.frameCount = tick;
@@ -506,6 +531,13 @@ public class KrumPlayer {
             rightKeyDown = false;
         }
         if (flashFramesLeft > 0) flashFramesLeft--;
+
+        //fire weapons if at max power
+        if (firingGrenade && System.nanoTime() - fireGrenadeStart >= KrumGrenade.maxPower)
+            endGrenadeFire(null);
+        if (firing && System.nanoTime() - fireStart >= KrumProjectile.maxPower)
+            endFire(null);
+
         if (airborne) {
             double oldx = xpos;
             double oldy = ypos;
@@ -551,15 +583,24 @@ public class KrumPlayer {
             //     double xv = xvel > 0 ? -mag : mag;
             //     xpos += xv * 35;
             // }
-            if (nonDirectionalCollisionCheck()){
+            if (nonDirectionalCollisionCheck(new int[] {1,1,1,1}) && stuckFrames <= 10){
+                //System.out.println("player " + playerIndex + " may be stuck");
+                collision = true;
+                stuckFrames++;
+                if (stuckFrames > 10) {
+                    xvel *= -1;                    
+                    System.out.println("player " + playerIndex + " IS STUCK");
+                }
                 int inc = Math.abs(Math.max((int)xvel, (int)yvel));
                 inc++;
                 int i = inc;
-                while(nonDirectionalCollisionCheck() && i > 0) {
+                while(nonDirectionalCollisionCheck(new int[] {0,0,0,1}) && i > 0) {
                     xpos -= xvel / inc;
                     ypos -= yvel / inc;
                     i--;
                 }
+                xvel *= 0.9;
+                yvel *= 0.9;
                 // int inc = (xvel > 3 || yvel > 3) ? 50 : 20;
                 // if (collisionCheck(levelRaster, 3)) {
                 //     for (int i = 0; i < inc; i ++) {
@@ -571,6 +612,9 @@ public class KrumPlayer {
                 //     ypos -= yvel / inc;
                 //     xpos -= xvel / inc;
                 // }                
+            }
+            else {
+                stuckFrames = 0;
             }
             if ((l && xvel < 0) || (r && xvel > 0)) {
                 double mag = Math.max(Math.abs(xvel) * -0.5, 0.2);
@@ -584,12 +628,22 @@ public class KrumPlayer {
                 yvel = 0;
             }
             if (land) {
+                if (firstLanding) {
+                    firstLanding = false;
+                }
+                else if (yvel > FALL_DAMAGE_VELOCITY_THRESHOLD) {
+                    fallDamage(yvel);
+                }
                 yvel = 0;
                 xvel = 0;
                 airborne = false;
                 walkedOffEdge = false;
                 shootingRope = false;
-                wasOnRope = false;
+                wasOnRope = false;     
+                canShootRope = true;           
+            }
+            if (collision && wasOnRope) {
+                canShootRope = false;
             }
         }
         if (walking && (!airborne || walkedOffEdge)) {
@@ -648,7 +702,7 @@ public class KrumPlayer {
                 ropeLength -= KrumC.ROPE_LENGTH_SPEED;
                 xpos += Math.cos(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED;
                 ypos -= Math.sin(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED;
-                if (nonDirectionalCollisionCheck()) {
+                if (nonDirectionalCollisionCheck(null)) {
                     ropeLength += KrumC.ROPE_LENGTH_SPEED;
                     xpos -= Math.cos(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED;
                     ypos += Math.sin(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED;
@@ -663,7 +717,7 @@ public class KrumPlayer {
                 ropeLength += KrumC.ROPE_LENGTH_SPEED;
                 xpos -= Math.cos(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED;
                 ypos += Math.sin(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED;
-                if (nonDirectionalCollisionCheck()) {
+                if (nonDirectionalCollisionCheck(null)) {
                     ropeLength -= KrumC.ROPE_LENGTH_SPEED;
                     xpos += Math.cos(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED;
                     ypos -= Math.sin(ropeAngleRadians) * KrumC.ROPE_LENGTH_SPEED;
@@ -727,7 +781,7 @@ public class KrumPlayer {
             ropeAngleRadians += (clockwise ? -ropeVelMag / ropeLength : ropeVelMag / ropeLength);
             xpos = ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 1).x + ropeLength * Math.cos(Math.PI + ropeAngleRadians) - sprite.getWidth()/2;
             ypos = ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 1).y - ropeLength * Math.sin(Math.PI + ropeAngleRadians) - sprite.getHeight()/2;
-            if (nonDirectionalCollisionCheck()) {
+            if (nonDirectionalCollisionCheck(null)) {
                 xpos = oldx;
                 ypos = oldy;
                 ropeAngleRadians -= (clockwise ? ropeVelMag / ropeLength : -ropeVelMag / ropeLength);
@@ -775,11 +829,24 @@ public class KrumPlayer {
     }
 
 
-    boolean nonDirectionalCollisionCheck() {
-        for (int x = facingRight ? KrumC.HITBOX_X_S : sprite.getWidth() - 1 - KrumC.HITBOX_X_F; x <= (facingRight ? KrumC.HITBOX_X_F : sprite.getWidth() - KrumC.HITBOX_X_S); x++) {
+    boolean nonDirectionalCollisionCheck(int[] leeway) {
+        int l, r, u, d;
+        l = 0;
+        r = 0;
+        u = 0;
+        d = 0;
+        if (leeway != null) {
+            if (leeway.length == 4) {
+                l = leeway[0];
+                r = leeway[1];
+                u = leeway[2];
+                d = leeway[3];
+            }
+        }
+        for (int x = l + (facingRight ? KrumC.HITBOX_X_S : sprite.getWidth() - 1 - KrumC.HITBOX_X_F); x <= (facingRight ? KrumC.HITBOX_X_F : sprite.getWidth() - KrumC.HITBOX_X_S) - r; x++) {
             if (x + xpos < 0) continue;
             if (x + xpos >= levelRaster.getWidth()) break;
-            for (int y = KrumC.HITBOX_Y_S; y <= KrumC.HITBOX_Y_F; y++) {
+            for (int y = KrumC.HITBOX_Y_S + u; y <= KrumC.HITBOX_Y_F - d; y++) {
                 if (y + ypos < 0) continue;
                 if (y + ypos >= levelRaster.getHeight()) break;
                 if (alphaRaster.getPixel(x, y, empty)[0] > KrumC.OPACITY_THRESHOLD) {
@@ -846,6 +913,8 @@ public class KrumPlayer {
                 if (ypos + i >= levelRaster.getHeight()) break;
                 if ((int)xpos >= 0 && (int)xpos + sprite.getWidth() < levelRaster.getWidth()) {
                     int x = facingRight ? leftEdge[i] : alphaRaster.getWidth() - 1 - rightEdge[i];
+                    if ((int)xpos + x >= levelRaster.getWidth()) break;
+                    if ((int) xpos + x < 0) continue;
                     if (alphaRaster.getPixel(x, i, empty)[0] > KrumC.OPACITY_THRESHOLD && levelRaster.getPixel((int)xpos + x, (int)ypos + i, empty)[0] > KrumC.OPACITY_THRESHOLD) {
                         return true;
                     }
@@ -858,6 +927,8 @@ public class KrumPlayer {
                 if (ypos + i >= levelRaster.getHeight()) break;
                 if ((int)xpos >= 0 && (int)xpos + sprite.getWidth() < levelRaster.getWidth()) {
                     int x = facingRight ? rightEdge[i] : alphaRaster.getWidth() - 1 - leftEdge[i];
+                    if ((int)xpos + x >= levelRaster.getWidth()) break;
+                    if ((int) xpos + x < 0) continue;
                     if (alphaRaster.getPixel(x, i, empty)[0] > KrumC.OPACITY_THRESHOLD && levelRaster.getPixel((int)xpos + x, (int)ypos + i, empty)[0] > KrumC.OPACITY_THRESHOLD) {
                         return true;
                     }
@@ -870,6 +941,8 @@ public class KrumPlayer {
                 if (xpos + i >= levelRaster.getWidth()) break;
                 if ((int)ypos >= 0 && (int)ypos < levelRaster.getHeight()) {
                     int y = facingRight ? topEdge[i] : topEdgeFlipped[i];
+                    if ((int)ypos + y >= levelRaster.getHeight()) break;
+                    if ((int)ypos + y < 0) continue;
                     if (alphaRaster.getPixel(i, y, empty)[0] > KrumC.OPACITY_THRESHOLD && levelRaster.getPixel((int)xpos + i, (int)ypos + y, empty)[0] > KrumC.OPACITY_THRESHOLD) {
                         return true;
                     }
@@ -883,6 +956,8 @@ public class KrumPlayer {
                 if (xpos + i >= levelRaster.getWidth()) break;
                 if ((int)ypos >= 0 && (int)ypos + sprite.getHeight() < levelRaster.getHeight()) {
                     int y = facingRight ? bottomEdge[i] : bottomEdgeFlipped[i];
+                    if ((int)ypos + y >= levelRaster.getHeight()) break;
+                    if ((int)ypos + y < 0) continue;
                     if (alphaRaster.getPixel(i, y, empty)[0] > KrumC.OPACITY_THRESHOLD && levelRaster.getPixel((int)xpos + i, (int)ypos + y, empty)[0] > KrumC.OPACITY_THRESHOLD) {
                         hits++;
                         if (hits > 1) return true;
@@ -1025,7 +1100,13 @@ public class KrumPlayer {
      * @param power number of nanoseconds the jump key was held for
      */
     void jump(long power, int type) {
+        System.out.println(power);
+        power += KrumC.JUMP_MIN_POWER;
+        System.out.println(power);
+        power = Math.min(power, KrumC.JUMP_MAX_POWER);
+        System.out.println(power);
         power /= 100000000;
+        System.out.println(power);
         double p = (double)power;
         p /= 2.5;
         if (type == 0) {
@@ -1042,6 +1123,7 @@ public class KrumPlayer {
     }
 
     void shootRope() {
+        if (!canShootRope) return;
         shootingRope = true;        
         ropeAttachmentPoints.clear();
         walking = false;
@@ -1084,6 +1166,7 @@ public class KrumPlayer {
     void endGrenadeFire(MouseEvent e) {
         firingGrenade = false;
         grenadePower = System.nanoTime() - fireGrenadeStart;
+        grenadePower = Math.min(grenadePower, KrumGrenade.maxPower);
         grenadeNextFrame = true;
         grenadeAimAngle = calcAimAngle();
     }
@@ -1110,6 +1193,7 @@ public class KrumPlayer {
     void endFire(MouseEvent e) {
         firing = false;
         shotPower = System.nanoTime() - fireStart;
+        shotPower = Math.min(shotPower, KrumProjectile.maxPower);
         shootNextFrame = true;
         shootAimAngle = calcAimAngle();
     }
@@ -1134,10 +1218,33 @@ public class KrumPlayer {
         this.yoff = y;
     }
 
+    public void die() {
+        if (dead) return;
+        System.out.println("Player " + playerIndex + " died");
+        dead = true;
+    }
+
+    public void damage(int damage) {
+        hp -=  damage;
+        if (hp <= 0)
+            die(); 
+        else
+            flashFramesLeft += damage * 1.5;    
+    }
+
     /**
      * called when this player is hit by a projectile
      */
-    public void hit() {
-        flashFramesLeft += 30; // currently just showing that the hit was registered by making the sprite flash
+    public void hit(int maxDamage, double distance, double radius) {    
+        int damage = maxDamage;
+        if (distance > 0) {
+            damage *= (1 - distance/radius);
+        }
+        damage(damage);
+    }
+
+
+    void fallDamage(double vel) {
+        damage(Math.min((int)((vel - FALL_DAMAGE_VELOCITY_THRESHOLD) * 10), FALL_DAMAGE_MAX));
     }
 }

@@ -59,6 +59,9 @@ public class KrumPlayerState {
     KrumProjectile projectile;
     KrumGrenade grenade;
     KrumJoey joey;
+    boolean dead;
+    boolean canShootRope;
+    boolean firstLanding;    
     KrumPlayerState(KrumPlayer p) {
         this.hp = p.hp;
         this.xpos = p.xpos;
@@ -109,5 +112,8 @@ public class KrumPlayerState {
         this.projectile = p.projectile;
         this.grenade = p.grenade;
         this.joey = p.joey;
+        this.dead = p.dead;
+        this.canShootRope = p.canShootRope;
+        this.firstLanding = p.firstLanding;
     }
 }
