@@ -220,10 +220,6 @@ public class SpaceMaze implements GameClient {
             case "viewHighScore" -> headerText.setText("View High Score");
             case "mainMenu" -> headerText.setText("Go to Main Menu");
             case "exit" -> closeGame();
-            case "botCollision"-> {
-                    logger.info("Sending botCollision command to server");
-                    sendCommand("botCollision");         
-            }
         }
     }
 

@@ -421,7 +421,7 @@ public class MazeDisplay extends JPanel {
             for (SpaceBot bot : bots) {
                 Point botPosition = bot.getLocation();
 
-                if(playerPos.x == botPosition.x && playerPos.y == botPosition.y) {
+                if(playerPos.equals(botPosition)) {
                     logger.info("Collision detected");
                     spaceMaze.sendCommand("botCollision");
                 }

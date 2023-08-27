@@ -93,6 +93,7 @@ public class SpaceBot extends SpaceEntity {
     public void validMoveBot() {
         Random ran = new Random();
         ArrayList<Point> validMoves = new ArrayList<Point>();
+        int validDecision;
         
         // Checking for valid moves, 0 : Up, 1 : Right, 2 : Down, 3 : Left.
         for(int i = 0;i<4;i++)
@@ -102,8 +103,17 @@ public class SpaceBot extends SpaceEntity {
              if (MazeDisplay.isMoveValid(newLocation)) {
             validMoves.add(newLocation);
             }
-        }       
-        int validDecision = ran.nextInt((validMoves.size() - 1));
+        }
+
+        if (validMoves.size() > 1) {
+            validDecision = ran.nextInt((validMoves.size() - 1));
+        } else if (validMoves.size() == 1) {
+            validDecision = 0;
+        } else {
+            // No valid moves
+            return;
+        }
+
         // Get the random valid move.
         Point selectedMove = validMoves.get(validDecision);
         // perform the move.
