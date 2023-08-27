@@ -78,7 +78,7 @@ public class KrumGame implements GameClient {
     final int MAX_TURN_GAP_FRAMES = 600;
 
     // Explosions details for the draw loop
-    ArrayList<ExplosionDetails> explosions;
+    //ArrayList<ExplosionDetails> explosions;
 
     public KrumGame() {  
         //rand = new Random(); 
@@ -86,8 +86,8 @@ public class KrumGame implements GameClient {
         updateCount = 0;
         waterLevel = KrumC.RES_Y - 1;
         // Initializing the background image
-        backgroundComponent = new Background("chameleon.png");
-        //backgroundComponent = new Background("ropetestmap.png");
+        //backgroundComponent = new Background("chameleon.png");
+        backgroundComponent = new Background("ropetestmap.png");
         background = backgroundComponent.getImage();
         alphaRaster = backgroundComponent.getAlphaRaster();
 
@@ -102,7 +102,7 @@ public class KrumGame implements GameClient {
         //initializeWind();
         startTurn();
 
-        explosions = new ArrayList<ExplosionDetails>();
+        //explosions = new ArrayList<ExplosionDetails>();
     }
 /*
     private void initializeBackground(){
@@ -139,6 +139,7 @@ public class KrumGame implements GameClient {
     /*
      * Represents the details of an explosion, for use in the draw loop
      */
+    /*
     class ExplosionDetails {
         int x;
         int y;
@@ -151,7 +152,7 @@ public class KrumGame implements GameClient {
             this.radius = r;
         }
     }
-
+*/
     /*
      * Called to start a new turn, shifting control to the other player
      */
@@ -226,6 +227,7 @@ public class KrumGame implements GameClient {
      * @param x x-coordinate of the centre of the explosion
      * @param y y-coordinate of the centre of the explosion
      */
+    /*
     void explode(int x, int y, KrumProjectile p) {
         System.out.println("Ex " + p.explosionRadius);
         double z[] = {0};
@@ -250,6 +252,15 @@ public class KrumGame implements GameClient {
         explosions.add(newex);
     }
 
+*/
+    void handlePlayerKnock(KrumProjectile proj){               
+        for (int i = 0; i < players.length; i++) {
+            if (proj != null) players[i].knockback(proj);  
+            if (!players[i].onRope) {
+                players[i].airborne = true;                
+            }                       
+        }
+    }
     /*
      * Loads state from a KrumGameState object
      */
@@ -361,7 +372,9 @@ public class KrumGame implements GameClient {
             }
             if (p.projectile != null) {
                 if(p.projectile.collisionCheck()) {
-                    explode((int)p.projectile.x, (int)p.projectile.y, p.projectile);                    
+                    ExplosionDetails.explode((int)p.projectile.x, (int)p.projectile.y, p.projectile.explosionRadius, 
+                        KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
+                    handlePlayerKnock(p.projectile);                   
                     for (KrumPlayer pl : players) {
                         double distance = KrumHelpers.distanceBetween(p.projectile.centre()[0], p.projectile.centre()[1], pl.playerCentre().x, pl.playerCentre().y);
                         if (distance <= p.projectile.damageRadius) {
@@ -373,7 +386,9 @@ public class KrumGame implements GameClient {
                 if (p.projectile != null) {
                     int n = p.projectile.playerCollisionCheck(players);
                     if (n >= 0) {
-                        explode((int)p.projectile.x, (int)p.projectile.y, p.projectile);
+                        ExplosionDetails.explode((int)p.projectile.x, (int)p.projectile.y, p.projectile.explosionRadius, 
+                            KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
+                        handlePlayerKnock(p.projectile);
                         players[n].hit(p.projectile.maxDamage, 0, p.projectile.damageRadius);
                         for (int i = 0; i < players.length; i++) {
                             if (i == n) continue;
@@ -394,7 +409,9 @@ public class KrumGame implements GameClient {
                             pl.hit(p.grenade.maxDamage, distance, p.grenade.damageRadius);
                         }
                     }
-                    explode((int)p.grenade.x, (int)p.grenade.y, p.grenade);
+                    ExplosionDetails.explode((int)p.grenade.x, (int)p.grenade.y, p.grenade.explosionRadius, 
+                        KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
+                    handlePlayerKnock(p.grenade);
                     p.grenade = null;
                 }
             }
@@ -406,7 +423,9 @@ public class KrumGame implements GameClient {
                             pl.hit(p.joey.maxDamage, distance, p.joey.damageRadius);
                         }
                     }
-                    explode((int)p.joey.xpos, (int)p.joey.ypos, p.joey);
+                    ExplosionDetails.explode((int)p.joey.xpos, (int)p.joey.ypos, p.joey.explosionRadius, 
+                        KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
+                    handlePlayerKnock(p.joey); 
                     p.joey.active = false;
                 }
             }
@@ -476,14 +495,31 @@ public class KrumGame implements GameClient {
 
         //draw explosions
         g.setColor(Color.red);
-        for (int i = 0; i < explosions.size(); i++) {
-            ExplosionDetails e = explosions.get(i);
-            int r = e.radius - (int)(e.endFrame - updateCount) / 2;
-            g.fillOval(e.x -r, e.y - r, r * 2, r * 2);
-            if (updateCount >= e.endFrame) {
-                explosions.remove(e);
+        for (int i = 0; i < ExplosionDetails.explosions.size(); i++) {
+            System.out.println("Explosion " + ExplosionDetails.explosions.size());
+            ExplosionDetails e = ExplosionDetails.explosions.get(i);
+            int r = e.getRadius() - (int)(e.getEndFrame() - updateCount) / 2;
+            //long time = e.getEndFrame();
+            //System.out.println("Update Count: " + updateCount);
+            System.out.println("R: " + r);
+            g.fillOval(e.getXCoords() - r, e.getYCoords() - r, r * 2, r * 2);
+            if (updateCount >= e.getEndFrame()) {
+                ExplosionDetails.explosions.remove(e);
                 i--;
-            }                
+                System.out.println("Explosion " + ExplosionDetails.explosions.size());
+            }
+            /*
+            int r = e.getRadius() - (int)(turnEndFrame - e.getEndFrame()) / 2;
+            System.out.println("Calculated Radius: " + r);
+            int xC = e.getXCoords();
+            int yC = e.getYCoords();
+            g.fillOval(e.getXCoords(), e.getYCoords(), r * 2, r * 2);
+            //system.out.println("Explosion " + e.getRadius() + " " + e.getXCoords() + " " + e.getYCoords() + " " + e.getEndFrame() + " " + r);
+            if (e.getEndFrame() >= turnEndFrame) {
+                ExplosionDetails.explosions.remove(e);
+                i--;
+            } 
+            */              
         }
 
         //draw water
