@@ -1,6 +1,7 @@
 package minigames.server.spacemaze;
 
 import java.awt.Point;
+import minigames.spacemaze.SpaceEntity;
 
 /*
  *   Class for players

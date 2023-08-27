@@ -81,16 +81,17 @@ public class MazeControl {
         setKeyStatus(keyLocationsList);
 
         // Populate maze with Bots and makeBotGo
+        /*
         for (int b = 0; b < botsLocationsList.size(); b++)
         {
             SpaceBot botty = new SpaceBot(botsLocationsList.get(b));
             makeBotGo(botty);
             // There might be issues when changing levels
         }
-        
+
         // Timer starts (here for now)
         //this.mazeTimer = new GameTimer();
-        
+        */
         
     }
 
@@ -171,6 +172,9 @@ public class MazeControl {
                 else if (mazeArray[y][x] == 'B')
                 {
                     botsLocationsList.add(new Point(x, y));
+
+                    // Removing bot locations once logged, controlled by client.
+                    mazeArray[y][x] = '.';
                 }
             }
         }    
@@ -221,6 +225,7 @@ public class MazeControl {
     /*
      * makeBotGo function - make bot move every n second 
      */
+    /*
     public void makeBotGo(SpaceBot bot)
     {
         int timeInterval = 1000;        // each second?
@@ -254,7 +259,7 @@ public class MazeControl {
             }
         }
     }
-
+    */
 
     /*
     * unlockExit function - unlocks exit if player has correct number of keys 
@@ -304,6 +309,9 @@ public class MazeControl {
         // Create new Maze, dependent on current level
         this.mazeArray = createNewMaze(currentLevel);
 
+        // Removing the previous bot locations
+        botsLocationsList.clear();
+
         // Set start, key... locations
         set_locations();
 
@@ -313,10 +321,10 @@ public class MazeControl {
         // Initalise keyStatus with collected = false
         setKeyStatus(keyLocationsList);
 
+        // Reposition bots
+
         // Current time taken to update score
         timeTaken = mazeTimer.getSubTotalTime();
-
-        // Reposition bots
 
         // Re-position player's start location -- this will be problematic for >1 players
         // Select random location from startLocationsList and calls playerEntersMaze
@@ -438,6 +446,13 @@ public class MazeControl {
     public char[][] getMazeArray()
     {
         return mazeArray;
+    }
+    /*
+     * Pass a list<string> with the coordinates of the bots.
+     */
+    public List<Point> getBotStartLocations()
+    {
+        return botsLocationsList;
     }
 
     /*

@@ -1,7 +1,18 @@
-package minigames.server.spacemaze;
+package minigames.client.spacemaze;
 
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Point;
 import java.util.Random;
+import minigames.spacemaze.SpaceEntity;
+import javax.swing.ImageIcon;
+import java.io.IOException;
+import java.io.File;
+import java.awt.Color;
+//import javax.swing.Timer;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 
 /*
  * Class for bot.
@@ -10,16 +21,52 @@ import java.util.Random;
 
 public class SpaceBot extends SpaceEntity {
     private char tile;
-    public SpaceBot(Point startLocation) {
+    //private Timer timer;
+    private char[][] mazeMap;
+
+    //private Timer botTimer;
+    private Image botImage;
+
+    public SpaceBot(Point startLocation, char[][] maze) {
         super(startLocation);
         this.tile = '.';
+        this.mazeMap = maze;
+        //botTimer = new Timer(0, null);
+        botImage = new ImageIcon(getClass().getResource("/images/spacemaze/alien1a.png")).getImage();
     }
 
+    public void moveBot() {
+        Point moveNext = getMoveAttempt();
+        if (MazeDisplay.isMoveValid(moveNext)) {
+            updateLocation(moveNext);
+        }
+    }
     /*
      * Method to randomly move a bot around.
      * @param Optional int to test a specific movement direction, must be  0 <= x >= 3.
      * @return Point with the attempted move location.
-     */
+     *//*
+    public void startTimer(int updateSpeed){
+
+        botTimer.setDelay(updateSpeed);
+        botTimer.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if(e.getSource() == botTimer) {
+                    System.out.println("Current location: " + location.x + ", " + location.y);
+                    Point moveNext = getMoveAttempt();
+                    updateLocation(moveNext);
+                }
+            }
+
+        });
+        botTimer.start();
+    }
+
+    public void stopTimer() {
+        if (botTimer != null) {
+            botTimer.stop();
+        }
+    }*/
 
     // Method for testing moveAttempt
     public Point getMoveAttempt(int move)
@@ -35,8 +82,8 @@ public class SpaceBot extends SpaceEntity {
     public Point getMoveAttempt()
     {
         Random ran = new Random();
-        int decision = ran.nextInt(4); 
-     
+        int decision = ran.nextInt(4);
+
         return moveAttempt(decision);
     }
 
@@ -56,12 +103,12 @@ public class SpaceBot extends SpaceEntity {
             case 1:
                 moveAttempt.move(location.x+1, location.y);
                 break;
-             case 2:
+            case 2:
                 moveAttempt.move(location.x, location.y+1);
                 break;
             case 3:
                 moveAttempt.move(location.x-1, location.y);
-            break;   
+                break;
         }
 
         return moveAttempt;
@@ -75,4 +122,7 @@ public class SpaceBot extends SpaceEntity {
         return tile;
     }
 
+    public Image getBotImage() {
+        return botImage;
+    }
 }

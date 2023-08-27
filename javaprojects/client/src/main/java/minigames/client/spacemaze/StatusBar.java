@@ -91,7 +91,7 @@ public class StatusBar extends JPanel {
      * @param currentLevel int for current level
      */
     public void updateLevel(String currentLevel) {
-        level.setText("Level: " + currentLevel);
+        level.setText("Level: " + currentLevel + "  ");
     }
 
     /**

@@ -3,7 +3,7 @@ package minigames.client.spacemaze;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.List;
+import java.util.*;
 import io.vertx.core.json.JsonArray;
 import java.awt.Point;
 
@@ -173,20 +173,24 @@ public class SpaceMaze implements GameClient {
         logger.info("my command: {}", command.getString("command"));
         switch(command.getString("command")){
 
-            case "startGame" -> sendCommand("requestMaze");
-            case "renderMaze" -> {
+            case "startGame" -> sendCommand("requestGame");
+            case "firstLevel" -> {
                 JsonArray serialisedArray = command.getJsonArray("mazeArray");
+                // Get bot start locations
+                JsonArray botStartLocations = command.getJsonArray("botStartLocations");
                 if (!serialisedArray.isEmpty()) {
                     // Only call this once, or we get multiple timer tasks running
-                    loadMaze(serialisedArray);
+                    loadMaze(serialisedArray, botStartLocations);
                 }
             }
-            case "newLevel" -> {
+            case "nextLevel" -> {
                 JsonArray serialisedArray = command.getJsonArray("mazeArray");
+                JsonArray botStartLocations = command.getJsonArray("botStartLocations");
                 if (!serialisedArray.isEmpty()) {
                     List<String> mazeList = serialisedArray.getList();
                     char[][] mazeMap = deserialiseJsonMaze(mazeList);
-                    maze.newLevel(mazeMap);
+                    ArrayList<SpaceBot> bots = loadBots(botStartLocations, mazeMap);
+                    maze.newLevel(mazeMap, bots);
                 }
                 String totalScore = command.getString("totalScore");
                 statusBar.updateScore(totalScore);
@@ -215,9 +219,6 @@ public class SpaceMaze implements GameClient {
             case "viewHighScore" -> headerText.setText("View High Score");
             case "mainMenu" -> headerText.setText("Go to Main Menu");
             case "exit" -> closeGame();
-            
-            //Update PLayer location in display maze.
-            //case "movePlayerToHere" -> updatePlayerLocation(newLocation);
         }
     }
 
@@ -226,19 +227,48 @@ public class SpaceMaze implements GameClient {
         // Nothing to do        
     }
 
+    /* 
+     * Sets up the client side bots as per level design.
+     * @param  jsonArray of bot locations.
+     * @return ArrayList<Spacebot>
+     */
+    public ArrayList<SpaceBot> loadBots(JsonArray botStartLocations, char[][] maze) {
+        ArrayList<SpaceBot> bots = new ArrayList<>();
+        
+        int numBots = botStartLocations.size();
+        for(int i = 0;i<numBots;i++)
+        {
+            JsonObject thisLoc = botStartLocations.getJsonObject(i);
+            logger.info("JsonObject thisLoc {}", thisLoc);
+
+            int x = thisLoc.getInteger("x");
+            int y = thisLoc.getInteger("y");
+            Point startLoc = new Point(x,y);
+            SpaceBot newBot = new SpaceBot(startLoc, maze);
+            bots.add(newBot);
+        }
+
+        return bots;
+    }
+
+
     /**
      * Called for the intial maze setup
      * @param jsonArray the maze sent from the server as a Json Object
      */
-    public void loadMaze(JsonArray jsonArray){
+    public void loadMaze(JsonArray jsonArray, JsonArray botStartLocations){
         mnClient.getMainWindow().clearAll();
+        
 
         //Json array of strings to Java array of strings
         List<String> mazeList = jsonArray.getList();
 
         char[][] mazeMap = deserialiseJsonMaze(mazeList);
 
-        maze = new MazeDisplay(mazeMap, this);
+
+        // get bots
+        ArrayList<SpaceBot> bots = loadBots(botStartLocations, mazeMap);
+        maze = new MazeDisplay(mazeMap, this, bots);
         statusBar = new StatusBar(this);
 
         mnClient.getMainWindow().addCenter(maze);

@@ -86,8 +86,9 @@ public class SpaceMazeGame {
                 this.level++;
                 if (!mazeControl.gameFinished) {
                     JsonObject serializedMazeArray = new JsonObject()
-                            .put("command", "newLevel")
+                            .put("command", "nextLevel")
                             .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()))
+                            .put("botStartLocations", mazeControl.getBotStartLocations())
                             .put("totalScore", playerScoreString)
                             .put("level", Integer.toString(level));
                     renderingCommands.add(serializedMazeArray);
@@ -103,13 +104,16 @@ public class SpaceMazeGame {
             processKeyInput(keyPressed, p);
         }
 
-        if (commandString.startsWith("requestMaze")) {
+        if (commandString.startsWith("requestGame")) {
             // Moved here from the constructor to only start the timer on maze load
             mazeControl.playerEntersMaze(new Point(1,0));
             JsonObject serializedMazeArray = new JsonObject()
-                    .put("command", "renderMaze")
-                    .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()));
+                    .put("command", "firstLevel")
+                    .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()))
+                    .put("botStartLocations", mazeControl.getBotStartLocations());
             renderingCommands.add(serializedMazeArray);
+            // Added in sending of bot locations
+
         }
 
         if (commandString.startsWith("updateMaze")) {

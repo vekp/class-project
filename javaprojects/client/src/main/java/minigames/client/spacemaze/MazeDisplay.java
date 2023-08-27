@@ -14,6 +14,16 @@ import javax.swing.JPanel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;;
 
+import java.awt.Image;
+import javax.swing.ImageIcon;
+import java.io.IOException;
+import java.io.File;
+
+import java.util.ArrayList;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
 /**
  * Class to display the maze, handle key input and do basic validation
  * before letting the server know
@@ -24,30 +34,45 @@ public class MazeDisplay extends JPanel {
 
     private static final Logger logger = LogManager.getLogger(MazeDisplay.class);
     SpaceMaze spaceMaze;
+    private Image playerImage;
     private Point playerPos;
     private Point moveTo;
     private Point exitPoint;
-    private char[][] mazeMap;
+    public static char[][] mazeMap;
+    private ArrayList<SpaceBot> bots;
     int jPanelWidth = 800;
     int jPanelHeight = 600;
     int tileWidth;
     int tileHeight;
+    int botDelay = 800;
+
+    Timer timer;
 
     /**
      * Constructor for MazeDisplay
      * @param mazeArray a nested char array for the map of the maze
      * @param spaceMaze a SpaceMaze object for sending commmands
      */
-    public MazeDisplay (char[][] mazeArray, SpaceMaze spaceMaze) {
+    public MazeDisplay (char[][] mazeArray, SpaceMaze spaceMaze, ArrayList<SpaceBot> loadedBots) {
         this.spaceMaze = spaceMaze;
         this.mazeMap = mazeArray;
-        this.playerPos = findCharOnMap('P');
+        this.playerPos = findCharOnMap(mazeMap, 'P');
         this.moveTo = new Point(playerPos);
-        this.exitPoint = findCharOnMap('E');
+        this.exitPoint = findCharOnMap(mazeMap, 'E');
         this.tileWidth = jPanelWidth / mazeMap[0].length;
         this.tileHeight = jPanelHeight / mazeMap.length;
         this.setLayout(new BorderLayout());
         this.setPreferredSize(new Dimension(jPanelWidth, jPanelHeight));
+        this.bots = loadedBots;
+        this.startTimer();
+        /*
+        // Starting the bot timers here.
+        for (SpaceBot bot : bots) {
+            bot.startTimer(1000);
+        }*/
+
+        playerImage = new ImageIcon(getClass().getResource("/images/spacemaze/alien1a.png")).getImage();
+
 
         //Focus Listener for Logging purposes
         this.addFocusListener(new FocusListener() {
@@ -80,6 +105,32 @@ public class MazeDisplay extends JPanel {
     }
 
     /**
+     *
+     */
+    public void startTimer(){
+        timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                for (SpaceBot bot : bots ) {
+                    bot.moveBot();
+                }
+                repaint();
+            }
+            }, 0, botDelay);
+    }
+
+    /**
+     *
+     */
+    public void stopTimer() {
+        if (timer != null) {
+            timer.cancel();
+            timer.purge();
+        }
+    }
+
+    /**
      * Handles key pressed and if the movement is valid, gets spaceMaze to send to server
      * @param e the Event
      */
@@ -102,10 +153,19 @@ public class MazeDisplay extends JPanel {
      * To be called when we start a new level.
      * @param mazeMap the new level
      */
-    public void newLevel(char[][] mazeMap){
+    public void newLevel(char[][] mazeMap, ArrayList<SpaceBot> newBots){
         this.mazeMap = mazeMap;
-        this.playerPos = findCharOnMap('P');;
-        this.exitPoint = findCharOnMap('E');;
+        this.playerPos = findCharOnMap(mazeMap, 'P');
+        this.exitPoint = findCharOnMap(mazeMap, 'E');
+        this.bots =
+        this.bots = newBots;
+        this.startTimer();
+        /*
+        // Starting the bot timers here.
+        for (SpaceBot bot : bots) {
+            bot.startTimer(1000);
+        }*/
+
         repaint();
     }
 
@@ -120,6 +180,12 @@ public class MazeDisplay extends JPanel {
         if (playerPos.equals(exitPoint)) {
             logger.info("playerPos == exit");
             spaceMaze.sendCommand("onExit");
+            this.stopTimer();
+            /*
+            // Stopping the old bot timers.
+            for (SpaceBot bot : bots) {
+                bot.stopTimer();
+            }*/
         }
     }
 
@@ -198,20 +264,26 @@ public class MazeDisplay extends JPanel {
         }
     }
 
+
     /**
      * Renders the maze, Using paintComponent now because it sounds better if we want to
      * get more creative later. Also it's easy to update the display.
      * @param g2 Graphics object
      */
+
     @Override
-    public void paintComponent(Graphics g2) {
-        super.paintComponent(g2);
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
 
         for (int r = 0; r < mazeMap.length; r++) {
             for (int c = 0; c < mazeMap[r].length; c++) {
-                charToImage(g2, r, c);
-                g2.fillRect(c * tileWidth, r * tileHeight, tileWidth, tileHeight);
+                charToImage(g, r, c);
             }
+        }
+        for (SpaceBot bot : bots ) {
+            Point botLoc = new Point(bot.getLocation());
+            g.setColor(Color.WHITE);
+            g.drawImage(bot.getBotImage(), botLoc.x * tileWidth, botLoc.y * tileHeight, tileWidth, tileHeight, null);
         }
     }
 
@@ -226,56 +298,40 @@ public class MazeDisplay extends JPanel {
         switch (mazeMap[r][c]) {
             case 'W':
                 g2.setColor(Color.BLACK);
+                g2.fillRect(c * tileWidth, r * tileHeight, tileWidth, tileHeight);
+                // "c * tileWidth" to give the top left corner pixel location
+                //g2.drawImage(wallImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case 'S':
-                g2.setColor(Color.GRAY);
+                g2.setColor(Color.WHITE);
+                g2.fillRect(c * tileWidth, r * tileHeight, tileWidth, tileHeight);
+                //g2.drawImage(wallImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case '.':
                 g2.setColor(Color.WHITE);
+                g2.fillRect(c * tileWidth, r * tileHeight, tileWidth, tileHeight);
+                //g2.drawImage(pathImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case 'K':
                 g2.setColor(Color.YELLOW);
+                g2.fillRect(c * tileWidth, r * tileHeight, tileWidth, tileHeight);
+                //g2.drawImage(keyImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case 'P':
-                g2.setColor(Color.BLUE);
+                g2.setColor(Color.WHITE);
+                g2.drawImage(playerImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case 'E':
                 g2.setColor(Color.RED);
+                g2.fillRect(c * tileWidth, r * tileHeight, tileWidth, tileHeight);
+                //g2.drawImage(lockedExitImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case 'U':
                 g2.setColor(Color.GREEN);
-                break;
-            case 'B':
-                g2.setColor(Color.ORANGE);
-                break;
-        }
-    }
-
-    /**
-     * Method to update the nextPoint
-     * @param direction String of the direction the object is moving
-     * @return new Point
-     */
-    public Point moveTo(String direction){
-        switch(direction) {
-            case "up":
-                moveTo.y = playerPos.y-1;
-                moveTo.x = playerPos.x;
-                break;
-            case "down":
-                moveTo.y = playerPos.y+1;
-                moveTo.x = playerPos.x;
-                break;
-            case "left":
-                moveTo.x = playerPos.x-1;
-                moveTo.y = playerPos.y;
-                break;
-            case "right":
-                moveTo.x = playerPos.x+1;
-                moveTo.y = playerPos.y;
+                g2.fillRect(c * tileWidth, r * tileHeight, tileWidth, tileHeight);
+                //g2.drawImage(unlockedExitImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
         }
-        return moveTo;
     }
 
     /**
@@ -284,7 +340,7 @@ public class MazeDisplay extends JPanel {
      * @param letter the char to find
      * @return a new point of the chars position
      */
-    public Point findCharOnMap(char letter) {
+    public Point findCharOnMap(char[][] mazeMap, char letter) {
         for (int r = 0; r < mazeMap.length; r++) {
             for (int c = 0; c < mazeMap[r].length; c++) {
                 if (mazeMap[r][c] == letter) {
@@ -304,12 +360,40 @@ public class MazeDisplay extends JPanel {
     }
 
     /**
+     * Method to update the nextPoint
+     * @param direction String of the direction the object is moving
+     * @return new Point
+     */
+    public Point moveTo(String direction) {
+        switch (direction) {
+            case "up":
+                moveTo.y = playerPos.y - 1;
+                moveTo.x = playerPos.x;
+                break;
+            case "down":
+                moveTo.y = playerPos.y + 1;
+                moveTo.x = playerPos.x;
+                break;
+            case "left":
+                moveTo.x = playerPos.x - 1;
+                moveTo.y = playerPos.y;
+                break;
+            case "right":
+                moveTo.x = playerPos.x + 1;
+                moveTo.y = playerPos.y;
+                break;
+        }
+        return moveTo;
+    }
+
+
+    /**
      * Method to check whether a move is valid
      * Used to save time by not sending invalid moves to the server
      * @param moveTo point to move to
      * @return boolean of true if valid or false if not a valid move
      */
-    public boolean isMoveValid(Point moveTo) {
+    public static boolean isMoveValid(Point moveTo) {
 
         boolean isWallOrExit = true;
 
