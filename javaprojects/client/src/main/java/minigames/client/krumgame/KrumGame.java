@@ -113,7 +113,7 @@ public class KrumGame implements GameClient {
         currentTurn = savedTurns[playerTurn];
     }
 
-    /*
+    /** 
      * Called to start a new turn, shifting control to the other player
      */
     void startTurn() {
@@ -137,7 +137,7 @@ public class KrumGame implements GameClient {
         return n;
     }
 
-    /*
+    /** 
      * Called when turn time has expired. Next turn won't be started until
      * projectiles have exploded or fallen off the bottom of the screen, and 
      * players are no longer airborne.
@@ -180,7 +180,7 @@ public class KrumGame implements GameClient {
             }                       
         }
     }
-    /*
+    /** 
      * Loads state from a KrumGameState object
      */
     void setGameState(KrumGameState state) {
