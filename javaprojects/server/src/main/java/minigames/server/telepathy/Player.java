@@ -49,7 +49,7 @@ public class Player {
     }
 
     /**
-     * Check if the player is in a ready to play state.
+     * Check if the player is ready to play Telepathy.
      * @return Boolean value with result of check.
      */
     public boolean isReady() {

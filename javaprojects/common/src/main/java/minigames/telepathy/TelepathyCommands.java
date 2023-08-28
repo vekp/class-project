@@ -13,9 +13,14 @@ public enum TelepathyCommands {
     *       the client was unable to join the game it was attempting to join. Accompanied
     *       with a 'message' specifying the reason for failure.
     *       Attributes: n/a
+    * TOGGLEREADY: Used by client to inform the server the player has toggled their ready
+            status and is ready to start playing the game.
     * BUTTONPRESS: Used in CommandPackages sent from the client to the server when the
     *       player presses a button on the Telepathy board.
-    *       Attributes: Coordinates of button pushed.
+    *       Attributes: Name of button pushed.
+    * BUTTONUPDATE: Used by the server to inform the client of a change in state that should
+    *       be displayed to the user with an update to a button.
+    *       Attributes: Name of button pushed, changes to make.
     * REQUESTUPDATE: Used by the client to request an update of the current state
     *       from the server.
     * SYSTEMQUIT: Used by the client to signal that the game window has been closed
@@ -25,13 +30,15 @@ public enum TelepathyCommands {
     * INVALIDCOMMAND: Used to respond to an invalid CommandPackage.
     */
  
-    JOINGAMESUCCESS, JOINGAMEFAIL, BUTTONPRESS, REQUESTUPDATE, SYSTEMQUIT, QUIT, INVALIDCOMMAND;
+    JOINGAMESUCCESS, JOINGAMEFAIL, TOGGLEREADY, BUTTONPRESS, BUTTONUPDATE, REQUESTUPDATE, SYSTEMQUIT, QUIT, INVALIDCOMMAND;
 
     public String toString(){
         return switch(this){
             case JOINGAMESUCCESS -> "JOINGAMESUCCESS";
             case JOINGAMEFAIL -> "JOINGAMEFAIL";
+            case TOGGLEREADY -> "TOGGLEREADY";
             case BUTTONPRESS -> "BUTTONPRESS";
+            case BUTTONUPDATE -> "BUTTONUPDATE";
             case REQUESTUPDATE -> "REQUESTUPDATE";
             case QUIT -> "QUIT";
             case SYSTEMQUIT -> "SYSTEMQUIT";

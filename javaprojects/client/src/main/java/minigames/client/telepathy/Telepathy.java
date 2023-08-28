@@ -102,6 +102,11 @@ public class Telepathy implements GameClient, Tickable {
         backButton.addActionListener(e -> {
             sendCommand(TelepathyCommands.QUIT.toString());
         });
+
+        JButton readyButton = new JButton("Ready");
+        readyButton.addActionListener(e -> {
+            sendCommand(TelepathyCommands.TOGGLEREADY.toString());
+        });
     
         //temporary panel to display xy button coordinates
         JPanel gridCheck = new JPanel();
@@ -111,6 +116,7 @@ public class Telepathy implements GameClient, Tickable {
         gridCheck.add(label);
         gridCheck.add(xyCheck);
         gridCheck.add(backButton);
+        gridCheck.add(readyButton);
         
 
         //FIXME: the action listener accesses coordinates: but no current functionality

@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.json.JsonArray;
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.NativeCommands;
@@ -34,6 +35,7 @@ public class TelepathyGame {
     // Name assigned to the game on creation
     private String name;
     private int maxPlayers;
+    private boolean joinable; 
 
     // Currently connected players
     private HashMap<String, Player> players = new HashMap<>();
@@ -49,6 +51,7 @@ public class TelepathyGame {
         this.name = name;
         this.maxPlayers = 2;
         
+        this.joinable = true;
         this.state = State.INITIALISE;
     }
 
@@ -59,7 +62,7 @@ public class TelepathyGame {
      *         game can be joined.
      */
     public GameMetadata telepathyGameMetadata() {
-        return new GameMetadata("Telepathy", name, this.players.keySet().toArray(new String[this.players.size()]), true);
+        return new GameMetadata("Telepathy", name, this.players.keySet().toArray(new String[this.players.size()]), this.joinable);
     }
 
     /**
@@ -84,17 +87,18 @@ public class TelepathyGame {
 
         // The TelepathyCommand used to specify how to handle the package
         TelepathyCommands command;
-        try{
+        try {
             command = TelepathyCommands.valueOf(commandPackage.commands().get(0).getString("command"));
         } catch (IllegalArgumentException e) {
             // The command is invalid and handled by the default case - respond with INVALIDCOMMAND
             command = TelepathyCommands.INVALIDCOMMAND;
         }
-        
+
         // Switch case to choose which function to call - default case returns empty RenderingPackage
-        switch(command){
+        switch (command) {
             case QUIT -> response = quitGame(commandPackage);
             case SYSTEMQUIT -> response = fullQuitGame(commandPackage);
+            case TOGGLEREADY -> response = toggleReadyState(commandPackage);
             default -> {
                 ArrayList<JsonObject> renderingCommands = new ArrayList<>();
                 renderingCommands.add(new JsonObject().put("command", TelepathyCommands.INVALIDCOMMAND.toString()));
@@ -143,7 +147,7 @@ public class TelepathyGame {
      * @param commandPackage CommandPackage received with a QUIT command.
      * @return RenderingPackage response to send with a QuitToMenu NativeCommand.
      */
-    public RenderingPackage quitGame(CommandPackage commandPackage){
+    private RenderingPackage quitGame(CommandPackage commandPackage){
         ArrayList<JsonObject> renderingCommands =  new ArrayList<>();
         
         String leavingPlayer = commandPackage.player();
@@ -162,16 +166,72 @@ public class TelepathyGame {
      * @param commandPackage CommandPackage received with a SYSTEMQUIT command.
      * @return RenderingPackage response to send with a QUIT command.
      */
-    public RenderingPackage fullQuitGame(CommandPackage commandPackage){
+    private RenderingPackage fullQuitGame(CommandPackage commandPackage) {
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         String leavingPlayer = commandPackage.player();
         this.players.remove(leavingPlayer);
 
-        renderingCommands.add(new JsonObject().put("command", TelepathyCommands.QUIT));
+        renderingCommands.add(makeJsonCommand(TelepathyCommands.QUIT.toString()));
+        return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
+    }
+    
+    /**
+     * Handler for TOGGLEREADY CommandPackages. Toggle the player's ready state and respond
+     * back to the client with the current state.
+     * @param commandPackage CommandPackage received from the client containing a TOGGLEREADY command.
+     * @return RenderingPackage responding with the player's current ready state.
+     */
+    private RenderingPackage toggleReadyState(CommandPackage commandPackage) {
+        this.players.get(commandPackage.player()).toggleReady();
+        
+        // Check if all players are ready 
+        boolean allReady = true;
+        for (String player : this.players.keySet()) {
+            if (!this.players.get(player).isReady()) {
+                allReady = false;
+                break;
+            }
+        }
+        
+        // Start game if game full and players are ready
+        if (this.players.size() == this.maxPlayers && allReady) { beginGame(); }
+
+        // Make response for client - update their ready button
+        ArrayList<JsonObject> renderingCommands = new ArrayList<>();
+        renderingCommands.add(makeJsonCommand(TelepathyCommands.BUTTONUPDATE.toString(),
+                "readyButton",
+                String.valueOf(this.players.get(commandPackage.player()).isReady())));
+
         return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
     }
 
     /**
+     * Transition the game from the INITIALISE state to RUNNING state.
+     */
+    private void beginGame() {
+        this.state = State.RUNNING;
+
+        this.joinable = false;
+        
+    }
+
+    /**
+     * Create a JsonObject that can be used for RenderingCommands.
+     * @param command The command value to be added.
+     * @param attributes An optional list of attributes to append to the attributes field.
+     * @return A JsonObject with a command key mapped to a String, and an attributes key mapped
+     *      to an Array of Strings.
+     */
+    private JsonObject makeJsonCommand(String command, String... attributes) {
+        JsonObject jsonObject = new JsonObject().put("command", command);
+        if (attributes.length > 0) {
+            jsonObject.put("attributes", new JsonArray().add(attributes));
+        }
+            
+        return jsonObject;
+    }
+
+        /**
      * Remove a player from the game by setting their spot to in this.players to null.
      * 
      * @param playerName The player to remove from the game.
