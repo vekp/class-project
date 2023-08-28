@@ -43,6 +43,7 @@ public class MemoryGame {
             int desiredWidth = 150;
             int desiredHeight = 100;
 
+            List<ImageIcon> imageList = new ArrayList<>();
             // Display multiple images (adjust the number as needed)
             for (int i = 0; i < 6; i++) {
                 int randomIndex = (int) (Math.random() * imageFiles.size());
@@ -51,8 +52,8 @@ public class MemoryGame {
 
                 // Resize the image to the desired dimensions
                 ImageIcon imageIcon = resizeImage(randomImage, desiredWidth, desiredHeight);
-
                 // Create a JLabel for the image
+                imageList.add(imageIcon);
                 JLabel label = new JLabel(imageIcon);
                 panel.add(label);
             }
@@ -80,6 +81,7 @@ public class MemoryGame {
                     } else {
                         ((Timer) e.getSource()).stop();
                         timerLabel.setText("Time's up!");
+                        replaceImages(panel);
                         // Add game-over logic here if needed
                     }
                 }
@@ -91,6 +93,9 @@ public class MemoryGame {
                     timer.start();
                 }
             });
+
+
+
         }
 
 
@@ -111,6 +116,31 @@ public class MemoryGame {
         } catch (IOException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public static void replaceImages(JPanel panel) {
+        panel.removeAll();
+        File folderCover = new File("C:/Users/Admin/OneDrive - University of New England/Documents/Jenifer/Masters in IT/COSC220/Assignment 3 - Gameshow/classproject/javaprojects/client/src/main/resources/images/hiding_cards");
+        File[] filesCover = folderCover.listFiles((dir, name) -> name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png"));
+        List<File> imageFilesCover = new ArrayList<>();
+        int desiredWidth = 150;
+        int desiredHeight = 100;
+        if (filesCover != null && filesCover.length > 0) {
+            // Create a list of image files
+            for (File file : filesCover) {
+                imageFilesCover.add(file);
+            }
+
+            for (int i = 0; i < 6; i++) {
+
+
+                File imageIcon = imageFilesCover.get(i);
+                ImageIcon imageIconCover = resizeImage(imageIcon, desiredWidth, desiredHeight);
+
+                JLabel label = new JLabel(imageIconCover);
+                panel.add(label);
+            }
         }
     }
 }
