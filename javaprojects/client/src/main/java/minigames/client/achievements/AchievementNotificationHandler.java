@@ -1,4 +1,4 @@
-package minigames.client.achievementui;
+package minigames.client.achievements;
 
 import minigames.achievements.Achievement;
 import minigames.client.Animator;
@@ -48,8 +48,7 @@ public class AchievementNotificationHandler implements Tickable {
     void processAchievements(List<Achievement> unlocks) {
             for (Achievement unlock : unlocks) {
                 AchievementPresenter presenter = new AchievementPresenter(unlock, true);
-                JPanel popup = presenter.tinyAchievementPanel(false);
-                popup.setBorder(null);
+                JPanel popup = presenter.smallAchievementPanel();
                 client.getNotificationManager().showNotification(popup);
             }
 
