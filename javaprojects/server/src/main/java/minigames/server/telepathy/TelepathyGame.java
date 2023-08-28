@@ -26,14 +26,6 @@ import java.util.Arrays;
  */
 public class TelepathyGame {
 
-    /**
-     * Stores Telepathy player information
-     */
-    public record Player(
-        // Can have other fields later - chosen board piece, etc...
-        String name
-    ){}
-
     // Logs output
     private static final Logger logger = LogManager.getLogger(TelepathyGame.class);
 
@@ -62,7 +54,7 @@ public class TelepathyGame {
         ArrayList<String> playerNames = new ArrayList<>();
         for(Player player : this.players){
             if(player != null){
-                playerNames.add(player.name());
+                playerNames.add(player.getName());
             }
         }
         return new GameMetadata("Telepathy", name, playerNames.toArray(new String[playerNames.size()]), true);
@@ -127,7 +119,7 @@ public class TelepathyGame {
             renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMEFAIL).put("message", "Not a valid name"));
         } else if(this.players[0] == null || this.players[1] == null){
             if(this.players[0] == null){
-                if(this.players[1] != null && this.players[1].name.equals(playerName)){
+                if(this.players[1] != null && this.players[1].getName().equals(playerName)){
                     renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMEFAIL).put("message", "Name taken"));
                 } else{
                     this.players[0] = new Player(playerName);
@@ -135,7 +127,7 @@ public class TelepathyGame {
                     renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMESUCCESS));
                 }
             } else{
-                if(this.players[0] != null && this.players[0].name.equals(playerName)){
+                if(this.players[0] != null && this.players[0].getName().equals(playerName)){
                     renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMEFAIL).put("message", "Name taken"));
                 } else{
                     this.players[1] = new Player(playerName);
@@ -193,7 +185,7 @@ public class TelepathyGame {
     private void removePlayer(String playerName){
         for(int i = 0; i < this.players.length; i++){
             if(this.players[i] == null) continue;
-            if(this.players[i].name().equals(playerName)){
+            if(this.players[i].getName().equals(playerName)){
                 this.players[i] = null;
                 continue;
             }

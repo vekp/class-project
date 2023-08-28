@@ -11,6 +11,7 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.RenderingPackage;
 import minigames.server.telepathy.TelepathyGame;
+import minigames.server.telepathy.Player;
 import minigames.telepathy.TelepathyCommands;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class TelepathyGameTest {
         TelepathyGame game = new TelepathyGame(testGameName);
 
         assertTrue(game.getName().equals(testGameName));
-        TelepathyGame.Player[] gamePlayers = game.getPlayers();
+        Player[] gamePlayers = game.getPlayers();
         
         assertTrue(gamePlayers.length == 2);
         assertTrue(gamePlayers[0] == null);
@@ -53,15 +54,15 @@ public class TelepathyGameTest {
 
         // Test joining empty game (when creating new game)
         game.joinGame("Bob");
-        assertTrue(game.getPlayers()[0].name().equals("Bob"));
+        assertTrue(game.getPlayers()[0].getName().equals("Bob"));
 
         // Check that another Bob cannot join
         RenderingPackage renderingPackage = game.joinGame("Bob");
         assertTrue((renderingPackage.renderingCommands().get(0).getString("command"))
                 .equals(TelepathyCommands.JOINGAMEFAIL.toString()));
 
-        TelepathyGame.Player players[] = game.getPlayers();
-        assertTrue(players[0].name().equals("Bob"));
+        Player players[] = game.getPlayers();
+        assertTrue(players[0].getName().equals("Bob"));
         assertTrue(players[1] == null);
 
         // Check another player can join a game with a free spot
@@ -72,8 +73,8 @@ public class TelepathyGameTest {
                 .equals(TelepathyCommands.JOINGAMESUCCESS.toString())));
 
         players = game.getPlayers();
-        assertTrue(players[0].name().equals("Bob"));
-        assertTrue(players[1].name().equals("Alice"));
+        assertTrue(players[0].getName().equals("Bob"));
+        assertTrue(players[1].getName().equals("Alice"));
 
         // Check that a player cannot join a full game
         renderingPackage = game.joinGame("Fred");
@@ -81,8 +82,8 @@ public class TelepathyGameTest {
                 .equals(TelepathyCommands.JOINGAMEFAIL.toString())));
 
         players = game.getPlayers();
-        assertTrue(players[0].name().equals("Bob"));
-        assertTrue(players[1].name().equals("Alice"));
+        assertTrue(players[0].getName().equals("Bob"));
+        assertTrue(players[1].getName().equals("Alice"));
     }
     
     @Test
