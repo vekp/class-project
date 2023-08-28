@@ -12,7 +12,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class MemoryGame {
-
+    private static JPanel panel; // Declare panel as a class variable
+    private static JLabel instruction;
     public static void main(String[] args) {
         // Provide the correct path using forward slashes
         File folder = new File("C:/Users/Admin/OneDrive - University of New England/Documents/Jenifer/Masters in IT/COSC220/Assignment 3 - Gameshow/classproject/javaprojects/client/src/main/resources/images/memory_game_pics");
@@ -28,7 +29,7 @@ public class MemoryGame {
             JFrame frame = new JFrame("Memory Game");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setSize(800, 600); // Set the window size
-            JLabel instruction = new JLabel("Memorise Images");
+         instruction = new JLabel("Memorise Images");
             JPanel instructionPanel = new JPanel();
             instructionPanel.setPreferredSize(new Dimension(700, 100));
             instructionPanel .add(instruction );
@@ -43,7 +44,7 @@ public class MemoryGame {
             int desiredWidth = 150;
             int desiredHeight = 100;
 
-            List<ImageIcon> imageList = new ArrayList<>();
+            List<File> imageList = new ArrayList<>();
             // Display multiple images (adjust the number as needed)
             for (int i = 0; i < 6; i++) {
                 int randomIndex = (int) (Math.random() * imageFiles.size());
@@ -53,10 +54,17 @@ public class MemoryGame {
                 // Resize the image to the desired dimensions
                 ImageIcon imageIcon = resizeImage(randomImage, desiredWidth, desiredHeight);
                 // Create a JLabel for the image
-                imageList.add(imageIcon);
+                imageList.add(randomImage);
                 JLabel label = new JLabel(imageIcon);
                 panel.add(label);
             }
+
+            int randomIndexF = (int) (Math.random() * imageList.size());
+            File randomImageF = imageList.get(randomIndexF);
+            ImageIcon imageIconF = resizeImage(randomImageF, desiredWidth, desiredHeight);
+            JLabel labeF = new JLabel(imageIconF);
+
+
             JPanel allEntries = new JPanel();
             allEntries.setLayout(new GridLayout(2,1));
             allEntries.add(instructionPanel);
@@ -82,10 +90,16 @@ public class MemoryGame {
                         ((Timer) e.getSource()).stop();
                         timerLabel.setText("Time's up!");
                         replaceImages(panel);
+                        updateInstructionText("Where was it");
+                        instructionPanel.add(labeF);
+
                         // Add game-over logic here if needed
                     }
+
                 }
             });
+
+
 
             frame.addWindowListener(new java.awt.event.WindowAdapter() {
                 @Override
@@ -142,5 +156,10 @@ public class MemoryGame {
                 panel.add(label);
             }
         }
+    }
+
+
+    private static void updateInstructionText(String newText) {
+        instruction.setText(newText);
     }
 }
