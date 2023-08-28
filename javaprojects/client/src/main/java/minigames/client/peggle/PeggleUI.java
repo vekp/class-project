@@ -1,5 +1,3 @@
-package minigames.client.peggle;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.Image;
@@ -20,7 +18,6 @@ public class PeggleUI {
     private static final String achievementsButtonFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/achievementsBTN.png";
     private static final String leaderboardButtonFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/leaderboardBTN.png";
     private static final String settingsButtonFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/settingsBTN.png";
-    private static JFrame mainWindow = null;
 
     private static JFrame mainWindow = null;
 
@@ -158,3 +155,4 @@ public class PeggleUI {
     private void pauseMenu(){
         System.out.println("Pause Menu");
     }
+}

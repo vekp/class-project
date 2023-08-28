@@ -1,5 +1,3 @@
-package minigames.client.peggle;
-
 import java.awt.*;
 
 public class Brick {

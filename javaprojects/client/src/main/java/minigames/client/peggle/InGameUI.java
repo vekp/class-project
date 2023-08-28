@@ -1,29 +1,31 @@
-package minigames.client.peggle;
-
 import javax.swing.*;
 import java.awt.*;
-
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-//import javax.swing.event.MouseInputAdapter;
+import java.util.ArrayList;
 
 public class InGameUI extends JPanel {
     final int columns = 1000;
     final int rows = 750;
     final Color background = Color.BLACK;
-
-    // int cell_width = 1; // preferred -NOT CURRENTLY USED
-    // int cell_height = 1; // preferred -NOT CURRENTLY USED
-
     private final boolean[][] grid = new boolean[rows][columns];
-    int hoverX = -1;
-    int hoverY = -1;
-
-    //Instance of the Cannon class
     private final Cannon cannon;
+    private Timer gameLoopTimer;
+    private int delay = 16; // approx 60 FPS (1000 / 60 = 16.67 milliseconds per frame, delay shown in milliseconds)
+
+    // Constants for ball parameters
+    private ArrayList<Ball> balls = new ArrayList<>();
+    private static final int ballSize = 5; // Adjust as needed
+    private static final double ballSpeed = 5.0; // Adjust as needed
 
     InGameUI() {
+
+        gameLoopTimer = new Timer(delay, e -> gameLoop());
+        gameLoopTimer.start();
+
+
         setBackground(background);
 
         JButton returnButton = new JButton("Return to Main Menu");
@@ -34,27 +36,15 @@ public class InGameUI extends JPanel {
         // Creates the cannon at position (0, 0)
         cannon = new Cannon(0, 0);
 
-        /* NOT CURRENTLY USED
-        // A new MouseInputAdapter can replace default mouse actions
-        addMouseListener(new MouseInputAdapter() {
 
-            // There are other methods too, like click (press and release in the same spot)
-            // Add mousePressed and mouseReleased methods for dragging
+        addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                // We might want to register what was "picked up"
-                // In this case, we're just drawing
-                handleDrag(e);
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                // In some cases, we might want to react to an item being "dropped"
+                launchBall();
             }
         });
-        */
 
-        // A MouseMotionListener can handle movements
+
         // Used for cannon to track mouse location if mouse moved or dragged
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
@@ -69,18 +59,41 @@ public class InGameUI extends JPanel {
         });
     }
 
-    void handleHover(MouseEvent e) {
-        /* NOT CURRENTLY USED
-        int x = columns * e.getX() / getWidth();
-        int y = (rows * e.getY() / getHeight());
-        if (x == hoverX && y == hoverY) {
-            // Don't do repaints unless there was a change
-            return;
-        }
-        hoverY = (rows - 1) - y; // Fix for upside down coordinates
-        hoverX = x;
+    private void launchBall() {
+        // Calculate velocity based on cannon's angle
+        float xVelocity = (float) -(ballSpeed * Math.cos(cannon.angle));
+        float yVelocity = (float) (ballSpeed * Math.sin(cannon.angle));
+
+        // TODO fix ball parameters
+        Ball newBall = new Ball(cannon.x, cannon.y, (float)cannon.angle, (float) cannon.angle, xVelocity, yVelocity,true,1,10 );
+        balls.add(newBall);
+    }
+
+    private void gameLoop() {
+        updateGame();
         repaint();
-         */
+
+    }
+
+    public void updateGame() {
+        // Update each ball's position and check for collisions
+        for (int i = 0; i < balls.size(); i++) {
+            Ball ball = balls.get(i);
+            ball.updateBall(0, getWidth(), getHeight());
+
+
+            //TODO fix isActive
+            if (!true) {
+                balls.remove(i);
+                i--; // Account for shifting elements
+            }
+        }
+
+        // Repaint to show changes
+        repaint();
+    }
+
+    void handleHover(MouseEvent e) {
 
         //Update the angle of the cannon to point towards the mouse position
         int dx = e.getX() - cannon.x;
@@ -91,42 +104,13 @@ public class InGameUI extends JPanel {
         repaint();
     }
 
-    // Handles clicks or drags
     void handleDrag(MouseEvent e) {
-        /* NOT CURRENTLY USED
-        // Be careful, it will keep registering dragging as we go off the window
-        if (e.getX() < 0 || e.getX() > getWidth() || e.getY() < 0 || e.getY() > getHeight()) {
-            return;
-        }
-        */
-
         // Tracks cannon while mouse key pressed+dragged
         handleHover(e);
-
-        /* NOT CURRENTLY USED
-        //int x = columns * e.getX() / getWidth();
-        //int y = (rows * e.getY() / getHeight());
-        //y = (rows - 1) - y; // Fix for upside down coordinates
-
-        // Update the model
-        //grid[y][x] = true;
-        */
 
         repaint();
     }
 
-    /* NOT CURRENTLY USED
-    private void drawGridSquare(int x, int y, Graphics g) {
-        // Translate x and y to panel coordinates
-        // Switch y coordinates that usually start from top, to start from bottom.
-        x = (int) (getWidth() * x / columns);
-        y = (int) (getHeight() * (rows - 1 - y) / rows);
-        g.fillRect(x, y, getWidth() / columns, getHeight() / rows);
-    }
-     */
-
-    // This method can be used to paint a Component however you like
-    // It will be called whenever you repaint(), or when the screen is resized etc
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -136,5 +120,10 @@ public class InGameUI extends JPanel {
 
         // Draw the cannon
         cannon.draw(g);
+
+        for (Ball ball : balls) {
+            ball.drawBall(g);
+        }
     }
+
 }

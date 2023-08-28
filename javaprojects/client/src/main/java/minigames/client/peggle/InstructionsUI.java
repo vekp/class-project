@@ -9,8 +9,9 @@ import java.nio.file.Path;
 public class InstructionsUI extends JPanel{
     private final String instructionsTextFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/instructions/instructions.txt";
     private static final String backButtonFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/backwardBTN.png";
+    private static final String backgroundFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/UI/menuBG.png";
     private final String instructionsPic1FilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/instructions/instructionspic1.gif";
-    private final String instructionsPic2FilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/instructionspic2.gif";
+    private final String instructionsPic2FilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/instructions/instructionspic2.gif";
     private final String instructionsPic3FilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/instructions/instructionspic3.gif";
 
     public InstructionsUI() {
