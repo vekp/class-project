@@ -15,6 +15,8 @@ import minigames.server.telepathy.Player;
 import minigames.telepathy.TelepathyCommands;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
 
 public class TelepathyGameTest {
     @Test
@@ -24,11 +26,9 @@ public class TelepathyGameTest {
         TelepathyGame game = new TelepathyGame(testGameName);
 
         assertTrue(game.getName().equals(testGameName));
-        Player[] gamePlayers = game.getPlayers();
+        HashMap<String,Player> gamePlayers = game.getPlayers();
         
-        assertTrue(gamePlayers.length == 2);
-        assertTrue(gamePlayers[0] == null);
-        assertTrue(gamePlayers[1] == null);
+        assertTrue(gamePlayers.size() == 0);
     }
 
     @Test
@@ -54,27 +54,26 @@ public class TelepathyGameTest {
 
         // Test joining empty game (when creating new game)
         game.joinGame("Bob");
-        assertTrue(game.getPlayers()[0].getName().equals("Bob"));
+        assertTrue(game.getPlayers().get("Bob").getName().equals("Bob"));
 
         // Check that another Bob cannot join
         RenderingPackage renderingPackage = game.joinGame("Bob");
         assertTrue((renderingPackage.renderingCommands().get(0).getString("command"))
                 .equals(TelepathyCommands.JOINGAMEFAIL.toString()));
 
-        Player players[] = game.getPlayers();
-        assertTrue(players[0].getName().equals("Bob"));
-        assertTrue(players[1] == null);
+        HashMap<String,Player> players = game.getPlayers();
+        assertTrue(players.size() == 1);
+        assertTrue(players.keySet().contains("Bob"));
 
         // Check another player can join a game with a free spot
         renderingPackage = game.joinGame("Alice");
         assertTrue(
                 (renderingPackage.renderingCommands().get(0).getString("nativeCommand").equals("client.loadClient")));
-        assertTrue((renderingPackage.renderingCommands().get(1).getString("command")
-                .equals(TelepathyCommands.JOINGAMESUCCESS.toString())));
 
         players = game.getPlayers();
-        assertTrue(players[0].getName().equals("Bob"));
-        assertTrue(players[1].getName().equals("Alice"));
+        assertTrue(players.size() == 2);
+        assertTrue(players.keySet().contains("Bob"));
+        assertTrue(players.keySet().contains("Alice"));
 
         // Check that a player cannot join a full game
         renderingPackage = game.joinGame("Fred");
@@ -82,8 +81,9 @@ public class TelepathyGameTest {
                 .equals(TelepathyCommands.JOINGAMEFAIL.toString())));
 
         players = game.getPlayers();
-        assertTrue(players[0].getName().equals("Bob"));
-        assertTrue(players[1].getName().equals("Alice"));
+        assertTrue(players.size() == 2);
+        assertTrue(players.keySet().contains("Bob"));
+        assertTrue(players.keySet().contains("Alice"));
     }
     
     @Test

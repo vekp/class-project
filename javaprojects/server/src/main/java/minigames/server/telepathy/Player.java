@@ -7,6 +7,8 @@ public class Player {
     private String name;
     private Board board;
 
+    private boolean ready;
+
     /**
      * Construct a new player with a new board state.
      * 
@@ -17,6 +19,7 @@ public class Player {
      */
     public Player(String name) {
         this.name = name;
+        this.ready = false;
         this.board = new Board();
     }
 
@@ -36,6 +39,21 @@ public class Player {
      */
     public Board getBoard() {
         return this.board;
+    }
+
+    /**
+     * Toggles the player's current ready state.
+     */
+    public void toggleReady() {
+        this.ready = !this.ready;
+    }
+
+    /**
+     * Check if the player is in a ready to play state.
+     * @return Boolean value with result of check.
+     */
+    public boolean isReady() {
+        return this.ready;
     }
 
     /**

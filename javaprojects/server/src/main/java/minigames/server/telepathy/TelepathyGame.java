@@ -4,6 +4,7 @@ package minigames.server.telepathy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
@@ -16,6 +17,7 @@ import minigames.telepathy.TelepathyCommands;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * Represents a game of Telepathy that can be played. Stores and manages the current running state
@@ -31,9 +33,12 @@ public class TelepathyGame {
 
     // Name assigned to the game on creation
     private String name;
+    private int maxPlayers;
 
     // Currently connected players
-    private Player players[] =  {null, null};
+    private HashMap<String, Player> players = new HashMap<>();
+    
+    private State state;
 
     /**
      * Constructs a new game of Telepathy with a given name.
@@ -42,6 +47,9 @@ public class TelepathyGame {
      */
     public TelepathyGame(String name) {
         this.name = name;
+        this.maxPlayers = 2;
+        
+        this.state = State.INITIALISE;
     }
 
     /**
@@ -51,13 +59,7 @@ public class TelepathyGame {
      *         game can be joined.
      */
     public GameMetadata telepathyGameMetadata() {
-        ArrayList<String> playerNames = new ArrayList<>();
-        for(Player player : this.players){
-            if(player != null){
-                playerNames.add(player.getName());
-            }
-        }
-        return new GameMetadata("Telepathy", name, playerNames.toArray(new String[playerNames.size()]), true);
+        return new GameMetadata("Telepathy", name, this.players.keySet().toArray(new String[this.players.size()]), true);
     }
 
     /**
@@ -115,28 +117,20 @@ public class TelepathyGame {
         logger.info(playerName + " wants to join Telepathy game"+ this.name);
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
 
-        if(!validName(playerName)){
-            renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMEFAIL).put("message", "Not a valid name"));
-        } else if(this.players[0] == null || this.players[1] == null){
-            if(this.players[0] == null){
-                if(this.players[1] != null && this.players[1].getName().equals(playerName)){
-                    renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMEFAIL).put("message", "Name taken"));
-                } else{
-                    this.players[0] = new Player(playerName);
-                    renderingCommands.add(new NativeCommands.LoadClient("Telepathy", "Telepathy", this.name, playerName).toJson());
-                    renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMESUCCESS));
-                }
-            } else{
-                if(this.players[0] != null && this.players[0].getName().equals(playerName)){
-                    renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMEFAIL).put("message", "Name taken"));
-                } else{
-                    this.players[1] = new Player(playerName);
-                    renderingCommands.add(new NativeCommands.LoadClient("Telepathy", "Telepathy", this.name, playerName).toJson());
-                    renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMESUCCESS));
-                }
-            }
-        } else{
-            renderingCommands.add(new JsonObject().put("command", TelepathyCommands.JOINGAMEFAIL).put("message", "No space available"));
+        if (!validName(playerName)) {
+            renderingCommands.add(
+                    new JsonObject().put("command", TelepathyCommands.JOINGAMEFAIL).put("message", "Not a valid name!"));
+        } else if(this.players.size() >= this.maxPlayers){
+            renderingCommands.add(
+                    new JsonObject().put("command", TelepathyCommands.JOINGAMEFAIL).put("message", "Game is full!"));
+        } else if(this.players.keySet().contains(playerName)){
+            renderingCommands.add(
+                    new JsonObject().put("command", TelepathyCommands.JOINGAMEFAIL).put("message", "Name is already taken!"));
+        } else {
+            // Add the player to the game
+            this.players.put(playerName, new Player(playerName));
+            renderingCommands
+                    .add(new NativeCommands.LoadClient("Telepathy", "Telepathy", this.name, playerName).toJson());
         }
            
         return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
@@ -153,7 +147,7 @@ public class TelepathyGame {
         ArrayList<JsonObject> renderingCommands =  new ArrayList<>();
         
         String leavingPlayer = commandPackage.player();
-        removePlayer(leavingPlayer);
+        this.players.remove(leavingPlayer);
         
         renderingCommands.add(new NativeCommands.QuitToMenu().toJson());
         return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
@@ -171,7 +165,7 @@ public class TelepathyGame {
     public RenderingPackage fullQuitGame(CommandPackage commandPackage){
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         String leavingPlayer = commandPackage.player();
-        removePlayer(leavingPlayer);
+        this.players.remove(leavingPlayer);
 
         renderingCommands.add(new JsonObject().put("command", TelepathyCommands.QUIT));
         return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
@@ -181,7 +175,7 @@ public class TelepathyGame {
      * Remove a player from the game by setting their spot to in this.players to null.
      * 
      * @param playerName The player to remove from the game.
-     */
+     
     private void removePlayer(String playerName){
         for(int i = 0; i < this.players.length; i++){
             if(this.players[i] == null) continue;
@@ -190,7 +184,7 @@ public class TelepathyGame {
                 continue;
             }
         }
-    }
+    }*/
 
     /**
      * Checks if a name is valid for use.
@@ -216,8 +210,8 @@ public class TelepathyGame {
      * Getter for current players in the game.
      * @return copy of the HashSet of players.
      */
-    public Player[] getPlayers(){
-        return Arrays.stream(this.players).toArray(Player[]::new);
+    public HashMap<String, Player> getPlayers(){
+        return new HashMap<>(this.players);
     }
 
     /**
