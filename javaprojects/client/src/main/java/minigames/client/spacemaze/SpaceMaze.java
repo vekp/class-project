@@ -75,6 +75,14 @@ public class SpaceMaze implements GameClient {
     JLabel sampleHelpText1;
     JLabel sampleHelpText2;
 
+    //HighScore Panel
+    JPanel highScorePanel;
+    JLabel highScoreLabel;
+    JButton backFromHighScoreButton;
+    JLabel playerColumn;
+    JLabel scoreColumn;
+
+
     Font customFont;
     
     //Main Container
@@ -115,7 +123,7 @@ public class SpaceMaze implements GameClient {
         mainMenuPanel.setPreferredSize(new Dimension(600, 600));
         mainMenuPanel.setBackground(Color.BLACK);
 
-        //Help Pannel
+        //Help Panel
         helpPanel = new JPanel();
         helpPanel.setLayout(new GridBagLayout());
         helpPanel.setPreferredSize(new Dimension(600, 600));
@@ -176,6 +184,45 @@ public class SpaceMaze implements GameClient {
         gbc.gridy = 5;
         helpPanel.add(backFromHelpButton, gbc);
 
+        //HighScore Section
+        highScorePanel = new JPanel();
+        highScorePanel.setLayout(new GridBagLayout());
+        highScorePanel.setPreferredSize(new Dimension(600, 600));
+        highScorePanel.setBackground(Color.YELLOW);
+
+        highScoreLabel = new JLabel("High Score:");
+        highScoreLabel.setPreferredSize(new Dimension(600, 200));
+        highScoreLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        customFont = customFont.deriveFont(20f);
+        highScoreLabel.setFont(customFont);
+        highScoreLabel.setForeground(Color.BLACK);
+        
+        gbc.insets = new Insets(-200, 0, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        highScorePanel.add(highScoreLabel, gbc);
+        
+        playerColumn = new JLabel("Player Name");
+        customFont = customFont.deriveFont(10f);
+        playerColumn.setFont(customFont);
+        playerColumn.setForeground(Color.BLACK);
+
+        gbc.insets = new Insets(20, 20, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        highScorePanel.add(playerColumn, gbc);
+
+        scoreColumn= new JLabel("Score");
+        customFont = customFont.deriveFont(10f);
+        scoreColumn.setFont(customFont);
+        scoreColumn.setForeground(Color.BLACK);
+
+        gbc.insets = new Insets(20, 20, 0, 0);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        highScorePanel.add(scoreColumn, gbc);
+
+
         //Buttons panel inside menu section
         buttonsPanel = new JPanel();
         buttonsPanel.setBackground(Color.BLACK);
@@ -193,7 +240,6 @@ public class SpaceMaze implements GameClient {
 
         mainMenuButton = new JButton("MAIN MENU");
         mainMenuButton.addActionListener((evt) -> sendCommand("MENU"));
-
 
         //Button visual settings
         for (Component c : new Component[] { startGameButton, highScoreButton, helpButton, mainMenuButton }) {
@@ -346,7 +392,7 @@ public class SpaceMaze implements GameClient {
                 String totalScore = command.getString("totalScore");
                 statusBar.updateScore(totalScore);
             }
-            case "viewHighScore" -> headerText.setText("View High Score");
+            case "viewHighScore" -> displayHighScore();
             case "howToPlay" -> displayHelpPanel();
             case "backToMenu" -> displayMainMenu();
             case "mainMenu" -> mnClient.runMainMenuSequence();
@@ -383,6 +429,14 @@ public class SpaceMaze implements GameClient {
     public void displayMainMenu(){
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(mainMenuPanel);
+        mnClient.getMainWindow().addSouth(developerCredits);
+        mnClient.getMainWindow().addNorth(headerPanel);
+        mnClient.getMainWindow().pack();
+    }
+
+    public void displayHighScore(){
+        mnClient.getMainWindow().clearAll();
+        mnClient.getMainWindow().addCenter(highScorePanel);
         mnClient.getMainWindow().addSouth(developerCredits);
         mnClient.getMainWindow().addNorth(headerPanel);
         mnClient.getMainWindow().pack();
