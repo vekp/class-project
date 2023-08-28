@@ -27,6 +27,7 @@ import java.awt.Insets;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import javax.swing.JComponent;
+import javax.swing.AbstractButton;
 import javax.swing.Box;
 
 import io.vertx.core.json.JsonObject;
@@ -113,71 +114,40 @@ public class SpaceMaze implements GameClient {
         buttonsPanel.setPreferredSize(new Dimension(300,250));
         buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS)); //Box layout with items arranged vertically.
 
-        customFont = customFont.deriveFont(24f);
         startGameButton = new JButton("START GAME");
-        startGameButton.setForeground(Color.WHITE);
-        startGameButton.setFont(customFont);
-        startGameButton.setPreferredSize(buttonDimension);
-        startGameButton.setMaximumSize(buttonDimension);
-        startGameButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        startGameButton.setContentAreaFilled(false);
-        startGameButton.setOpaque(false);
-        startGameButton.setBorderPainted(false);
-        startGameButton.setFocusPainted(false);
         startGameButton.addActionListener((evt) -> sendCommand("START"));
 
-        customFont = customFont.deriveFont(14f);
         highScoreButton = new JButton("HIGH SCORE");
-        highScoreButton.setFont(customFont);
-        highScoreButton.setPreferredSize(buttonDimension);
-        highScoreButton.setMaximumSize(buttonDimension);
-        highScoreButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        highScoreButton.setForeground(Color.WHITE);
-        highScoreButton.setContentAreaFilled(false);
-        highScoreButton.setOpaque(false);
-        highScoreButton.setBorderPainted(false);
-        highScoreButton.setFocusPainted(false);
         highScoreButton.addActionListener((evt) -> sendCommand("SCORE"));
 
-        customFont = customFont.deriveFont(14f);
         helpButton = new JButton("HOW TO PLAY");
-        helpButton.setFont(customFont);
-        helpButton.setPreferredSize(buttonDimension);
-        helpButton.setMaximumSize(buttonDimension);
-        helpButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        helpButton.setForeground(Color.WHITE);
-        helpButton.setContentAreaFilled(false);
-        helpButton.setOpaque(false);
-        helpButton.setBorderPainted(false);
-        helpButton.setFocusPainted(false);
         helpButton.addActionListener((evt) -> sendCommand("HELP"));
 
-        customFont = customFont.deriveFont(14f);
         mainMenuButton = new JButton("MAIN MENU");
-        mainMenuButton.setPreferredSize(buttonDimension);
-        mainMenuButton.setMaximumSize(buttonDimension);
-        mainMenuButton.setFont(customFont);
-        mainMenuButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        mainMenuButton.setForeground(Color.WHITE);
-        mainMenuButton.setContentAreaFilled(false);
-        mainMenuButton.setOpaque(false);
-        mainMenuButton.setBorderPainted(false);
-        mainMenuButton.setFocusPainted(false);
         mainMenuButton.addActionListener((evt) -> sendCommand("MENU"));
 
-        customFont = customFont.deriveFont(14f);
         exitButton = new JButton("EXIT");
-        exitButton.setPreferredSize(buttonDimension);
-        exitButton.setMaximumSize(buttonDimension);
-        exitButton.setFont(customFont);
-        exitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        exitButton.setForeground(Color.WHITE);
-        exitButton.setContentAreaFilled(false);
-        exitButton.setOpaque(false);
-        exitButton.setBorderPainted(false);
-        exitButton.setFocusPainted(false);
         exitButton.addActionListener((evt) -> sendCommand("EXIT"));
 
+        //Button visual settings
+        for (Component c : new Component[] { startGameButton, highScoreButton, helpButton, mainMenuButton, exitButton }) {
+            if (c == startGameButton){
+                customFont = customFont.deriveFont(24f);
+            } else {
+                customFont = customFont.deriveFont(14f);
+            }
+            c.setPreferredSize(buttonDimension);
+            c.setMaximumSize(buttonDimension);
+            c.setFont(customFont);
+            ((AbstractButton) c).setAlignmentX(Component.CENTER_ALIGNMENT);
+            c.setForeground(Color.WHITE);
+            ((AbstractButton) c).setContentAreaFilled(false);
+            ((AbstractButton) c).setOpaque(false);
+            ((AbstractButton) c).setBorderPainted(false);
+            ((AbstractButton) c).setFocusPainted(false);
+        }
+
+        //Hover effect for button - Start Game button
         startGameButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e){
@@ -193,6 +163,7 @@ public class SpaceMaze implements GameClient {
             }
         });
 
+        //Hover effect for buttons - High Score Button, Help Button, Main Menu Button, Exit Button
         for (Component c : new Component[] { highScoreButton, helpButton, mainMenuButton, exitButton }) {
             c.addMouseListener(new MouseAdapter() {
                 @Override
@@ -216,7 +187,7 @@ public class SpaceMaze implements GameClient {
             buttonsPanel.add(Box.createRigidArea(new Dimension(5,5)));
 
         }
-
+        
         //Using GridBagLayout to position buttons panel inside menu section
         gbc.gridx = 0;
         gbc.gridy = 0; 
@@ -226,7 +197,6 @@ public class SpaceMaze implements GameClient {
 
         //Credit Section
         developerCredits = new JLabel("Developed by: Andy, Nik, Natasha, Niraj");
-
     }
 
     /** 
