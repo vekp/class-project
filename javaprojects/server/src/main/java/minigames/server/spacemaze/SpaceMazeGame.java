@@ -78,7 +78,8 @@ public class SpaceMazeGame {
             case "START" -> renderingCommands.add(new JsonObject().put("command", "startGame"));
             case "SCORE" -> renderingCommands.add(new JsonObject().put("command", "viewHighScore"));
             case "MENU"  -> renderingCommands.add(new JsonObject().put("command", "mainMenu"));
-            case "EXIT" ->  renderingCommands.add(new JsonObject().put("command", "exit"));
+            case "HELP" -> renderingCommands.add(new JsonObject().put("command", "howToPlay"));
+            case "backToMenu" -> renderingCommands.add(new JsonObject().put("command", "backToMenu"));
             case "onExit" -> {
                 mazeControl.newLevel();
                 player.calculateScore(mazeControl.timeTaken, 8000);

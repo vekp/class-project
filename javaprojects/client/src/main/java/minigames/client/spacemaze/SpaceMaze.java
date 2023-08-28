@@ -15,7 +15,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
-import java.util.Collections;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -60,13 +59,21 @@ public class SpaceMaze implements GameClient {
 
     //Menu Section
     JPanel mainMenuPanel; 
-    JPanel buttonsPanel;  
+    JPanel buttonsPanel;
     JButton startGameButton; //Start Game Button
     JButton highScoreButton; //High Score Button
     JButton helpButton;      //Help window Button
     JButton mainMenuButton;  //Main Menu Button
-    JButton exitButton;      //Exit Button
-    Dimension buttonDimension; //Button maximum and preferred dimensions 
+    Dimension buttonDimension; //Button maximum and preferred dimensions
+
+    //Help Panel Section
+    JPanel helpPanel;
+    JButton backFromHelpButton;
+    JLabel helpText;
+    JLabel sampleControls;
+    JLabel sampleHelpText;
+    JLabel sampleHelpText1;
+    JLabel sampleHelpText2;
 
     Font customFont;
     
@@ -108,6 +115,67 @@ public class SpaceMaze implements GameClient {
         mainMenuPanel.setPreferredSize(new Dimension(600, 600));
         mainMenuPanel.setBackground(Color.BLACK);
 
+        //Help Pannel
+        helpPanel = new JPanel();
+        helpPanel.setLayout(new GridBagLayout());
+        helpPanel.setPreferredSize(new Dimension(600, 600));
+        helpPanel.setBackground(Color.YELLOW);
+
+        helpText = new JLabel("INSTRUCTIONS");
+        customFont = customFont.deriveFont(20f);
+        helpText.setFont(customFont);
+        helpText.setForeground(Color.BLACK);
+        
+        gbc.insets = new Insets(-200, 0, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        helpPanel.add(helpText, gbc);
+
+        customFont = customFont.deriveFont(10f);
+        sampleControls = new JLabel("Control:");
+        sampleControls.setFont(customFont);
+        sampleControls.setForeground(Color.BLACK);
+
+        gbc.insets = new Insets(50, 0, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        helpPanel.add(sampleControls, gbc);
+
+        sampleHelpText = new JLabel("W, S, A, D / Arrow Keys to control the player");
+        sampleHelpText.setFont(customFont);
+        sampleHelpText.setForeground(Color.BLACK);
+
+        gbc.insets = new Insets(20, 0, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        helpPanel.add(sampleHelpText, gbc);
+
+        sampleHelpText1 = new JLabel("- Collect Keys to Unlock Door");
+        sampleHelpText1.setFont(customFont);
+        sampleHelpText1.setForeground(Color.BLACK);
+
+        gbc.insets = new Insets(20, 0, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        helpPanel.add(sampleHelpText1, gbc);
+
+        sampleHelpText2 = new JLabel("- Avoid Aliens and Traps ");
+        sampleHelpText2.setFont(customFont);
+        sampleHelpText2.setForeground(Color.BLACK);
+
+        gbc.insets = new Insets(20, 0, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        helpPanel.add(sampleHelpText2, gbc);
+
+        backFromHelpButton = new JButton("Back");
+        backFromHelpButton.addActionListener((evt) -> sendCommand("backToMenu"));
+
+        gbc.insets = new Insets(20, 0, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        helpPanel.add(backFromHelpButton, gbc);
+
         //Buttons panel inside menu section
         buttonsPanel = new JPanel();
         buttonsPanel.setBackground(Color.BLACK);
@@ -126,11 +194,9 @@ public class SpaceMaze implements GameClient {
         mainMenuButton = new JButton("MAIN MENU");
         mainMenuButton.addActionListener((evt) -> sendCommand("MENU"));
 
-        exitButton = new JButton("EXIT");
-        exitButton.addActionListener((evt) -> sendCommand("EXIT"));
 
         //Button visual settings
-        for (Component c : new Component[] { startGameButton, highScoreButton, helpButton, mainMenuButton, exitButton }) {
+        for (Component c : new Component[] { startGameButton, highScoreButton, helpButton, mainMenuButton }) {
             if (c == startGameButton){
                 customFont = customFont.deriveFont(24f);
             } else {
@@ -164,7 +230,7 @@ public class SpaceMaze implements GameClient {
         });
 
         //Hover effect for buttons - High Score Button, Help Button, Main Menu Button, Exit Button
-        for (Component c : new Component[] { highScoreButton, helpButton, mainMenuButton, exitButton }) {
+        for (Component c : new Component[] { highScoreButton, helpButton, mainMenuButton }) {
             c.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseEntered(MouseEvent e){
@@ -182,12 +248,12 @@ public class SpaceMaze implements GameClient {
         }
 
         //Adding buttons to the buttons panel
-        for (Component c : new Component[] { startGameButton, highScoreButton, helpButton, mainMenuButton, exitButton }) {
+        for (Component c : new Component[] { startGameButton, highScoreButton, helpButton, mainMenuButton }) {
             buttonsPanel.add(c);
             buttonsPanel.add(Box.createRigidArea(new Dimension(5,5)));
 
         }
-        
+
         //Using GridBagLayout to position buttons panel inside menu section
         gbc.gridx = 0;
         gbc.gridy = 0; 
@@ -281,6 +347,8 @@ public class SpaceMaze implements GameClient {
                 statusBar.updateScore(totalScore);
             }
             case "viewHighScore" -> headerText.setText("View High Score");
+            case "howToPlay" -> displayHelpPanel();
+            case "backToMenu" -> displayMainMenu();
             case "mainMenu" -> mnClient.runMainMenuSequence();
             case "exit" -> closeGame();
         }
@@ -288,7 +356,7 @@ public class SpaceMaze implements GameClient {
 
     @Override
     public void closeGame() {
-        // Nothing to do        
+        
     }
 
     public void loadCustomFont(){
@@ -302,6 +370,22 @@ public class SpaceMaze implements GameClient {
             customFont = new Font("ArcadeClassics", Font.BOLD, 20);
         }
         customFont = customFont.deriveFont(40f);
+    }
+
+    public void displayHelpPanel(){
+        mnClient.getMainWindow().clearAll();
+        mnClient.getMainWindow().addCenter(helpPanel);
+        mnClient.getMainWindow().addSouth(developerCredits); 
+        mnClient.getMainWindow().addNorth(headerPanel);
+        mnClient.getMainWindow().pack();
+    }
+
+    public void displayMainMenu(){
+        mnClient.getMainWindow().clearAll();
+        mnClient.getMainWindow().addCenter(mainMenuPanel);
+        mnClient.getMainWindow().addSouth(developerCredits);
+        mnClient.getMainWindow().addNorth(headerPanel);
+        mnClient.getMainWindow().pack();
     }
 
     /* 
