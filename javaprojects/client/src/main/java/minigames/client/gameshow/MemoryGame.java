@@ -2,6 +2,8 @@ package minigames.client.gameshow;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -63,6 +65,7 @@ public class MemoryGame {
             File randomImageF = imageList.get(randomIndexF);
             ImageIcon imageIconF = resizeImage(randomImageF, desiredWidth, desiredHeight);
             JLabel labeF = new JLabel(imageIconF);
+            System.out.println("Random number is " +randomIndexF );
 
 
             JPanel allEntries = new JPanel();
@@ -89,7 +92,7 @@ public class MemoryGame {
                     } else {
                         ((Timer) e.getSource()).stop();
                         timerLabel.setText("Time's up!");
-                        replaceImages(panel);
+                        replaceImages(panel,randomIndexF);
                         updateInstructionText("Where was it");
                         instructionPanel.add(labeF);
 
@@ -133,30 +136,75 @@ public class MemoryGame {
         }
     }
 
-    public static void replaceImages(JPanel panel) {
-        panel.removeAll();
+    public static void replaceImages(JPanel panel, int correctNumber) {
+
+        panel.removeAll(); // Remove existing components from the panel
         File folderCover = new File("C:/Users/Admin/OneDrive - University of New England/Documents/Jenifer/Masters in IT/COSC220/Assignment 3 - Gameshow/classproject/javaprojects/client/src/main/resources/images/hiding_cards");
         File[] filesCover = folderCover.listFiles((dir, name) -> name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png"));
+
         List<File> imageFilesCover = new ArrayList<>();
+        List<JLabel> imageLabels = new ArrayList<>();
         int desiredWidth = 150;
         int desiredHeight = 100;
+        JLabel correctImage = null;
+
         if (filesCover != null && filesCover.length > 0) {
             // Create a list of image files
             for (File file : filesCover) {
                 imageFilesCover.add(file);
             }
 
-            for (int i = 0; i < 6; i++) {
+            // Ensure that correctNumber is within a valid range
+            if (correctNumber >= 0 && correctNumber < imageFilesCover.size()) {
+                for (int i = 0; i < 6; i++) {
+                    File imageIcon = imageFilesCover.get(i);
+                    ImageIcon imageIconCover = resizeImage(imageIcon, desiredWidth, desiredHeight);
+                    if (i == correctNumber) {
+                        correctImage = new JLabel(imageIconCover);
+                    }
 
+                    JLabel label = new JLabel(imageIconCover);
+                    panel.add(label);
+                    imageLabels.add(label);
 
-                File imageIcon = imageFilesCover.get(i);
-                ImageIcon imageIconCover = resizeImage(imageIcon, desiredWidth, desiredHeight);
+                    // Add a mouse listener to the label to handle mouse click events
+                    JLabel finalCorrectImage = correctImage;
+                    label.addMouseListener(new MouseListener() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            // Handle the mouse click event for the image here
+                            // For example, you can display a message or perform an action
+                            if (label == finalCorrectImage) {
+                                System.out.println("Correct Image.");
+                            } else {
+                                System.out.println("Not Correct Image.");
+                            }
 
-                JLabel label = new JLabel(imageIconCover);
-                panel.add(label);
+                            // Remove the mouse listener after handling the click event
+                            label.removeMouseListener(this);
+                        }
+
+                        @Override
+                        public void mousePressed(MouseEvent e) {}
+
+                        @Override
+                        public void mouseReleased(MouseEvent e) {}
+                        @Override
+                        public void mouseEntered(MouseEvent e) {}
+
+                        @Override
+                        public void mouseExited(MouseEvent e) {}
+                    });
+                }
+            } else {
+                System.out.println("Invalid correctNumber. It should be within the range of available images.");
             }
         }
-    }
+
+        // Repaint the panel to reflect the changes
+       // panel.revalidate();
+       // panel.repaint();
+                }
 
 
     private static void updateInstructionText(String newText) {
