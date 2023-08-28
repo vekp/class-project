@@ -142,10 +142,6 @@ public class AchievementPresenter {
             return panel;
         }
 
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-
-        Component glue = Box.createVerticalGlue();
-
         JLabel image = new JLabel(achievementImage(192));
         JLabel name = new JLabel("<html><h1 style='text-align:center'>" + achievement.name() + "</h1></html>", SwingConstants.CENTER);
         JLabel description = new JLabel("<html><h2 style='text-align:center; font-weight:normal;'>" + achievement.description() + "</h2></html>", SwingConstants.CENTER);
@@ -155,10 +151,16 @@ public class AchievementPresenter {
             description.setForeground(hiddenUnlockedColour);
         }
 
-        for (Component c : new Component[] {glue, image, Box.createRigidArea(new Dimension(0, 20)), name, description, glue}) {
-            if (c instanceof JComponent jc) jc.setAlignmentX(Component.CENTER_ALIGNMENT);
-            panel.add(c);
-        }
+        panel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = GridBagConstraints.RELATIVE;
+        gbc.fill = GridBagConstraints.CENTER;
+
+        panel.add(image, gbc);
+        panel.add(name, gbc);
+        panel.add(description, gbc);
+
         return panel;
     }
 
