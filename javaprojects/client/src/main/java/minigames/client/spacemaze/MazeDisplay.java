@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.RenderingHints.Key;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyListener;
@@ -207,66 +208,57 @@ public class MazeDisplay extends JPanel {
         Point nextPoint;
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:
-                logger.info("Info up:");
                 nextPoint = moveTo("up");
-                if (isMoveValid(nextPoint)){
-                    // These commands currently only tell the server where to move the player
-                    spaceMaze.sendCommand("keyUp");
-                    if (mazeMap[moveTo.y][moveTo.x] == 'K') {
-                        // This is to get the server to send back the new maze array
-                        spaceMaze.sendCommand("updateMaze");
-                    } else {
-                        // Moves the player image
-                        movePlayerImage();
-                    }
-                    // Updates our recorded player point
-                    updatePlayerPoint();
-                    detectAndSendCollisions();
-                }
+                handleDirection("Info Up: ", "Up", nextPoint);
                 break;
             case KeyEvent.VK_DOWN:
-                logger.info("Info Down:");
                 nextPoint = moveTo("down");
-                if (isMoveValid(nextPoint)){
-                    spaceMaze.sendCommand("keyDown");
-                    if (mazeMap[moveTo.y][moveTo.x] == 'K') {
-                        spaceMaze.sendCommand("updateMaze");
-                    } else {
-                        movePlayerImage();
-                    }
-                    updatePlayerPoint();
-                    detectAndSendCollisions();
-                }
+                handleDirection("Info Down: ", "Down", nextPoint);
                 break;
             case KeyEvent.VK_LEFT:
-                logger.info("Info left:");
                 nextPoint = moveTo("left");
-                if (isMoveValid(nextPoint)){
-                    spaceMaze.sendCommand("keyLeft");
-                    if (mazeMap[moveTo.y][moveTo.x] == 'K') {
-                        spaceMaze.sendCommand("updateMaze");
-                    } else {
-                        movePlayerImage();
-                    }
-                    updatePlayerPoint();
-                    detectAndSendCollisions();
-                }
+                handleDirection("Info Left: ", "Left", nextPoint);
                 break;
             case KeyEvent.VK_RIGHT:
-                logger.info("Info right:");
                 nextPoint = moveTo("right");
-                if (isMoveValid(nextPoint)){
-                    spaceMaze.sendCommand("keyRight");
-                    if (mazeMap[moveTo.y][moveTo.x] == 'K') {
-                        spaceMaze.sendCommand("updateMaze");
-                    } else {
-                        movePlayerImage();
-                    }
-                    updatePlayerPoint();
-                    detectAndSendCollisions();
-                }
+                handleDirection("Info Right: ", "Right", nextPoint);
                 break;
+            case KeyEvent.VK_W:
+                nextPoint = moveTo("up");
+                handleDirection("Info Up: ", "Up", nextPoint);
+                break;
+            case KeyEvent.VK_S:
+                nextPoint = moveTo("down");
+                handleDirection("Info Down: ", "Down", nextPoint);
+                break;
+            case KeyEvent.VK_D:
+                nextPoint = moveTo("right");
+                handleDirection("Info Right: ", "Right", nextPoint);
+                break;
+            case KeyEvent.VK_A:
+                nextPoint = moveTo("left");
+                handleDirection("Info Left: ", "Left", nextPoint);
+                break;
+            
         }
+    }
+
+    public void handleDirection(String info, String direction, Point nextPoint){
+        logger.info(info);
+        if (isMoveValid(nextPoint)){
+            // These commands currently only tell the server where to move the player
+            spaceMaze.sendCommand("key" + direction);
+            if (mazeMap[moveTo.y][moveTo.x] == 'K'){
+                spaceMaze.sendCommand("updateMaze");
+            } else {
+                // Moves the player image
+                movePlayerImage();
+            }
+            // Updates our recorded player point
+            updatePlayerPoint();
+            detectAndSendCollisions();
+        }
+
     }
 
 
