@@ -159,7 +159,7 @@ public class MazeDisplay extends JPanel {
         this.mazeMap = mazeMap;
         this.playerPos = findCharOnMap(mazeMap, 'P');
         this.exitPoint = findCharOnMap(mazeMap, 'E');
-        this.bots =
+       // this.bots =
         this.bots = newBots;
         this.startTimer();
         /*

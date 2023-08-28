@@ -6,11 +6,15 @@ import org.apache.logging.log4j.Logger;
 import java.util.*;
 import io.vertx.core.json.JsonArray;
 import java.awt.Point;
-
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.io.InputStream;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.util.Collections;
 
 import javax.swing.JButton;
@@ -58,8 +62,12 @@ public class SpaceMaze implements GameClient {
     JPanel buttonsPanel;  
     JButton startGameButton; //Start Game Button
     JButton highScoreButton; //High Score Button
+    JButton helpButton;      //Help window Button
     JButton mainMenuButton;  //Main Menu Button
     JButton exitButton;      //Exit Button
+    Dimension buttonDimension; //Button maximum and preferred dimensions 
+
+    Font customFont;
     
     //Main Container
     JLabel developerCredits;
@@ -76,6 +84,10 @@ public class SpaceMaze implements GameClient {
      * Constructor
      */
     public SpaceMaze() {
+
+        loadCustomFont();
+        
+        buttonDimension = new Dimension(300, 70);
         
         //Menu Header Section
         headerPanel = new JPanel();
@@ -84,9 +96,9 @@ public class SpaceMaze implements GameClient {
         headerPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
-        headerText = new JLabel("Space Maze");
+        headerText = new JLabel("SPACE MAZE");
         headerText.setForeground(Color.WHITE);
-        headerText.setFont(new Font("Monospaced", Font.PLAIN, 32));
+        headerText.setFont(customFont);
         headerPanel.add(headerText, gbc);
 
         //Menu Section
@@ -98,29 +110,110 @@ public class SpaceMaze implements GameClient {
         //Buttons panel inside menu section
         buttonsPanel = new JPanel();
         buttonsPanel.setBackground(Color.BLACK);
-        buttonsPanel.setPreferredSize(new Dimension(200,200));
+        buttonsPanel.setPreferredSize(new Dimension(300,250));
         buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS)); //Box layout with items arranged vertically.
 
-        startGameButton = new JButton("Start Game");
+        customFont = customFont.deriveFont(24f);
+        startGameButton = new JButton("START GAME");
+        startGameButton.setForeground(Color.WHITE);
+        startGameButton.setFont(customFont);
+        startGameButton.setPreferredSize(buttonDimension);
+        startGameButton.setMaximumSize(buttonDimension);
         startGameButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        startGameButton.setContentAreaFilled(false);
+        startGameButton.setOpaque(false);
+        startGameButton.setBorderPainted(false);
+        startGameButton.setFocusPainted(false);
         startGameButton.addActionListener((evt) -> sendCommand("START"));
 
-        highScoreButton = new JButton("High Score");
+        customFont = customFont.deriveFont(14f);
+        highScoreButton = new JButton("HIGH SCORE");
+        highScoreButton.setFont(customFont);
+        highScoreButton.setPreferredSize(buttonDimension);
+        highScoreButton.setMaximumSize(buttonDimension);
         highScoreButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        highScoreButton.setForeground(Color.WHITE);
+        highScoreButton.setContentAreaFilled(false);
+        highScoreButton.setOpaque(false);
+        highScoreButton.setBorderPainted(false);
+        highScoreButton.setFocusPainted(false);
         highScoreButton.addActionListener((evt) -> sendCommand("SCORE"));
 
-        mainMenuButton = new JButton("Main Menu");
+        customFont = customFont.deriveFont(14f);
+        helpButton = new JButton("HOW TO PLAY");
+        helpButton.setFont(customFont);
+        helpButton.setPreferredSize(buttonDimension);
+        helpButton.setMaximumSize(buttonDimension);
+        helpButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        helpButton.setForeground(Color.WHITE);
+        helpButton.setContentAreaFilled(false);
+        helpButton.setOpaque(false);
+        helpButton.setBorderPainted(false);
+        helpButton.setFocusPainted(false);
+        helpButton.addActionListener((evt) -> sendCommand("HELP"));
+
+        customFont = customFont.deriveFont(14f);
+        mainMenuButton = new JButton("MAIN MENU");
+        mainMenuButton.setPreferredSize(buttonDimension);
+        mainMenuButton.setMaximumSize(buttonDimension);
+        mainMenuButton.setFont(customFont);
         mainMenuButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainMenuButton.setForeground(Color.WHITE);
+        mainMenuButton.setContentAreaFilled(false);
+        mainMenuButton.setOpaque(false);
+        mainMenuButton.setBorderPainted(false);
+        mainMenuButton.setFocusPainted(false);
         mainMenuButton.addActionListener((evt) -> sendCommand("MENU"));
 
-        exitButton = new JButton("Exit");
+        customFont = customFont.deriveFont(14f);
+        exitButton = new JButton("EXIT");
+        exitButton.setPreferredSize(buttonDimension);
+        exitButton.setMaximumSize(buttonDimension);
+        exitButton.setFont(customFont);
         exitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        exitButton.setForeground(Color.WHITE);
+        exitButton.setContentAreaFilled(false);
+        exitButton.setOpaque(false);
+        exitButton.setBorderPainted(false);
+        exitButton.setFocusPainted(false);
         exitButton.addActionListener((evt) -> sendCommand("EXIT"));
 
+        startGameButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e){
+                customFont = customFont.deriveFont(25f);
+                startGameButton.setFont(customFont);
+                startGameButton.setForeground(Color.YELLOW);
+            }
+            @Override
+            public void mouseExited(MouseEvent e){
+                customFont = customFont.deriveFont(24f);
+                startGameButton.setFont(customFont);
+                startGameButton.setForeground(Color.WHITE);
+            }
+        });
+
+        for (Component c : new Component[] { highScoreButton, helpButton, mainMenuButton, exitButton }) {
+            c.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e){
+                    customFont = customFont.deriveFont(16f);
+                    c.setFont(customFont);
+                    c.setForeground(Color.YELLOW);
+                }
+                @Override
+                public void mouseExited(MouseEvent e){
+                    customFont = customFont.deriveFont(14f);
+                    c.setFont(customFont);
+                    c.setForeground(Color.WHITE);
+                }
+            });
+        }
+
         //Adding buttons to the buttons panel
-        for (Component c : new Component[] { startGameButton, highScoreButton, mainMenuButton, exitButton }) {
+        for (Component c : new Component[] { startGameButton, highScoreButton, helpButton, mainMenuButton, exitButton }) {
             buttonsPanel.add(c);
-            buttonsPanel.add(Box.createRigidArea(new Dimension(10,10)));
+            buttonsPanel.add(Box.createRigidArea(new Dimension(5,5)));
 
         }
 
@@ -218,7 +311,7 @@ public class SpaceMaze implements GameClient {
                 statusBar.updateScore(totalScore);
             }
             case "viewHighScore" -> headerText.setText("View High Score");
-            case "mainMenu" -> headerText.setText("Go to Main Menu");
+            case "mainMenu" -> mnClient.runMainMenuSequence();
             case "exit" -> closeGame();
         }
     }
@@ -226,6 +319,19 @@ public class SpaceMaze implements GameClient {
     @Override
     public void closeGame() {
         // Nothing to do        
+    }
+
+    public void loadCustomFont(){
+        //Loading custom font
+        try{
+            InputStream fontStream = this.getClass().getResourceAsStream("/fonts/PublicPixelFont.ttf");
+            customFont = Font.createFont(Font.TRUETYPE_FONT, fontStream);
+            
+        } catch (FontFormatException | IOException e){
+            e.printStackTrace();
+            customFont = new Font("ArcadeClassics", Font.BOLD, 20);
+        }
+        customFont = customFont.deriveFont(40f);
     }
 
     /* 
