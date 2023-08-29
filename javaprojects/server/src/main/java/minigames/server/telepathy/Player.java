@@ -1,13 +1,20 @@
 package minigames.server.telepathy;
 
+import io.vertx.core.json.JsonObject;
+import minigames.telepathy.TelepathyCommands;
+
+import java.util.ArrayList;
+
 /**
- * Stores player information amd state for use in Telepathy Minigame.
+ * Stores player information amd state for use in Telepathy Minigame. Called a Player but
+ * also logically represents a game client that connected to the server.
  */
 public class Player {
     private String name;
     private Board board;
 
     private boolean ready;
+    private ArrayList<JsonObject> pendingUpdates;
 
     /**
      * Construct a new player with a new board state.
@@ -21,6 +28,7 @@ public class Player {
         this.name = name;
         this.ready = false;
         this.board = new Board();
+        this.pendingUpdates = new ArrayList<>();
     }
 
     /**
@@ -39,6 +47,31 @@ public class Player {
      */
     public Board getBoard() {
         return this.board;
+    }
+
+    /**
+     * Add a command to the queue of update commands.
+     * @param newCommand The new command to be added to the update list.
+     */
+    public void addUpdate(JsonObject newCommand){
+        this.pendingUpdates.add(newCommand);
+    }
+
+    /**
+     * Get the updates pending for this Player. Clear the List so that a command is only
+     * sent once.
+     * @return Copy of the updateCommands List. 
+     */
+    public ArrayList<JsonObject> getUpdates(){
+        ArrayList<JsonObject> updatesToSend = new ArrayList<>(this.pendingUpdates);
+        // If there are no updates - send NOUPDATES command
+        if(updatesToSend.size() == 0){
+            updatesToSend.add(TelepathyGame.makeJsonCommand(TelepathyCommands.NOUPDATE));
+        }
+        
+        this.pendingUpdates.clear();
+        
+        return updatesToSend;
     }
 
     /**

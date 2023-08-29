@@ -23,6 +23,9 @@ public enum TelepathyCommands {
     *       Attributes: Name of button pushed, changes to make.
     * REQUESTUPDATE: Used by the client to request an update of the current state
     *       from the server.
+    * NOUPDATE: Used by the server to inform the client there are no current updates.
+    * GAMEOVER: Used by the server to inform the client the game state has changed to game
+    *       over.
     * SYSTEMQUIT: Used by the client to signal that the game window has been closed
     *       on the client (sends a regular RenderingPackage).
     * QUIT: Used by the client to signal that the client has exited Telepathy but
@@ -30,7 +33,8 @@ public enum TelepathyCommands {
     * INVALIDCOMMAND: Used to respond to an invalid CommandPackage.
     */
  
-    JOINGAMESUCCESS, JOINGAMEFAIL, TOGGLEREADY, BUTTONPRESS, BUTTONUPDATE, REQUESTUPDATE, SYSTEMQUIT, QUIT, INVALIDCOMMAND;
+    JOINGAMESUCCESS, JOINGAMEFAIL, TOGGLEREADY, BUTTONPRESS, BUTTONUPDATE, REQUESTUPDATE, NOUPDATE, 
+    GAMEOVER, SYSTEMQUIT, QUIT, INVALIDCOMMAND;
 
     public String toString(){
         return switch(this){
@@ -40,10 +44,12 @@ public enum TelepathyCommands {
             case BUTTONPRESS -> "BUTTONPRESS";
             case BUTTONUPDATE -> "BUTTONUPDATE";
             case REQUESTUPDATE -> "REQUESTUPDATE";
+            case NOUPDATE -> "NOUPDATE";
+            case GAMEOVER -> "GAMEOVER";
             case QUIT -> "QUIT";
             case SYSTEMQUIT -> "SYSTEMQUIT";
             case INVALIDCOMMAND -> "INVALIDCOMMAND";
-            default -> "null";
+            default -> "NO-STRING-CONFIGURED";
         };
     }
 }
