@@ -1,16 +1,14 @@
 package minigames.client.snakeGameClient;
 
+import java.awt.*;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.util.Collections;
-
+import javax.swing.*;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
@@ -36,45 +34,83 @@ public class SnakeGameText implements GameClient {
 
     /** Your name */
     String player;
+    JButton start, score, help;
 
-    /** A text area for showing room descriptions, etc */
-    JTextArea textArea;
-
-    /** Direction commands */
-    JButton north, south, east, west;
-
-    JTextField userCommand;
-    JButton send;
-
-    JPanel commandPanel;
+    JLabel headerText, footerText;
+    JPanel headerPanel, footerPanel, mainMenuPanel, buttonPanel;
 
     public SnakeGameText() {
-        textArea = new JTextArea();
-        textArea.setEditable(false);
-        textArea.setPreferredSize(new Dimension(800, 600));
-        textArea.setForeground(Color.GREEN);
-        textArea.setBackground(Color.BLACK);
-        textArea.setFont(new Font("Monospaced", Font.PLAIN, 18));
 
-        JButton backButton = new JButton("Back");
-        backButton.addActionListener(e -> mnClient.runMainMenuSequence());
-        north = new JButton("NORTH");
-        north.addActionListener((evt) -> sendCommand("NORTH"));
-        south = new JButton("SOUTH");
-        south.addActionListener((evt) -> sendCommand("SOUTH"));
-        east = new JButton("EAST");
-        east.addActionListener((evt) -> sendCommand("EAST"));
-        west = new JButton("WEST");
-        west.addActionListener((evt) -> sendCommand("WEST"));
+        /** Header Section with Menu*/
+        headerPanel = new JPanel();
+        headerPanel.setPreferredSize(new Dimension(800,100));
+        headerPanel.setBackground(Color.BLACK);
+        headerPanel.setLayout(new GridBagLayout());
+        GridBagConstraints g = new GridBagConstraints();
 
-        userCommand = new JTextField(20);
-        send = new JButton(">");
-        send.addActionListener((evt) -> sendCommand(userCommand.getText()));
+        headerText = new JLabel("Snake Game");
+        headerText.setForeground(Color.WHITE);
+        headerText.setFont(new Font("Monospaced", Font.PLAIN, 32));
+        headerPanel.add(headerText, g);
 
-        commandPanel = new JPanel();
-        for (Component c : new Component[] { north, south, east, west, userCommand, send, backButton }) {
-            commandPanel.add(c);
+
+         /** Footer Panel*/
+        footerPanel = new JPanel();
+        footerPanel.setPreferredSize(new Dimension(800,30));
+        footerPanel.setBackground(Color.BLACK);
+        headerPanel.setLayout(new GridBagLayout());
+
+
+        /**Footer Section */
+        footerText = new JLabel("Developer: Sushil, Sean, Luke, Matthew ");
+        footerText.setForeground(Color.WHITE);
+        footerText.setFont(new Font("Monospaced", Font.PLAIN, 16));
+        footerPanel.add(footerText,g);
+        
+
+
+        /** Menu section */
+        mainMenuPanel = new JPanel();
+        mainMenuPanel.setLayout(new GridBagLayout());
+        mainMenuPanel.setPreferredSize(new Dimension(800,800));
+        mainMenuPanel.setBackground(Color.BLACK);
+
+        /** Button Panel inside menu section*/
+        buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        buttonPanel.setPreferredSize(new Dimension(800,700));
+        buttonPanel.setBackground(Color.BLACK);
+
+
+        /**Button Section*/
+
+        start = new JButton("Start Game");
+        start.setAlignmentX(Component.CENTER_ALIGNMENT);
+        start.addActionListener((evt) -> sendCommand("START"));
+
+        score = new JButton("Score");
+        score.setAlignmentX(Component.CENTER_ALIGNMENT);
+        score.addActionListener((evt) -> sendCommand("SCORE"));
+
+        help = new JButton("Help");
+        help.setAlignmentX(Component.CENTER_ALIGNMENT);
+        help.addActionListener((evt) -> sendCommand("HELP"));
+
+
+        /** Adding buttons into button panel*/
+        for (Component c : new Component[] { start, score, help }) {
+            buttonPanel.add(c);
+            buttonPanel.add(Box.createRigidArea(new Dimension(15,15)));
+    
         }
+
+        /** Using GridBagLayout to position button panel inside menu panel*/
+        g.gridx = 0;
+        g.gridy = 0;
+        g.anchor = GridBagConstraints.CENTER;
+        g.insets = new Insets(-150, 0, 0, 0);
+        mainMenuPanel.add(buttonPanel,gbc);
 
     }
 
@@ -102,10 +138,10 @@ public class SnakeGameText implements GameClient {
         this.player = player;
 
         // Add our components to the north, south, east, west, or centre of the main window's BorderLayout
-        mnClient.getMainWindow().addCenter(textArea);
-        mnClient.getMainWindow().addSouth(commandPanel);
+        mnClient.getMainWindow().addNorth(headerPanel);
+        mnClient.getMainWindow().addCenter(buttonPanel);
+        mnClient.getMainWindow().addSouth(footerPanel);
 
-        textArea.append("Starting...");
 
         // Don't forget to call pack - it triggers the window to resize and repaint itself
         mnClient.getMainWindow().pack();
@@ -119,17 +155,7 @@ public class SnakeGameText implements GameClient {
         // We should only be receiving messages that our game understands
         // Note that this uses the -> version of case statements, not the : version
         // (which means we don't nead to say "break;" at the end of our cases)
-        switch (command.getString("command")) {
-            case "clearText" -> textArea.setText("");
-            case "appendText" -> textArea.setText(textArea.getText() + command.getString("text"));
-            case "setDirections" -> {
-                String directions = command.getString("directions");
-                north.setEnabled(directions.contains("N"));
-                south.setEnabled(directions.contains("S"));
-                east.setEnabled(directions.contains("E"));
-                west.setEnabled(directions.contains("W"));
-            }
-        }
+
 
     }
 

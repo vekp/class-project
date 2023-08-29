@@ -125,7 +125,7 @@ public class SnakeGame {
             players.put(playerName, p);
 
             ArrayList<JsonObject> renderingCommands = new ArrayList<>();
-            renderingCommands.add(new LoadClient("SnakeText", "Snake", name, playerName).toJson());
+            renderingCommands.add(new LoadClient("Snake", "Snake", name, playerName).toJson());
             renderingCommands.add(new JsonObject().put("command", "clearText"));
             renderingCommands.add(new JsonObject().put("command", "appendText").put("text", describeState(p)));
             renderingCommands.add(new JsonObject().put("command", "setDirections").put("directions", directions(p.x(), p.y())));
