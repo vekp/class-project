@@ -196,6 +196,19 @@ public class BattleshipGame {
     }
 
     /**
+     * Test function to print the current user's name to see if it could be implemented into the login framework
+     */
+    public void printUsername(){
+        // "USER" is where the user's name is stored for UNIX based systems
+        String username = System.getenv("USER");
+        // For Windows the above query will return null, as on windows the variable for the user is USERNAME
+        if (username == null) {
+            username = System.getenv("USERNAME");
+        }
+        System.out.println("Username: " + username);
+    }
+
+    /**
      * Function to determine whether the player's input has hit a ship. Sets the CellType accordingly and returns
      * true or false. The boolean value is used in another function to determine the response
      *
@@ -205,6 +218,9 @@ public class BattleshipGame {
      * @return true if player has hit a ship, false if player hit water or previously missed cell
      */
     private boolean shotOutcome(Board player, int x, int y) {
+
+        // TODO Remove this after showing Nathan
+        printUsername(); // test call to printUsername function
         // Get players current grid
         Cell[][] grid = player.getGrid();
         // Get cell type of player's coordinate
@@ -225,8 +241,35 @@ public class BattleshipGame {
             achievementHandler.unlockAchievement(playerName, YOU_GOT_HIM.toString());
             return true;
         } else {
+            // Set the cell to a "hit"
             player.setGridCell(x, y, CellType.HIT);
-            // TODO: Check if a ship is sunk
+            // TODO: Do a loop within a hashmap instead
+            Ship[] ships = new Ship[5];
+            ships[0] = this.player2.getShip("Carrier");
+            ships[1] = this.player2.getShip("Battleship");
+            ships[2] = this.player2.getShip("Destroyer");
+            ships[3] = this.player2.getShip("Submarine");
+            ships[4] = this.player2.getShip("Patrol Boat");
+
+            for(int i = 0; i < ships.length; i++){
+                ships[i] = ships[i].updateShipStatus(x, y);
+            }
+
+            HashMap<String, Ship> vessels = this.player1.getVessels();
+
+            vessels.replace("Carrier", ships[0]);
+            vessels.replace("Battleship", ships[1]);
+            vessels.replace("Destroyer", ships[2]);
+            vessels.replace("Submarine", ships[3]);
+            vessels.replace("Patrol Boat", ships[4]);
+
+            this.player2.setVessels(vessels);
+
+
+
+
+
+            // Not sure what this check does - Craig
             if (sunk(player, x, y)) {
                 respondToInput(player, GameState.SHIP_SUNK, "",true);
             }
@@ -235,6 +278,7 @@ public class BattleshipGame {
         // TODO: increment turn number?
 
     }
+
     private boolean sunk(Board player, int x, int y) {
          Cell[][] grid = player.getGrid();
          return true;
@@ -319,6 +363,7 @@ public class BattleshipGame {
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         renderingCommands.add(new JsonObject().put("command", "clearText"));
         renderingCommands.add(new JsonObject().put("command", "updateHistory").put("history", p.getMessageHistory()));
+        renderingCommands.add(new JsonObject().put("command", "updatePlayerName").put("player", p.getPlayerName()));
         renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, player1.getGrid())));
         renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.generateBoard(enemy, player2.getGrid())));
         return new RenderingPackage(this.gameMetadata(), renderingCommands);
@@ -336,23 +381,12 @@ public class BattleshipGame {
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         // Don't allow a player to join if the player's name is already taken
         if (players.containsKey(playerName)) {
-            // Allow same player to join back in (for nathan :) )
-            Board p = players.get(playerName);
-            renderingCommands.add(new LoadClient("Battleship", "Battleship", gameName, playerName).toJson());
-            renderingCommands.add(new JsonObject().put("command", "clearText"));
-            renderingCommands.add(new JsonObject().put("command", "updateHistory").put("history", p.getMessageHistory()));
-            renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, player1.getGrid())));
-            renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.generateBoard(enemy, player2.getGrid())));
-            renderingCommands.add(new JsonObject().put("command", "quitGame"));
-            return new RenderingPackage(this.gameMetadata(), renderingCommands);
-            // End exp. code
-
-//            return new RenderingPackage(
-//                    gameMetadata(),
-//                    Arrays.stream(new RenderingCommand[]{
-//                            new NativeCommands.ShowMenuError("That name's not available")
-//                    }).map((r) -> r.toJson()).toList()
-//            );
+            return new RenderingPackage(
+                    gameMetadata(),
+                    Arrays.stream(new RenderingCommand[]{
+                            new NativeCommands.ShowMenuError("That name's not available")
+                    }).map((r) -> r.toJson()).toList()
+            );
         } else {
             Board p = new Board(playerName, welcomeMessage);
             players.put(playerName, p);
@@ -361,6 +395,7 @@ public class BattleshipGame {
             renderingCommands.add(new LoadClient("Battleship", "Battleship", gameName, playerName).toJson());
             renderingCommands.add(new JsonObject().put("command", "clearText"));
             renderingCommands.add(new JsonObject().put("command", "updateHistory").put("history", messageHistory(p)));
+            renderingCommands.add(new JsonObject().put("command", "updatePlayerName").put("player", playerName));
             renderingCommands.add(new JsonObject().put("command", "placePlayer1Board").put("text", Board.generateBoard(player, player1.getGrid())));
             renderingCommands.add(new JsonObject().put("command", "placePlayer2Board").put("text", Board.generateBoard(enemy, player2.getGrid())));
 
