@@ -46,7 +46,7 @@ public record BattleshipTurnResult(
     // Response strings
     static String lineBreak = "\n\n";
     static String inputPending = "\n...";
-    static String enterCoords = "Enter grid coordinates: ";
+    static String enterCoords = "It is your turn! Enter grid coordinates: ";
     static String incoming = "Prepare for incoming fire!";
     static String coordTag = "Return fire!";
 

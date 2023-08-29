@@ -170,6 +170,8 @@ public class Battleship implements GameClient, Tickable {
 
         userCommand = new JTextField();  // User input
         userCommand.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), " "));
+        userCommand.getCaret().setBlinkRate(300);
+        userCommand.getCaret().setVisible(true);
         userCommand.addActionListener((evt) -> {
             sendCommand(userCommand.getText());  // Send input to server
             userCommand.setText("");             // Clear input field
@@ -317,7 +319,7 @@ public class Battleship implements GameClient, Tickable {
             case "prepareTurn" -> {
                 //we only set this messaging on the first instance that we are told our turn is ready
                 waiting = false;
-                messages.append("\nIt is now your turn! Type in a coordinate");
+              //  messages.append("\nIt is now your turn! Type in a coordinate");
                 userCommand.setEditable(true);
 
             }
