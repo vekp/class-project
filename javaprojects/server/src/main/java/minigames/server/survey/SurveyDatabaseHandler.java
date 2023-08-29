@@ -17,6 +17,9 @@ public class SurveyDatabaseHandler {
         feedbackObject.put("user_id", jsonData.getLong("user_id")); // Replace with real user ID
         feedbackObject.put("timestamp", getCurrentTimestamp());
         feedbackObject.put("feedback_text", jsonData.getString("feedback_text"));
+        feedbackObject.put("ui_rating", jsonData.getString("ui_rating"));
+        feedbackObject.put("enjoyment_rating", jsonData.getString("enjoyment_rating"));
+        feedbackObject.put("functionality_rating", jsonData.getString("functionality_rating"));
     
         feedbackArray.add(feedbackObject);
 
