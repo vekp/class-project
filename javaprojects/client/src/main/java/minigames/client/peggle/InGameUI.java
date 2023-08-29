@@ -71,7 +71,7 @@ public class InGameUI extends JPanel {
         float yVelocity = (float) (ballSpeed * Math.sin(cannon.angle));
 
         // TODO fix ball parameters
-        Ball newBall = new Ball(cannon.x, cannon.y, (float)cannon.angle, (float) cannon.angle, xVelocity, yVelocity,true,1,10 );
+        Ball newBall = new Ball(cannon.x, cannon.y, (float) cannon.angle, (float) cannon.angle, xVelocity, yVelocity, true, 1, 10);
         balls.add(newBall);
     }
 
@@ -135,7 +135,6 @@ Then, adds these brick objects to an ArrayList called bricks, a field of this cl
     }
 
 
-
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -152,6 +151,6 @@ Then, adds these brick objects to an ArrayList called bricks, a field of this cl
         //MM Added - drawing the bricks
         for (Brick brick : bricks) {
             brick.draw(g);
+        }
     }
-
 }
