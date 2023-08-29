@@ -405,6 +405,10 @@ public class SpaceMaze implements GameClient {
         
     }
 
+    public Font getCustomFont(){
+        return customFont;
+    }
+
     public void loadCustomFont(){
         //Loading custom font
         try{

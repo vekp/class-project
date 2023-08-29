@@ -2,8 +2,19 @@ package minigames.client.spacemaze;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.image.BufferedImage;
+import java.io.File;
+
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 import org.apache.logging.log4j.LogManager;
@@ -24,8 +35,20 @@ public class StatusBar extends JPanel {
     JLabel gameTimer;
     JLabel score;
     JLabel level;
+    JLabel tipLabel;
     Timer timer;
     SpaceMaze spaceMaze;
+    Font customFont;
+
+    //Lives Panel
+    JPanel livesPanel; //Main container to display lives
+    JLabel livesRemaining;
+    JPanel lifeImage;  //sub containers for individual lives
+    JPanel lifeImage1;
+    JPanel lifeImage2;
+    JPanel lifeImage3;
+    JPanel lifeImage4;
+    
 
     /**
      * Constructor for the Status Bar
@@ -33,6 +56,7 @@ public class StatusBar extends JPanel {
      */
     public StatusBar(SpaceMaze spaceMaze) {
         this.spaceMaze = spaceMaze;
+        customFont = spaceMaze.getCustomFont();
         statusBar();
         timer = new Timer();
     }
@@ -43,28 +67,80 @@ public class StatusBar extends JPanel {
      * @return Jpanel with components
      */
     public JPanel statusBar() {
-        statusBar = new JPanel();
-        statusBar.setPreferredSize(new Dimension(800, 200));
+
+        //Sample Lives remaining display, Need to fetch no. of lives remaining from the server,
+        //and loop the Image labels 
+        //Todo, implement loops 
+        customFont = customFont.deriveFont(13f);
+        livesPanel = new JPanel(new FlowLayout());
+        livesPanel.setPreferredSize(new Dimension(120, 40));
+        livesPanel.setBackground(Color.BLACK);
+        livesRemaining = new JLabel("lives: ", SwingConstants.LEFT);
+        livesRemaining.setFont(customFont);
+        livesRemaining.setForeground(Color.WHITE);
+        livesPanel.add(livesRemaining);
+
+        
+        try {
+            ImageIcon lifeImage = new ImageIcon(getClass().getResource("/images/spacemaze/spaceShip2aUp.png"));
+            Image image = lifeImage.getImage();
+            Image transform = image.getScaledInstance(30, 30, java.awt.Image.SCALE_SMOOTH);
+            lifeImage = new ImageIcon(transform);
+            JLabel picLabel = new JLabel(lifeImage);
+            JLabel picLabel1 = new JLabel(lifeImage);
+            JLabel picLabel2 = new JLabel(lifeImage);
+            JLabel picLabel3 = new JLabel(lifeImage);
+
+            livesPanel.add(picLabel);
+            livesPanel.add(picLabel1);
+            livesPanel.add(picLabel2);
+            livesPanel.add(picLabel3);
+
+        } catch (Exception e){
+            logger.error(e);
+        }
+
+        statusBar = new JPanel(new GridBagLayout());
+        statusBar.setPreferredSize(new Dimension(800, 180));
         statusBar.setBackground(Color.BLACK);
 
-        //Initial time when game is launched
-        gameTimer = new JLabel("Time: 0");
-        gameTimer.setForeground(Color.GREEN);
-        gameTimer.setFont(new Font("Monospaced", Font.PLAIN, 18));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.weightx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridy = 0;
 
         //Dummy score display (Possibly only update this between levels?)
-        score = new JLabel("Score: 0");
-        score.setForeground(Color.GREEN);
-        score.setFont(new Font("Monospaced", Font.PLAIN, 18));
+        score = new JLabel("Score: 0", SwingConstants.LEFT);
+        score.setForeground(Color.WHITE);
+        score.setFont(customFont);
+        gbc.insets = new Insets(-100, 20, 0, 0);
+        gbc.gridx = 0;
+        statusBar.add(score, gbc);
+
+        //Initial time when game is launched
+        gameTimer = new JLabel("Timer: 0", SwingConstants.CENTER);
+        gameTimer.setForeground(Color.WHITE);
+        gameTimer.setFont(customFont);
+        gbc.insets = new Insets(-100, 0, 0, 0);
+        gbc.gridx = 1;
+        statusBar.add(gameTimer, gbc);
 
         //Tracks the level the player is on
-        level = new JLabel("Level: 1 ");
-        level.setForeground(Color.GREEN);
-        level.setFont(new Font("Monospaced", Font.PLAIN, 18));
+        gbc.insets = new Insets(-100, 0, 0, 20);
+        level = new JLabel("Level: 1 ", SwingConstants.RIGHT);
+        level.setForeground(Color.WHITE);
+        level.setFont(customFont);
+        gbc.gridx = 2;
+        statusBar.add(level, gbc);
 
-        statusBar.add(level);
-        statusBar.add(gameTimer);
-        statusBar.add(score);
+        //Lives Panel
+        gbc.weightx = 0;
+        gbc.gridwidth = 1;
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.insets = new Insets(0, 20, 0, 0);
+        statusBar.add(livesPanel, gbc);
+
 
         return statusBar;
     }
@@ -81,7 +157,7 @@ public class StatusBar extends JPanel {
      * @param currentTime time the game has been running as a String
      */
     public void updateTimer(String currentTime) {
-            gameTimer.setText("Time: " + currentTime + "  ");
+            gameTimer.setText("Timer: " + currentTime + "  ");
             statusBar.revalidate();
             statusBar.repaint();
     }
