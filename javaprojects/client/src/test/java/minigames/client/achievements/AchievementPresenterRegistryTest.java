@@ -2,6 +2,7 @@ package minigames.client.achievements;
 
 import minigames.achievements.Achievement;
 import minigames.achievements.GameAchievementState;
+import minigames.client.Animator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,7 @@ public class AchievementPresenterRegistryTest {
             else locked.add(a);
         }
         GameAchievementState gaState = new GameAchievementState("Test Game ID", unlocked, locked);
-        apRegistry = new AchievementPresenterRegistry(gaState);
+        apRegistry = new AchievementPresenterRegistry(gaState, new Animator());
 
     }
 
