@@ -6,6 +6,8 @@ import org.apache.logging.log4j.Logger;
 import java.util.*;
 import io.vertx.core.json.JsonArray;
 import java.awt.Point;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -20,6 +22,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.JLabel;
 import javax.swing.BoxLayout;
 import java.awt.Insets;
@@ -82,7 +85,13 @@ public class SpaceMaze implements GameClient {
     JLabel playerColumn;
     JLabel scoreColumn;
 
-
+    //Game Over Panel
+    JPanel gameOverPanel;
+    JLabel greetingLabel;
+    JLabel totalScoreLabel;
+    JLabel timeTakenLabel;
+    JLabel pressToExitLabel;
+    
     Font customFont;
     
     //Main Container
@@ -190,14 +199,15 @@ public class SpaceMaze implements GameClient {
         highScorePanel.setPreferredSize(new Dimension(600, 600));
         highScorePanel.setBackground(Color.YELLOW);
 
-        highScoreLabel = new JLabel("High Score:");
+        highScoreLabel = new JLabel("High Score:", SwingConstants.CENTER);
         highScoreLabel.setPreferredSize(new Dimension(600, 200));
         highScoreLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         customFont = customFont.deriveFont(20f);
         highScoreLabel.setFont(customFont);
         highScoreLabel.setForeground(Color.BLACK);
         
-        gbc.insets = new Insets(-200, 0, 0, 0);
+        gbc.insets = new Insets(-200, 20, 0, 0);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
         gbc.gridy = 0;
         highScorePanel.add(highScoreLabel, gbc);
@@ -222,6 +232,12 @@ public class SpaceMaze implements GameClient {
         gbc.gridy = 1;
         highScorePanel.add(scoreColumn, gbc);
 
+        backFromHighScoreButton = new JButton("Back");
+        gbc.insets = new Insets(70, 20, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        highScorePanel.add(backFromHighScoreButton, gbc);
+        backFromHighScoreButton.addActionListener((evt) -> sendCommand("backToMenu"));
 
         //Buttons panel inside menu section
         buttonsPanel = new JPanel();
@@ -391,6 +407,7 @@ public class SpaceMaze implements GameClient {
                 statusBar.stopTimer();
                 String totalScore = command.getString("totalScore");
                 statusBar.updateScore(totalScore);
+                displayGameOver(totalScore);
             }
             case "viewHighScore" -> displayHighScore();
             case "howToPlay" -> displayHelpPanel();
@@ -434,6 +451,7 @@ public class SpaceMaze implements GameClient {
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(mainMenuPanel);
         mnClient.getMainWindow().addSouth(developerCredits);
+        headerText.setText("SPACE MAZE");
         mnClient.getMainWindow().addNorth(headerPanel);
         mnClient.getMainWindow().pack();
     }
@@ -444,6 +462,77 @@ public class SpaceMaze implements GameClient {
         mnClient.getMainWindow().addSouth(developerCredits);
         mnClient.getMainWindow().addNorth(headerPanel);
         mnClient.getMainWindow().pack();
+    }
+
+    public void displayGameOver(String totalScore){
+        //Dummy Time Taken
+        String timeTaken = "2:00";
+        
+        gameOverPanel = new JPanel();
+        gameOverPanel.setLayout(new GridBagLayout());
+        gameOverPanel.setPreferredSize(new Dimension(600, 600));
+        gameOverPanel.setBackground(Color.BLACK);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        Font gameOverFonts = customFont;
+        gameOverFonts = gameOverFonts.deriveFont(16f);
+
+        greetingLabel = new JLabel("Thank You For Playing!");
+        greetingLabel.setFont(gameOverFonts);
+        greetingLabel.setForeground(Color.WHITE);
+        gbc.insets = new Insets(-200, 0, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gameOverPanel.add(greetingLabel, gbc);
+
+        gameOverFonts = gameOverFonts.deriveFont(14f);
+        totalScoreLabel = new JLabel("Total Score: " + totalScore);
+        totalScoreLabel.setFont(gameOverFonts);
+        totalScoreLabel.setForeground(Color.WHITE);
+        gbc.insets = new Insets(20, 0, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gameOverPanel.add(totalScoreLabel, gbc);
+
+        timeTakenLabel = new JLabel("Time Taken: " + timeTaken );
+        timeTakenLabel.setFont(gameOverFonts);
+        timeTakenLabel.setForeground(Color.WHITE);
+        gbc.insets = new Insets(20, 0, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gameOverPanel.add(timeTakenLabel, gbc);
+
+        pressToExitLabel = new JLabel("Press ESC to exit to game menu!");
+        pressToExitLabel.setFont(gameOverFonts);
+        pressToExitLabel.setForeground(Color.WHITE);
+        gbc.insets = new Insets(20, 0, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gameOverPanel.add(pressToExitLabel, gbc);
+
+        mnClient.getMainWindow().clearAll();
+        mnClient.getMainWindow().addCenter(gameOverPanel);
+        mnClient.getMainWindow().addSouth(developerCredits);
+        headerText.setText("GAME OVER!");
+        mnClient.getMainWindow().addNorth(headerPanel);
+        mnClient.getMainWindow().pack();
+
+        gameOverPanel.setFocusable(true);
+        gameOverPanel.requestFocusInWindow();
+
+        gameOverPanel.addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                handleKeyPressed(e);
+            }
+            @Override
+            public void keyReleased(KeyEvent e) {
+            }
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+        });
     }
 
     /* 
@@ -479,7 +568,6 @@ public class SpaceMaze implements GameClient {
     public void loadMaze(JsonArray jsonArray, JsonArray botStartLocations){
         mnClient.getMainWindow().clearAll();
         
-
         //Json array of strings to Java array of strings
         List<String> mazeList = jsonArray.getList();
 
@@ -515,6 +603,14 @@ public class SpaceMaze implements GameClient {
             mazeArray[i] = serialisedMaze.get(i).toCharArray();
         }
         return mazeArray;
+    }
+
+    public void handleKeyPressed(KeyEvent e) {
+        switch (e.getKeyCode()) {
+            case KeyEvent.VK_ESCAPE:
+                sendCommand("backToMenu");
+                break;
+        }
     }
 }
 
