@@ -94,20 +94,25 @@ public class SnakeGame {
         SnakePlayer p = players.get(cp.player());
 
         // FIXME: Need to actually run the commands!
-        String userInput = String.valueOf(cp.commands().get(0).getValue("command"));
-
-        // Unlock achievements
-        switch (userInput.toLowerCase().strip()) {
-            case "east" -> achievementHandler.unlockAchievement(playerName, EAST_BUTTON_PUSHER.toString());
-            case "south" -> achievementHandler.unlockAchievement(playerName, SOUTH_BUTTON_PUSHER.toString());
-            case "abracadabra" -> achievementHandler.unlockAchievement(playerName, SAY_THE_MAGIC_WORD.toString());
-        }
-
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
-        renderingCommands.add(new JsonObject().put("command", "clearText"));
-        renderingCommands.add(new JsonObject().put("command", "appendText").put("text", describeState(p)));
-        renderingCommands.add(new JsonObject().put("command", "setDirections").put("directions", directions(p.x(), p.y())));
+        String commandString = String.valueOf(cp.commands().get(0).getValue("command"));
 
+        switch (commandString){
+            case "START" -> renderingCommands.add(new JsonObject().put("command", "startGame"));
+            case "SCORE" -> renderingCommands.add(new JsonObject().put("command", "viewHighScore"));
+            case "HELP" -> renderingCommands.add(new JsonObject().put("command", "howToPlay"));
+            case "BACK" -> renderingCommands.add(new JsonObject().put("command", "backToMenu"));
+            case "EXIT" -> {
+                
+                }
+            }
+        
+
+    
+        
+
+        
+    
         return new RenderingPackage(this.gameMetadata(), renderingCommands);
     }
 
