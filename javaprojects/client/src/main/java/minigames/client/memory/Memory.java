@@ -332,6 +332,11 @@ public class Memory implements GameClient{ //, ActionListener, MouseListener {
         this.gm = game;
         this.player = player;
         //playerName.setText("Player: " + player);
+        
+        // Update Player Name
+        GUI.updatePlayerName(player);
+        // Exit button to return to main game menu - Working
+        GUI.exitButton().addActionListener(e -> mnClient.runMainMenuSequence());
 
         // Add our components to the north, south, east, west, or centre of the main window's BorderLayout
         //mnClient.getMainWindow().addCenter(mainPanel);

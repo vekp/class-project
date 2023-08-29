@@ -173,7 +173,13 @@ public class MemoryGUI extends JPanel implements ActionListener {
         gameOptionsPanel.add(exitButton);
     }
 
+    public void updatePlayerName(String player) {
+        playerName.setText("Player: " + player);
+    }
 
+    public JButton exitButton() {
+        return exitButton;
+    }
 
     private void setGridContainerPanelDisplay(){
         int containerWidth = 500;
