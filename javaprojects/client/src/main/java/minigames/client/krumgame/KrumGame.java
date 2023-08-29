@@ -88,7 +88,9 @@ public class KrumGame implements GameClient {
     KrumTurn currentTurn;
     final int MAX_TURN_GAP_FRAMES = 600;
 
-    final int MIN_PLAYBACK_BUFFER = 120;
+    final int MIN_PLAYBACK_BUFFER = 1;
+
+    long seed; // seed for Random() -- needs to be the same for all clients clients
 
     public KrumGame() {  
         receivedFrames = new ArrayList<KrumInputFrame>();
@@ -102,16 +104,10 @@ public class KrumGame implements GameClient {
         background = backgroundComponent.getImage();
         alphaRaster = backgroundComponent.getAlphaRaster();
 
-        // Starting the Wind Manager
-        windManager = new WindManager();
-        windX = windManager.getWindX();
-        windY = windManager.getWindY();
-        windString = windManager.getWindString();
-
         initializePanel();
         initializePlayers();
         //initializeWind();
-        startTurn();
+        
 
     }
 
@@ -136,6 +132,7 @@ public class KrumGame implements GameClient {
      */
     void startTurn() {
         System.out.println("Start turn");
+        playerTurn *= -1;
         windString = windManager.updateWindString();
         windX = windManager.getWindX();
         turnEndFrame = updateCount + KrumC.TURN_TIME_LIMIT_FRAMES;
@@ -170,7 +167,8 @@ public class KrumGame implements GameClient {
 
         //sendFrames(currentTurn.frames);
 
-        playerTurn = 1 - playerTurn;        
+        playerTurn = 1 - playerTurn; 
+        playerTurn *= -1;       
         turnOver = true;
         readyToStartTurn = false;
         turnOverFrame = updateCount;
@@ -281,15 +279,19 @@ public class KrumGame implements GameClient {
             recordingTurn = true;
             playingBackTurn = false;
         } 
-        if (myPlayerIndex != playerTurn) {
+        else if (myPlayerIndex != playerTurn && playerTurn >= 0) {
             if (receivedFrames.size() < KrumC.TURN_TIME_LIMIT_FRAMES) {
                 requestSingleFrame();
             }
-            if (receivedFrames.size() - playBackFrame < MIN_PLAYBACK_BUFFER && playBackFrame < KrumC.TURN_TIME_LIMIT_FRAMES - MIN_PLAYBACK_BUFFER - 1) {
+            if (receivedFrames.size() - playBackFrame <= MIN_PLAYBACK_BUFFER && playBackFrame < KrumC.TURN_TIME_LIMIT_FRAMES - MIN_PLAYBACK_BUFFER - 1) {
                 return;
             }
             playingBackTurn = true;
             recordingTurn = false; 
+        }
+        else {
+            playingBackTurn = false;
+            recordingTurn = false;
         }
         // if (playBackTurn) {
         //     playingBackTurn = true;
@@ -497,6 +499,12 @@ public class KrumGame implements GameClient {
      * Main game loop
      */
     void startGame(){
+        // Starting the Wind Manager
+        windManager = new WindManager(seed);
+        windX = windManager.getWindX();
+        windY = windManager.getWindY();
+        windString = windManager.getWindString();
+        startTurn();
         for (KrumPlayer p : players) {
             p.setMouseOffsets(panel.getLocationOnScreen().x, panel.getLocationOnScreen().y);
         }
@@ -681,6 +689,7 @@ public class KrumGame implements GameClient {
         }
         try {
             int index = command.getInteger("playerIndexFromServer");
+            this.seed = command.getLong("seed");
             setPlayerIndexAndBegin(index);
         } catch (Exception e) {
             System.out.println("unknown command received from server");

@@ -39,6 +39,8 @@ public class KrumGame{
 
     private static final int FRAMES_PER_TURN = 900;
 
+    private long seed;
+
     public KrumGame(String name){
         this.name = name;
         this.playerTurn = 0;
@@ -47,6 +49,8 @@ public class KrumGame{
         this.frames.add(new LinkedList<KrumInputFrame>());
         this.frames.add(new LinkedList<KrumInputFrame>());
         this.playerIndexCount = 0;
+        this.seed = System.nanoTime();
+
     }
 
     public String[] getPlayerNames(){
@@ -133,7 +137,7 @@ public class KrumGame{
         if (content.getValue("indexRequest") != null){
             int index = playerIndexCount;
             playerIndexCount++;
-            JsonObject j = new JsonObject().put("playerIndexFromServer", index);
+            JsonObject j = new JsonObject().put("playerIndexFromServer", index).put("seed", seed);
             renderingCommands.add(j);
         }
         else if (content.getValue("frameRequest") != null) {            

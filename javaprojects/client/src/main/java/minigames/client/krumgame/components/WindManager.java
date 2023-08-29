@@ -8,8 +8,8 @@ public class WindManager{
     private String windString;
     private Random rand;
 
-    public WindManager(){
-        rand = new Random();
+    public WindManager(long seed){
+        rand = new Random(seed);
         initializeWind();
     }
 
