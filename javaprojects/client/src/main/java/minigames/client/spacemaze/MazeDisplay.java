@@ -24,6 +24,7 @@ import java.util.ArrayList;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Random;
 
 /**
  * Class to display the maze, handle key input and do basic validation
@@ -114,7 +115,14 @@ public class MazeDisplay extends JPanel {
             @Override
             public void run() {
                 for (SpaceBot bot : bots ) {
-                    bot.validMoveBot();
+                    // moving randomly - gets stuck at deadends.
+                    /*
+                    Random ran = new Random();
+                    bot.moveRandom(ran);
+                    */
+                    // always moving closer
+                    bot.moveCloser(playerPos);
+                   
                     detectAndSendCollisions();
                 }
                 repaint();
