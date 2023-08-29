@@ -228,7 +228,6 @@ public class Survey extends JPanel implements ActionListener {
         surveyQuestionsPanelGroup.add(surveyQuestionsPanelRight);
         this.add(surveyQuestionsPanelGroup, BorderLayout.CENTER);
 
-
         // Back Button
         backPanel = new JPanel();
         backButton = new JButton("Back");
@@ -242,18 +241,15 @@ public class Survey extends JPanel implements ActionListener {
         submitButton.setFont(fontButton);
         submitButton.addActionListener(e -> submit(mnClient));
         submitPanel.add(submitButton);
-
-        panelColourChange(mainBgColour, fgColour);
-        // buttonColourChange(bgColour, fgColour);
-
+        
         // Footer Panel
         footerPanel = new JPanel();
         // Have to set footer panel bg manually
-        footerPanel.setBackground(mainBgColour);
         footerPanel.add(backPanel, BorderLayout.WEST);
         footerPanel.add(submitPanel, BorderLayout.EAST);
         this.add(footerPanel, BorderLayout.SOUTH);
-
+        
+        panelColourChange(mainBgColour, fgColour);
         // ADD REQUEST TO ENDPOINTS HERE!!!
     }
 
