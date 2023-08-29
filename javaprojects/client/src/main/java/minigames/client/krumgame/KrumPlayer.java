@@ -357,6 +357,7 @@ public class KrumPlayer {
             if (!facingRight) {
                 g.drawImage(spriteGun, null, (int)xpos + 7, (int)ypos + 6);
             } else {
+                
                 g.drawImage(spriteGun, null, (int)xpos + 10, (int)ypos + 6);
             }
         }  

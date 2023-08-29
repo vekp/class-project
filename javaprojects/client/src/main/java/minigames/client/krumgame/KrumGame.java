@@ -10,6 +10,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import io.vertx.core.json.JsonObject;
+import java.util.Random;
 import javax.swing.SwingUtilities;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,7 +21,7 @@ import minigames.commands.CommandPackage;
 
 import java.awt.geom.Point2D;
 
-import minigames.client.krumgame.components.*;
+import minigames.client.krumgame.components.Background;
 /**
  * The state of each running game will be represented by an instance of KrumGame on the server and an instance on each participating client
  */
@@ -43,7 +44,6 @@ public class KrumGame implements GameClient {
     String player;
 
     // Wind properties
-    WindManager windManager;
     double windX;
     double windY;
     String windString;
@@ -54,6 +54,9 @@ public class KrumGame implements GameClient {
     WritableRaster alphaRaster;
     KrumPanel panel;
     long lastFrameTime;
+
+    // Random number generator
+    Random rand;
 
     // Game loop and update controls
     boolean firstRun;
@@ -73,30 +76,33 @@ public class KrumGame implements GameClient {
     KrumTurn currentTurn;
     final int MAX_TURN_GAP_FRAMES = 600;
 
+    // Explosions details for the draw loop
+    ArrayList<ExplosionDetails> explosions;
+
     public KrumGame() {  
-        //rand = new Random(); 
+        rand = new Random(); 
         firstRun = true;
         updateCount = 0;
         waterLevel = KrumC.RES_Y - 1;
         // Initializing the background image
-        //backgroundComponent = new Background("chameleon.png");
-        backgroundComponent = new Background("ropetestmap.png");
+        backgroundComponent = new Background("chameleon.png");
+        //backgroundComponent = new Background("ropetestmap.png");
         background = backgroundComponent.getImage();
         alphaRaster = backgroundComponent.getAlphaRaster();
-
-        // Starting the Wind Manager
-        windManager = new WindManager();
-        windX = windManager.getWindX();
-        windY = windManager.getWindY();
-        windString = windManager.getWindString();
-
         initializePanel();
         initializePlayers();
-        //initializeWind();
+        initializeWind();
         startTurn();
 
+        explosions = new ArrayList<ExplosionDetails>();
     }
-
+/*
+    private void initializeBackground(){
+        //background = KrumHelpers.readSprite("chameleon.png");
+        background = KrumHelpers.readSprite("ropetestmap.png");
+        alphaRaster = background.getAlphaRaster();
+    }
+*/
     private void initializePanel(){
         panel = new KrumPanel(this);
         panel.setPreferredSize(panel.getPreferredSize());
@@ -113,13 +119,36 @@ public class KrumGame implements GameClient {
         currentTurn = savedTurns[playerTurn];
     }
 
-    /** 
+    private void initializeWind(){
+        windY = 0;
+        windX = -0.02;
+        windString = "Wind: left 2.00";
+    }
+    /*
+     * Represents the details of an explosion, for use in the draw loop
+     */
+    class ExplosionDetails {
+        int x;
+        int y;
+        long endFrame;
+        int radius;
+        ExplosionDetails(int x,int y, long f, int r){
+            this.x = x;
+            this.y = y;
+            this.endFrame = f;
+            this.radius = r;
+        }
+    }
+
+    /*
      * Called to start a new turn, shifting control to the other player
      */
     void startTurn() {
         System.out.println("Start turn");
-        windString = windManager.updateWindString();
-        windX = windManager.getWindX();
+        windX = (rand.nextDouble() - 0.5) / 10;
+        windString = "Wind: ";
+        windString += windX > 0 ? "right " : "left ";
+        windString += Math.round(windX * 10000.0) / 100.0;
         turnEndFrame = updateCount + KrumC.TURN_TIME_LIMIT_FRAMES;
         savedTurns[playerTurn] = new KrumTurn(players, background, windX, windY, updateCount, ending, running, winner, waterLevel);
         currentTurn = savedTurns[playerTurn];
@@ -137,7 +166,7 @@ public class KrumGame implements GameClient {
         return n;
     }
 
-    /** 
+    /*
      * Called when turn time has expired. Next turn won't be started until
      * projectiles have exploded or fallen off the bottom of the screen, and 
      * players are no longer airborne.
@@ -172,15 +201,37 @@ public class KrumGame implements GameClient {
         ending = true;
     }
 
-    void handlePlayerKnock(KrumProjectile proj){               
+    /**
+     * Call this to explode part of the level.
+     * 
+     * @param x x-coordinate of the centre of the explosion
+     * @param y y-coordinate of the centre of the explosion
+     */
+    void explode(int x, int y, KrumProjectile p) {
+        System.out.println("Ex " + p.explosionRadius);
+        double z[] = {0};
+        for (int i = -(p.explosionRadius); i < p.explosionRadius; i++) {
+            if (i + x >= KrumC.RES_X) break;
+            if (i + x < 0) continue;
+            for (int j = -(p.explosionRadius); j < p.explosionRadius; j++) {
+                if (j + y < 0) continue;
+                if (j + y >= KrumC.RES_Y) break;
+                if (java.lang.Math.sqrt(i * i + j * j) <= p.explosionRadius) {
+                    alphaRaster.setPixel(i + x, j + y, z);
+                }                    
+            }
+        }
         for (int i = 0; i < players.length; i++) {
-            if (proj != null) players[i].knockback(proj);  
+            if (p != null) players[i].knockback(p);  
             if (!players[i].onRope) {
                 players[i].airborne = true;                
             }                       
-        }
+        }  
+        ExplosionDetails newex = new ExplosionDetails(x, y, updateCount + 10, p.explosionRadius);            
+        explosions.add(newex);
     }
-    /** 
+
+    /*
      * Loads state from a KrumGameState object
      */
     void setGameState(KrumGameState state) {
@@ -291,9 +342,7 @@ public class KrumGame implements GameClient {
             }
             if (p.projectile != null) {
                 if(p.projectile.collisionCheck()) {
-                    ExplosionDetails.explode((int)p.projectile.x, (int)p.projectile.y, p.projectile.explosionRadius, 
-                        KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
-                    handlePlayerKnock(p.projectile);                   
+                    explode((int)p.projectile.x, (int)p.projectile.y, p.projectile);                    
                     for (KrumPlayer pl : players) {
                         double distance = KrumHelpers.distanceBetween(p.projectile.centre()[0], p.projectile.centre()[1], pl.playerCentre().x, pl.playerCentre().y);
                         if (distance <= p.projectile.damageRadius) {
@@ -305,9 +354,7 @@ public class KrumGame implements GameClient {
                 if (p.projectile != null) {
                     int n = p.projectile.playerCollisionCheck(players);
                     if (n >= 0) {
-                        ExplosionDetails.explode((int)p.projectile.x, (int)p.projectile.y, p.projectile.explosionRadius, 
-                            KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
-                        handlePlayerKnock(p.projectile);
+                        explode((int)p.projectile.x, (int)p.projectile.y, p.projectile);
                         players[n].hit(p.projectile.maxDamage, 0, p.projectile.damageRadius);
                         for (int i = 0; i < players.length; i++) {
                             if (i == n) continue;
@@ -328,9 +375,7 @@ public class KrumGame implements GameClient {
                             pl.hit(p.grenade.maxDamage, distance, p.grenade.damageRadius);
                         }
                     }
-                    ExplosionDetails.explode((int)p.grenade.x, (int)p.grenade.y, p.grenade.explosionRadius, 
-                        KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
-                    handlePlayerKnock(p.grenade);
+                    explode((int)p.grenade.x, (int)p.grenade.y, p.grenade);
                     p.grenade = null;
                 }
             }
@@ -342,9 +387,7 @@ public class KrumGame implements GameClient {
                             pl.hit(p.joey.maxDamage, distance, p.joey.damageRadius);
                         }
                     }
-                    ExplosionDetails.explode((int)p.joey.xpos, (int)p.joey.ypos, p.joey.explosionRadius, 
-                        KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
-                    handlePlayerKnock(p.joey); 
+                    explode((int)p.joey.xpos, (int)p.joey.ypos, p.joey);
                     p.joey.active = false;
                 }
             }
@@ -414,17 +457,14 @@ public class KrumGame implements GameClient {
 
         //draw explosions
         g.setColor(Color.red);
-        for (int i = 0; i < ExplosionDetails.explosions.size(); i++) {
-            System.out.println("Explosion " + ExplosionDetails.explosions.size());
-            ExplosionDetails e = ExplosionDetails.explosions.get(i);
-            int r = e.getRadius() - (int)(e.getEndFrame() - updateCount) / 2;
-            System.out.println("R: " + r);
-            g.fillOval(e.getXCoords() - r, e.getYCoords() - r, r * 2, r * 2);
-            if (updateCount >= e.getEndFrame()) {
-                ExplosionDetails.explosions.remove(e);
+        for (int i = 0; i < explosions.size(); i++) {
+            ExplosionDetails e = explosions.get(i);
+            int r = e.radius - (int)(e.endFrame - updateCount) / 2;
+            g.fillOval(e.x -r, e.y - r, r * 2, r * 2);
+            if (updateCount >= e.endFrame) {
+                explosions.remove(e);
                 i--;
-                System.out.println("Explosion " + ExplosionDetails.explosions.size());
-            }              
+            }                
         }
 
         //draw water
@@ -635,6 +675,38 @@ public class KrumGame implements GameClient {
         this.playerTurn = playerTurn;
     }
 
+    public double getWindX() {
+        return windX;
+    }
+
+    public void setWindX(double windX) {
+        this.windX = windX;
+    }
+
+    public double getWindY() {
+        return windY;
+    }
+
+    public void setWindY(double windY) {
+        this.windY = windY;
+    }
+/*
+    public BufferedImage getBackground() {
+        return background;
+    }
+
+    public void setBackground(BufferedImage background) {
+        this.background = background;
+    }
+
+    public WritableRaster getAlphaRaster() {
+        return alphaRaster;
+    }
+
+    public void setAlphaRaster(WritableRaster alphaRaster) {
+        this.alphaRaster = alphaRaster;
+    }
+*/
     public KrumPanel getPanel() {
         return panel;
     }
@@ -649,6 +721,22 @@ public class KrumGame implements GameClient {
 
     public void setLastFrameTime(long lastFrameTime) {
         this.lastFrameTime = lastFrameTime;
+    }
+
+    public Random getRand() {
+        return rand;
+    }
+
+    public void setRand(Random rand) {
+        this.rand = rand;
+    }
+
+    public String getWindString() {
+        return windString;
+    }
+
+    public void setWindString(String windString) {
+        this.windString = windString;
     }
 
     public boolean isFirstRun() {
