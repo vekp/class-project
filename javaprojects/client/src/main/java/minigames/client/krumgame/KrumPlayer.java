@@ -143,6 +143,8 @@ public class KrumPlayer {
  
     int playerIndex;
 
+    int spriteIndexNextFrame;
+
     int empty[];
 
     KrumJoey joey;
@@ -304,6 +306,7 @@ public class KrumPlayer {
         tick = 0;
         playerIndex = index;
         this.spriteGun = KrumHelpers.readSprite(spriteDir + "bazooka.png");
+        spriteIndexNextFrame = spriteIndex;
     }
 
     void stop() {
@@ -350,10 +353,7 @@ public class KrumPlayer {
      */
     void draw(Graphics2D g, int playerTurn){
 
-        //Sprite Drawing
-        if (playerTurn == this.playerIndex) {
-            spriteLook();            
-        }       
+        //Sprite Drawing   
         spriteGun();
         if (flashFramesLeft <= 0 || flashFramesLeft % 4 == 0) {
             g.drawImage(sprite, null, (int)xpos, (int)ypos);               
@@ -435,6 +435,13 @@ public class KrumPlayer {
             enterKeyDownNextFrame = playbackFrame.enterKeyDown;
             upArrowKeyDownNextFrame = playbackFrame.upArrowKeyDown;
             downArrowKeyDownNextFrame = playbackFrame.downArrowKeyDown;
+            if (spriteIndex != playbackFrame.spriteIndex) {
+                spriteIndex = playbackFrame.spriteIndex;
+                sprite = sprites[spriteIndex];
+                alphaRaster = sprite.getAlphaRaster();
+            } 
+            lastAimAngle = playbackFrame.lastAimAngle;
+            setDirection(Math.cos(lastAimAngle) > 0, levelRaster);
         }
         if (turnOver) {      
             shootNextFrame = false;
@@ -502,7 +509,10 @@ public class KrumPlayer {
             recordingFrame.upArrowKeyDown = upArrowKeyDownNextFrame;
             recordingFrame.downArrowKeyDown = downArrowKeyDownNextFrame;
             recordingFrame.leftKeyDown = leftKeyDownNextFrame;
-            recordingFrame.rightKeyDown = rightKeyDownNextFrame;            
+            recordingFrame.rightKeyDown = rightKeyDownNextFrame; 
+            spriteLook();
+            recordingFrame.spriteIndex = spriteIndex;
+            recordingFrame.lastAimAngle = lastAimAngle;
             // recordingTurn.frames.add(recordingFrame);
         }
         if (projectile != null) {

@@ -269,6 +269,7 @@ public class KrumGame implements GameClient {
             players[i].canShootRope = ps.canShootRope;
             players[i].dead = ps.dead;
             players[i].firstLanding = ps.firstLanding;
+            players[i].spriteIndex = ps.spriteIndex;
         }
     }
 
@@ -325,7 +326,7 @@ public class KrumGame implements GameClient {
                 }                
             }
             else if (myPlayerIndex == playerTurn && p.playerIndex == playerTurn && !turnOver) {
-                rf = new KrumInputFrame();
+                rf = new KrumInputFrame();                  
             }
             p.update(windX, windY, alphaRaster, updateCount, rf, pf, turnOver);
             if (p.ypos > waterLevel) p.die();

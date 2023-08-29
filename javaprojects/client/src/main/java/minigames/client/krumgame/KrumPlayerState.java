@@ -62,6 +62,7 @@ public class KrumPlayerState {
     boolean dead;
     boolean canShootRope;
     boolean firstLanding;    
+    int spriteIndex;
     KrumPlayerState(KrumPlayer p) {
         this.hp = p.hp;
         this.xpos = p.xpos;
@@ -115,5 +116,6 @@ public class KrumPlayerState {
         this.dead = p.dead;
         this.canShootRope = p.canShootRope;
         this.firstLanding = p.firstLanding;
+        this.spriteIndex = p.spriteIndex;
     }
 }
