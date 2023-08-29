@@ -5,6 +5,9 @@ import java.awt.image.BufferedImage;
 
 import java.lang.Math;
 import java.util.ArrayList;
+
+import minigames.krumgame.KrumInputFrame;
+
 import java.awt.MouseInfo;
 
 import java.awt.event.MouseEvent;
@@ -405,11 +408,14 @@ public class KrumPlayer {
      * @param windY
      * @param levelRaster
      */
-    void update(double windX, double windY, WritableRaster levelRaster, long tick, KrumTurn recordingTurn, KrumInputFrame playbackFrame, boolean turnOver){
+    // void update(double windX, double windY, WritableRaster levelRaster, long tick, KrumTurn recordingTurn, KrumInputFrame playbackFrame, boolean turnOver){
+    void update(double windX, double windY, WritableRaster levelRaster, long tick, KrumInputFrame recordingFrame, KrumInputFrame playbackFrame, boolean turnOver){
         if (dead) return;
-        KrumInputFrame recordingFrame = new KrumInputFrame();
-        recordingFrame.activePlayer = playerIndex;
-        recordingFrame.frameCount = tick;
+        // KrumInputFrame recordingFrame = new KrumInputFrame();
+        if (recordingFrame != null) {
+            recordingFrame.activePlayer = playerIndex;
+            recordingFrame.frameCount = tick;
+        }        
         this.tick = tick;
         if (playbackFrame != null && playbackFrame.activePlayer == playerIndex) {            
             shootNextFrame = playbackFrame.shoot;
@@ -444,7 +450,7 @@ public class KrumPlayer {
         if (shootNextFrame) {
             shoot(shotPower);
             shootNextFrame = false;
-            if (recordingTurn != null) {
+            if (recordingFrame != null) {
                 recordingFrame.shoot = true;
                 recordingFrame.shotPower = shotPower;
                 recordingFrame.shootAimAngle = shootAimAngle;
@@ -453,7 +459,7 @@ public class KrumPlayer {
         if (grenadeNextFrame) {
             shootGrenade(grenadePower);
             grenadeNextFrame = false;
-            if (recordingTurn != null) {
+            if (recordingFrame != null) {
                 recordingFrame.shootGrenade = true;
                 recordingFrame.grenadePower = grenadePower;
                 recordingFrame.grenadeAimAngle = grenadeAimAngle;
@@ -462,7 +468,7 @@ public class KrumPlayer {
         if (shootRopeNextFrame) {
             fireRope();
             shootRopeNextFrame = false;
-            if (recordingTurn != null) {
+            if (recordingFrame != null) {
                 recordingFrame.shootRope = true;
                 recordingFrame.ropeAimAngle = ropeAimAngle;
             }
@@ -470,14 +476,14 @@ public class KrumPlayer {
         if (detachRopeNextFrame) {
             detachRope();
             detachRopeNextFrame = false;
-            if (recordingTurn != null) {
+            if (recordingFrame != null) {
                 recordingFrame.detachRope = true;
             }
         }
         if (jumpNextFrame) {
             jump(jumpPower, jumpType);
             jumpNextFrame = false;
-            if (recordingTurn != null) {
+            if (recordingFrame != null) {
                 recordingFrame.jump = true;
                 recordingFrame.jumpPower = jumpPower;
                 recordingFrame.jumpType = jumpType;
@@ -486,18 +492,18 @@ public class KrumPlayer {
         if (enterKeyDownNextFrame) {
             enterKeyPressed();
             enterKeyDownNextFrame = false;
-            if (recordingTurn != null) {
+            if (recordingFrame != null) {
                 recordingFrame.enterKeyDown = true;
             }
         }
         upArrowKeyDown = upArrowKeyDownNextFrame;
         downArrowKeyDown = downArrowKeyDownNextFrame;
-        if (recordingTurn != null) {
+        if (recordingFrame != null) {
             recordingFrame.upArrowKeyDown = upArrowKeyDownNextFrame;
             recordingFrame.downArrowKeyDown = downArrowKeyDownNextFrame;
             recordingFrame.leftKeyDown = leftKeyDownNextFrame;
             recordingFrame.rightKeyDown = rightKeyDownNextFrame;            
-            recordingTurn.frames.add(recordingFrame);
+            // recordingTurn.frames.add(recordingFrame);
         }
         if (projectile != null) {
             projectile.update(windX, windY);

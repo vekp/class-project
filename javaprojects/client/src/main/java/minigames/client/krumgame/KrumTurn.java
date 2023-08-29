@@ -1,6 +1,9 @@
 package minigames.client.krumgame;
 
 import java.util.ArrayList;
+
+import minigames.krumgame.KrumInputFrame;
+
 import java.awt.image.BufferedImage;
 
 /*

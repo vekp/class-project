@@ -11,9 +11,18 @@ import minigames.rendering.*;
 //import minigames.rendering.NativeCommands.LoadClient;
 import minigames.rendering.NativeCommands.LoadClient;
 
+import minigames.krumgame.KrumInputFrame;
+
+import java.util.Queue;
+import java.util.LinkedList;
+
+
 
 // TODO: Change the game name
 public class KrumGame{
+    static final int PLAYER_NAME_MAX_CHARS = 30;
+
+    int playerTurn;
 
     private static final Logger logger = LogManager.getLogger(KrumGame.class);
 
@@ -23,8 +32,21 @@ public class KrumGame{
     private String currentPlayerTurn;
     private String playerName;
 
+    private int playerIndexCount;
+
+    private ArrayList<Queue<KrumInputFrame>> frames;
+    private int frameIndex;
+
+    private static final int FRAMES_PER_TURN = 900;
+
     public KrumGame(String name){
         this.name = name;
+        this.playerTurn = 0;
+        this.frameIndex = 0;
+        this.frames = new ArrayList<Queue<KrumInputFrame>>();
+        this.frames.add(new LinkedList<KrumInputFrame>());
+        this.frames.add(new LinkedList<KrumInputFrame>());
+        this.playerIndexCount = 0;
     }
 
     public String[] getPlayerNames(){
@@ -63,8 +85,13 @@ public class KrumGame{
         String playerName = parts[0];
         String playerType = parts[1];
         */
+
         String playerName = playerNameWithType;
         String playerType = "";
+
+        while (players.containsKey(playerName) && playerName.length() < PLAYER_NAME_MAX_CHARS) {
+            playerName += "_";
+        }
 
         if (players.containsKey(playerName)){
             return sendErrorMsg("This name is already taken");
@@ -95,22 +122,45 @@ public class KrumGame{
 
 
     public RenderingPackage runCommands(CommandPackage cp){
-        logger.info("Received command package {}", cp);
-
-        GameCharacter p = players.get(cp.player());
-
-        if (!p.getName().equals(currentPlayerTurn)){
-            return sendErrorMsg("The game is in an invalidState");
-        }
-
+        //logger.info("Received command package {}", cp);
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
-
-        for (JsonObject command : cp.commands()){
-            processPlayerCommand(command, p, renderingCommands);
+        if (cp.commands().size() < 1) {
+            logger.info("EMPTY COMMAND PACKAGE");
+            return new RenderingPackage(gameMetadata(), renderingCommands);
         }
-
-        // Change the turn
-        this.changeTurn();
+        logger.info("Received command package");        
+        JsonObject content = cp.commands().get(0);        
+        if (content.getValue("indexRequest") != null){
+            int index = playerIndexCount;
+            playerIndexCount++;
+            JsonObject j = new JsonObject().put("playerIndexFromServer", index);
+            renderingCommands.add(j);
+        }
+        else if (content.getValue("frameRequest") != null) {            
+            int index = content.getInteger("frameRequest");
+            index = 1 - index;
+            if (index < 0 || index >= frames.size() || frames.get(index).size() < 1) {
+                logger.info("invalid frameRequest");
+                return new RenderingPackage(gameMetadata(), renderingCommands);
+            }
+            JsonObject f = frames.get(index).remove().getJson();
+            JsonObject j = new JsonObject().put("frame", f);
+            renderingCommands.add(j);
+        }
+        else {
+            int pindex;
+            try {
+                pindex = content.getInteger("activePlayer");
+            } catch (Exception e) {
+                System.out.println("unrecognised command");
+                return new RenderingPackage(null, null);
+            }
+            if (pindex >= 2) {
+                System.out.println("invalid activePlayer");
+                return new RenderingPackage(null, null);
+            }
+            frames.get(pindex).add(new KrumInputFrame(content));
+        }
         return new RenderingPackage(gameMetadata(), renderingCommands);
     } 
 
@@ -126,21 +176,14 @@ public class KrumGame{
 
 
     public void processPlayerCommand(JsonObject command, GameCharacter player, List<JsonObject> renderingCommands){
-        String commandType = command.getString("commandType");
-        GameCommand gameCommand;
+        //String commandType = command.getString("commandType");
+        // GameCommand gameCommand;
 
-        switch(commandType){
-            case "move":
-                int x = command.getInteger("x");
-                int y = command.getInteger("y");
-                gameCommand = new MoveCommand(x, y);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown Command type: " + commandType);
 
-        }
+        // JsonObject renderingCommand = gameCommand.execute(player, this);
+        //renderingCommands.add(renderingCommand);
 
-        JsonObject renderingCommand = gameCommand.execute(player, this);
-        renderingCommands.add(renderingCommand);
+
+
     }   
 }

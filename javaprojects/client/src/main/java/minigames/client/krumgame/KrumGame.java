@@ -9,6 +9,8 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
+
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import javax.swing.SwingUtilities;
 import java.util.ArrayList;
@@ -16,15 +18,28 @@ import java.util.Collections;
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
 import minigames.rendering.GameMetadata;
+import minigames.rendering.NativeCommands.LoadClient;
+import minigames.rendering.NativeCommands.QuitToMenu;
+import minigames.rendering.NativeCommands.ShowMenuError;
+import minigames.rendering.RenderingPackage;
 import minigames.commands.CommandPackage;
+import minigames.krumgame.KrumInputFrame;
 
+import java.util.List;
+import java.util.Optional;
 import java.awt.geom.Point2D;
+
+import minigames.krumgame.KrumInputFrame;
 
 import minigames.client.krumgame.components.*;
 /**
  * The state of each running game will be represented by an instance of KrumGame on the server and an instance on each participating client
  */
 public class KrumGame implements GameClient {
+
+    int myPlayerIndex;
+
+    ArrayList<KrumInputFrame> receivedFrames;
 
     // Networking
     MinigameNetworkClient mnClient;
@@ -73,7 +88,10 @@ public class KrumGame implements GameClient {
     KrumTurn currentTurn;
     final int MAX_TURN_GAP_FRAMES = 600;
 
+    final int MIN_PLAYBACK_BUFFER = 120;
+
     public KrumGame() {  
+        receivedFrames = new ArrayList<KrumInputFrame>();
         //rand = new Random(); 
         firstRun = true;
         updateCount = 0;
@@ -143,10 +161,15 @@ public class KrumGame implements GameClient {
      * players are no longer airborne.
      */
     void endTurn() {
+        receivedFrames.clear();
+        playBackFrame = 0;
         for (KrumPlayer p : players)
             p.stop();
         recordingTurn = false;
         currentTurn.endState = new KrumGameState(players, background, windX, windY, updateCount, ending, running, winner, waterLevel);
+
+        //sendFrames(currentTurn.frames);
+
         playerTurn = 1 - playerTurn;        
         turnOver = true;
         readyToStartTurn = false;
@@ -252,39 +275,59 @@ public class KrumGame implements GameClient {
     /**
      * Called once per frame to update game state
      */
-    void update() {        
-        if (playBackTurn) {
-            playingBackTurn = true;
-            recordingTurn = false;
-            playBackTurn = false;
-            playBackFrame = 0;
-            currentTurn = savedTurns[1 - playerTurn];
-            setGameState(currentTurn.startState);
-            System.out.println("playback " + currentTurn);
-            playerTurn = 1 - playerTurn;
+    void update() {       
+        if (myPlayerIndex == playerTurn) {
+            recordingTurn = true;
+            playingBackTurn = false;
         } 
-        else if (!playingBackTurn && updateCount > turnEndFrame && !turnOver) {
+        if (myPlayerIndex != playerTurn) {
+            if (receivedFrames.size() < KrumC.TURN_TIME_LIMIT_FRAMES) {
+                requestSingleFrame();
+            }
+            if (receivedFrames.size() - playBackFrame < MIN_PLAYBACK_BUFFER && playBackFrame < KrumC.TURN_TIME_LIMIT_FRAMES - MIN_PLAYBACK_BUFFER - 1) {
+                return;
+            }
+            playingBackTurn = true;
+            recordingTurn = false; 
+        }
+        // if (playBackTurn) {
+        //     playingBackTurn = true;
+        //     recordingTurn = false;
+        //     playBackTurn = false;
+        //     playBackFrame = 0;
+        //     currentTurn = savedTurns[1 - playerTurn];
+        //     setGameState(currentTurn.startState);
+        //     System.out.println("playback " + currentTurn);
+        //     playerTurn = 1 - playerTurn;
+        // } 
+        // else if (!playingBackTurn && updateCount > turnEndFrame && !turnOver) {
+        if (!playingBackTurn && updateCount >= turnEndFrame && !turnOver) {
             endTurn();
         }       
         readyToStartTurn = true;
+        KrumInputFrame rf = null;
         for (KrumPlayer p : players) {    
             KrumInputFrame pf = null;
-            KrumTurn rt = null;
-            if (p.playerIndex == playerTurn && recordingTurn) {
-                rt = currentTurn;
-            }  
+            rf = null;
+            //KrumTurn rt = null;
+            // if (p.playerIndex == playerTurn && playerTurn == myPlayerIndex) {
+            //     rt = currentTurn;
+            // }  
             if (playingBackTurn) {
-                if (playBackFrame >= currentTurn.frames.size()) {
+                if (playBackFrame >= KrumC.TURN_TIME_LIMIT_FRAMES) {
                     playingBackTurn = false;
-                    System.out.println("done replaying");
+                    //System.out.println("done replaying");
                     endTurn();
                 }
-                else if (p == players[currentTurn.frames.get(playBackFrame).activePlayer]) {
-                    pf = currentTurn.frames.get(playBackFrame);
+                else if (p == players[receivedFrames.get(playBackFrame).activePlayer]) {
+                    pf = receivedFrames.get(playBackFrame);
                     playBackFrame++;
                 }                
-            }  
-            p.update(windX, windY, alphaRaster, updateCount, rt, pf, turnOver);
+            }
+            else if (myPlayerIndex == playerTurn && p.playerIndex == playerTurn && !turnOver) {
+                rf = new KrumInputFrame();
+            }
+            p.update(windX, windY, alphaRaster, updateCount, rf, pf, turnOver);
             if (p.ypos > waterLevel) p.die();
             if (numLivingPlayers() < 2) {
                 turnEndFrame = updateCount;
@@ -357,7 +400,9 @@ public class KrumGame implements GameClient {
                     readyToStartTurn = false;
                 else if (p.airborne)
                     readyToStartTurn = false;
-            }            
+            }  
+            if (rf != null)
+                sendFrame(rf);        
         }   
         updateCount++;
         if (turnOver) {
@@ -415,15 +460,15 @@ public class KrumGame implements GameClient {
         //draw explosions
         g.setColor(Color.red);
         for (int i = 0; i < ExplosionDetails.explosions.size(); i++) {
-            System.out.println("Explosion " + ExplosionDetails.explosions.size());
+            //System.out.println("Explosion " + ExplosionDetails.explosions.size());
             ExplosionDetails e = ExplosionDetails.explosions.get(i);
             int r = e.getRadius() - (int)(e.getEndFrame() - updateCount) / 2;
-            System.out.println("R: " + r);
+            //System.out.println("R: " + r);
             g.fillOval(e.getXCoords() - r, e.getYCoords() - r, r * 2, r * 2);
             if (updateCount >= e.getEndFrame()) {
                 ExplosionDetails.explosions.remove(e);
                 i--;
-                System.out.println("Explosion " + ExplosionDetails.explosions.size());
+                //System.out.println("Explosion " + ExplosionDetails.explosions.size());
             }              
         }
 
@@ -470,18 +515,21 @@ public class KrumGame implements GameClient {
 
     // mouse and key Down/Up functions are triggered via the listeners in KrumPanel
     void mouseDown(MouseEvent e){
+        if (myPlayerIndex != playerTurn) return;
         if (e.getButton() == MouseEvent.BUTTON1)
             players[playerTurn].startFire(e);
         else 
             players[playerTurn].startGrenadeFire(e);
     }
     void mouseUp(MouseEvent e) {
+        if (myPlayerIndex != playerTurn) return;
         if (e.getButton() == MouseEvent.BUTTON1 && players[playerTurn].firing)
             players[playerTurn].endFire(e);
         else if (players[playerTurn].firingGrenade)
             players[playerTurn].endGrenadeFire(e);
     }
     void keyDown(KeyEvent e) {
+        if (myPlayerIndex != playerTurn) return;
         if (e.getKeyCode() == KeyEvent.VK_SPACE) { // Spacebar
             if (players[playerTurn].airborne) {
                 players[playerTurn].shootRopeNextFrame = true;
@@ -524,6 +572,7 @@ public class KrumGame implements GameClient {
         }
     }
     void keyUp(KeyEvent e) {
+        if (myPlayerIndex != playerTurn) return;
         if (e.getKeyCode() == KeyEvent.VK_SPACE) { // Spacebar
             players[playerTurn].endJump(0);
         }  
@@ -547,13 +596,55 @@ public class KrumGame implements GameClient {
         }
     }
 
+    void addReceivedFrame(JsonObject frame) {
+        //JsonObject frame = command.getJsonObject("frame");
+        if (frame == null) return;
+        receivedFrames.add(new KrumInputFrame(frame));
+    }
+
+    // void addReceivedFrames(JsonObject frames) {
+    //     frames.fieldNames()
+    // }
+
     /** 
      * Sends a command to the game at the server.
      */
-    public void sendCommand(String weapon, double angle, double power) {
-        JsonObject json = new JsonObject().put("weapon", weapon).put("angle", angle).put("power", power);
+    public void sendFrames(ArrayList<KrumInputFrame> frames) {
+        List<JsonObject> jsonList = new ArrayList<JsonObject>();
+        for (KrumInputFrame f : frames) {
+            jsonList.add(f.getJson());
+        }       
+        mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, jsonList));
+    }
+
+    public void sendFrame(KrumInputFrame frame) {       
         // Collections.singletonList() is a quick way of getting a "list of one item"
-        mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
+        mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(frame.getJson())));
+    }
+
+    // public void requestFrames(int numFrames) {
+    //     JsonObject j = new JsonObject().put("framesRequest", numFrames);
+    //     mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(j)));
+    // }
+
+    public void requestSingleFrame() {
+        JsonObject j = new JsonObject().put("frameRequest", myPlayerIndex);
+        mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(j)));
+    }
+
+    public void requestMyPlayerIndex() {
+        JsonObject j = new JsonObject().put("indexRequest", 1);
+        mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(j)));
+    }
+
+    public void setPlayerIndexAndBegin(int index) {
+        this.myPlayerIndex = index;
+        Thread gameThread = new Thread() {
+            public void run(){
+                startGame();                
+            }
+        };
+        gameThread.start();
     }
 
     /**
@@ -574,18 +665,25 @@ public class KrumGame implements GameClient {
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(panel);
         mnClient.getMainWindow().pack();
-        Thread gameThread = new Thread() {
-            public void run(){
-                startGame();
-            }
-        };
-        gameThread.start();
+        requestMyPlayerIndex();
+
     }
 
     @Override
     public void execute(GameMetadata game, JsonObject command) {
         this.gm = game;
-        System.out.println("command received" + command + "metadata: " + game);        
+        //System.out.println("command received" + command + "metadata: " + game);
+        JsonObject frame = command.getJsonObject("frame");
+        if (frame != null) {
+            addReceivedFrame(frame);
+            return;
+        }
+        try {
+            int index = command.getInteger("playerIndexFromServer");
+            setPlayerIndexAndBegin(index);
+        } catch (Exception e) {
+            System.out.println("unknown command received from server");
+        }
     }
 
     @Override
