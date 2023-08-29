@@ -20,6 +20,9 @@ public class InGameUI extends JPanel {
     private static final int ballSize = 5; // Adjust as needed
     private static final double ballSpeed = 5.0; // Adjust as needed
 
+    //MM added - Create a list of bricks
+    ArrayList<Brick> bricks = new ArrayList<>();
+
     InGameUI() {
 
         gameLoopTimer = new Timer(delay, e -> gameLoop());
@@ -57,6 +60,9 @@ public class InGameUI extends JPanel {
                 handleHover(e);
             }
         });
+        //MM added - Initialize bricks array
+        initBricks();
+
     }
 
     private void launchBall() {
@@ -111,6 +117,25 @@ public class InGameUI extends JPanel {
         repaint();
     }
 
+    /* MM added -  initializes the bricks. Sets up a grid of bricks,
+specifying their position X & Y, width, and height.
+Then, adds these brick objects to an ArrayList called bricks, a field of this class*/
+    private void initBricks() {
+        int brickWidth = 50;
+        int brickHeight = 20;
+        int xOffset = 50;
+        int yOffset = 100;
+        for (int row = 0; row < 5; row++) {
+            for (int col = 0; col < 10; col++) {
+                int x = xOffset + (col * (brickWidth + 10));
+                int y = yOffset + (row * (brickHeight + 10));
+                bricks.add(new Brick(x, y, brickWidth, brickHeight));
+            }
+        }
+    }
+
+
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -124,6 +149,9 @@ public class InGameUI extends JPanel {
         for (Ball ball : balls) {
             ball.drawBall(g);
         }
+        //MM Added - drawing the bricks
+        for (Brick brick : bricks) {
+            brick.draw(g);
     }
 
 }
