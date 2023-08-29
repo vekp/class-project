@@ -1,19 +1,15 @@
 package minigames.client.telepathy;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Collections;
+import java.util.ArrayList;
 
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -29,6 +25,7 @@ import minigames.commands.CommandPackage;
 import java.awt.*; // not the best coding practice - to update
 import javax.swing.*; // not the best coding practice - to update
 import java.lang.String;
+import java.util.HashMap;
 
 /**
  * A Telepathy GameClient. Handles displaying information of a Telepathy game running on the
@@ -38,6 +35,8 @@ import java.lang.String;
  * game running on the server.
  */
 public class Telepathy implements GameClient, Tickable {
+
+    private static final Logger logger = LogManager.getLogger(Telepathy.class);
 
     MinigameNetworkClient mnClient;
 
@@ -63,6 +62,8 @@ public class Telepathy implements GameClient, Tickable {
     // Tick information
     private boolean ticking = true;
     private long last = System.nanoTime();
+
+    private HashMap<String, JComponent> componentList; // Maintains references to swing elements that need to be modified 
     
 
     /**
@@ -70,7 +71,8 @@ public class Telepathy implements GameClient, Tickable {
      * border.  
      */
     public Telepathy(){
-
+        this.componentList = new HashMap<>();
+        
         telepathyBoard = new JPanel();
         telepathyBoard.setLayout(new BorderLayout());
 
@@ -100,13 +102,15 @@ public class Telepathy implements GameClient, Tickable {
         
         JButton backButton = new JButton("Back");
         backButton.addActionListener(e -> {
-            sendCommand(TelepathyCommands.QUIT.toString());
+            sendCommand(TelepathyCommands.QUIT);
         });
+        this.componentList.put("backButton", backButton);
 
         JButton readyButton = new JButton("Ready");
         readyButton.addActionListener(e -> {
-            sendCommand(TelepathyCommands.TOGGLEREADY.toString());
+            sendCommand(TelepathyCommands.TOGGLEREADY);
         });
+        this.componentList.put("readyButton", readyButton);
     
         //temporary panel to display xy button coordinates
         JPanel gridCheck = new JPanel();
@@ -130,7 +134,7 @@ public class Telepathy implements GameClient, Tickable {
                     if (buttonGrid[row][col] == selectedBtn) {
                         String buttonText = (Integer.toString(row) + ", " + Integer.toString(col));
                         xyCheck.setText(Integer.toString(row) + ", " + Integer.toString(col));
-                        sendCommand(TelepathyCommands.BUTTONPRESS.toString(), buttonText);
+                        sendCommand(TelepathyCommands.BUTTONPRESS, buttonText);
                     }
                 }
             }
@@ -160,10 +164,11 @@ public class Telepathy implements GameClient, Tickable {
      * @param command: The TelepathyCommand used to specify the type of command.
      * @param attributes: Any attributes that need to be packaged with the command. 
      */
-    public void sendCommand(String command, String... attributes){
-        JsonObject json = new JsonObject().put("command", command);
+    public void sendCommand(TelepathyCommands command, String... attributes){
+        JsonObject json = new JsonObject().put("command", command.toString());
         
         if(attributes.length > 0) {json.put("attributes", new JsonArray().add(attributes));}
+        logger.info("Sending command: {}", json);
 
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
     }
@@ -187,7 +192,7 @@ public class Telepathy implements GameClient, Tickable {
             new WindowAdapter() {
                 @Override
                 public void windowClosing(WindowEvent e){
-                    sendCommand(TelepathyCommands.SYSTEMQUIT.toString());
+                    sendCommand(TelepathyCommands.SYSTEMQUIT);
                 }
             }
         );
@@ -213,6 +218,8 @@ public class Telepathy implements GameClient, Tickable {
         TelepathyCommands command = TelepathyCommands.valueOf(jsonCommand.getString("command"));
         switch(command){
             case QUIT -> closeGame();
+            case GAMEOVER -> sendCommand(TelepathyCommands.QUIT);
+            case BUTTONUPDATE -> updateButton(jsonCommand);
             default -> {}
         }
     }
@@ -226,7 +233,6 @@ public class Telepathy implements GameClient, Tickable {
     @Override
     public void closeGame() {
         this.ticking = false; // Stop receiving updates from server
-        
     }
     
     /**
@@ -241,10 +247,60 @@ public class Telepathy implements GameClient, Tickable {
     @Override
     public void tick(Animator al, long now, long delta){
         if(now - last > 1000000000){
-            sendCommand(TelepathyCommands.REQUESTUPDATE.toString());
+            sendCommand(TelepathyCommands.REQUESTUPDATE);
             last = now;
         }
 
         if(this.ticking) al.requestTick(this);
+    }
+
+    /**
+     * Get a List of the attributes stored in a renderingCommand.
+     * @param renderingCommand: The renderingCommand portion of a RenderingPackage 
+     *      received from the server.
+     * @return ArrayList of Strings containing the attributes sent in the renderingCommand. 
+     */
+    private ArrayList<String> getAttributes(JsonObject renderingCommand){
+        // Weirdness with double nested JsonArray - works now to separate attributes but could change later
+        JsonArray jsonAttributes = renderingCommand.getJsonArray("attributes").getJsonArray(0);
+        ArrayList<String> strAttributes = new ArrayList<>();
+        for(int i = 0; i < jsonAttributes.size(); i++){
+            logger.info(jsonAttributes.getString(i));
+            strAttributes.add(jsonAttributes.getString(i));
+        }
+
+        return strAttributes;
+    }
+
+    /**
+     * Updates a button based on an UPDATEBUTTON RenderingCommand received from the server. The
+     * command must contain attributes describing the button to update and changes how it should
+     * be updated.
+     * 
+     * The button to be updated MUST be in the componentList HashMap in order to access it.
+     * 
+     * 
+     * @param command A RenderingCommand JsonObject with a UPDATEBUTTON command value. There must also
+     *  be a list of attributes specifying the button to update and what updates are to be made.
+     * 
+     *  e.g: ("command": UPDATEBUTTON, "attributes": ["readyButton", true]) - sets ready button to ready 
+     *  state (blue).
+     */
+    private void updateButton(JsonObject command){
+        // Get the attributes with the UPDATEBUTTON command that show what button to update and how
+        ArrayList<String> attributes = getAttributes(command);
+        
+        // First element should be button name
+        switch(attributes.get(0)){
+            case "readyButton" -> {
+                // TODO: This could potentially go into it's own method to make updateButton() clearer
+                if(Boolean.valueOf(attributes.get(1))){
+                    this.componentList.get("readyButton").setBackground(Color.BLUE);
+                }else {
+                    this.componentList.get("readyButton").setBackground(Color.RED);
+                }
+            }
+        }
+
     }
 }
