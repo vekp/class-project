@@ -4,19 +4,20 @@ import minigames.client.MinigameNetworkClient;
 
 import io.vertx.core.json.JsonObject;
 
-import java.awt.BorderLayout;
-import javax.swing.BorderFactory; 
+// import java.awt.BorderLayout;
+// import javax.swing.BorderFactory; 
 import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
-import javax.swing.border.EtchedBorder;
-import java.awt.GridLayout;
+// import javax.swing.border.TitledBorder;
+// import javax.swing.border.EtchedBorder;
+// import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.Color;
+// import java.awt.Color;
 
 import java.io.*;
 import javax.swing.*;
 import java.awt.*;
+import java.util.*;
 
 public class Survey extends JPanel implements ActionListener {
 
@@ -268,12 +269,34 @@ public class Survey extends JPanel implements ActionListener {
 
     public void submit(MinigameNetworkClient mnClient) {
         String text = feedbackText.getText();
+        
+        // Get the selected values from the radio button groups
+        int uiRating = Integer.parseInt(getSelectedRadioButtonValue(uiRatingButtonGroup));
+        int enjoymentRating = Integer.parseInt(getSelectedRadioButtonValue(enjoymentButtonGroup));
+        int functionalityRating = Integer.parseInt(getSelectedRadioButtonValue(functionalityButtonGroup));
+
         JsonObject surveyData = new JsonObject()
-        .put("user_id", 111)
-        .put("feedback_text", text);
+            .put("user_id", 111)
+            .put("feedback_text", text)
+            .put("ui_rating", uiRating)
+            .put("enjoyment_rating", enjoymentRating)
+            .put("functionality_rating", functionalityRating);
 
         mnClient.sendSurveyData(surveyData).onSuccess(e -> mnClient.runMainMenuSequence());
     }
+
+    // Get the selected radio button value from a ButtonGroup
+    private String getSelectedRadioButtonValue(ButtonGroup buttonGroup) {
+        Enumeration<AbstractButton> buttons = buttonGroup.getElements();
+        while (buttons.hasMoreElements()) {
+            AbstractButton button = buttons.nextElement();
+            if (button.isSelected()) {
+                return button.getText();
+            }
+        }
+        return "";
+    }
+
 
     // Change colour of panels (overrides singular setting of colour)
     public void panelColourChange(Color backColour, Color foreColour) {
