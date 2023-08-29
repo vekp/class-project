@@ -276,11 +276,11 @@ public class Survey extends JPanel implements ActionListener {
         int functionalityRating = Integer.parseInt(getSelectedRadioButtonValue(functionalityButtonGroup));
 
         JsonObject surveyData = new JsonObject()
-            .put("user_id", 111)
-            .put("feedback_text", text)
-            .put("ui_rating", uiRating)
-            .put("enjoyment_rating", enjoymentRating)
+            .put("user_id", 111);
+            .put("ui_rating", uiRating);
+            .put("enjoyment_rating", enjoymentRating);
             .put("functionality_rating", functionalityRating);
+            .put("feedback_text", text);
 
         mnClient.sendSurveyData(surveyData).onSuccess(e -> mnClient.runMainMenuSequence());
     }
