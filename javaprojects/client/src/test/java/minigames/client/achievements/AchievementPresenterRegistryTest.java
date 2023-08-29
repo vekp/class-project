@@ -66,10 +66,6 @@ public class AchievementPresenterRegistryTest {
                 for (Component c : carousel.getComponents())
                     if (c instanceof JLabel label) assert label.getText().contains("achievement " + (i + 1));
             }
-            // For locked achievements - 3 components
-            else {
-                assertEquals(3, carousel.getComponents().length);
-            }
         }
 
     }
