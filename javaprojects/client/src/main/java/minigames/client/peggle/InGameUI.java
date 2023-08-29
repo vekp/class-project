@@ -87,6 +87,14 @@ public class InGameUI extends JPanel {
             Ball ball = balls.get(i);
             ball.updateBall(0, getWidth(), getHeight());
 
+            // MM added - Check for collisions with bricks
+            for (Brick brick : bricks) {
+                if (!brick.isHit() && brick.checkCollision(ball)) {
+                    brick.isHit = true;  // Mark the brick as hit
+                    // You may also want to update the ball's position or velocity here
+                }
+            }
+
 
             //TODO fix isActive
             if (!true) {
