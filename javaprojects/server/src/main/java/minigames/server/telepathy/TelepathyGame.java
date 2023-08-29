@@ -137,6 +137,18 @@ public class TelepathyGame {
             this.players.put(playerName, new Player(playerName));
             renderingCommands
                     .add(new NativeCommands.LoadClient("Telepathy", "Telepathy", this.name, playerName).toJson());
+            
+            // Extra commands to initialise the client window
+            
+            // Initialise ready button colour
+            renderingCommands.add(makeJsonCommand(TelepathyCommands.BUTTONUPDATE, "readyButton", String.valueOf(this.players.get(playerName).isReady())));
+
+            // TODO: Send initial board state - assign Symbols/Colours that are transparent and disabled?
+            
+            // Inform other players
+            for(String p : this.players.keySet()){
+                if (!p.equals(name)) {this.players.get(p).addUpdate(makeJsonCommand(TelepathyCommands.MODIFYPLAYER, playerName, "joined"));}
+            }
         }
            
         return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
@@ -175,6 +187,17 @@ public class TelepathyGame {
 
         renderingCommands.add(makeJsonCommand(TelepathyCommands.QUIT));
         return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
+    }
+
+    /**
+     * Used for adding commands to the update queue for all players on the server.
+     * @param renderingCommand The command to add to all players for their next REQUESTUPDATE
+     *      tick.
+     */
+    private void updateAllPlayers(JsonObject renderingCommand){
+        for(String player: this.players.keySet()){
+            this.players.get(player).addUpdate(renderingCommand);
+        }
     }
     
     /**
@@ -232,6 +255,8 @@ public class TelepathyGame {
      */
     private void playerLeaveGame(String name){
         this.players.remove(name);
+
+        updateAllPlayers(makeJsonCommand(TelepathyCommands.MODIFYPLAYER, name, "leaving"));
 
         // End the game if a player leaves while game is RUNNING
         if(this.state != State.INITIALISE){
