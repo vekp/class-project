@@ -21,10 +21,10 @@ import java.io.IOException;
 import java.io.File;
 
 import java.util.ArrayList;
-
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Random;
+import java.util.HashMap;
 
 /**
  * Class to display the maze, handle key input and do basic validation
@@ -36,7 +36,6 @@ public class MazeDisplay extends JPanel {
 
     private static final Logger logger = LogManager.getLogger(MazeDisplay.class);
     SpaceMaze spaceMaze;
-    private Image playerImage;
     private Point playerPos;
     private Point moveTo;
     private Point exitPoint;
@@ -46,8 +45,20 @@ public class MazeDisplay extends JPanel {
     int jPanelHeight = 600;
     int tileWidth;
     int tileHeight;
-    int botDelay = 800;
+    private int botDelay = 300;
+    private String playerDirection;
 
+    // For controlling the image displayed each cycle
+    private Integer imageCycle = 1;
+
+    // Hashmaps of various images to cycle through
+    private HashMap<String, Image> playerImages = new HashMap<String, Image>();
+    private HashMap<Integer, Image> wallImages = new HashMap<Integer, Image>();
+    private HashMap<Integer, Image> keyImages = new HashMap<Integer, Image>();
+    private HashMap<Integer, Image> lockedExitImages = new HashMap<Integer, Image>();
+    private HashMap<Integer, Image> unlockedExitImages = new HashMap<Integer, Image>();
+
+    // Timer for the game automation
     Timer timer;
 
     /**
@@ -67,14 +78,9 @@ public class MazeDisplay extends JPanel {
         this.setPreferredSize(new Dimension(jPanelWidth, jPanelHeight));
         this.bots = loadedBots;
         this.startTimer();
-        /*
-        // Starting the bot timers here.
-        for (SpaceBot bot : bots) {
-            bot.startTimer(1000);
-        }*/
-
-        playerImage = new ImageIcon(getClass().getResource("/images/spacemaze/alien1a.png")).getImage();
-
+        this.loadImages();
+        this.playerDirection = "Down";
+        this.setBackground(Color.BLACK);
 
         //Focus Listener for Logging purposes
         this.addFocusListener(new FocusListener() {
@@ -125,6 +131,13 @@ public class MazeDisplay extends JPanel {
                    
                     detectAndSendCollisions();
                 }
+
+                if (imageCycle < 49) {
+                    imageCycle++;
+                } else {
+                    imageCycle = 1;
+                }
+
                 repaint();
             }
             }, 0, botDelay);
@@ -167,15 +180,8 @@ public class MazeDisplay extends JPanel {
         this.mazeMap = mazeMap;
         this.playerPos = findCharOnMap(mazeMap, 'P');
         this.exitPoint = findCharOnMap(mazeMap, 'E');
-       // this.bots =
         this.bots = newBots;
         this.startTimer();
-        /*
-        // Starting the bot timers here.
-        for (SpaceBot bot : bots) {
-            bot.startTimer(1000);
-        }*/
-
         repaint();
     }
 
@@ -191,11 +197,6 @@ public class MazeDisplay extends JPanel {
             logger.info("playerPos == exit");
             spaceMaze.sendCommand("onExit");
             this.stopTimer();
-            /*
-            // Stopping the old bot timers.
-            for (SpaceBot bot : bots) {
-                bot.stopTimer();
-            }*/
         }
     }
 
@@ -254,7 +255,7 @@ public class MazeDisplay extends JPanel {
     public void handleDirection(String info, String direction, Point nextPoint){
         logger.info(info);
         if (isMoveValid(nextPoint)){
-            // These commands currently only tell the server where to move the player
+            // This command currently only tells the server where to move the player
             spaceMaze.sendCommand("key" + direction);
             if (mazeMap[moveTo.y][moveTo.x] == 'K'){
                 spaceMaze.sendCommand("updateMaze");
@@ -264,11 +265,11 @@ public class MazeDisplay extends JPanel {
             }
             // Updates our recorded player point
             updatePlayerPoint();
+            playerDirection = direction;
             detectAndSendCollisions();
         }
 
     }
-
 
     /**
      * Renders the maze, Using paintComponent now because it sounds better if we want to
@@ -287,7 +288,6 @@ public class MazeDisplay extends JPanel {
         }
         for (SpaceBot bot : bots ) {
             Point botLoc = new Point(bot.getLocation());
-            g.setColor(Color.WHITE);
             g.drawImage(bot.getBotImage(), botLoc.x * tileWidth, botLoc.y * tileHeight, tileWidth, tileHeight, null);
         }
     }
@@ -302,39 +302,30 @@ public class MazeDisplay extends JPanel {
     public void charToImage(Graphics g2, int r, int c){
         switch (mazeMap[r][c]) {
             case 'W':
-                g2.setColor(Color.BLACK);
-                g2.fillRect(c * tileWidth, r * tileHeight, tileWidth, tileHeight);
-                // "c * tileWidth" to give the top left corner pixel location
-                //g2.drawImage(wallImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
+                g2.drawImage(wallImages.get((r+c)%4), c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case 'S':
-                g2.setColor(Color.WHITE);
+                g2.setColor(Color.BLACK);
                 g2.fillRect(c * tileWidth, r * tileHeight, tileWidth, tileHeight);
-                //g2.drawImage(wallImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case '.':
-                g2.setColor(Color.WHITE);
+                g2.setColor(Color.BLACK);
                 g2.fillRect(c * tileWidth, r * tileHeight, tileWidth, tileHeight);
-                //g2.drawImage(pathImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case 'K':
-                g2.setColor(Color.YELLOW);
-                g2.fillRect(c * tileWidth, r * tileHeight, tileWidth, tileHeight);
-                //g2.drawImage(keyImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
+                g2.drawImage(keyImages.get(imageCycle % keyImages.size()),
+                        c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case 'P':
-                g2.setColor(Color.WHITE);
-                g2.drawImage(playerImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
+                g2.drawImage(playerImages.get(playerDirection), c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case 'E':
-                g2.setColor(Color.RED);
-                g2.fillRect(c * tileWidth, r * tileHeight, tileWidth, tileHeight);
-                //g2.drawImage(lockedExitImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
+                g2.drawImage(lockedExitImages.get(imageCycle % lockedExitImages.size()),
+                        c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case 'U':
-                g2.setColor(Color.GREEN);
-                g2.fillRect(c * tileWidth, r * tileHeight, tileWidth, tileHeight);
-                //g2.drawImage(unlockedExitImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
+                g2.drawImage(unlockedExitImages.get(imageCycle % unlockedExitImages.size()),
+                        c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
         }
     }
@@ -389,6 +380,51 @@ public class MazeDisplay extends JPanel {
                 break;
         }
         return moveTo;
+    }
+
+    public void loadImages(){
+
+        // Player images
+        Image playerImage1 = new ImageIcon(getClass().getResource("/images/spacemaze/spaceShip2aUp.png")).getImage();
+        Image playerImage2 = new ImageIcon(getClass().getResource("/images/spacemaze/spaceShip2aDown.png")).getImage();
+        Image playerImage3 = new ImageIcon(getClass().getResource("/images/spacemaze/spaceShip2aRight.png")).getImage();
+        Image playerImage4 = new ImageIcon(getClass().getResource("/images/spacemaze/spaceShip2aLeft.png")).getImage();
+        playerImages.put("Up", playerImage1);
+        playerImages.put("Down", playerImage2);
+        playerImages.put("Right", playerImage3);
+        playerImages.put("Left", playerImage4);
+
+        // Wall images
+        Image wallImage1 = new ImageIcon(getClass().getResource("/images/spacemaze/asteriodNoB1.png")).getImage();
+        Image wallImage2 = new ImageIcon(getClass().getResource("/images/spacemaze/asteriodNoB2.png")).getImage();
+        Image wallImage3 = new ImageIcon(getClass().getResource("/images/spacemaze/asteriodNoB3.png")).getImage();
+        Image wallImage4 = new ImageIcon(getClass().getResource("/images/spacemaze/asteriodNoB4.png")).getImage();
+        wallImages.put(0, wallImage1);
+        wallImages.put(1, wallImage2);
+        wallImages.put(2, wallImage3);
+        wallImages.put(3, wallImage4);
+
+        // Key images
+        Image keyImage1 = new ImageIcon(getClass().getResource("/images/spacemaze/KeyNoB1a.png")).getImage();
+        Image keyImage2 = new ImageIcon(getClass().getResource("/images/spacemaze/keyNoB1.png")).getImage();
+        keyImages.put(0, keyImage1);
+        keyImages.put(1, keyImage2);
+
+        // Locked exit images
+        Image lockedImage1 = new ImageIcon(getClass().getResource("/images/spacemaze/LockedExitNoB1.png")).getImage();
+        Image lockedImage2 = new ImageIcon(getClass().getResource("/images/spacemaze/LockedExitNoB2.png")).getImage();
+        Image lockedImage3 = new ImageIcon(getClass().getResource("/images/spacemaze/LockedExitNoB3.png")).getImage();
+        lockedExitImages.put(0, lockedImage1);
+        lockedExitImages.put(1, lockedImage2);
+        lockedExitImages.put(2, lockedImage3);
+
+        // Unlocked exit images
+        Image unlockedImage1 = new ImageIcon(getClass().getResource("/images/spacemaze/UnlockedExitNoB1.png")).getImage();
+        Image unlockedImage2 = new ImageIcon(getClass().getResource("/images/spacemaze/UnlockedExitNoB2.png")).getImage();
+        Image unlockedImage3 = new ImageIcon(getClass().getResource("/images/spacemaze/UnlockedExitNoB3.png")).getImage();
+        unlockedExitImages.put(0, unlockedImage1);
+        unlockedExitImages.put(1, unlockedImage2);
+        unlockedExitImages.put(2, unlockedImage3);
     }
 
 
