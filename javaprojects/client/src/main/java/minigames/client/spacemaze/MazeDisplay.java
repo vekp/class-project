@@ -47,6 +47,7 @@ public class MazeDisplay extends JPanel {
     int tileHeight;
     private int botDelay = 300;
     private String playerDirection;
+    private Point startPos;
 
     // For controlling the image displayed each cycle
     private Integer imageCycle = 1;
@@ -57,6 +58,11 @@ public class MazeDisplay extends JPanel {
     private HashMap<Integer, Image> keyImages = new HashMap<Integer, Image>();
     private HashMap<Integer, Image> lockedExitImages = new HashMap<Integer, Image>();
     private HashMap<Integer, Image> unlockedExitImages = new HashMap<Integer, Image>();
+    private HashMap<Integer, Image> bombImages = new HashMap<Integer, Image>();
+
+    Image chestImage;
+    Image startImage;
+    Image wormHoleImage;
 
     // Timer for the game automation
     Timer timer;
@@ -70,6 +76,7 @@ public class MazeDisplay extends JPanel {
         this.spaceMaze = spaceMaze;
         this.mazeMap = mazeArray;
         this.playerPos = findCharOnMap(mazeMap, 'P');
+        this.startPos = findCharOnMap(mazeMap, 'P');
         this.moveTo = new Point(playerPos);
         this.exitPoint = findCharOnMap(mazeMap, 'E');
         this.tileWidth = jPanelWidth / mazeMap[0].length;
@@ -113,7 +120,8 @@ public class MazeDisplay extends JPanel {
     }
 
     /**
-     *
+     * Timer for automating parts of the game
+     * Primarily the bots movement
      */
     public void startTimer(){
         timer = new Timer();
@@ -144,7 +152,7 @@ public class MazeDisplay extends JPanel {
     }
 
     /**
-     *
+     * Stops the timer that automates parts of the game
      */
     public void stopTimer() {
         if (timer != null) {
@@ -158,7 +166,6 @@ public class MazeDisplay extends JPanel {
      * @param e the Event
      */
     public void requestFocusInPanel(){
-        //Have to set the focus on mazePanel inorder for the key presses to work
         this.setFocusable(true);
         this.requestFocusInWindow();
     }
@@ -204,8 +211,13 @@ public class MazeDisplay extends JPanel {
      * Moves the player image in the array
      */
     public void movePlayerImage() {
-        mazeMap[playerPos.y][playerPos.x] = '.';
-        mazeMap[moveTo.y][moveTo.x] = 'P';
+        if (playerPos.equals(startPos)) {
+            mazeMap[playerPos.y][playerPos.x] = 'S';
+            mazeMap[moveTo.y][moveTo.x] = 'P';
+        } else {
+            mazeMap[playerPos.y][playerPos.x] = '.';
+            mazeMap[moveTo.y][moveTo.x] = 'P';
+        }
         repaint();
     }
 
@@ -248,14 +260,13 @@ public class MazeDisplay extends JPanel {
                 nextPoint = moveTo("left");
                 handleDirection("Info Left: ", "Left", nextPoint);
                 break;
-            
         }
     }
 
     public void handleDirection(String info, String direction, Point nextPoint){
         logger.info(info);
         if (isMoveValid(nextPoint)){
-            // This command currently only tells the server where to move the player
+            // This command currently only tells the server where the player is moving
             spaceMaze.sendCommand("key" + direction);
             if (mazeMap[moveTo.y][moveTo.x] == 'K'){
                 spaceMaze.sendCommand("updateMaze");
@@ -265,27 +276,29 @@ public class MazeDisplay extends JPanel {
             }
             // Updates our recorded player point
             updatePlayerPoint();
+            // For the player image direction
             playerDirection = direction;
+            // Checking for collisions
             detectAndSendCollisions();
         }
 
     }
 
     /**
-     * Renders the maze, Using paintComponent now because it sounds better if we want to
-     * get more creative later. Also it's easy to update the display.
-     * @param g2 Graphics object
+     * Renders the maze and bots
+     * @param g Graphics object
      */
-
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        // Draws the maze and components
         for (int r = 0; r < mazeMap.length; r++) {
             for (int c = 0; c < mazeMap[r].length; c++) {
                 charToImage(g, r, c);
             }
         }
+        // Draws the bots
         for (SpaceBot bot : bots ) {
             Point botLoc = new Point(bot.getLocation());
             g.drawImage(bot.getBotImage(), botLoc.x * tileWidth, botLoc.y * tileHeight, tileWidth, tileHeight, null);
@@ -293,39 +306,47 @@ public class MazeDisplay extends JPanel {
     }
 
     /**
-     * For setting each tile in the maze to a Colour and later an image
-     * (Images will have to be loaded somewhere first)
-     * @param g2 Graphics object
+     * For setting each tile in the maze to an image
+     * @param g Graphics object
      * @param r row number
      * @param c column number
      */
-    public void charToImage(Graphics g2, int r, int c){
+    public void charToImage(Graphics g, int r, int c){
         switch (mazeMap[r][c]) {
             case 'W':
-                g2.drawImage(wallImages.get((r+c)%4), c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
+                g.drawImage(wallImages.get((r+c)%4), c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case 'S':
-                g2.setColor(Color.BLACK);
-                g2.fillRect(c * tileWidth, r * tileHeight, tileWidth, tileHeight);
+                g.drawImage(startImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case '.':
-                g2.setColor(Color.BLACK);
-                g2.fillRect(c * tileWidth, r * tileHeight, tileWidth, tileHeight);
+                g.setColor(Color.BLACK);
+                g.fillRect(c * tileWidth, r * tileHeight, tileWidth, tileHeight);
                 break;
             case 'K':
-                g2.drawImage(keyImages.get(imageCycle % keyImages.size()),
+                g.drawImage(keyImages.get(imageCycle % keyImages.size()),
                         c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case 'P':
-                g2.drawImage(playerImages.get(playerDirection), c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
+                g.drawImage(playerImages.get(playerDirection), c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case 'E':
-                g2.drawImage(lockedExitImages.get(imageCycle % lockedExitImages.size()),
+                g.drawImage(lockedExitImages.get(imageCycle % lockedExitImages.size()),
                         c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case 'U':
-                g2.drawImage(unlockedExitImages.get(imageCycle % unlockedExitImages.size()),
+                g.drawImage(unlockedExitImages.get(imageCycle % unlockedExitImages.size()),
                         c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
+                break;
+            case 'A':
+                g.drawImage(bombImages.get(imageCycle % bombImages.size()),
+                        c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
+                break;
+            case 'C':
+                g.drawImage(chestImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
+                break;
+            case 'H':
+                g.drawImage(wormHoleImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
         }
     }
@@ -382,6 +403,9 @@ public class MazeDisplay extends JPanel {
         return moveTo;
     }
 
+    /**
+     * Method to load the various images needed
+     */
     public void loadImages(){
 
         // Player images
@@ -425,6 +449,23 @@ public class MazeDisplay extends JPanel {
         unlockedExitImages.put(0, unlockedImage1);
         unlockedExitImages.put(1, unlockedImage2);
         unlockedExitImages.put(2, unlockedImage3);
+
+        // Chest image
+        chestImage = new ImageIcon(getClass().getResource("/images/spacemaze/chest1.png")).getImage();
+
+        // Start image
+        startImage = new ImageIcon(getClass().getResource("/images/spacemaze/startNoB1.png")).getImage();
+
+        // Bomb images
+        Image bombImage1 = new ImageIcon(getClass().getResource("/images/spacemaze/bomb1a.png")).getImage();
+        Image bombImage2 = new ImageIcon(getClass().getResource("/images/spacemaze/bomb1b.png")).getImage();
+        Image bombImage3 = new ImageIcon(getClass().getResource("/images/spacemaze/bomb1c.png")).getImage();
+        bombImages.put(0, bombImage1);
+        bombImages.put(1, bombImage2);
+        bombImages.put(2, bombImage3);
+
+        // Worm hole image (star image)
+        wormHoleImage = new ImageIcon(getClass().getResource("/images/spacemaze/star1.png")).getImage();
     }
 
 
@@ -447,6 +488,7 @@ public class MazeDisplay extends JPanel {
 
         return (!outOfBounds && !isWallOrExit);
     }
+
     /*
      * Method for detecting collisions between bots and players.
      * 
