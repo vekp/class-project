@@ -406,6 +406,7 @@ public class MazeControl {
         {
             // Change player location to a random Point
             playerLocation = new Point(randomRelocationPoint());
+            playerPrevLocationList.add(playerLocation);
             // Update player location in map to 'P'
             mazeArray[playerLocation.y][playerLocation.x] = 'P';
             // Update previous position to '.'
