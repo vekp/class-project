@@ -8,8 +8,6 @@ import minigames.client.Tickable;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -35,13 +33,11 @@ public class AchievementPresenterRegistry implements Tickable {
     private JPanel nextAchievement;
     private int position;
     private enum Direction {
-        LEFT(-25, panelWidth),
-        RIGHT(25, -panelWidth);
-        final private int movement;
+        LEFT(panelWidth),
+        RIGHT(-panelWidth);
         final private int initialX;
 
-        Direction(int movement, int initialX) {
-            this.movement = movement;
+        Direction(int initialX) {
             this.initialX = initialX;
         }
 
@@ -50,8 +46,8 @@ public class AchievementPresenterRegistry implements Tickable {
          */
         int newX(int oldX) {
             return switch (this) {
-                case LEFT -> Math.max(0, oldX + movement);
-                case RIGHT -> Math.min(0, oldX + movement);
+                case LEFT -> (int) Math.floor(oldX * 0.85);
+                case RIGHT -> (int) Math.ceil(oldX * 0.85);
             };
         }
     }
@@ -170,7 +166,7 @@ public class AchievementPresenterRegistry implements Tickable {
         leftButton.setPreferredSize(new Dimension(50, panelHeight));
         rightButton.setPreferredSize(new Dimension(50, panelHeight));
 
-        updateCarousel(index, panel);
+        updateCarousel(index);
 
         return panel;
     }
@@ -178,9 +174,8 @@ public class AchievementPresenterRegistry implements Tickable {
     /**
      * Update the elements in the carousel
      * @param index the current position in the list
-     * @param carouselPanel the JPanel containing the carousel
      */
-    private void updateCarousel(int index, JPanel carouselPanel) {
+    private void updateCarousel(int index) {
         position = index;
         if (index < 0 || index >= unlockedQty) return;
 
@@ -197,14 +192,14 @@ public class AchievementPresenterRegistry implements Tickable {
             direction = Direction.RIGHT;
             nextAchievement = achievements.get(index - 1).largeAchievementPanel();
             position = index - 1;
-            updateCarousel(position, carouselPanel);
+            updateCarousel(position);
         });
         for (ActionListener al : rightButton.getActionListeners()) rightButton.removeActionListener(al);
         rightButton.addActionListener(e -> {
             direction = Direction.LEFT;
             nextAchievement = achievements.get(index + 1).largeAchievementPanel();
             position = index + 1;
-            updateCarousel(position, carouselPanel);
+            updateCarousel(position);
         });
 
         // Enable/disable buttons at either end of carousel
@@ -232,10 +227,9 @@ public class AchievementPresenterRegistry implements Tickable {
         leftButton.setEnabled(false);
         rightButton.setEnabled(false);
         // Calculate and set new positions
-        int curX = (int) currentAchievement.getLocation().getX();
         int nextX = (int) nextAchievement.getLocation().getX();
         int newX = direction.newX(nextX);
-        currentAchievement.setLocation(curX + direction.movement, 0);
+        currentAchievement.setLocation(newX - direction.initialX, 0);
         nextAchievement.setLocation(newX, 0);
         // Stop if final position reached
         if (newX == 0) {
