@@ -84,8 +84,8 @@ public class SpaceMazeGame {
                 mazeControl.newLevel();
                 player.calculateScore(mazeControl.timeTaken, 8000);
                 String playerScoreString = String.valueOf(player.getPlayerScore());
-                this.level++;
                 if (!mazeControl.gameFinished) {
+                    this.level++;
                     JsonObject serializedMazeArray = new JsonObject()
                             .put("command", "nextLevel")
                             .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()))
@@ -94,7 +94,14 @@ public class SpaceMazeGame {
                             .put("level", Integer.toString(level));
                     renderingCommands.add(serializedMazeArray);
                 } else {
-                    renderingCommands.add(new JsonObject().put("command", "gameOver").put("totalScore", playerScoreString));
+                    // Will change this to access mazeControl timeTaken directly
+                    int time = mazeControl.mazeTimer.getTimeTaken();
+                    int minutes = time / 60;
+                    int seconds = time % 60;
+                    String timeTaken = String.format("%d:%02d", minutes, seconds);
+                    renderingCommands.add(new JsonObject().put("command", "gameOver")
+                            .put("totalScore", playerScoreString)
+                            .put("timeTaken", timeTaken));
                 }
             }
         }

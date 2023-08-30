@@ -406,8 +406,9 @@ public class SpaceMaze implements GameClient {
             case "gameOver" -> {
                 statusBar.stopTimer();
                 String totalScore = command.getString("totalScore");
+                String totalTime = command.getString("timeTaken");
                 statusBar.updateScore(totalScore);
-                displayGameOver(totalScore);
+                displayGameOver(totalScore, totalTime);
             }
             case "viewHighScore" -> displayHighScore();
             case "howToPlay" -> displayHelpPanel();
@@ -464,9 +465,9 @@ public class SpaceMaze implements GameClient {
         mnClient.getMainWindow().pack();
     }
 
-    public void displayGameOver(String totalScore){
-        //Dummy Time Taken
-        String timeTaken = "2:00";
+    public void displayGameOver(String totalScore, String totalTime){
+
+        String timeTaken = totalTime;
         
         gameOverPanel = new JPanel();
         gameOverPanel.setLayout(new GridBagLayout());
