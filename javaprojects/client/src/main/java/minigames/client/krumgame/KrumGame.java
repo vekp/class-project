@@ -279,7 +279,7 @@ public class KrumGame implements GameClient {
             recordingTurn = true;
             playingBackTurn = false;
         } 
-        else if (myPlayerIndex != playerTurn && playerTurn >= 0) {
+        else if (!turnOver && myPlayerIndex != playerTurn && playerTurn >= 0) {
             if (receivedFrames.size() < KrumC.TURN_TIME_LIMIT_FRAMES) {
                 requestSingleFrame();
             }
@@ -307,6 +307,9 @@ public class KrumGame implements GameClient {
         if (!playingBackTurn && updateCount >= turnEndFrame && !turnOver) {
             endTurn();
         }       
+        if (playingBackTurn && playBackFrame >= KrumC.TURN_TIME_LIMIT_FRAMES && !turnOver) {
+            endTurn();
+        }
         readyToStartTurn = true;
         KrumInputFrame rf = null;
         for (KrumPlayer p : players) {    
@@ -316,11 +319,11 @@ public class KrumGame implements GameClient {
             // if (p.playerIndex == playerTurn && playerTurn == myPlayerIndex) {
             //     rt = currentTurn;
             // }  
-            if (playingBackTurn) {
+            if (playingBackTurn && !turnOver) {
                 if (playBackFrame >= KrumC.TURN_TIME_LIMIT_FRAMES) {
                     playingBackTurn = false;
                     //System.out.println("done replaying");
-                    endTurn();
+                    //endTurn();
                 }
                 else if (p == players[receivedFrames.get(playBackFrame).activePlayer]) {
                     pf = receivedFrames.get(playBackFrame);
@@ -403,13 +406,15 @@ public class KrumGame implements GameClient {
                     readyToStartTurn = false;
                 else if (p.airborne)
                     readyToStartTurn = false;
+                else if (p.flashFramesLeft > 0)
+                    readyToStartTurn = false;
             }  
             if (rf != null)
                 sendFrame(rf);        
         }   
         updateCount++;
         if (turnOver) {
-            if (readyToStartTurn || updateCount - turnOverFrame > MAX_TURN_GAP_FRAMES)
+            if (readyToStartTurn) //} || updateCount - turnOverFrame > MAX_TURN_GAP_FRAMES)
                 startTurn();
         }
     }
@@ -457,7 +462,11 @@ public class KrumGame implements GameClient {
         g.drawString(timerString, 5, 20);
         if (playingBackTurn) {
             g.setColor(Color.gray);
-            g.drawString("REPLAY", 325, 60);
+            g.drawString("SPECTATING", 310, 60);
+        }
+        else if (!turnOver) {
+            g.setColor(Color.green);
+            g.drawString("YOUR TURN!", 310, 60);
         }
 
         //draw explosions

@@ -132,7 +132,7 @@ public class KrumGame{
             logger.info("EMPTY COMMAND PACKAGE");
             return new RenderingPackage(gameMetadata(), renderingCommands);
         }
-        logger.info("Received command package");        
+        //logger.info("Received command package");        
         JsonObject content = cp.commands().get(0);        
         if (content.getValue("indexRequest") != null){
             int index = playerIndexCount;
@@ -143,8 +143,11 @@ public class KrumGame{
         else if (content.getValue("frameRequest") != null) {            
             int index = content.getInteger("frameRequest");
             index = 1 - index;
-            if (index < 0 || index >= frames.size() || frames.get(index).size() < 1) {
+            if (index < 0 || index >= frames.size()) {
                 logger.info("invalid frameRequest");
+                return new RenderingPackage(gameMetadata(), renderingCommands);
+            }
+            if (frames.get(index).size() < 1) {
                 return new RenderingPackage(gameMetadata(), renderingCommands);
             }
             JsonObject f = frames.get(index).remove().getJson();
