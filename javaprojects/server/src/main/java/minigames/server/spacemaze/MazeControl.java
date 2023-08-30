@@ -2,7 +2,7 @@ package minigames.server.spacemaze;
 
 import java.util.*;
 import java.awt.Point;
-import java.util.Random;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,6 +33,7 @@ public class MazeControl {
 
     // Player info
     private Point playerLocation;
+    private List<Point> playerPrevLocationList = new ArrayList<Point>();
 
     // Start info - locations of maze entrances
     private List<Point> startLocationsList = new ArrayList<Point>();  
@@ -52,6 +53,8 @@ public class MazeControl {
     private List<Point> pickUpLocationsList = new ArrayList<Point>(); 
     //private Point[] pickUpLocations;
 
+    // Traps info
+    private List<Point> wormholeLocationsList = new ArrayList<Point>();
     // Bots info
     private List<Point> botsLocationsList = new ArrayList<Point>();
 
@@ -80,19 +83,9 @@ public class MazeControl {
         // Initalise keyStatus with collected = false
         setKeyStatus(keyLocationsList);
 
-        // Populate maze with Bots and makeBotGo
-        /*
-        for (int b = 0; b < botsLocationsList.size(); b++)
-        {
-            SpaceBot botty = new SpaceBot(botsLocationsList.get(b));
-            makeBotGo(botty);
-            // There might be issues when changing levels
-        }
-
+        
         // Timer starts (here for now)
         //this.mazeTimer = new GameTimer();
-        */
-        
     }
 
     /*
@@ -166,8 +159,7 @@ public class MazeControl {
                     //private List<Point> keyLocationsList = new ArrayList<Point>();
                     keyLocationsList.add(new Point(x, y));
                 }
-                // add pickup locations
-
+                
                 // add bot locations
                 else if (mazeArray[y][x] == 'B')
                 {
@@ -176,6 +168,18 @@ public class MazeControl {
                     // Removing bot locations once logged, controlled by client.
                     mazeArray[y][x] = '.';
                 }
+                // add trap locations - wormhole and timewarp
+                // add wormhole
+                else if (mazeArray[y][x] == 'H')
+                {
+                    wormholeLocationsList.add(new Point(x, y));
+                }
+                // add timewarp
+
+                // add pickup locations - bomb and bonus points
+                // add bomb
+                // add bonus points
+
             }
         }    
     }
@@ -221,45 +225,6 @@ public class MazeControl {
     }  
 
 
-
-    /*
-     * makeBotGo function - make bot move every n second 
-     */
-    /*
-    public void makeBotGo(SpaceBot bot)
-    {
-        int timeInterval = 1000;        // each second?
-        // While the gameTimer is running
-        while (mazeTimer.getIsTimerRunning())
-        {
-            if (System.currentTimeMillis() % timeInterval == 0)
-            {
-                Point posBotMove = new Point(bot.getMoveAttempt());
-                if (mazeArray[posBotMove.y][posBotMove.x] == '.' || 
-                    mazeArray[posBotMove.y][posBotMove.x] == 'K')
-                {
-                    // Move bot to new position:
-                    // Set previous bot location (temp object)
-                    Point prevBotMove = new Point(bot.getLocation());
-                    // Update bot Location in bot object and in mazeArray
-                    //playerLocation = new Point(x, y);
-
-                    char currentTile = bot.getTile();
-                    bot.updateTile(mazeArray[posBotMove.y][posBotMove.x]);
-                    bot.updateLocation(posBotMove);
-                    // Set (x, y) to 'P'
-                    // NB - array[row = y][col = x]
-                    //mazeArray[x][y] = 'P';
-                    mazeArray[posBotMove.y][posBotMove.x] = 'B';
-                    // Set previous player location to '.'
-                    mazeArray[prevBotMove.y][prevBotMove.x]= currentTile;
-
-                }
-                // else - nothing, bot get a breather
-            }
-        }
-    }
-    */
 
     /*
     * unlockExit function - unlocks exit if player has correct number of keys 
@@ -422,6 +387,7 @@ public class MazeControl {
         
         // Set previous player location (temp object)
         Point prevMove = new Point(playerLocation);
+        playerPrevLocationList.add(playerLocation);
         // Update playerLocation in mazeArray to newMove
         //playerLocation = new Point(x, y);
         playerLocation = new Point(newMove);
@@ -435,8 +401,58 @@ public class MazeControl {
         // Check if player location picks up a key
         updateKeyStatus(player, playerLocation);
 
+        // Check if player steps on a trap - wormhole
+        if (collisionDetectWormhole())
+        {
+            // Change player location to a random Point
+            playerLocation = new Point(randomRelocationPoint());
+            // Update player location in map to 'P'
+            mazeArray[playerLocation.y][playerLocation.x] = 'P';
+            // Update previous position to '.'
+            mazeArray[prevMove.y][prevMove.x]= '.';
+        }
+
         // Check if game is over
         //checkGameOver();
+    }
+
+    // check if player collides with a trap
+    // collisionDetectWormhole()
+    public boolean collisionDetectWormhole()
+    {
+        // If player location equals location of trap - spring trap
+        if (wormholeLocationsList.contains(playerLocation))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    // collisionDetectBomb()
+    
+
+    // Random player relocation
+    public Point randomRelocationPoint()
+    {
+        // Find random location that is valid
+        Point randomLocation;
+        do{
+            Random rand = new Random();
+            randomLocation = new Point(rand.nextInt(mazeWidth), rand.nextInt(mazeWidth));
+        }
+        while (!validMove(randomLocation));
+        // update player location to there
+        return randomLocation;
+    }
+
+    // Blow up walls
+    public void blowUpWalls()
+    {
+        // change all 'W' points 1 (or 2) blocks deep around player to '.'
+
     }
 
     /*
@@ -447,6 +463,7 @@ public class MazeControl {
     {
         return mazeArray;
     }
+
     /*
      * Pass a list<string> with the coordinates of the bots.
      */
@@ -454,38 +471,5 @@ public class MazeControl {
     {
         return botsLocationsList;
     }
-
-    /*
-     * MazeArray - hard coded for now as a private char[][]
-     */
-    
-    private char[][] mazeArrayTest = {
-        {'W','S','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','S','W'},
-        {'W','.','.','.','.','.','.','.','.','.','.','.','.','.','W','.','.','.','W','.','.','.','.','.','W'},
-        {'W','W','W','W','W','W','W','W','W','.','W','.','W','W','W','W','W','.','W','W','W','W','W','.','W'},
-        {'W','.','.','.','.','.','.','.','W','.','W','.','.','.','.','.','.','.','.','.','.','.','.','.','W'},
-        {'W','.','W','W','W','W','.','.','W','.','W','W','W','W','.','.','W','W','W','.','W','W','W','.','W'},
-        {'W','.','.','.','.','.','.','.','.','.','W','K','.','.','.','.','W','K','W','.','.','.','.','.','W'},
-        {'W','W','W','.','.','W','W','W','W','.','W','.','.','W','W','W','W','.','W','W','W','W','W','W','W'},
-        {'W','.','.','.','.','W','.','.','.','.','W','.','.','.','.','.','W','.','W','.','.','.','.','.','W'},
-        {'W','W','W','.','.','W','W','W','W','.','W','.','.','W','.','.','W','.','W','.','W','W','W','.','W'},
-        {'W','.','W','.','.','.','.','.','W','.','.','.','.','W','.','.','.','.','.','.','W','.','W','.','W'},
-        {'W','.','W','W','W','W','.','.','W','.','W','W','W','W','W','W','W','W','W','W','W','.','W','.','W'},
-        {'W','.','.','.','.','.','.','W','W','.','W','.','.','.','.','.','W','.','.','.','.','.','W','.','W'},
-        {'W','W','W','W','.','W','.','.','W','W','W','.','.','W','.','.','W','.','W','.','W','W','W','.','W'},
-        {'W','.','.','.','.','W','.','.','.','.','.','.','W','W','.','.','.','.','.','.','.','.','.','.','W'},
-        {'W','.','W','.','.','W','W','W','W','W','W','.','.','W','W','W','W','.','W','.','W','W','W','W','W'},
-        {'W','.','.','.','.','.','.','W','W','.','.','.','.','.','.','.','W','.','W','.','.','.','.','.','W'},
-        {'W','W','W','W','.','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','.','W'},
-        {'W','.','W','.','.','W','.','K','W','.','.','.','.','.','.','.','W','.','W','.','.','.','.','.','W'},
-        {'W','.','W','.','W','W','.','W','W','W','W','.','.','W','W','W','W','.','W','.','W','W','W','.','W'},
-        {'W','.','.','.','.','.','.','.','W','.','.','.','.','.','.','.','W','.','.','.','.','.','.','.','W'},
-        {'W','W','W','W','.','W','W','W','W','.','W','W','W','W','.','.','W','W','W','.','W','W','W','W','W'},
-        {'W','.','.','.','.','.','.','.','W','.','W','.','.','.','.','.','.','.','.','.','W','.','.','.','W'},
-        {'W','W','.','W','W','W','W','W','W','.','W','W','W','W','W','W','W','.','W','.','W','.','W','W','W'},
-        {'W','.','.','.','.','.','.','.','.','.','.','.','.','W','.','.','.','.','W','.','.','.','.','.','W'},
-        {'W','W','W','W','W','W','W','W','W','W','W','W','E','W','W','W','W','W','W','W','W','W','W','W','W'},
-        };
-
 
 }

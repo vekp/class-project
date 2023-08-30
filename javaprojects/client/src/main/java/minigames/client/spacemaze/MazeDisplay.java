@@ -13,7 +13,7 @@ import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;;
+import org.apache.logging.log4j.Logger;
 
 import java.awt.Image;
 import javax.swing.ImageIcon;

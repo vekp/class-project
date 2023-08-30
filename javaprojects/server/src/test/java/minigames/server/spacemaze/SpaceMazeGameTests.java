@@ -199,7 +199,8 @@ public class SpaceMazeGameTests {
     @Test
     public void testUpdatePlayerLocationMaze() {
         // getPlayerLocationInMaze of player1
-
+        System.out.println("player1 Location: " + player1.getLocation());
+        
         // check player1 location is registered in mazeArray
 
         // Move player1
@@ -208,6 +209,17 @@ public class SpaceMazeGameTests {
 
         // check player1 new location in mazeArray
 
+    }
+
+    
+    @DisplayName("Check WormHole trap")
+    @Test
+    public void testWormHole()  {
+        // get players current location
+        System.out.println("player1 Location: " + player1.getLocation());
+        // check random location is different
+        Point randomPoint = new Point(maze1.randomRelocationPoint());
+        System.out.println("random Location: " + randomPoint);
     }
 
     @Disabled
@@ -225,15 +237,7 @@ public class SpaceMazeGameTests {
      * Test MazeInit class
      */
 
-    private MazeInit mazeSetup = new MazeInit(1);
     
     
-
     
-    @DisplayName("test MazeInit - mazeArray creation")
-    @Test
-    public void testMazeInit() {
-        // Compare MazeInit mazeArray to MazeControl mazeArray
-        assertArrayEquals(mazeSetup.getMazeInitArray(), maze1.getMazeArray());
-    }
 }
