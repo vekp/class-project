@@ -96,7 +96,7 @@ public class KrumGame implements GameClient {
     KrumTurn currentTurn;
     final int MAX_TURN_GAP_FRAMES = 600;
 
-    final int MIN_PLAYBACK_BUFFER = 1;
+    final int MIN_PLAYBACK_BUFFER = 0;
 
     long seed; // seed for Random() -- needs to be the same for all clients clients
 
@@ -247,8 +247,6 @@ public class KrumGame implements GameClient {
             players[i].jumpType = ps.jumpType;
             players[i].firstJumpFrame = ps.firstJumpFrame;
             players[i].deferredLanding = ps.deferredLanding;
-            players[i].lastShotTime = ps.lastShotTime;
-            players[i].lastGrenadeShotTime = ps.lastGrenadeShotTime;
             players[i].shootingRope = ps.shootingRope;
             players[i].onRope = ps.onRope;
             players[i].ropeAttachmentPoints = new ArrayList<Point2D.Double>(ps.ropeAttachmentPoints);
@@ -291,7 +289,7 @@ public class KrumGame implements GameClient {
             if (receivedFrames.size() < KrumC.TURN_TIME_LIMIT_FRAMES) {
                 requestSingleFrame();
             }
-            if (receivedFrames.size() - playBackFrame <= MIN_PLAYBACK_BUFFER && playBackFrame < KrumC.TURN_TIME_LIMIT_FRAMES - MIN_PLAYBACK_BUFFER - 1) {
+            if (receivedFrames.size() - playBackFrame <= MIN_PLAYBACK_BUFFER) {//}) && playBackFrame < KrumC.TURN_TIME_LIMIT_FRAMES - MIN_PLAYBACK_BUFFER - 1) {
                 return;
             }
             playingBackTurn = true;
@@ -312,14 +310,9 @@ public class KrumGame implements GameClient {
         //     playerTurn = 1 - playerTurn;
         // } 
         // else if (!playingBackTurn && updateCount > turnEndFrame && !turnOver) {
-        if (!playingBackTurn && updateCount >= turnEndFrame && !turnOver) {
-            endTurn();
-        }       
-        if (playingBackTurn && playBackFrame >= KrumC.TURN_TIME_LIMIT_FRAMES && !turnOver) {
-            endTurn();
-        }
         readyToStartTurn = true;
         KrumInputFrame rf = null;
+        boolean incud = false;
         for (KrumPlayer p : players) {    
             KrumInputFrame pf = null;
             rf = null;
@@ -333,19 +326,23 @@ public class KrumGame implements GameClient {
                     //System.out.println("done replaying");
                     //endTurn();
                 }
-                else if (p == players[receivedFrames.get(playBackFrame).activePlayer]) {
+                else if (receivedFrames.size() > playBackFrame && p == players[receivedFrames.get(playBackFrame).activePlayer]) {
                     pf = receivedFrames.get(playBackFrame);
                     playBackFrame++;
                 }                
             }
             else if (myPlayerIndex == playerTurn && p.playerIndex == playerTurn && !turnOver) {
-                rf = new KrumInputFrame();                  
+                rf = new KrumInputFrame();
+                long fn = updateCount - ((long)turnEndFrame - KrumC.TURN_TIME_LIMIT_FRAMES);
+                if (fn < 5 || fn > 895)
+                    System.out.println("recording frame " + fn);
+            }
+            if (pf != null) {
+                if (playBackFrame < 5 || playBackFrame > 895)
+                    System.out.println("playing frame " + playBackFrame);     
             }
             p.update(windX, windY, alphaRaster, updateCount, rf, pf, turnOver);
             if (p.ypos > waterLevel) p.die();
-            if (numLivingPlayers() < 2) {
-                turnEndFrame = updateCount;
-            }
             if (p.projectile != null) {
                 if(p.projectile.collisionCheck()) {
                     ExplosionDetails.explode((int)p.projectile.x, (int)p.projectile.y, p.projectile.explosionRadius, 
@@ -360,7 +357,7 @@ public class KrumGame implements GameClient {
                     p.projectile = null;
                 }
                 if (p.projectile != null) {
-                    int n = p.projectile.playerCollisionCheck(players);
+                    int n = p.projectile.playerCollisionCheck(players, p.playerIndex);
                     if (n >= 0) {
                         ExplosionDetails.explode((int)p.projectile.x, (int)p.projectile.y, p.projectile.explosionRadius, 
                             KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
@@ -418,12 +415,27 @@ public class KrumGame implements GameClient {
                     readyToStartTurn = false;
             }  
             if (rf != null)
-                sendFrame(rf);        
-        }   
-        updateCount++;
+                sendFrame(rf); 
+            if (pf != null || rf != null) {
+                incud = true;
+            }       
+        }        
+        if (incud) 
+            updateCount++;
+        else    
+            System.out.println("blank frame");
         if (turnOver) {
             if (readyToStartTurn) //} || updateCount - turnOverFrame > MAX_TURN_GAP_FRAMES)
                 startTurn();
+        }
+        if (!playingBackTurn && updateCount >= turnEndFrame && !turnOver) {
+            endTurn();
+        }       
+        if (playingBackTurn && playBackFrame >= KrumC.TURN_TIME_LIMIT_FRAMES && !turnOver) {
+            endTurn();
+        }
+        if (numLivingPlayers() < 2) {
+            endTurn();
         }
     }
 
@@ -469,12 +481,16 @@ public class KrumGame implements GameClient {
         //draw replay text
         g.drawString(timerString, 5, 20);
         if (playingBackTurn) {
-            g.setColor(Color.gray);
+            g.setColor(Color.blue);
             g.drawString("SPECTATING", 310, 60);
         }
-        else if (!turnOver) {
+        else if (myPlayerIndex == playerTurn) {
             g.setColor(Color.green);
             g.drawString("YOUR TURN!", 310, 60);
+        }
+        else {
+            g.setColor(Color.GRAY);
+            g.drawString("WAITING...", 310, 60);
         }
 
         //draw explosions

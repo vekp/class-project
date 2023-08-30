@@ -85,12 +85,13 @@ public class KrumProjectile {
      * @param   players
      * @return  index of player collided with, or -1 if no collision
      */
-    int playerCollisionCheck(KrumPlayer players[]){
+    int playerCollisionCheck(KrumPlayer players[], int shooter){
         int n = -1;
         double z[] = {0};
         for (KrumPlayer p : players) {            
             n++;
-            if (System.nanoTime() - p.lastShotTime < KrumC.SHOT_INVULNERABILITY_TIME) continue;
+            //if (System.nanoTime() - p.lastShotTime < KrumC.SHOT_INVULNERABILITY_TIME) continue;
+            if (p.playerIndex == shooter) continue;
             if (x + radius >= p.xpos && x - radius <= p.xpos + p.sprite.getWidth() && y + radius >= p.ypos && y - radius <= p.ypos + p.sprite.getHeight()) {
                 for (int i = (int)x - radius; i < x + radius; i++) {
                     if (i < (int)p.xpos) continue;

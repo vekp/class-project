@@ -88,9 +88,6 @@ public class KrumPlayer {
     boolean firstJumpFrame = false;
     boolean deferredLanding;
 
-    long lastShotTime;
-    long lastGrenadeShotTime;
-
     boolean shootingRope;
     boolean onRope;
     ArrayList<Point2D.Double> ropeAttachmentPoints;
@@ -297,8 +294,6 @@ public class KrumPlayer {
         setDirection(direction, level); // this could modify alphaRaster, so keep it below the outline-determining code, which assumes it's acting on a right-facing sprite
         lastAimAngle = facingRight ? 0 : Math.PI;
         spriteGun();
-        lastShotTime = System.nanoTime();
-        lastGrenadeShotTime = System.nanoTime();
         grenadeSeconds = 3;
         shootNextFrame = false;
         grenadeNextFrame = false;
@@ -415,6 +410,9 @@ public class KrumPlayer {
         if (recordingFrame != null) {
             recordingFrame.activePlayer = playerIndex;
             recordingFrame.frameCount = tick;
+            spriteLook();
+            recordingFrame.spriteIndex = spriteIndex;
+            recordingFrame.lastAimAngle = lastAimAngle;
         }        
         this.tick = tick;
         if (playbackFrame != null && playbackFrame.activePlayer == playerIndex) {            
@@ -456,6 +454,7 @@ public class KrumPlayer {
         }
         if (shootNextFrame) {
             shoot(shotPower);
+            System.out.println("shot: from " + xpos + ", " + ypos + "; power " + shotPower + "; aingle " + shootAimAngle);
             shootNextFrame = false;
             if (recordingFrame != null) {
                 recordingFrame.shoot = true;
@@ -510,9 +509,6 @@ public class KrumPlayer {
             recordingFrame.downArrowKeyDown = downArrowKeyDownNextFrame;
             recordingFrame.leftKeyDown = leftKeyDownNextFrame;
             recordingFrame.rightKeyDown = rightKeyDownNextFrame; 
-            spriteLook();
-            recordingFrame.spriteIndex = spriteIndex;
-            recordingFrame.lastAimAngle = lastAimAngle;
             // recordingTurn.frames.add(recordingFrame);
         }
         if (projectile != null) {
@@ -549,10 +545,13 @@ public class KrumPlayer {
         if (flashFramesLeft > 0) flashFramesLeft--;
 
         //fire weapons if at max power
-        if (firingGrenade && System.nanoTime() - fireGrenadeStart >= KrumGrenade.maxPower)
-            endGrenadeFire(null);
-        if (firing && System.nanoTime() - fireStart >= KrumProjectile.maxPower)
-            endFire(null);
+        if (recordingFrame != null) {
+            if (firingGrenade && System.nanoTime() - fireGrenadeStart >= KrumGrenade.maxPower)
+                endGrenadeFire(null);
+            if (firing && System.nanoTime() - fireStart >= KrumProjectile.maxPower)
+                endFire(null);
+        }
+
 
         if (airborne) {
             double oldx = xpos;
@@ -1190,7 +1189,6 @@ public class KrumPlayer {
     void shootGrenade(long power) {
         power /= 100000000; 
         grenade = new KrumGrenade((int)(xpos + sprite.getWidth()/2 + Math.cos(grenadeAimAngle) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(grenadeAimAngle) * KrumC.psd), Math.cos(grenadeAimAngle) * power + xvel, Math.sin(grenadeAimAngle) * power * -1 + yvel, grenadeSeconds, grenadeSprite, levelRaster, tick);
-        lastGrenadeShotTime = System.nanoTime();
     }
 
     /**
@@ -1221,7 +1219,6 @@ public class KrumPlayer {
     void shoot(long power) {
         power /= 100000000;   
         projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(shootAimAngle) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(shootAimAngle) * KrumC.psd), Math.cos(shootAimAngle) * power + xvel, Math.sin(shootAimAngle) * power * -1 + yvel, projectileSprite, levelRaster);
-        lastShotTime = System.nanoTime();
     }
 
     /**

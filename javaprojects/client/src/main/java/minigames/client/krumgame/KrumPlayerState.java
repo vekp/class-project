@@ -88,8 +88,6 @@ public class KrumPlayerState {
         this.jumpType = p.jumpType;
         this.firstJumpFrame = p.firstJumpFrame;
         this.deferredLanding = p.deferredLanding;
-        this.lastShotTime = p.lastShotTime;
-        this.lastGrenadeShotTime = p.lastGrenadeShotTime;
         this.shootingRope = p.shootingRope;
         this.onRope = p.onRope;
         this.ropeAttachmentPoints = new ArrayList<Point2D.Double>(p.ropeAttachmentPoints);
