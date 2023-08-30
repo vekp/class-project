@@ -1,6 +1,8 @@
 package minigames.client.gameshow;
 
 import minigames.client.gameshow.GridPanel;
+import minigames.client.gameshow.ImageGuesser;
+
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -75,11 +77,10 @@ public class GameShow implements GameClient {
     JPanel gameSelect;
     JLabel gameSelectInstructions;
     JPanel guessContainer;
-    JPanel inputPanel;
-    JPanel outcomeContainer;
+    ImageGuesser imageGuesser;
 
     JButton wordScramble;
-    JButton imageGuesser;
+    JButton imageGuesserStart;
     JButton memoryGame;
     JButton guessingGame;
 
@@ -122,10 +123,10 @@ public class GameShow implements GameClient {
         wordScramble.addActionListener((evt) -> sendCommand(new JsonObject().put("command", "wordScramble")));
         gameArea.add(wordScramble);
 
-        imageGuesser = new JButton("Image Guesser");
-        imageGuesser.setAlignmentX(Component.CENTER_ALIGNMENT);
-        imageGuesser.addActionListener((evt) -> sendCommand(new JsonObject().put("command", "imageGuesser")));
-        gameArea.add(imageGuesser);
+        imageGuesserStart = new JButton("Image Guesser");
+        imageGuesserStart.setAlignmentX(Component.CENTER_ALIGNMENT);
+        imageGuesserStart.addActionListener((evt) -> sendCommand(new JsonObject().put("command", "imageGuesser")));
+        gameArea.add(imageGuesserStart);
 
         memoryGame = new JButton("Memory Game");
         memoryGame.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -171,86 +172,6 @@ public class GameShow implements GameClient {
         gameContainer.repaint();
     }
 
-
-
-    public void startImageGuesser(String imageFileName, int gameId) {
-        gameContainer.removeAll();
-        gameContainer.validate();
-        gameContainer.repaint();
-
-
-        String imageFolderLocation = "src/main/resources/images/memory_game_pics/" + imageFileName;
-        ImageIcon imageIcon = new ImageIcon(imageFolderLocation);
-
-        // Load the image
-        JLabel imageLabel = new JLabel(imageIcon);
-
-        GridPanel gridPanel = new GridPanel(imageIcon);
-
-        Timer timer = new Timer(1000, e -> {
-            boolean cellVisible = true;
-            while (cellVisible) {
-                Random random = new Random();
-                int randomX = random.nextInt(10);
-                int randomY = random.nextInt(10);
-                if (!gridPanel.isCellVisible(randomX, randomY)) {
-                    gridPanel.setFadeCell(randomX, randomY);
-                    cellVisible = false; // Set to false to exit the loop when a non-visible cell is found
-                }
-            }
-        });
-        timer.start();
-
-
-       // Create a panel for the guess input and submit button
-        inputPanel = new JPanel(new BorderLayout(10, 0));
-        inputPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
-        outcomeContainer = new JPanel(new BorderLayout(10, 0));
-
-
-        JPanel inputComponents = new JPanel(); // Create a container for fixed-size components
-        inputComponents.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20)); // You can adjust the layout manager as needed
-
-        JTextField guessField = new JTextField(20);
-        JButton submitButton = new JButton("Submit Guess");
-        submitButton.addActionListener((evt) -> sendCommand(new JsonObject()
-                .put("command", "guessImage")
-                .put("guess", guessField.getText())
-                .put("gameId", gameId)));
-
-        inputComponents.add(guessField);
-        inputComponents.add(submitButton);
-
-        inputPanel.add(inputComponents, BorderLayout.CENTER); // Add the container with fixed-size components
-        inputPanel.add(outcomeContainer, BorderLayout.SOUTH);
-        // Add the grid panel to the center of the container
-        gameContainer.add(gridPanel, BorderLayout.CENTER);
-        gameContainer.add(inputPanel, BorderLayout.SOUTH);
-
-        gameContainer.validate();
-        gameContainer.repaint();
-    }
-
-
-    public void imageGuesserGuess(boolean correct) {
-        if (!correct) {
-            JLabel tryAgain = new JLabel("That's not quite right :( Try again!",
-                    SwingConstants.CENTER);
-            outcomeContainer.add(tryAgain, BorderLayout.CENTER);
-        } else {
-            outcomeContainer.removeAll();
-            outcomeContainer.validate();
-            outcomeContainer.repaint();
-            JLabel congrats = new JLabel("Congratulations! You Win :)",
-                    SwingConstants.CENTER);
-            outcomeContainer.add(congrats, BorderLayout.CENTER);
-        }
-        logger.log(Level.INFO, "GameShow instance created");
-
-
-        inputPanel.validate();
-        inputPanel.repaint();
-    }
 
     public void wordScrambleGuess(boolean correct) {
         if (!correct) {
@@ -321,12 +242,12 @@ public class GameShow implements GameClient {
                 wordScrambleGuess(command.getBoolean("outcome"));
             }
             case "startImageGuesser" -> {
-                this.startImageGuesser(
-                        command.getString("imageFilePath"),
-                        (int) command.getInteger("gameId"));
+                this.imageGuesser = new ImageGuesser(this.mnClient, game, this.gameContainer, this.player, command.getString("imageFilePath"), (int) command.getInteger("gameId"));
+                this.imageGuesser.startImageGuesser();
+
             }
             case "guessImageOutcome" -> {
-                imageGuesserGuess(command.getBoolean("outcome"));
+                this.imageGuesser.guess(command.getBoolean("outcome"));
             }
 
         }
