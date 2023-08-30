@@ -13,6 +13,14 @@ import java.awt.image.WritableRaster;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import javax.swing.SwingUtilities;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import minigames.client.GameClient;
@@ -106,8 +114,8 @@ public class KrumGame implements GameClient {
 
         initializePanel();
         initializePlayers();
-        //initializeWind();
-        
+        //initializeWind();     
+        windString = "";
 
     }
 
@@ -665,6 +673,15 @@ public class KrumGame implements GameClient {
         gameThread.start();
     }
 
+    void disableInfoLogging(){
+        // LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        // Configuration config = ctx.getConfiguration();
+        // LoggerConfig loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
+        // loggerConfig.setLevel(Level.WARN);
+        // ctx.updateLoggers();
+        Configurator.setLevel(LogManager.getLogger(MinigameNetworkClient.class), Level.WARN);
+    }
+
     /**
      * Called when our client is loaded into the main screen
      */ 
@@ -684,7 +701,7 @@ public class KrumGame implements GameClient {
         mnClient.getMainWindow().addCenter(panel);
         mnClient.getMainWindow().pack();
         requestMyPlayerIndex();
-
+        disableInfoLogging();
     }
 
     @Override

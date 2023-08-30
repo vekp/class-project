@@ -5,13 +5,25 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.*;
 import minigames.server.ClientType;
 import minigames.server.GameServer;
+import minigames.server.MinigameNetworkServer;
 
 import java.util.HashMap;
 import java.util.Random;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.Level;
+
 public class KrumGameServer implements GameServer{
 
     HashMap<String, KrumGame> games = new HashMap<>();
+
+    public KrumGameServer(){
+        Configurator.setLevel(LogManager.getLogger(MinigameNetworkServer.class), Level.WARN);
+    }
 
     @Override
     public GameServerDetails getDetails(){
