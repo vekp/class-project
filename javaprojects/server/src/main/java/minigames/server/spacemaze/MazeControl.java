@@ -58,6 +58,9 @@ public class MazeControl {
     // Bots info
     private List<Point> botsLocationsList = new ArrayList<Point>();
 
+    // Bonus Points info
+    private List<Point> bonusPointsLocationsList = new ArrayList<Point>();
+
     // Gameover info
     public Boolean gameFinished = false;
     // winner variable???
@@ -179,6 +182,10 @@ public class MazeControl {
                 // add pickup locations - bomb and bonus points
                 // add bomb
                 // add bonus points
+                else if (mazeArray[y][x] == '$')
+                {
+                    bonusPointsLocationsList.add(new Point(x, y));
+                }
 
             }
         }    
@@ -391,6 +398,12 @@ public class MazeControl {
         // Update playerLocation in mazeArray to newMove
         //playerLocation = new Point(x, y);
         playerLocation = new Point(newMove);
+
+        // Reducing ellapsed time for chest collection
+        if (bonusPointsLocationsList.contains(playerLocation)) {
+            mazeTimer.reduceTime();
+        }
+
         // Set (x, y) to 'P'
         // NB - array[row = y][col = x]
         //mazeArray[x][y] = 'P';

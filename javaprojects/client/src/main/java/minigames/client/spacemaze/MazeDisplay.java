@@ -60,9 +60,9 @@ public class MazeDisplay extends JPanel {
     private HashMap<Integer, Image> unlockedExitImages = new HashMap<Integer, Image>();
     private HashMap<Integer, Image> bombImages = new HashMap<Integer, Image>();
 
-    Image chestImage;
-    Image startImage;
-    Image wormHoleImage;
+    private Image chestImage;
+    private Image startImage;
+    private Image wormHoleImage;
 
     // Timer for the game automation
     Timer timer;
@@ -176,6 +176,7 @@ public class MazeDisplay extends JPanel {
      */
     public void updateMaze(char[][] mazeMap){
         this.mazeMap = mazeMap;
+        mazeMap[startPos.y][startPos.x] = 'S';
         repaint();
     }
 
@@ -185,6 +186,7 @@ public class MazeDisplay extends JPanel {
      */
     public void newLevel(char[][] mazeMap, ArrayList<SpaceBot> newBots){
         this.mazeMap = mazeMap;
+        this.startPos = findCharOnMap(mazeMap, 'P');
         this.playerPos = findCharOnMap(mazeMap, 'P');
         this.exitPoint = findCharOnMap(mazeMap, 'E');
         this.bots = newBots;
@@ -267,9 +269,9 @@ public class MazeDisplay extends JPanel {
         logger.info(info);
         if (isMoveValid(nextPoint)){
             // This command currently only tells the server where the player is moving
-            spaceMaze.sendCommand("key" + direction);
-            if (mazeMap[moveTo.y][moveTo.x] == 'K'){
-                spaceMaze.sendCommand("updateMaze");
+            spaceMaze.sendCommand("playerMoved" + direction);
+            if ((mazeMap[moveTo.y][moveTo.x] != '.') && (mazeMap[moveTo.y][moveTo.x] != 'U')){
+                spaceMaze.sendCommand("collision");
             } else {
                 // Moves the player image
                 movePlayerImage();
@@ -338,11 +340,11 @@ public class MazeDisplay extends JPanel {
                 g.drawImage(unlockedExitImages.get(imageCycle % unlockedExitImages.size()),
                         c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
-            case 'A':
+            case 'M':
                 g.drawImage(bombImages.get(imageCycle % bombImages.size()),
                         c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
-            case 'C':
+            case '$':
                 g.drawImage(chestImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case 'H':

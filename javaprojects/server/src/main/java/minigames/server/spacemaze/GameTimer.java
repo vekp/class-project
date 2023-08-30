@@ -87,11 +87,23 @@ public class GameTimer {
      */
     public String getCurrentTime(){
         int currentTime = (int) (((System.currentTimeMillis() - startTime) + prePausedTime) / 1000);
+        if (currentTime < 0) {
+            startTime = System.currentTimeMillis();
+            currentTime = (int) (((System.currentTimeMillis() - startTime) + prePausedTime) / 1000);
+        }
         int minutes = currentTime / 60;
         int seconds = currentTime % 60;
 
         return String.format("%d:%02d", minutes, seconds);
     }
+
+    /**
+     * Takes 8 seconds of total time for collecting a chest
+     */
+    public void reduceTime() {
+        startTime = startTime + 8000;
+    }
+
 
     /**
      * Getter checks timer was started and is currently not running,

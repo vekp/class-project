@@ -74,74 +74,65 @@ public class SpaceMazeGame {
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         String commandString = (String) cp.commands().get(0).getValue("command");
 
-        switch (commandString){
-            case "START" -> renderingCommands.add(new JsonObject().put("command", "startGame"));
-            case "SCORE" -> renderingCommands.add(new JsonObject().put("command", "viewHighScore"));
-            case "MENU"  -> renderingCommands.add(new JsonObject().put("command", "mainMenu"));
-            case "HELP" -> renderingCommands.add(new JsonObject().put("command", "howToPlay"));
-            case "backToMenu" -> renderingCommands.add(new JsonObject().put("command", "backToMenu"));
-            case "onExit" -> {
-                mazeControl.newLevel();
-                player.calculateScore(mazeControl.timeTaken, 8000);
-                String playerScoreString = String.valueOf(player.getPlayerScore());
-                if (!mazeControl.gameFinished) {
-                    this.level++;
+        // Lets mazeControl keep track of the player for when client sends updateMaze
+        if (commandString.startsWith("playerMoved")) {
+            String keyPressed = commandString;
+            processKeyInput(keyPressed, p);
+        } else {
+            switch (commandString) {
+                case "START" -> renderingCommands.add(new JsonObject().put("command", "startGame"));
+                case "SCORE" -> renderingCommands.add(new JsonObject().put("command", "viewHighScore"));
+                case "MENU" -> renderingCommands.add(new JsonObject().put("command", "mainMenu"));
+                case "HELP" -> renderingCommands.add(new JsonObject().put("command", "howToPlay"));
+                case "backToMenu" -> renderingCommands.add(new JsonObject().put("command", "backToMenu"));
+                case "collision" -> {
                     JsonObject serializedMazeArray = new JsonObject()
-                            .put("command", "nextLevel")
-                            .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()))
-                            .put("botStartLocations", mazeControl.getBotStartLocations())
-                            .put("totalScore", playerScoreString)
-                            .put("level", Integer.toString(level));
+                            .put("command", "updateMaze")
+                            .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()));
                     renderingCommands.add(serializedMazeArray);
-                } else {
-                    // Will change this to access mazeControl timeTaken directly
-                    int time = mazeControl.mazeTimer.getTimeTaken();
-                    int minutes = time / 60;
-                    int seconds = time % 60;
-                    String timeTaken = String.format("%d:%02d", minutes, seconds);
-                    renderingCommands.add(new JsonObject().put("command", "gameOver")
-                            .put("totalScore", playerScoreString)
-                            .put("timeTaken", timeTaken));
+                }
+                case "botCollision" -> {
+                    logger.info("bot collision detected on server from client");
+                }
+                case "gameTimer" -> {
+                    String currentTime = mazeControl.mazeTimer.getCurrentTime();
+                    renderingCommands.add(new JsonObject().put("command", "timer")
+                            .put("time", currentTime));
+                }
+                case "requestGame" -> {
+                    // Moved here from the constructor to only start the timer on maze load
+                    mazeControl.playerEntersMaze(new Point(1, 0));
+                    JsonObject serializedMazeArray = new JsonObject()
+                            .put("command", "firstLevel")
+                            .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()))
+                            .put("botStartLocations", mazeControl.getBotStartLocations());
+                    renderingCommands.add(serializedMazeArray);
+                }
+                case "onExit" -> {
+                    mazeControl.newLevel();
+                    player.calculateScore(mazeControl.timeTaken, 8000);
+                    String playerScoreString = String.valueOf(player.getPlayerScore());
+                    if (!mazeControl.gameFinished) {
+                        this.level++;
+                        JsonObject serializedMazeArray = new JsonObject()
+                                .put("command", "nextLevel")
+                                .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()))
+                                .put("botStartLocations", mazeControl.getBotStartLocations())
+                                .put("totalScore", playerScoreString)
+                                .put("level", Integer.toString(level));
+                        renderingCommands.add(serializedMazeArray);
+                    } else {
+                        int time = mazeControl.timeTaken;
+                        int minutes = time / 60;
+                        int seconds = time % 60;
+                        String timeTaken = String.format("%d:%02d", minutes, seconds);
+                        renderingCommands.add(new JsonObject().put("command", "gameOver")
+                                .put("totalScore", playerScoreString)
+                                .put("timeTaken", timeTaken));
+                    }
                 }
             }
         }
-
-        // Lets mazeControl keep track of the player for when client sends updateMaze
-        if (commandString.startsWith("key")) {
-            String keyPressed = commandString;
-            processKeyInput(keyPressed, p);
-        }
-
-        if (commandString.startsWith("requestGame")) {
-            // Moved here from the constructor to only start the timer on maze load
-            mazeControl.playerEntersMaze(new Point(1,0));
-            JsonObject serializedMazeArray = new JsonObject()
-                    .put("command", "firstLevel")
-                    .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()))
-                    .put("botStartLocations", mazeControl.getBotStartLocations());
-            renderingCommands.add(serializedMazeArray);
-            // Added in sending of bot locations
-
-        }
-
-        if (commandString.startsWith("updateMaze")) {
-            JsonObject serializedMazeArray = new JsonObject()
-                    .put("command", "updateMaze")
-                    .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()));
-            renderingCommands.add(serializedMazeArray);
-            }
-
-        if (commandString.startsWith("gameTimer")) {
-            String currentTime = mazeControl.mazeTimer.getCurrentTime();
-            renderingCommands.add(new JsonObject().put("command", "timer")
-                    .put("time", currentTime));
-        }
-        // Bot collision detected on client.
-        if(commandString.startsWith("botCollision")) {
-            logger.info("bot collision detected on server from client");
-
-        }
-
         return new RenderingPackage(this.gameMetadata(), renderingCommands);
     }
 
@@ -176,19 +167,19 @@ public class SpaceMazeGame {
         Point rightloc = new Point(ploc.x+1, ploc.y);
 
         switch (keyPressed) {
-            case "keyUp":
+            case "playerMovedUp":
                 player.updateLocation(uploc);
                 mazeControl.updatePlayerLocationMaze(player,uploc);
                 break;
-            case "keyDown":
+            case "playerMovedDown":
                 player.updateLocation(downloc);
                 mazeControl.updatePlayerLocationMaze(player, downloc);
                 break;
-            case "keyLeft":
+            case "playerMovedLeft":
                 player.updateLocation(leftloc);
                 mazeControl.updatePlayerLocationMaze(player, leftloc);
                 break;
-            case "keyRight":
+            case "playerMovedRight":
                 player.updateLocation(rightloc);
                 mazeControl.updatePlayerLocationMaze(player, rightloc);
                 break;

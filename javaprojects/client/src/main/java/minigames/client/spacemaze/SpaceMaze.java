@@ -380,7 +380,7 @@ public class SpaceMaze implements GameClient {
                 if (!serialisedArray.isEmpty()) {
                     List<String> mazeList = serialisedArray.getList();
                     char[][] mazeMap = deserialiseJsonMaze(mazeList);
-                    //ArrayList<SpaceBot> bots = loadBots(botStartLocations, mazeMap);
+                    // ArrayList<SpaceBot> bots = loadBots(botStartLocations, mazeMap);
                     ArrayList<SpaceBot> bots = loadBots(botStartLocations);
                     maze.newLevel(mazeMap, bots);
                 }
@@ -392,7 +392,7 @@ public class SpaceMaze implements GameClient {
             case "updateMaze" -> {
                 JsonArray serialisedArray = command.getJsonArray("mazeArray");
                 if (!serialisedArray.isEmpty()) {
-                    //Json array of strings to Java array of strings
+                    // Json array of strings to Java array of strings
                     List<String> mazeList = serialisedArray.getList();
                     char[][] mazeMap = deserialiseJsonMaze(mazeList);
                     maze.updateMaze(mazeMap);
