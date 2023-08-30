@@ -299,32 +299,15 @@ public class KrumGame implements GameClient {
             playingBackTurn = false;
             recordingTurn = false;
         }
-        // if (playBackTurn) {
-        //     playingBackTurn = true;
-        //     recordingTurn = false;
-        //     playBackTurn = false;
-        //     playBackFrame = 0;
-        //     currentTurn = savedTurns[1 - playerTurn];
-        //     setGameState(currentTurn.startState);
-        //     System.out.println("playback " + currentTurn);
-        //     playerTurn = 1 - playerTurn;
-        // } 
-        // else if (!playingBackTurn && updateCount > turnEndFrame && !turnOver) {
         readyToStartTurn = true;
         KrumInputFrame rf = null;
         boolean incud = false;
         for (KrumPlayer p : players) {    
             KrumInputFrame pf = null;
             rf = null;
-            //KrumTurn rt = null;
-            // if (p.playerIndex == playerTurn && playerTurn == myPlayerIndex) {
-            //     rt = currentTurn;
-            // }  
             if (playingBackTurn && !turnOver) {
                 if (playBackFrame >= KrumC.TURN_TIME_LIMIT_FRAMES) {
                     playingBackTurn = false;
-                    //System.out.println("done replaying");
-                    //endTurn();
                 }
                 else if (receivedFrames.size() > playBackFrame && p == players[receivedFrames.get(playBackFrame).activePlayer]) {
                     pf = receivedFrames.get(playBackFrame);
@@ -333,13 +316,6 @@ public class KrumGame implements GameClient {
             }
             else if (myPlayerIndex == playerTurn && p.playerIndex == playerTurn && !turnOver) {
                 rf = new KrumInputFrame();
-                long fn = updateCount - ((long)turnEndFrame - KrumC.TURN_TIME_LIMIT_FRAMES);
-                if (fn < 5 || fn > 895)
-                    System.out.println("recording frame " + fn);
-            }
-            if (pf != null) {
-                if (playBackFrame < 5 || playBackFrame > 895)
-                    System.out.println("playing frame " + playBackFrame);     
             }
             p.update(windX, windY, alphaRaster, updateCount, rf, pf, turnOver);
             if (p.ypos > waterLevel) p.die();
@@ -422,10 +398,8 @@ public class KrumGame implements GameClient {
         }        
         if (incud || turnOver) 
             updateCount++;
-        else    
-            System.out.println("blank frame");
         if (turnOver) {
-            if (readyToStartTurn) //} || updateCount - turnOverFrame > MAX_TURN_GAP_FRAMES)
+            if (readyToStartTurn) //
                 startTurn();
         }
         if (!playingBackTurn && updateCount >= turnEndFrame && !turnOver) {

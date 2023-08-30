@@ -601,11 +601,6 @@ public class KrumPlayer {
                     return;
                 }
             }
-            // if ((l && xvel < 0) || (r && xvel > 0)) {                
-            //     double mag = Math.max(Math.abs(xvel) * -0.1, 0.2);
-            //     double xv = xvel > 0 ? -mag : mag;
-            //     xpos += xv * 35;
-            // }
             if (nonDirectionalCollisionCheck(new int[] {1,1,1,1}) && stuckFrames <= 10){
                 //System.out.println("player " + playerIndex + " may be stuck");
                 collision = true;
@@ -623,18 +618,7 @@ public class KrumPlayer {
                     i--;
                 }
                 xvel *= 0.9;
-                yvel *= 0.9;
-                // int inc = (xvel > 3 || yvel > 3) ? 50 : 20;
-                // if (collisionCheck(levelRaster, 3)) {
-                //     for (int i = 0; i < inc; i ++) {
-                //         ypos -= KrumC.WALK_CLIMB / inc;
-                //         if(!collisionCheck(levelRaster, 3)) break;
-                //     }
-                // }                
-                // while (collisionCheck(levelRaster, -3)) {
-                //     ypos -= yvel / inc;
-                //     xpos -= xvel / inc;
-                // }                
+                yvel *= 0.9;           
             }
             else {
                 stuckFrames = 0;
@@ -718,8 +702,7 @@ public class KrumPlayer {
                 ropeLength = Math.sqrt((collisionPoint.x - ropeOrigin().x) * (collisionPoint.x - ropeOrigin().x) + (collisionPoint.y - ropeOrigin().y) * (collisionPoint.y - ropeOrigin().y));
             }
         }
-        else if (onRope) {
-            
+        else if (onRope) {            
             ropeAngleRadians = Math.atan2(ypos + sprite.getHeight() / 2 - ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 1).y,  ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 1).x - xpos - sprite.getWidth() / 2);
             boolean cancelRopeLengthChange = false;
             if (upArrowKeyDown) {
@@ -752,10 +735,6 @@ public class KrumPlayer {
                     yvel /= KrumC.ROPE_KEY_ACCEL_FACTOR;
                 }
             }
-            //System.out.println("onrope." + ropeAngleRadians + " " + xpos + " " + ypos + " " + xvel + " " + yvel +  " " + leftKeyDown +  " " + rightKeyDown +  " " + upArrowKeyDown +  " " + downArrowKeyDown);
-            // for (Point2D.Double rap : ropeAttachmentPoints) {
-            //     System.out.println(rap.x + ", " + rap.y);
-            // }
             double oldx = xpos;
             double oldy = ypos;
             yvel += KrumC.GRAVITY;
@@ -781,10 +760,6 @@ public class KrumPlayer {
                 ropeVelDir = ropeAngleRadians - Math.PI / 2;                
             }
             double racc = KrumC.ROPE_KEY_ACCEL;
-            if (!cancelRopeLengthChange) {
-                // if (upArrowKeyDown) racc *= KrumC.ROPE_LENGTH_ACCEL_FACTOR;
-                // if (downArrowKeyDown) racc /= KrumC.ROPE_LENGTH_ACCEL_FACTOR;
-            }
             if (leftKeyDown) {                          
                 double dir = ropeVelDir;
                 if (Math.cos(ropeVelDir) > 0) dir += Math.PI;
