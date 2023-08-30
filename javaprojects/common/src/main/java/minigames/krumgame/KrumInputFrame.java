@@ -30,6 +30,7 @@ public class KrumInputFrame {
     public boolean downArrowKeyDown;
     public int spriteIndex;
     public double lastAimAngle;
+    public boolean facingRight;
     public KrumInputFrame() {
 
     }

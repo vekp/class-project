@@ -405,6 +405,7 @@ public class KrumPlayer {
      */
     // void update(double windX, double windY, WritableRaster levelRaster, long tick, KrumTurn recordingTurn, KrumInputFrame playbackFrame, boolean turnOver){
     void update(double windX, double windY, WritableRaster levelRaster, long tick, KrumInputFrame recordingFrame, KrumInputFrame playbackFrame, boolean turnOver){
+        System.out.println(tick + " start: x " + xpos + ", y " + ypos + " fr " + facingRight + ", si " + spriteIndex + ", xvel " + xvel + ", yvel " + yvel + ". airborne " + airborne);
         if (dead) return;
         // KrumInputFrame recordingFrame = new KrumInputFrame();
         if (recordingFrame != null) {
@@ -413,6 +414,7 @@ public class KrumPlayer {
             spriteLook();
             recordingFrame.spriteIndex = spriteIndex;
             recordingFrame.lastAimAngle = lastAimAngle;
+            recordingFrame.facingRight = facingRight;
         }        
         this.tick = tick;
         if (playbackFrame != null && playbackFrame.activePlayer == playerIndex) {            
@@ -433,13 +435,19 @@ public class KrumPlayer {
             enterKeyDownNextFrame = playbackFrame.enterKeyDown;
             upArrowKeyDownNextFrame = playbackFrame.upArrowKeyDown;
             downArrowKeyDownNextFrame = playbackFrame.downArrowKeyDown;
+
+            lastAimAngle = playbackFrame.lastAimAngle;
+            if (facingRight != playbackFrame.facingRight) {
+                facingRight = playbackFrame.facingRight;
+                spriteGun();
+            }              
             if (spriteIndex != playbackFrame.spriteIndex) {
                 spriteIndex = playbackFrame.spriteIndex;
                 sprite = sprites[spriteIndex];
                 alphaRaster = sprite.getAlphaRaster();
             } 
-            lastAimAngle = playbackFrame.lastAimAngle;
-            setDirection(Math.cos(lastAimAngle) > 0, levelRaster);
+            
+            
         }
         if (turnOver) {      
             shootNextFrame = false;
@@ -454,7 +462,7 @@ public class KrumPlayer {
         }
         if (shootNextFrame) {
             shoot(shotPower);
-            System.out.println("shot: from " + xpos + ", " + ypos + "; power " + shotPower + "; aingle " + shootAimAngle);
+            System.out.println("shot: from " + xpos + ", " + ypos + "; power " + shotPower + "; aingle " + shootAimAngle + ". tick " + tick);
             shootNextFrame = false;
             if (recordingFrame != null) {
                 recordingFrame.shoot = true;
@@ -711,6 +719,7 @@ public class KrumPlayer {
             }
         }
         else if (onRope) {
+            
             ropeAngleRadians = Math.atan2(ypos + sprite.getHeight() / 2 - ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 1).y,  ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 1).x - xpos - sprite.getWidth() / 2);
             boolean cancelRopeLengthChange = false;
             if (upArrowKeyDown) {
@@ -742,6 +751,10 @@ public class KrumPlayer {
                     xvel /= KrumC.ROPE_KEY_ACCEL_FACTOR;
                     yvel /= KrumC.ROPE_KEY_ACCEL_FACTOR;
                 }
+            }
+            System.out.println("onrope." + ropeAngleRadians + " " + xpos + " " + ypos + " " + xvel + " " + yvel +  " " + leftKeyDown +  " " + rightKeyDown +  " " + upArrowKeyDown +  " " + downArrowKeyDown);
+            for (Point2D.Double rap : ropeAttachmentPoints) {
+                System.out.println(rap.x + ", " + rap.y);
             }
             double oldx = xpos;
             double oldy = ypos;
@@ -796,7 +809,9 @@ public class KrumPlayer {
             ropeAngleRadians += (clockwise ? -ropeVelMag / ropeLength : ropeVelMag / ropeLength);
             xpos = ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 1).x + ropeLength * Math.cos(Math.PI + ropeAngleRadians) - sprite.getWidth()/2;
             ypos = ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 1).y - ropeLength * Math.sin(Math.PI + ropeAngleRadians) - sprite.getHeight()/2;
+            System.out.println("onrope2 " + xpos + " " + ypos + " " + xvel + " " + yvel + " " + ropeLength + " " + ropeAngleRadians + " " + spriteIndex + " " + facingRight);
             if (nonDirectionalCollisionCheck(null)) {
+                System.out.println("coll");
                 xpos = oldx;
                 ypos = oldy;
                 ropeAngleRadians -= (clockwise ? ropeVelMag / ropeLength : -ropeVelMag / ropeLength);
@@ -827,6 +842,7 @@ public class KrumPlayer {
                 }
 
             }
+            System.out.println("x " + xpos + ", y " + ypos + " fr " + facingRight + ", si " + spriteIndex + ", xvel " + xvel + ", yvel " + yvel + ". airborne " + airborne + ". end tick " + tick);
             return;
         }
     }
@@ -993,11 +1009,11 @@ public class KrumPlayer {
                 alphaRaster = sprite.getAlphaRaster();
             return;
         }
-        if (lastMouseX == MouseInfo.getPointerInfo().getLocation().x && lastMouseY == MouseInfo.getPointerInfo().getLocation().y)
-            return;
+        //if (lastMouseX == MouseInfo.getPointerInfo().getLocation().x && lastMouseY == MouseInfo.getPointerInfo().getLocation().y)
+        //    return;
         lastAimAngle = calcAimAngle();     
-        lastMouseX = MouseInfo.getPointerInfo().getLocation().x;
-        lastMouseY = MouseInfo.getPointerInfo().getLocation().y;
+        //lastMouseX = MouseInfo.getPointerInfo().getLocation().x;
+        //lastMouseY = MouseInfo.getPointerInfo().getLocation().y;
         if (lastAimAngle <= 3.146 && lastAimAngle >= 2.749 ) {
             spriteIndex = 5;
         } else if (lastAimAngle <= 2.749 && lastAimAngle >= 1.963 ) {
@@ -1024,6 +1040,8 @@ public class KrumPlayer {
         sprite = sprites[spriteIndex];
         if (Math.cos(lastAimAngle) > 0 != facingRight)
             setDirection(Math.cos(lastAimAngle) > 0, levelRaster);
+        else
+            alphaRaster = sprite.getAlphaRaster();
     }
 
     void spriteGun() {

@@ -420,7 +420,7 @@ public class KrumGame implements GameClient {
                 incud = true;
             }       
         }        
-        if (incud) 
+        if (incud || turnOver) 
             updateCount++;
         else    
             System.out.println("blank frame");
