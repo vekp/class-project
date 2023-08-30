@@ -261,6 +261,7 @@ public class Battleship implements GameClient, Tickable {
     public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {
         this.mnClient = mnClient;
         mnClient.getAnimator().requestTick(this);
+        isQuitting = false;
         waiting = true; //this ensures we get at least 1 refresh to start
         this.gm = game;
         this.player = player;
