@@ -28,6 +28,7 @@ public class MemoryGame {
     String name;
     String playerName;
     AchievementHandler achievementHandler;
+    String cardToShow = "_2_of_Clubs.png";
 
     public MemoryGame(String name, String playerName) {
         this.name = name;
@@ -66,6 +67,62 @@ public class MemoryGame {
                 players.remove(cp.player());
                 renderingCommands.add(new JsonObject().put("command", "showGames"));
             }
+            case "Flip_Card_1" -> {
+                renderingCommands.add(new JsonObject().put("command", "Flip_Card_1"));
+            }
+            case "Flip_Card_2" -> {
+                renderingCommands.add(new JsonObject().put("command", "Flip_Card_2"));
+            }
+            case "Flip_Card_3" -> {
+                renderingCommands.add(new JsonObject().put("command", "Flip_Card_3"));
+            }
+            case "Flip_Card_4" -> {
+                renderingCommands.add(new JsonObject().put("command", "Flip_Card_4"));
+            }
+            case "Flip_Card_5" -> {
+                renderingCommands.add(new JsonObject().put("command", "Flip_Card_5"));
+            }
+            case "Flip_Card_6" -> {
+                renderingCommands.add(new JsonObject().put("command", "Flip_Card_6"));
+            }
+            case "Flip_Card_7" -> {
+                renderingCommands.add(new JsonObject().put("command", "Flip_Card_7"));
+            }
+            case "Flip_Card_8" -> {
+                renderingCommands.add(new JsonObject().put("command", "Flip_Card_8"));
+            }
+            case "Flip_Card_9" -> {
+                renderingCommands.add(new JsonObject().put("command", "Flip_Card_9"));
+            }
+            case "Flip_Card_10" -> {
+                renderingCommands.add(new JsonObject().put("command", "Flip_Card_10"));
+            }
+            case "Flip_Card_11" -> {
+                renderingCommands.add(new JsonObject().put("command", "Flip_Card_11"));
+            }
+            case "Flip_Card_12" -> {
+                renderingCommands.add(new JsonObject().put("command", "Flip_Card_12"));
+            }
+            case "Flip_Card_13" -> {
+                renderingCommands.add(new JsonObject().put("command", "Flip_Card_13"));
+            }
+            case "Flip_Card_14" -> {
+                renderingCommands.add(new JsonObject().put("command", "Flip_Card_14"));
+            }
+            case "Flip_Card_15" -> {
+                renderingCommands.add(new JsonObject().put("command", "Flip_Card_15"));
+            }
+            case "Flip_Card_16" -> {
+                renderingCommands.add(new JsonObject().put("command", "Flip_Card_16"));
+            }
+            case "Flip_Card_17" -> {
+                renderingCommands.add(new JsonObject().put("command", "Flip_Card_17"));
+            }
+            case "Flip_Card_18" -> {
+                renderingCommands.add(new JsonObject().put("command", "Flip_Card_18"));
+            }
+
+
         }
 
         return new RenderingPackage(this.gameMetadata(), renderingCommands);

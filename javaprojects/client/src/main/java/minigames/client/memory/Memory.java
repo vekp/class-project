@@ -6,16 +6,26 @@ import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
+import minigames.client.Tickable;
+import minigames.client.Animator;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.*;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Iterator;
+
+
+
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.Border;
 import javax.swing.Timer;
 
 /**
@@ -23,42 +33,40 @@ import javax.swing.Timer;
  * @author Melinda Luo, Lyam Talbot, Scott Lehmann, William Koller
  * Memory Card Game
  */
-public class Memory implements GameClient{ //, ActionListener, MouseListener {
+public class Memory implements GameClient, ActionListener, Tickable { //, MouseListener {
 
     // Client instance
     MinigameNetworkClient mnClient;
 
     // Send commands to server
     GameMetadata gm;
+    Animator animator;
 
     // Player
     String player;
 
     /** Swing components */
+    private JPanel mainPanel, gameMenuPanel, commandPanel, headingPanel, playerPanel, gameOptionsPanel, cardGridPanel;
+    private JLabel title, playerName, matches, stopwatch, difficulty;
+    private JButton newGameButton, restartLevelButton, exitButton, achievementsButton;
+    private Border margin;
+    private int rows = 3;
+    private int columns = 6;
+    JButton btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9, btn10, btn11, btn12, btn13, btn14, btn15, btn16, btn17, btn18;
+    JPanel buttonPanel;
+    int btnContainerWidth;
+    int btnContainerHeight;
 
-    //JPanel mainPanel; // Main panel for the game
-    //JPanel gameMenuPanel; // Panel for the game menu which houses the options for the game
-    //JPanel commandPanel; // Panel for the game to react to user input such as "it's a pair"
-    //JPanel headingPanel; // Panel that houses the game and player objects
-    //JLabel title;
-    //JPanel playerPanel; // Panel for the player information
-    JLabel playerName;
-    //JLabel matches;
-    //JLabel stopwatch;
-    //JPanel gameOptionsPanel; // Houses the button objects for the game options
-    //JButton newGameButton;
-    //JButton restartLevelButton;
-    //JButton exitButton;
-    //JButton achievementsButton;
-    //JPanel gridContainerPanel; // Wraps the cardGridPanel
-    //JPanel cardGridPanel; // Sets the grid for the playing cards
+    
 
-    //ImageIcon cardBackImage = new ImageIcon(getClass().getResource("/memory/images/playing_cards/back/card_back_black.png"));
-    //ImageIcon clubs_2 = new ImageIcon(getClass().getResource("/memory/images/playing_cards/2_of_clubs.png"));
-
+    ImageIcon cardBackImage = new ImageIcon(getClass().getResource("/memory/images/playing_cards/back/card_back_black.png"));
     // Path to card images directory (card front images only)
-    //String cardImagesDirectory = getClass().getResource("/memory/images/playing_cards/front/").getPath();
-        
+    String cardImagesDirectory = getClass().getResource("/memory/images/playing_cards/front/").getPath();
+
+    // this needs to be changed again so that the image matches the relevant card suit/rank 
+    ImageIcon cardFrontImage = new ImageIcon(getClass().getResource("/memory/images/playing_cards/front/_2_of_clubs.png"));
+
+
     JTextArea textArea;
 
     // Game variable
@@ -66,240 +74,246 @@ public class Memory implements GameClient{ //, ActionListener, MouseListener {
     int matchesCounter = 0;
     int [] timeElapsed = {1, 0}; // {mins, seconds}
     Timer timer;
-    int rows = 4; // Default rows
-    int columns = 4; // Default columns
+    
 
-    MemoryGame game;
-    MemoryGUI GUI;
+    //May use this later to keep track of the flipped/unflipped cards, but i dont think we need it anymore...
+    //boolean [] cardState = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+    
+    JPanel GUI;
     JFrame MemoryWindow;
 
     /** Initialize Swing components */
     public Memory() {
-        game = new MemoryGame();
-        GUI = new MemoryGUI();
+        GUI = new JPanel();
+        MemoryGUI();
         MemoryWindow = new JFrame("Memory");
         MemoryWindow.setSize(800,800);
-        MemoryWindow.add(this.GUI);
-
-
+        MemoryWindow.add(GUI);
     }
 
 
+    public void MemoryGUI() {
+        margin = BorderFactory.createEmptyBorder(10, 10, 10, 10);
+        
+        setPlayerPanelDisplay();
+        setGameOptionsPanelDisplay();
+        setButtonPanelDisplay();
+        setGameMenuPanelDisplay();
+        setMainPanelDisplay();
+        GUI.add(mainPanel, BorderLayout.CENTER);
+    }
 
-
-
-
-
-
-
-
-/*
-    public void MemoryGUI() {   
-
-
-
-        // Create a list of card images
-        List<ImageIcon> cardImages = new ArrayList<>();
-        File cardImageDirectory = new File(cardImagesDirectory.replace("%20", " "));
-        File[] cardImageFiles = cardImageDirectory.listFiles();
-
-        // Add all card images available
-        if (cardImageFiles != null) {
-            for (File file : cardImageFiles) {
-                if (file.isFile()) {
-                    cardImages.add(new ImageIcon(file.getAbsolutePath()));
-                }
-            }
-        }
-
-        // Define indices of cardImages list
-        List<Integer> indices = new ArrayList<>();
-        for (int i = 0; i < cardImages.size(); i++) {
-            indices.add(i);
-        }
-
-
-        // Shuffle the indices - ?Shuffling framework/system here!
-        Collections.shuffle(indices);
-
-
-        // Create a list of card pairs
-        List<ImageIcon> cardPairs = new ArrayList<>();
-        int counter = 0;
-        for (int index : indices) {
-            if (counter < 8) {
-                ImageIcon cardImage = cardImages.get(index);
-                cardPairs.add(cardImage);
-                cardPairs.add(cardImage); // Add a duplicate for each card
-                counter++;
-            }
-        }
-
-
-        /* // TODO: Look into the possible error for Random - 'bound must be positive' - if it occurs again!
-        List<ImageIcon> cardPairs = new ArrayList<>();
-        Random random = new Random();
-        for (int i = 0; i < 8; i++) {
-            int randomIndex = random.nextInt(cardImages.size());
-            ImageIcon cardImage = cardImages.get(randomIndex);
-            cardPairs.add(cardImage);
-            cardPairs.add(cardImage); // Add a duplicate for each card
-            cardImages.remove(randomIndex); // Then remove selected card
-        } */
-
-/*
-        // Shuffle the card pairs - FIXME: Use the shuffling framework/system here!
-        Collections.shuffle(cardPairs);
-
-        // Create card grid and add cards with the card images and "flip" buttons
-        cardGridPanel = new JPanel();
-        //cardGridPanel.setLayout(new GridLayout(4, 4, 0, 0)); // 4x4 grid for placeholders
-
-        // TODO - wonky implementation. Needs more time in the oven.
-        // Update rows and columns based on the selected difficulty
-        // Listen for changes based on users selected difficulty to update the cardGridPanel
-        difficultyComboBox.addActionListener((ActionEvent e) -> {
-            // Get the selected difficulty from the JComboBox
-            String selectedDifficulty = (String) difficultyComboBox.getSelectedItem();
-            // Update rows and columns based on the selected difficulty
-            switch (Objects.requireNonNull(selectedDifficulty)) {
-                case "Easy" -> {
-                    rows = 3;
-                    columns = 4;
-                }
-                case "Medium" -> {
-                    rows = 4;
-                    columns = 4;
-                }
-                case "Hard" -> {
-                    rows = 5;
-                    columns = 4;
-                }
-            }
-            // Update the grid layout of cardGridPanel
-            cardGridPanel.setLayout(new GridLayout(rows, columns, 0, 0));
-
-            // Repaint cardGridPanel to reflect the new grid layout
-            cardGridPanel.revalidate();
-            cardGridPanel.repaint();
-        });
-
-        int cardImageIndex = 0;
-        // Add cards to the grid based on difficulty with the card images and "flip" buttons
-        //for (int i = 0; i < 16; i++) {
-        for (int i = 0; i < rows * columns; i++) {
-            final JPanel cards;
-            final String FLIP = "Flip";
-
-            JPanel cardBack = new JPanel();
-            cardBack.add(new JLabel(resizeImageIcon(cardBackImage, 50, -1)));
-
-            JPanel cardFront = new JPanel();
-            //cardFront.add(new JLabel(resizeImageIcon(clubs_2,50,-1))); // need to make this change to the random card - DONE
-
-            // Get the next card image from cardPairs
-            ImageIcon image = cardPairs.get(cardImageIndex);
-            // Define and append to each section (16 total)
-            JLabel cardLabel = new JLabel(resizeImageIcon(image, 50, -1));
-            cardFront.add(cardLabel);
-            // Increment the cardImageIndex and wrap around if needed
-            cardImageIndex = (cardImageIndex + 1) % cardPairs.size();
-
-            cards = new JPanel(new CardLayout());
-            cards.add(cardBack);
-            cards.add(cardFront);
-
-            class ControlActionListener implements ActionListener {
-                public void actionPerformed(ActionEvent e) {
-                    CardLayout cl = (CardLayout) (cards.getLayout());
-                    String cmd = e.getActionCommand();
-                    if (cmd.equals(FLIP)) {
-                        cl.next(cards);
-                    }
-                }
-            }
-            ControlActionListener cal = new ControlActionListener();
-
-            JButton flipButton = new JButton("Flip");
-            flipButton.setActionCommand(FLIP);
-            flipButton.addActionListener(cal);
-
-            JPanel cardPane = new JPanel();
-            cardPane.setLayout(new BoxLayout(cardPane, BoxLayout.Y_AXIS));
-            cardPane.add(cards);
-            cardPane.add(flipButton);
-
-            cardGridPanel.add(cardPane);
-        }
-
-        // Container for the card grid
-        gridContainerPanel = new JPanel(new BorderLayout());
-        gridContainerPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true)); // Set border around player grid to separate the UI elements
-        gridContainerPanel.setPreferredSize(new Dimension(750, 450));
-        gridContainerPanel.add(cardGridPanel, BorderLayout.CENTER); // Add the cardGridPanel to the container
-
-        // Create the command panel
-        commandPanel = new JPanel();
-        commandPanel.setLayout(new BorderLayout());
-        commandPanel.setBorder((new EmptyBorder(15, 10, 0, 10)));
-        textArea = new JTextArea();
-        textArea.setEditable(false);
-        textArea.setFont(new Font("Arial", Font.BOLD, 16));
-        commandPanel.add(new JScrollPane(textArea), BorderLayout.CENTER);
-
+   
+    private void setMainPanelDisplay(){
         // Set up the main layout
         mainPanel = new JPanel();
-        //mainPanel = new JFrame();
-        //mainPanel.setSize(800,800);
         mainPanel.setLayout(new BorderLayout());
         mainPanel.add(gameMenuPanel, BorderLayout.NORTH);
-        mainPanel.add(gridContainerPanel, BorderLayout.CENTER);
-        //mainPanel.add(commandPanel, BorderLayout.SOUTH);
-
-
-        //for (Component c:  new Component[] {title, headingPanel, playerName, newGameButton, restartLevelButton, exitButton,
-                //cardGridPanel, commandPanel, textArea, gameMenuPanel, playerPanel, gridContainerPanel, mainPanel})
-            //c.setBackground(Color.decode("#B2C6B2"));
-
-        // Add ActionListeners to the buttons
-        newGameButton.addActionListener(this);
-        restartLevelButton.addActionListener(this);
-        exitButton.addActionListener(this);
-
-        // Add ActionListeners to the card grid
-        for (Component c : cardGridPanel.getComponents()) {
-            c.addMouseListener(this);
-        }
-    } */
-
-    // FIX - How to revert back to original (e.g. 1 minute) once Game Over message pops up and player clicks "OK"?
-    // TimerListener implementing ActionListener - Define timer countdown & call method to update stopwatch
-    
-    /* 
-    public class TimerListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (timeElapsed[1] == 0) {
-                if (timeElapsed[0] == 0) {
-                    ((Timer) e.getSource()).stop();
-                    JOptionPane.showMessageDialog(null, "Game Over!");
-                } 
-                else {
-                    timeElapsed[0]--;
-                    timeElapsed[1] = 59;
-                }
-            } 
-            else {
-                timeElapsed[1]--;
-            }
-            updateStopwatch();
-        }
+        mainPanel.add(buttonPanel, BorderLayout.CENTER);
     }
-*/
-    // Method to update stopwatch
-    /*private void updateStopwatch() {
-        stopwatch.setText(String.format("Time elapsed: %02d:%02d", timeElapsed[0], timeElapsed[1]));
-    }*/
+
+
+    private void setGameMenuPanelDisplay(){
+
+        // Create the heading panel
+        headingPanel = new JPanel();
+        headingPanel.setLayout(new GridLayout(1, 1));
+        title = new JLabel("Pair Up - A Memory Card Game");
+        title.setFont(new Font("Comic Sans MS", Font.BOLD, 25));
+        title.setHorizontalAlignment(JLabel.CENTER);
+        headingPanel.add(title);
+
+        // Create the game menu panel
+        gameMenuPanel = new JPanel();
+        gameMenuPanel.setLayout(new GridLayout(3, 0));
+        gameMenuPanel.setBorder((new EmptyBorder(0,0,15,0)));
+        gameMenuPanel.add(headingPanel); // Add heading panel to the game menu panel
+        gameMenuPanel.add(playerPanel); // Add playerPanel to gameMenuPanel
+        gameMenuPanel.add(gameOptionsPanel); // Add gameOptionsPanel to gameMenuPanel
+
+    }
+
+    private void setPlayerPanelDisplay() {
+        // Create the player panel
+        playerPanel = new JPanel();
+        playerPanel.setLayout(new GridLayout(1, 4));
+        playerPanel.setPreferredSize(new Dimension(800, 30));
+
+        playerName = new JLabel("Player: " + "NEED TO FIX"); //player); // Placeholder text for player name
+        playerName.setFont(new Font("Arial", Font.BOLD, 12));
+        playerName.setHorizontalAlignment(JLabel.CENTER);
+
+        difficulty = new JLabel("Difficulty: NEED TO FIX");
+        difficulty.setFont(new Font("Arial", Font.BOLD, 12));
+        difficulty.setHorizontalAlignment(JLabel.CENTER);
+
+        matches = new JLabel("Pairs matched: " + "NEED TO FIX"); // + matchesCounter + "/8"); // Placeholder text for matched pairs
+        matches.setFont(new Font("Arial", Font.BOLD, 12));
+        matches.setHorizontalAlignment(JLabel.CENTER);
+
+        //stopwatch = new JLabel(String.format("Time elapsed: %02d:%02d", timeElapsed[0], timeElapsed[1])); // Placeholder text for Timer
+        stopwatch = new JLabel("Time elapsed: NEED TO FIX");
+        stopwatch.setFont(new Font("Arial", Font.BOLD, 12));
+        stopwatch.setHorizontalAlignment(JLabel.CENTER);
+
+        // Add the player information to the player panel
+        playerPanel.add(playerName);
+        playerPanel.add(difficulty);
+        playerPanel.add(matches);
+        playerPanel.add(stopwatch);
+    }
+
+
+    private void setGameOptionsPanelDisplay() {
+        // Create the game options panel which hosts new game, restart level, and exit buttons
+        gameOptionsPanel = new JPanel();
+        gameOptionsPanel.setLayout(new GridLayout(1, 5));
+
+        newGameButton = new JButton("New Game");
+        newGameButton.setFont(new Font("Arial", Font.BOLD, 16));
+
+        restartLevelButton = new JButton("Restart Level");
+        restartLevelButton.setFont(new Font("Arial", Font.BOLD, 16));
+
+        exitButton = new JButton("Exit");
+        exitButton.setFont(new Font("Arial", Font.BOLD, 16));
+        exitButton.addActionListener(e -> mnClient.runMainMenuSequence());
+
+        // Create a JComboBox to select difficulty level. This updates the cardGridPanel.
+        //JComboBox<String> difficultyComboBox = new JComboBox<>(new String[]{"Easy", "Medium", "Hard"});
+        //difficultyComboBox.setFont(new Font("Arial", Font.BOLD, 16));
+        //difficultyComboBox.setSelectedItem("Medium");
+
+        // Create achievements button that talks to the API
+        achievementsButton = new JButton("Achievements");
+        achievementsButton.setFont(new Font("Arial", Font.BOLD, 16));
+        //achievementsButton.addActionListener(e -> mnClient.getGameAchievements(player, gm.gameServer()));
+
+        // Add game options to gameOptionsPanel
+        //gameOptionsPanel.add(difficultyComboBox);
+        gameOptionsPanel.add(achievementsButton);
+        gameOptionsPanel.add(newGameButton);
+        gameOptionsPanel.add(restartLevelButton);
+        gameOptionsPanel.add(exitButton);
+    }
+
+    public void updatePlayerName(String player) {
+        playerName.setText("Player: " + player);
+    }
+
+    public JButton exitButton() {
+        return exitButton;
+    }
+
+
+    private void setButtonPanelDisplay(){
+        btnContainerWidth = 500;
+        btnContainerHeight = 465;
+
+        buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(rows, columns, 0, 0));
+        buttonPanel.setMaximumSize(new Dimension(btnContainerWidth, btnContainerHeight));
+        buttonPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        
+        ImageIcon image = resizeImageIcon(cardBackImage,-1,btnContainerHeight/rows-5);
+
+        btn1 = new JButton(image);
+        btn2 = new JButton(image);
+        btn3 = new JButton(image);
+        btn4 = new JButton(image);
+        btn5 = new JButton(image);
+        btn6 = new JButton(image);
+        btn7 = new JButton(image);
+        btn8 = new JButton(image);
+        btn9 = new JButton(image);
+        btn10 = new JButton(image);
+        btn11 = new JButton(image);
+        btn12 = new JButton(image);
+        btn13 = new JButton(image);
+        btn14 = new JButton(image);
+        btn15 = new JButton(image);
+        btn16 = new JButton(image);
+        btn17 = new JButton(image);
+        btn18 = new JButton(image);
+
+        btn1.addActionListener((evt) -> sendCommand("Flip_Card_1"));
+        btn2.addActionListener((evt) -> sendCommand("Flip_Card_2"));
+        btn3.addActionListener((evt) -> sendCommand("Flip_Card_3"));
+        btn4.addActionListener((evt) -> sendCommand("Flip_Card_4"));
+        btn5.addActionListener((evt) -> sendCommand("Flip_Card_5"));
+        btn6.addActionListener((evt) -> sendCommand("Flip_Card_6"));
+        btn7.addActionListener((evt) -> sendCommand("Flip_Card_7"));
+        btn8.addActionListener((evt) -> sendCommand("Flip_Card_8"));
+        btn9.addActionListener((evt) -> sendCommand("Flip_Card_9"));
+        btn10.addActionListener((evt) -> sendCommand("Flip_Card_10"));
+        btn11.addActionListener((evt) -> sendCommand("Flip_Card_11"));
+        btn12.addActionListener((evt) -> sendCommand("Flip_Card_12"));
+        btn13.addActionListener((evt) -> sendCommand("Flip_Card_13"));
+        btn14.addActionListener((evt) -> sendCommand("Flip_Card_14"));
+        btn15.addActionListener((evt) -> sendCommand("Flip_Card_15"));
+        btn16.addActionListener((evt) -> sendCommand("Flip_Card_16"));
+        btn17.addActionListener((evt) -> sendCommand("Flip_Card_17"));
+        btn18.addActionListener((evt) -> sendCommand("Flip_Card_18"));
+
+        buttonPanel.add(btn1);
+        buttonPanel.add(btn2);
+        buttonPanel.add(btn3);
+        buttonPanel.add(btn4);
+        buttonPanel.add(btn5);
+        buttonPanel.add(btn6);
+        buttonPanel.add(btn7);
+        buttonPanel.add(btn8);
+        buttonPanel.add(btn9);
+        buttonPanel.add(btn10);
+        buttonPanel.add(btn11);
+        buttonPanel.add(btn12);
+        buttonPanel.add(btn13);
+        buttonPanel.add(btn14);
+        buttonPanel.add(btn15);
+        buttonPanel.add(btn16);
+        buttonPanel.add(btn17);
+        buttonPanel.add(btn18);
+
+    }
+
+
+    /**
+     * a method to resize the ImageIcon's image and return the resized ImageIcon
+     * @param originalImageIcon the original ImageIcon to be resized
+     * @param targetWidth required width of the resized ImageIcon (cannot be 0. If value is negative, then a value is
+     *                    substituted to maintain the aspect ratio of the original image dimensions)
+     * @param targetHeight required height of the resized ImageIcon (cannot be 0. If value is negative, then a value is
+     *      *             substituted to maintain the aspect ratio of the original image dimensions)
+     * @return resized ImageIcon
+     */
+    public ImageIcon resizeImageIcon(ImageIcon originalImageIcon, int targetWidth, int targetHeight){
+        Image resizedImage = originalImageIcon.getImage().getScaledInstance(targetWidth,targetHeight,Image.SCALE_SMOOTH);
+        return new ImageIcon(resizedImage);
+    }
+
+
+ 
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        JButton button = (JButton) e.getSource();
+
+    }
+
+
+
+ // THIS METHOD CURRENTLY NOT IN USE - MAY NEED IT LATER FOR THE TIMER OR MULTIPLAYER??....
+    /** a variable called every tick that probes the server for the current state */
+    @Override
+    public void tick(Animator al, long now, long delta) {
+        JsonObject result = new JsonObject();
+        result.put("command", "update");
+        
+        //result.put("moves", moveCounter);
+        //sendCommand(result);
+
+        al.requestTick(this);
+    }
+
 
     // Run
     public static void main(String[] args) {
@@ -309,6 +323,18 @@ public class Memory implements GameClient{ //, ActionListener, MouseListener {
             }
         });
     }
+
+
+    // THIS METHOD CURRENTLY NOT IN USE - MAY NEED IT LATER....
+    public ImageIcon isFlipped(boolean flipped){
+        if (flipped){
+            return new ImageIcon(getClass().getResource("/memory/images/playing_cards/front/_2_of_clubs.png"));
+        }else {
+           return cardBackImage;
+         }      
+    }
+
+
 
     /** 
      * Sends a command to the game at the server.
@@ -323,6 +349,14 @@ public class Memory implements GameClient{ //, ActionListener, MouseListener {
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
     }
 
+    public void sendCommand(JsonObject command) {
+        mnClient.send(
+            new CommandPackage(
+                gm.gameServer(), gm.name(), player, Collections.
+                singletonList(command)));
+    }
+
+
     /**
      * What we do when our client is loaded into the main screen
      */
@@ -334,13 +368,16 @@ public class Memory implements GameClient{ //, ActionListener, MouseListener {
         //playerName.setText("Player: " + player);
         
         // Update Player Name
-        GUI.updatePlayerName(player);
+        updatePlayerName(player);
         // Exit button to return to main game menu - Working
-        GUI.exitButton().addActionListener(e -> mnClient.runMainMenuSequence());
+        exitButton().addActionListener(e -> mnClient.runMainMenuSequence());
 
         // Add our components to the north, south, east, west, or centre of the main window's BorderLayout
-        //mnClient.getMainWindow().addCenter(mainPanel);
         mnClient.getMainWindow().addCenter(GUI);
+
+        animator = mnClient.getAnimator();
+        animator.requestTick(this);
+
         // FIX - Ask player which level difficulty they want to try before this pops up?
         // Set popup message to ask if player wants to start game: YES or NO
         
@@ -366,6 +403,62 @@ public class Memory implements GameClient{ //, ActionListener, MouseListener {
         // Note that this uses the -> version of case statements, not the : version
         // (which means we don't need to say "break;" at the end of our cases)
         switch (command.getString("command")) {
+
+            case "Flip_Card_1" -> {
+                btn1.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+            }
+            case "Flip_Card_2" -> {
+                btn2.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+            }
+            case "Flip_Card_3" -> {
+                btn3.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+            }
+            case "Flip_Card_4" -> {
+                btn4.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+            }
+            case "Flip_Card_5" -> {
+                btn5.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+            }
+            case "Flip_Card_6" -> {
+                btn6.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+            }
+            case "Flip_Card_7" -> {
+                btn7.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+            }
+            case "Flip_Card_8" -> {
+                btn8.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+            }
+            case "Flip_Card_9" -> {
+                btn9.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+            }
+            case "Flip_Card_10" -> {
+                btn10.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+            }
+            case "Flip_Card_11" -> {
+                btn11.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+            }
+            case "Flip_Card_12" -> {
+                btn12.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+            }
+            case "Flip_Card_13" -> {
+                btn13.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+            }
+            case "Flip_Card_14" -> {
+                btn14.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+            }
+            case "Flip_Card_15" -> {
+                btn15.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+            }
+            case "Flip_Card_16" -> {
+                btn16.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+            }
+            case "Flip_Card_17" -> {
+                btn17.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+            }
+            case "Flip_Card_18" -> {
+                btn18.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+            }
+
            // case "clearText" -> textArea.setText("");
            // case "appendText" -> textArea.setText(textArea.getText() + command.getString("text"));
         }
