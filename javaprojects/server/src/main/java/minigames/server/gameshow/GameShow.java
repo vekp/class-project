@@ -66,25 +66,36 @@ public class GameShow {
 
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
 
-        String cmd = cp.commands().get(0).getString("command");
+        JsonObject msg = cp.commands().get(0);
 
-        switch (cmd) {
-            case "wordScramble" -> {
-                wordScrambleGames.add(new WordScramble("wordList.txt"));
-                int gameId = wordScrambleGames.size() - 1;
-                String scrambledWord = wordScrambleGames.get(gameId).getScrambledWord();
-                renderingCommands.
-                    add(new JsonObject()
-                        .put("command", "startWordScramble")
-                        .put("scrambledWord", scrambledWord)
-                        .put("gameId", gameId));
+        switch (msg.getString("command")) {
+            case "startGame" -> {
+                switch (msg.getString("game")) {
+                    case "wordScramble" -> {
+                        String fileName = "words_"
+                            + cp.commands().get(0).getString("difficulty")
+                            + ".txt";
+                        wordScrambleGames.add(new WordScramble(fileName));
+                        int gameId = wordScrambleGames.size() - 1;
+                        String letters = wordScrambleGames
+                            .get(gameId).getScrambledWord();
+                        renderingCommands.
+                            add(new JsonObject()
+                                .put("command", "startGame")
+                                .put("game", "wordScramble")
+                                .put("letters", letters)
+                                .put("gameId", gameId));
+                    }
+                }
+                
             }
             case "imageGuesser" -> {
                 imageGuesserGames.add(new ImageGuesser());
                 int gameId = imageGuesserGames.size() - 1;
 
                 String image = imageGuesserGames.get(gameId).getImageName();
-                String imageFilePath = imageGuesserGames.get(gameId).getImageFileName();
+                String imageFilePath = imageGuesserGames
+                    .get(gameId).getImageFileName();
                 renderingCommands.
                     add(new JsonObject()
                         .put("command", "startImageGuesser")
@@ -93,13 +104,20 @@ public class GameShow {
                         .put("gameId", gameId));
             }
             case "guess" -> {
-                String guess = cp.commands().get(0).getString("guess");
-                int gameId = (int) cp.commands().get(0).getInteger("gameId");
-                boolean outcome = wordScrambleGames.get(gameId).guess(guess);
-                renderingCommands.
-                    add(new JsonObject()
-                        .put("command", "guessOutcome")
-                        .put("outcome", outcome));
+                String guess = msg.getString("guess");
+
+                switch (msg.getString("game")) {
+                    case "wordScramble" -> {
+                        int gameId = (int) msg.getInteger("gameId");
+                        boolean correct = wordScrambleGames
+                            .get(gameId).guess(guess);
+                        renderingCommands.
+                            add(new JsonObject()
+                                .put("command", "guessOutcome")
+                                .put("game", "wordScramble")
+                                .put("correct", correct));
+                    }
+                }
             }
             case "guessImage" -> {
                 String guess = cp.commands().get(0).getString("guess");

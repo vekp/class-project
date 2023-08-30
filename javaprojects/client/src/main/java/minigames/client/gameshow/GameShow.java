@@ -83,6 +83,8 @@ public class GameShow implements GameClient {
     JButton memoryGame;
     JButton guessingGame;
 
+    JPanel gamePanel;
+
     public GameShow() {
         background = new JPanel(new BorderLayout());
         background.setPreferredSize(new Dimension(800, 600));
@@ -119,7 +121,7 @@ public class GameShow implements GameClient {
 
         wordScramble = new JButton("Word Scramble");
         wordScramble.setAlignmentX(Component.CENTER_ALIGNMENT);
-        wordScramble.addActionListener((evt) -> sendCommand(new JsonObject().put("command", "wordScramble")));
+        wordScramble.addActionListener((evt) -> WordScramble.welcome(this));
         gameArea.add(wordScramble);
 
         imageGuesser = new JButton("Image Guesser");
@@ -139,36 +141,6 @@ public class GameShow implements GameClient {
 
         background.add(gameContainer);
 
-    }
-
-    public void startWordScramble(String scrambledWord, int gameId) {
-        gameContainer.removeAll();
-        gameContainer.validate();
-        gameContainer.repaint();
-
-        JPanel scrambledWordPanel = new JPanel(new BorderLayout());
-        JLabel scrambled = new JLabel(scrambledWord, SwingConstants.CENTER);
-
-        scrambledWordPanel.add(scrambled, BorderLayout.CENTER);
-
-        gameContainer.add(scrambledWordPanel, BorderLayout.NORTH);
-
-        guessContainer = new JPanel(new BorderLayout(50, 50));
-        guessContainer.setBorder(new EmptyBorder(100, 100, 100, 100));
-
-        JTextField guess = new JTextField(5);
-        JButton sendGuess = new JButton("Submit guess");
-        sendGuess.addActionListener((evt) -> sendCommand(new JsonObject()
-                .put("command", "guess")
-                .put("guess", guess.getText())
-                .put("gameId", gameId)));
-
-        guessContainer.add(guess, BorderLayout.CENTER);
-        guessContainer.add(sendGuess, BorderLayout.SOUTH);
-
-        gameContainer.add(guessContainer, BorderLayout.CENTER);
-        gameContainer.validate();
-        gameContainer.repaint();
     }
 
 
@@ -252,26 +224,6 @@ public class GameShow implements GameClient {
         inputPanel.repaint();
     }
 
-    public void wordScrambleGuess(boolean correct) {
-        if (!correct) {
-            JLabel tryAgain = new JLabel("That's not quite right :( Try again!",
-                    SwingConstants.CENTER);
-            guessContainer.add(tryAgain, BorderLayout.NORTH);
-        } else {
-            guessContainer.removeAll();
-            guessContainer.validate();
-            guessContainer.repaint();
-            JLabel congrats = new JLabel("Congratulations! You Win :)",
-                    SwingConstants.CENTER);
-            guessContainer.add(congrats, BorderLayout.CENTER);
-        }
-        logger.log(Level.INFO, "GameShow instance created");
-
-
-        guessContainer.validate();
-        guessContainer.repaint();
-    }
-
     /**
      * Sends a command to the game at the server.
      * This being a text adventure, all our commands are just plain text strings our
@@ -312,13 +264,26 @@ public class GameShow implements GameClient {
         logger.log(Level.INFO, "execute called with command: {0}", command.getString("command"));
 
         switch (command.getString("command")) {
-            case "startWordScramble" -> {
-                this.startWordScramble(
-                        command.getString("scrambledWord"),
-                        (int) command.getInteger("gameId"));
+            case "startGame" -> {
+                switch (command.getString("game")) {
+                    case "wordScramble" -> {
+                        WordScramble.startGame(
+                            this,
+                            command.getString("letters"),
+                            (int) command.getInteger("gameId")
+                        );
+                    }
+                }
             }
             case "guessOutcome" -> {
-                wordScrambleGuess(command.getBoolean("outcome"));
+                switch (command.getString("game")) {
+                    case "wordScramble" -> {
+                        WordScramble.processGuess(
+                            this,
+                            command.getBoolean("correct")
+                        );
+                    }
+                }
             }
             case "startImageGuesser" -> {
                 this.startImageGuesser(
@@ -328,9 +293,7 @@ public class GameShow implements GameClient {
             case "guessImageOutcome" -> {
                 imageGuesserGuess(command.getBoolean("outcome"));
             }
-
         }
-
     }
 
     @Override
