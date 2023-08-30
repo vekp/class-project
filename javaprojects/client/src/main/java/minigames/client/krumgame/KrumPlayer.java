@@ -405,7 +405,7 @@ public class KrumPlayer {
      */
     // void update(double windX, double windY, WritableRaster levelRaster, long tick, KrumTurn recordingTurn, KrumInputFrame playbackFrame, boolean turnOver){
     void update(double windX, double windY, WritableRaster levelRaster, long tick, KrumInputFrame recordingFrame, KrumInputFrame playbackFrame, boolean turnOver){
-        System.out.println(tick + " start: x " + xpos + ", y " + ypos + " fr " + facingRight + ", si " + spriteIndex + ", xvel " + xvel + ", yvel " + yvel + ". airborne " + airborne);
+        //System.out.println(tick + " start: x " + xpos + ", y " + ypos + " fr " + facingRight + ", si " + spriteIndex + ", xvel " + xvel + ", yvel " + yvel + ". airborne " + airborne);
         if (dead) return;
         // KrumInputFrame recordingFrame = new KrumInputFrame();
         if (recordingFrame != null) {
@@ -462,7 +462,7 @@ public class KrumPlayer {
         }
         if (shootNextFrame) {
             shoot(shotPower);
-            System.out.println("shot: from " + xpos + ", " + ypos + "; power " + shotPower + "; aingle " + shootAimAngle + ". tick " + tick);
+            //System.out.println("shot: from " + xpos + ", " + ypos + "; power " + shotPower + "; aingle " + shootAimAngle + ". tick " + tick);
             shootNextFrame = false;
             if (recordingFrame != null) {
                 recordingFrame.shoot = true;
@@ -752,10 +752,10 @@ public class KrumPlayer {
                     yvel /= KrumC.ROPE_KEY_ACCEL_FACTOR;
                 }
             }
-            System.out.println("onrope." + ropeAngleRadians + " " + xpos + " " + ypos + " " + xvel + " " + yvel +  " " + leftKeyDown +  " " + rightKeyDown +  " " + upArrowKeyDown +  " " + downArrowKeyDown);
-            for (Point2D.Double rap : ropeAttachmentPoints) {
-                System.out.println(rap.x + ", " + rap.y);
-            }
+            //System.out.println("onrope." + ropeAngleRadians + " " + xpos + " " + ypos + " " + xvel + " " + yvel +  " " + leftKeyDown +  " " + rightKeyDown +  " " + upArrowKeyDown +  " " + downArrowKeyDown);
+            // for (Point2D.Double rap : ropeAttachmentPoints) {
+            //     System.out.println(rap.x + ", " + rap.y);
+            // }
             double oldx = xpos;
             double oldy = ypos;
             yvel += KrumC.GRAVITY;
@@ -809,9 +809,9 @@ public class KrumPlayer {
             ropeAngleRadians += (clockwise ? -ropeVelMag / ropeLength : ropeVelMag / ropeLength);
             xpos = ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 1).x + ropeLength * Math.cos(Math.PI + ropeAngleRadians) - sprite.getWidth()/2;
             ypos = ropeAttachmentPoints.get(ropeAttachmentPoints.size() - 1).y - ropeLength * Math.sin(Math.PI + ropeAngleRadians) - sprite.getHeight()/2;
-            System.out.println("onrope2 " + xpos + " " + ypos + " " + xvel + " " + yvel + " " + ropeLength + " " + ropeAngleRadians + " " + spriteIndex + " " + facingRight);
+            //System.out.println("onrope2 " + xpos + " " + ypos + " " + xvel + " " + yvel + " " + ropeLength + " " + ropeAngleRadians + " " + spriteIndex + " " + facingRight);
             if (nonDirectionalCollisionCheck(null)) {
-                System.out.println("coll");
+                //System.out.println("coll");
                 xpos = oldx;
                 ypos = oldy;
                 ropeAngleRadians -= (clockwise ? ropeVelMag / ropeLength : -ropeVelMag / ropeLength);
@@ -842,7 +842,7 @@ public class KrumPlayer {
                 }
 
             }
-            System.out.println("x " + xpos + ", y " + ypos + " fr " + facingRight + ", si " + spriteIndex + ", xvel " + xvel + ", yvel " + yvel + ". airborne " + airborne + ". end tick " + tick);
+            //System.out.println("x " + xpos + ", y " + ypos + " fr " + facingRight + ", si " + spriteIndex + ", xvel " + xvel + ", yvel " + yvel + ". airborne " + airborne + ". end tick " + tick);
             return;
         }
     }
@@ -1133,13 +1133,13 @@ public class KrumPlayer {
      * @param power number of nanoseconds the jump key was held for
      */
     void jump(long power, int type) {
-        System.out.println(power);
+        //System.out.println(power);
         power += KrumC.JUMP_MIN_POWER;
-        System.out.println(power);
+        //System.out.println(power);
         power = Math.min(power, KrumC.JUMP_MAX_POWER);
-        System.out.println(power);
+        //System.out.println(power);
         power /= 100000000;
-        System.out.println(power);
+        //System.out.println(power);
         double p = (double)power;
         p /= 2.5;
         if (type == 0) {
