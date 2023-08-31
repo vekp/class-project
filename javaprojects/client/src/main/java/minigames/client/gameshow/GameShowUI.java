@@ -146,14 +146,19 @@ public class GameShowUI {
                 JPanel memoryHeader = new JPanel();
 
                 JLabel memoryHeaderImage;
-                JTextArea memoryInstructions;
+                JTextField memoryInstructions;
 
-                memoryHeader = new JPanel(new BoxLayout(memoryHeader, BoxLayout.PAGE_AXIS));
+                memoryHeader.setLayout(new BorderLayout());
+                memoryHeader.setBackground(Color.ORANGE);
+
                 memoryHeaderImage = new JLabel(
                                 new ImageIcon(memoryIcon.getImage()));
 
-                memoryInstructions = new JTextArea("add memory instructions");
+                memoryInstructions = new JTextField("add memory instructions");
                 memoryInstructions.setEditable(false);
+                memoryInstructions.setHorizontalAlignment(JTextField.CENTER);
+                memoryInstructions.setBackground(Color.ORANGE);
+                memoryInstructions.setFont(pixelFont.deriveFont(15f));
                 // TODO: add memory instructions
 
                 memoryHeader.add(memoryHeaderImage);
@@ -168,14 +173,19 @@ public class GameShowUI {
                 JPanel scrambleHeader = new JPanel();
 
                 JLabel scrambleHeaderImage;
-                JTextArea scrambleInstructions;
+                JTextField scrambleInstructions;
 
-                scrambleHeader = new JPanel(new BoxLayout(scrambleHeader, BoxLayout.PAGE_AXIS));
+                scrambleHeader.setLayout(new BorderLayout());
+                scrambleHeader.setBackground(Color.ORANGE);
+
                 scrambleHeaderImage = new JLabel(
                                 new ImageIcon(scrambleIcon.getImage()));
 
-                scrambleInstructions = new JTextArea("add scramble instructions");
+                scrambleInstructions = new JTextField("add scramble instructions");
                 scrambleInstructions.setEditable(false);
+                scrambleInstructions.setHorizontalAlignment(JTextField.CENTER);
+                scrambleInstructions.setBackground(Color.ORANGE);
+                scrambleInstructions.setFont(pixelFont.deriveFont(15f));
                 // TODO: add scramble instructions
 
                 scrambleHeader.add(scrambleHeaderImage);
@@ -190,14 +200,18 @@ public class GameShowUI {
                 JPanel revealHeader = new JPanel();
 
                 JLabel revealHeaderImage;
-                JTextArea revealInstructions;
+                JTextField revealInstructions;
 
-                revealHeader = new JPanel(new BoxLayout(revealHeader, BoxLayout.PAGE_AXIS));
+                revealHeader.setLayout(new BorderLayout());
+                revealHeader.setBackground(Color.ORANGE);
                 revealHeaderImage = new JLabel(
                                 new ImageIcon(revealIcon.getImage()));
 
-                revealInstructions = new JTextArea("add reveal instructions");
+                revealInstructions = new JTextField("add reveal instructions");
                 revealInstructions.setEditable(false);
+                revealInstructions.setHorizontalAlignment(JTextField.CENTER);
+                revealInstructions.setBackground(Color.ORANGE);
+                revealInstructions.setFont(pixelFont.deriveFont(15f));
                 // TODO: add reveal instructions
 
                 revealHeader.add(revealHeaderImage);

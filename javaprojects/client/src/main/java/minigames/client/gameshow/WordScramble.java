@@ -5,14 +5,14 @@ import javax.swing.*;
 
 import io.vertx.core.json.JsonObject;
 
-public class WordScramble {    
-    /** 
+public class WordScramble {
+    /**
      * Creates a welcome screen, currently prompting user for difficulty
      */
     public static void welcome(GameShow gs) {
         // Clear the current game container
         gs.gameContainer.removeAll();
-        
+
         // The base panel for the screen
         JPanel welcomeScreen = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -29,28 +29,24 @@ public class WordScramble {
         gbc.gridy = 0;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         upperPanel.add(gameName, gbc);
-        
+
         // Instructions on how the game works
         JLabel instructions[] = new JLabel[4];
 
         instructions[0] = new JLabel(
-            "- You will be presented with letters of a word but they will be "
-            + "in the wrong order!"
-        );
+                "- You will be presented with letters of a word but they will be "
+                        + "in the wrong order!");
 
         instructions[1] = new JLabel(
-            "- Your task is to rearrange the letters to form the correct word."
-        );
+                "- Your task is to rearrange the letters to form the correct word.");
 
         instructions[2] = new JLabel(
-            "- There may be more than one possible word from the given letters "
-            + "but only one word is correct."
-        );
-        
+                "- There may be more than one possible word from the given letters "
+                        + "but only one word is correct.");
+
         instructions[3] = new JLabel(
-            "- The faster you guess the correct word, the higher your score "
-            + "will be. Good luck!"
-        );
+                "- The faster you guess the correct word, the higher your score "
+                        + "will be. Good luck!");
 
         gbc.insets = new Insets(5, 0, 5, 0);
 
@@ -70,16 +66,15 @@ public class WordScramble {
 
         // Create and add instructions for selecting a difficulty option
         JLabel difficultyInstructions = new JLabel("Choose your difficulty:");
-        difficultyInstructions.setFont(new Font("Arial", Font.BOLD, 16));              
+        difficultyInstructions.setFont(new Font("Arial", Font.BOLD, 16));
         difficultyPanel.add(difficultyInstructions, gbc);
 
         // Create and add a button to select easy difficulty
         JButton easyButton = new JButton("Easy");
         easyButton.addActionListener((evt) -> gs.sendCommand(new JsonObject()
-            .put("command", "startGame")
-            .put("game", "wordScramble")
-            .put("difficulty", "easy")
-        ));
+                .put("command", "startGame")
+                .put("game", "wordScramble")
+                .put("difficulty", "easy")));
         gbc.gridwidth = 1;
         gbc.insets = new Insets(20, 20, 20, 20);
         gbc.gridx = 0;
@@ -89,10 +84,9 @@ public class WordScramble {
         // Create and add a button to select medium difficulty
         JButton mediumButton = new JButton("Medium");
         mediumButton.addActionListener((evt) -> gs.sendCommand(new JsonObject()
-            .put("command", "startGame")
-            .put("game", "wordScramble")
-            .put("difficulty", "medium")
-        ));
+                .put("command", "startGame")
+                .put("game", "wordScramble")
+                .put("difficulty", "medium")));
         gbc.gridx = 1;
         gbc.gridy = 1;
         difficultyPanel.add(mediumButton, gbc);
@@ -100,10 +94,9 @@ public class WordScramble {
         // Create and add a button to select hard difficulty
         JButton hardButton = new JButton("Hard");
         hardButton.addActionListener((evt) -> gs.sendCommand(new JsonObject()
-            .put("command", "startGame")
-            .put("game", "wordScramble")
-            .put("difficulty", "hard")
-        ));
+                .put("command", "startGame")
+                .put("game", "wordScramble")
+                .put("difficulty", "hard")));
         gbc.gridx = 2;
         gbc.gridy = 1;
         difficultyPanel.add(hardButton, gbc);
@@ -125,7 +118,7 @@ public class WordScramble {
      */
     public static void startGame(GameShow gs, String letters, int gameId) {
         gs.gameContainer.removeAll();
-        
+
         // The base panel for the screen
         gs.gamePanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -147,10 +140,8 @@ public class WordScramble {
         JTextField guessBox = new JTextField(7);
         guessBox.setFont(new Font("Arial", Font.PLAIN, 28));
         guessBox.setHorizontalAlignment(SwingConstants.CENTER);
-        guessBox.addActionListener((evt) -> 
-            sendGuess(gs, guessBox.getText(), gameId)
-        );
-        
+        guessBox.addActionListener((evt) -> sendGuess(gs, guessBox.getText(), gameId));
+
         gbc.insets = new Insets(20, 20, 20, 20);
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -158,10 +149,8 @@ public class WordScramble {
 
         // A submit button - alternative to submitting on Enter from guessBox
         JButton submitButton = new JButton("Submit guess");
-        submitButton.addActionListener((evt) ->
-            sendGuess(gs, guessBox.getText(), gameId)
-        );
-        
+        submitButton.addActionListener((evt) -> sendGuess(gs, guessBox.getText(), gameId));
+
         gbc.gridx = 0;
         gbc.gridy = 1;
         guessPanel.add(submitButton, gbc);
@@ -208,10 +197,9 @@ public class WordScramble {
      */
     private static void sendGuess(GameShow gs, String guess, int gameId) {
         gs.sendCommand(new JsonObject()
-            .put("command", "guess")
-            .put("game", "wordScramble")
-            .put("guess", guess)
-            .put("gameId", gameId)
-        );
+                .put("command", "guess")
+                .put("game", "wordScramble")
+                .put("guess", guess)
+                .put("gameId", gameId));
     }
 }
