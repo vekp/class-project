@@ -1,5 +1,6 @@
 package minigames.server.telepathytests;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +13,7 @@ import minigames.rendering.GameMetadata;
 import minigames.rendering.RenderingPackage;
 import minigames.server.telepathy.TelepathyGame;
 import minigames.server.telepathy.Player;
+import minigames.telepathy.TelepathyCommandException;
 import minigames.telepathy.TelepathyCommands;
 
 import java.util.ArrayList;
@@ -114,14 +116,12 @@ public class TelepathyGameTest {
         assertTrue(response.renderingCommands().get(0).getString("command").equals(TelepathyCommands.QUIT.toString()));
         assertTrue(game.telepathyGameMetadata().players().length == 0);
         
-        // Test empty, invalid commands - expect an INVALIDCOMMAND response
+        // Test empty, commands not defined will throw an exception
         game.joinGame(testPlayerName);
 
-        cp = makeCommandPackage(game.telepathyGameMetadata(), testPlayerName, " ");
-        response = game.runCommands(cp);
-        assertTrue(response.renderingCommands().get(0).getString("command")
-                .equals(TelepathyCommands.INVALIDCOMMAND.toString()));
-
+        assertThrows(TelepathyCommandException.class, () -> {
+            game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), testPlayerName, " "));
+        });
     }
     
     /* HELPER METHODS */

@@ -13,6 +13,7 @@ import minigames.rendering.NativeCommands;
 import minigames.rendering.RenderingCommand;
 import minigames.rendering.RenderingPackage;
 import minigames.rendering.NativeCommands.QuitToMenu;
+import minigames.telepathy.TelepathyCommandException;
 import minigames.telepathy.TelepathyCommands;
 
 import java.sql.Array;
@@ -92,10 +93,10 @@ public class TelepathyGame {
             command = TelepathyCommands.valueOf(commandPackage.commands().get(0).getString("command"));
         } catch (IllegalArgumentException e) {
             // The command is invalid and handled by the default case - respond with INVALIDCOMMAND
-            command = TelepathyCommands.INVALIDCOMMAND;
+            throw new TelepathyCommandException(commandPackage.commands().get(0).getString("command"), "Not a defined TelepathyCommands");
         }
 
-        // Switch case to choose which function to call - default case returns empty RenderingPackage
+        // Switch case to choose which function to call - default case returns INVALIDCOMMAND
         switch (command) {
             case QUIT -> response = quitGame(commandPackage);
             case SYSTEMQUIT -> response = fullQuitGame(commandPackage);

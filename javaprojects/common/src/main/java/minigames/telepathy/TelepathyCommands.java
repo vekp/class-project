@@ -32,11 +32,12 @@ public enum TelepathyCommands {
     *       the window remains open.
     * MODIFYPLAYER: Inform the client that information about a player has been modified.
     *       Attributes: Name of the player, modifications (joined, leaving)
+    * TESTCOMMAND: A simple command used for testing/debugging purposes.
     * INVALIDCOMMAND: Used to respond to an invalid CommandPackage.
     */
  
     JOINGAMESUCCESS, JOINGAMEFAIL, TOGGLEREADY, BUTTONPRESS, BUTTONUPDATE, REQUESTUPDATE, NOUPDATE, 
-    GAMEOVER, SYSTEMQUIT, QUIT, MODIFYPLAYER, INVALIDCOMMAND;
+    GAMEOVER, SYSTEMQUIT, QUIT, MODIFYPLAYER, TESTCOMMAND, INVALIDCOMMAND;
 
     public String toString(){
         return switch(this){
@@ -51,6 +52,7 @@ public enum TelepathyCommands {
             case QUIT -> "QUIT";
             case SYSTEMQUIT -> "SYSTEMQUIT";
             case MODIFYPLAYER -> "MODIFYPLAYER";
+            case TESTCOMMAND -> "TESTCOMMAND";
             case INVALIDCOMMAND -> "INVALIDCOMMAND";
             default -> "NO-STRING-CONFIGURED";
         };

@@ -1,6 +1,7 @@
 package minigames.server.telepathy;
 
 import io.vertx.core.json.JsonObject;
+import minigames.telepathy.TelepathyCommandException;
 import minigames.telepathy.TelepathyCommands;
 
 import java.util.ArrayList;
@@ -50,11 +51,18 @@ public class Player {
     }
 
     /**
-     * Add a command to the queue of update commands.
+     * Add a command to the queue of update commands. Only commands that are valid
+     * TelepathyCommands can be added to the queue.
      * @param newCommand The new command to be added to the update list.
      */
     public void addUpdate(JsonObject newCommand){
-        this.pendingUpdates.add(newCommand);
+        try{
+            TelepathyCommands.valueOf(newCommand.getString("command"));
+            this.pendingUpdates.add(newCommand);
+        } catch(IllegalArgumentException e){
+            throw new TelepathyCommandException(newCommand.getString("command"), "Not a valid Telepathy command.");
+        }
+            
     }
 
     /**
