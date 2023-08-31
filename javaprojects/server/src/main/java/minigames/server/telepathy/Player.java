@@ -2,6 +2,7 @@ package minigames.server.telepathy;
 
 import io.vertx.core.json.JsonObject;
 import minigames.telepathy.TelepathyCommandException;
+import minigames.telepathy.TelepathyCommandHandler;
 import minigames.telepathy.TelepathyCommands;
 
 import java.util.ArrayList;
@@ -74,7 +75,7 @@ public class Player {
         ArrayList<JsonObject> updatesToSend = new ArrayList<>(this.pendingUpdates);
         // If there are no updates - send NOUPDATES command
         if(updatesToSend.size() == 0){
-            updatesToSend.add(TelepathyGame.makeJsonCommand(TelepathyCommands.NOUPDATE));
+            updatesToSend.add(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.NOUPDATE));
         }
         
         this.pendingUpdates.clear();

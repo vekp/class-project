@@ -15,6 +15,7 @@ import minigames.rendering.RenderingPackage;
 import minigames.rendering.NativeCommands.QuitToMenu;
 import minigames.telepathy.TelepathyCommandException;
 import minigames.telepathy.TelepathyCommands;
+import minigames.telepathy.TelepathyCommandHandler;
 
 import java.sql.Array;
 import java.util.ArrayList;
@@ -104,7 +105,7 @@ public class TelepathyGame {
             case REQUESTUPDATE -> response = updateClient(commandPackage);
             default -> {
                 ArrayList<JsonObject> renderingCommands = new ArrayList<>();
-                renderingCommands.add(makeJsonCommand(TelepathyCommands.INVALIDCOMMAND));
+                renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.INVALIDCOMMAND));
                 response = new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
             }
         }
@@ -126,13 +127,13 @@ public class TelepathyGame {
 
         if (!validName(playerName)) {
             renderingCommands.add(
-                    makeJsonCommand(TelepathyCommands.JOINGAMEFAIL, "Not a valid name!"));
+                    TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.JOINGAMEFAIL, "Not a valid name!"));
         } else if(this.players.size() >= this.maxPlayers){
             renderingCommands.add(
-                    makeJsonCommand(TelepathyCommands.JOINGAMEFAIL, "Game is full!"));
+                    TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.JOINGAMEFAIL, "Game is full!"));
         } else if(this.players.keySet().contains(playerName)){
             renderingCommands.add(
-                    makeJsonCommand(TelepathyCommands.JOINGAMEFAIL, "Name is already taken!"));
+                    TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.JOINGAMEFAIL, "Name is already taken!"));
         } else {
             // Add the player to the game
             this.players.put(playerName, new Player(playerName));
@@ -142,13 +143,13 @@ public class TelepathyGame {
             // Extra commands to initialise the client window
             
             // Initialise ready button colour
-            renderingCommands.add(makeJsonCommand(TelepathyCommands.BUTTONUPDATE, "readyButton", String.valueOf(this.players.get(playerName).isReady())));
+            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.BUTTONUPDATE, "readyButton", String.valueOf(this.players.get(playerName).isReady())));
 
             // TODO: Send initial board state - assign Symbols/Colours that are transparent and disabled?
 
             // Inform other players
             for(String p : this.players.keySet()){
-                if (!p.equals(name)) {this.players.get(p).addUpdate(makeJsonCommand(TelepathyCommands.MODIFYPLAYER, playerName, "joined"));}
+                if (!p.equals(name)) {this.players.get(p).addUpdate(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.MODIFYPLAYER, playerName, "joined"));}
             }
         }
            
@@ -186,7 +187,7 @@ public class TelepathyGame {
         String leavingPlayer = commandPackage.player();
         playerLeaveGame(leavingPlayer);
 
-        renderingCommands.add(makeJsonCommand(TelepathyCommands.QUIT));
+        renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.QUIT));
         return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
     }
 
@@ -223,7 +224,7 @@ public class TelepathyGame {
         // toggle ready can only occur during game startup
         if(this.state != State.INITIALISE){
             return new RenderingPackage(this.telepathyGameMetadata(), 
-                Collections.singletonList(makeJsonCommand(TelepathyCommands.INVALIDCOMMAND)));
+                Collections.singletonList(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.INVALIDCOMMAND)));
         }
         
         this.players.get(commandPackage.player()).toggleReady();
@@ -242,7 +243,7 @@ public class TelepathyGame {
 
         // Make response for client - update their ready button
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
-        renderingCommands.add(makeJsonCommand(TelepathyCommands.BUTTONUPDATE,
+        renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.BUTTONUPDATE,
                 "readyButton",
                 String.valueOf(this.players.get(commandPackage.player()).isReady())));
 
@@ -257,7 +258,7 @@ public class TelepathyGame {
     private void playerLeaveGame(String name){
         this.players.remove(name);
 
-        updateAllPlayers(makeJsonCommand(TelepathyCommands.MODIFYPLAYER, name, "leaving"));
+        updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.MODIFYPLAYER, name, "leaving"));
 
         // End the game if a player leaves while game is RUNNING
         if(this.state != State.INITIALISE){
@@ -279,7 +280,7 @@ public class TelepathyGame {
 
         this.state = State.GAMEOVER;
         for(String p : this.players.keySet()){
-            this.players.get(p).addUpdate(makeJsonCommand(TelepathyCommands.GAMEOVER));
+            this.players.get(p).addUpdate(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.GAMEOVER));
         }
     }
 
@@ -296,11 +297,11 @@ public class TelepathyGame {
 
     /**
      * Create a JsonObject that can be used for RenderingCommands.
-     * @param command The command value to be added.
+     * @param command The command value to be used for the rendering command JsonObject.
      * @param attributes An optional list of attributes to append to the attributes field.
-     * @return A JsonObject with a command key mapped to a String, and an attributes key mapped
-     *      to an Array of Strings.
-     */
+     * @return A JsonObject with a String mapped to a 'command' key, and an array of
+     *      Strings mapped to an 'attributes' key.
+     
     public static JsonObject makeJsonCommand(TelepathyCommands command, String... attributes) {
         JsonObject jsonObject = new JsonObject().put("command", command.toString());
         if (attributes.length > 0) {
@@ -309,6 +310,7 @@ public class TelepathyGame {
             
         return jsonObject;
     }
+    */
 
         /**
      * Remove a player from the game by setting their spot to in this.players to null.

@@ -19,6 +19,7 @@ import minigames.client.MinigameNetworkClient;
 import minigames.client.Tickable;
 import minigames.rendering.GameMetadata;
 import minigames.telepathy.TelepathyCommandException;
+import minigames.telepathy.TelepathyCommandHandler;
 import minigames.telepathy.TelepathyCommands;
 import minigames.commands.CommandPackage;
 
@@ -265,18 +266,19 @@ public class Telepathy implements GameClient, Tickable {
      * @param renderingCommand: The renderingCommand portion of a RenderingPackage 
      *      received from the server.
      * @return ArrayList of Strings containing the attributes sent in the renderingCommand. 
-     */
+     
     private ArrayList<String> getAttributes(JsonObject renderingCommand){
         // Weirdness with double nested JsonArray - works now to separate attributes but could change later
         JsonArray jsonAttributes = renderingCommand.getJsonArray("attributes").getJsonArray(0);
         ArrayList<String> strAttributes = new ArrayList<>();
         for(int i = 0; i < jsonAttributes.size(); i++){
-            logger.info(jsonAttributes.getString(i));
             strAttributes.add(jsonAttributes.getString(i));
         }
 
         return strAttributes;
     }
+
+    */
 
     /**
      * Updates a button based on an UPDATEBUTTON RenderingCommand received from the server. The
@@ -294,7 +296,7 @@ public class Telepathy implements GameClient, Tickable {
      */
     private void updateButton(JsonObject command){
         // Get the attributes with the UPDATEBUTTON command that show what button to update and how
-        ArrayList<String> attributes = getAttributes(command);
+        ArrayList<String> attributes = TelepathyCommandHandler.getAttributes(command);
         
         // First element should be button name
         switch(attributes.get(0)){
