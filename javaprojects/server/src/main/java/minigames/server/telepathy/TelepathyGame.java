@@ -144,7 +144,7 @@ public class TelepathyGame {
             renderingCommands.add(makeJsonCommand(TelepathyCommands.BUTTONUPDATE, "readyButton", String.valueOf(this.players.get(playerName).isReady())));
 
             // TODO: Send initial board state - assign Symbols/Colours that are transparent and disabled?
-            
+
             // Inform other players
             for(String p : this.players.keySet()){
                 if (!p.equals(name)) {this.players.get(p).addUpdate(makeJsonCommand(TelepathyCommands.MODIFYPLAYER, playerName, "joined"));}
@@ -201,7 +201,7 @@ public class TelepathyGame {
     }
     
     /**
-     * Decide what updates to send to the client requesting them.
+     * Get the pending updates for a client that has requested them.
      * @param command CommandPackage with client information
      * @return The RenderingPackage with any renderingCommands to be sent to the client.
      */

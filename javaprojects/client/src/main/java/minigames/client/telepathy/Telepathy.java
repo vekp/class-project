@@ -18,7 +18,7 @@ import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
 import minigames.client.Tickable;
 import minigames.rendering.GameMetadata;
-import minigames.rendering.NativeCommands;
+import minigames.telepathy.TelepathyCommandException;
 import minigames.telepathy.TelepathyCommands;
 import minigames.commands.CommandPackage;
 
@@ -214,13 +214,19 @@ public class Telepathy implements GameClient, Tickable {
     public void execute(GameMetadata game, JsonObject jsonCommand) {
         this.gm = game;
 
-        // TODO handle TelepathyCommands from the server
-        TelepathyCommands command = TelepathyCommands.valueOf(jsonCommand.getString("command"));
+        TelepathyCommands command;
+        try{
+            command = TelepathyCommands.valueOf(jsonCommand.getString("command"));
+        } catch(IllegalArgumentException e){
+            throw(new TelepathyCommandException(jsonCommand.getString("command"), "Invalid Telepathy command received from server"));
+        }
+        
+        // Handle TelepathyCommands
         switch(command){
             case QUIT -> closeGame();
             case GAMEOVER -> sendCommand(TelepathyCommands.QUIT);
             case BUTTONUPDATE -> updateButton(jsonCommand);
-            default -> {}
+            default -> logger.info("{} not handled", jsonCommand);
         }
     }
 
