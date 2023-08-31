@@ -139,7 +139,7 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         playerPanel.setLayout(new GridLayout(1, 4));
         playerPanel.setPreferredSize(new Dimension(800, 30));
 
-        playerName = new JLabel("Player: " + "NEED TO FIX"); //player); // Placeholder text for player name
+        playerName = new JLabel("Player: " + player); //player); // Placeholder text for player name
         playerName.setFont(new Font("Arial", Font.BOLD, 12));
         playerName.setHorizontalAlignment(JLabel.CENTER);
 
