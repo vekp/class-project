@@ -184,7 +184,7 @@ public class GameShow implements GameClient {
 
         // Add our components to the north, south, east, west, or centre of the main
         // window's BorderLayout
-        mnClient.getMainWindow().addCenter(background);
+        mnClient.getMainWindow().addCenter(GameShowUI.generateHomeScreen());
 
         // Don't forget to call pack - it triggers the window to resize and repaint
         // itself
