@@ -176,6 +176,7 @@ public class MazeDisplay extends JPanel {
      */
     public void updateMaze(char[][] mazeMap){
         this.mazeMap = mazeMap;
+        playerPos = findCharOnMap(mazeMap, 'P');
         mazeMap[startPos.y][startPos.x] = 'S';
         repaint();
     }

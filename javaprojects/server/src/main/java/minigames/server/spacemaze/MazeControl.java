@@ -424,6 +424,7 @@ public class MazeControl {
             mazeArray[playerLocation.y][playerLocation.x] = 'P';
             // Update previous position to '.'
             mazeArray[prevMove.y][prevMove.x]= '.';
+            mazeArray[newMove.y][newMove.x]= '.';
         }
 
         // Check if game is over
