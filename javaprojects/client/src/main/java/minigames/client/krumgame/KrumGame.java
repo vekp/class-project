@@ -509,16 +509,23 @@ public class KrumGame implements GameClient {
         int ty = 16;
         g.setFont(new Font("Courier New", 1, 18));
         g.setColor(Color.black);
-        g.drawString("Ammo", tx, ty);        
+        g.drawString("Ammo", tx, ty);
+
+        
         tx += 34;
         ty += 20;
         drawAmmo(KrumPlayer.ZOOK, tx, ty, 0xED1C24, g);
+
         ty += 18;
         drawAmmo(KrumPlayer.NADE, tx, ty, 0x267F00, g);
+
         ty += 18;
         drawAmmo(KrumPlayer.JOEY, tx, ty, 0xB97A57, g);
+
         ty += 18;
         drawAmmo(KrumPlayer.ROPE, tx, ty, Color.ORANGE.getRGB(), g);
+
+
     }
 
     void drawAmmo(int w, int x, int y, int c, Graphics2D g) {
@@ -621,11 +628,8 @@ public class KrumGame implements GameClient {
         else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
             players[playerTurn].downArrowKeyDownNextFrame = true;
         }
-        // else if (e.getKeyCode() == KeyEvent.VK_R) {
-        //     playBackTurn = true;
-        // }
-        else if (e.getKeyCode() == KeyEvent.VK_B) {
-            players[playerTurn].fireTorchNextFrame();
+        else if (e.getKeyCode() == KeyEvent.VK_R) {
+            playBackTurn = true;
         }
     }
     void keyUp(KeyEvent e) {

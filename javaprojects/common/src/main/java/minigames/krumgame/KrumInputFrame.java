@@ -31,8 +31,6 @@ public class KrumInputFrame {
     public int spriteIndex;
     public double lastAimAngle;
     public boolean facingRight;
-    public boolean fireBlowtorch;
-    public double blowtorchAimAngle;
     public KrumInputFrame() {
 
     }
