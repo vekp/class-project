@@ -14,9 +14,9 @@ import java.awt.event.MouseEvent;
 import java.awt.image.WritableRaster;
 
 import java.awt.geom.AffineTransform;
-
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
-
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 
@@ -137,6 +137,21 @@ public class KrumPlayer {
 
     boolean detachRopeNextFrame = false;
     boolean shootRopeNextFrame = false;
+
+    boolean fireBlowtorchNextFrame = false;
+    boolean blowtorchActive = false;
+    double blowtorchAimAngle;
+    int blowtorchFrameCount;
+    final static int BLOWTORCH_MAX_LENGTH = 200;
+    final static int BLOWTORCH_MIN_WIDTH = 5;
+    final static int BLOWTORCH_MAX_WIDTH = 45;
+    final static int BLOWTORCH_FRAMES = 120;
+    final static double BLOWTORCH_INC = (double)BLOWTORCH_MAX_LENGTH / BLOWTORCH_FRAMES;
+    double blowtorchLength;
+    double blowtorchStartX;
+    double blowtorchStartY;
+    boolean blowtorchLengthening = false;
+    boolean blowtorchWidening = true;
 
     long jumpPower;
     boolean jumpNextFrame;
@@ -341,6 +356,7 @@ public class KrumPlayer {
         firing = false;
         firingGrenade = false;
         shootingRope = false;
+        blowtorchActive = false;
     }
 
     Point2D.Double playerCentre() {
@@ -370,6 +386,28 @@ public class KrumPlayer {
      * @param g
      */
     void draw(Graphics2D g, int playerTurn){
+        //draw blowtorch
+        g.setColor(new Color(0x8afff7));
+        int x = (int)blowtorchStartX;
+        int y = (int)blowtorchStartY;
+        int maxDrawWidth = BLOWTORCH_MAX_WIDTH / 2;
+        if (blowtorchActive) {
+            if (blowtorchWidening) {                
+                g.setStroke(new BasicStroke(maxDrawWidth));
+                x += Math.cos(blowtorchAimAngle) * maxDrawWidth;
+                y -= Math.sin(blowtorchAimAngle) * maxDrawWidth;
+                Ellipse2D.Double endCircle = new Ellipse2D.Double((int)(blowtorchStartX + Math.cos(blowtorchAimAngle) * (blowtorchLength)) - maxDrawWidth / 2, (int)(blowtorchStartY - Math.sin(blowtorchAimAngle) * (blowtorchLength)) - maxDrawWidth / 2, maxDrawWidth, maxDrawWidth);
+                g.fill(endCircle);
+                Ellipse2D.Double startCircle = new Ellipse2D.Double((int)(blowtorchStartX + Math.cos(blowtorchAimAngle) * (maxDrawWidth / 2)) - maxDrawWidth / 2, (int)(blowtorchStartY - Math.sin(blowtorchAimAngle) * (maxDrawWidth / 2)) - maxDrawWidth / 2, maxDrawWidth, maxDrawWidth);
+                g.fill(startCircle);
+            }
+            else {
+                g.setStroke(new BasicStroke(BLOWTORCH_MIN_WIDTH));
+            }
+            g.setColor(new Color(0x8afff7));
+            g.drawLine(x, y, (int)(blowtorchStartX + Math.cos(blowtorchAimAngle) * (blowtorchLength - maxDrawWidth / 2)), (int)(blowtorchStartY - Math.sin(blowtorchAimAngle) * (blowtorchLength - maxDrawWidth / 2)));
+            g.setStroke(new BasicStroke(1));
+        }
 
         //Sprite Drawing   
         spriteGun();
@@ -412,6 +450,8 @@ public class KrumPlayer {
             }
         }
 
+
+
         //draw hp
         g.setFont(new Font("Courier New", 1, 12));
         g.setColor(new Color(64, 192, 64));
@@ -434,7 +474,7 @@ public class KrumPlayer {
         if (recordingFrame != null) {
             recordingFrame.activePlayer = playerIndex;
             recordingFrame.frameCount = tick;
-            if (!walking && !onRope && !airborne)
+            if (!walking && !onRope && !airborne && !blowtorchActive)
                 spriteLook();
             recordingFrame.spriteIndex = spriteIndex;
             recordingFrame.lastAimAngle = lastAimAngle;
@@ -459,7 +499,8 @@ public class KrumPlayer {
             enterKeyDownNextFrame = playbackFrame.enterKeyDown;
             upArrowKeyDownNextFrame = playbackFrame.upArrowKeyDown;
             downArrowKeyDownNextFrame = playbackFrame.downArrowKeyDown;
-
+            fireBlowtorchNextFrame = playbackFrame.fireBlowtorch;
+            blowtorchAimAngle = playbackFrame.blowtorchAimAngle;
             lastAimAngle = playbackFrame.lastAimAngle;
             if (facingRight != playbackFrame.facingRight) {
                 facingRight = playbackFrame.facingRight;
@@ -534,6 +575,14 @@ public class KrumPlayer {
                 recordingFrame.enterKeyDown = true;
             }
         }
+        if (fireBlowtorchNextFrame) {
+            fireBlowtorch();
+            fireBlowtorchNextFrame = false;
+            if (recordingFrame != null) {
+                recordingFrame.fireBlowtorch = true;
+                recordingFrame.blowtorchAimAngle = blowtorchAimAngle;
+            }
+        }
         upArrowKeyDown = upArrowKeyDownNextFrame;
         downArrowKeyDown = downArrowKeyDownNextFrame;
         if (recordingFrame != null) {
@@ -575,6 +624,9 @@ public class KrumPlayer {
             rightKeyDown = false;
         }
         if (flashFramesLeft > 0) flashFramesLeft--;
+        if (blowtorchActive) {
+            updateBlowtorch();
+        }
 
         //fire weapons if at max power
         if (recordingFrame != null) {
@@ -677,7 +729,7 @@ public class KrumPlayer {
                 canShootRope = false;
             }
         }
-        if (walking && (!airborne || walkedOffEdge)) {
+        if (walking && (!airborne || walkedOffEdge) && !blowtorchActive) {
             double origX = xpos;
             double origY = ypos;
             xpos += KrumC.WALK_SPEED * (facingRight ? 1 : -1);
@@ -1185,8 +1237,7 @@ public class KrumPlayer {
             if (wasOnRope) {
                 double x = Math.cos(ropeAngleRadians) * -1;
                 double y = Math.abs(Math.sin(ropeAngleRadians));
-                ropeAimAngle = Math.atan2(y, x);
-                
+                ropeAimAngle = Math.atan2(y, x);                
             }
             else {
                 ropeAimAngle = facingRight ? Math.PI / 4 : Math.PI * 3.0 / 4;
@@ -1276,6 +1327,78 @@ public class KrumPlayer {
         power /= 100000000;   
         projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(shootAimAngle) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(shootAimAngle) * KrumC.psd), Math.cos(shootAimAngle) * power + xvel, Math.sin(shootAimAngle) * power * -1 + yvel, projectileSprite, levelRaster);
     }
+
+    void updateBlowtorch(){
+        if (!blowtorchActive) return;
+        if (blowtorchLengthening && blowtorchLength < BLOWTORCH_MAX_LENGTH) {
+            blowtorchLength += BLOWTORCH_INC;
+        }
+        else if (blowtorchLengthening) {
+            blowtorchWidening = true;
+            blowtorchLengthening = false;
+        }
+        else if (blowtorchWidening) {
+
+            
+        }
+        blowtorchFrameCount++;
+        if (blowtorchFrameCount > BLOWTORCH_FRAMES + 6) {
+            blowtorchActive = false;
+            blowtorchWidening = false;
+            // destroy level
+            double y = (int)blowtorchStartY;
+            double x = (int)blowtorchStartX;
+            double xdist = (blowtorchStartX + Math.cos(blowtorchAimAngle) * (blowtorchLength - BLOWTORCH_MAX_WIDTH / 2)) - x;
+            double ydist = (blowtorchStartY - Math.sin(blowtorchAimAngle) * (blowtorchLength - BLOWTORCH_MAX_WIDTH / 2)) - y;
+            if (xdist == 0) xdist = 0.000001;
+            if (ydist == 0) ydist = 0.000001;
+            double larger = Math.max(Math.abs(xdist), Math.abs(ydist));
+            double smaller = Math.min(Math.abs(xdist), Math.abs(ydist));
+            boolean xl = Math.abs(xdist) > Math.abs(ydist);
+            double xinc = (xl ? 1 : Math.abs(xdist) / Math.abs(ydist));
+            if (xdist < 0) xinc *= -1;
+            double yinc = (xl ? Math.abs(ydist) / Math.abs(xdist) : 1);
+            if (ydist < 0) yinc *= -1;
+            double z[] = {0};
+            System.out.println(larger);
+            for (int i = 0; i < larger; i++) {
+                //System.out.println("x " + x + ", y " + y);
+                for(int xt = (int)(x - BLOWTORCH_MAX_WIDTH / 2); xt <= (int)(x + BLOWTORCH_MAX_WIDTH / 2); xt++) {
+                    if (xt < 0) continue;
+                    if (xt >= KrumC.RES_X) break;
+                    for(int yt = (int)(y - BLOWTORCH_MAX_WIDTH / 2); yt <= (int)(y + BLOWTORCH_MAX_WIDTH / 2); yt++) {
+                        if (yt < 0) continue;
+                        if (yt >= KrumC.RES_Y) break;
+                        if (KrumHelpers.distanceBetween(x, y, xt, yt) <= BLOWTORCH_MAX_WIDTH / 2) {
+                            levelRaster.setPixel(xt, yt, z);
+                        }
+                    }
+                }
+                x += xinc;
+                y += yinc;                
+            }
+            airborne = true;
+        }
+    }
+
+    void fireBlowtorch() {
+        if (ammo[BLOW] < 1 || firedThisTurn[BLOW] >= shotsPerTurn[BLOW] || blowtorchActive) {
+            return;
+        }
+        blowtorchFrameCount = 0;
+        blowtorchActive = true;
+        blowtorchLength = 0;
+        blowtorchWidening = false;
+        blowtorchLengthening = true;
+    }
+
+    void fireTorchNextFrame() {
+        fireBlowtorchNextFrame = true;
+        blowtorchAimAngle = calcAimAngle();
+        blowtorchStartX = playerCentre().x;
+        blowtorchStartY = playerCentre().y;
+    }
+
 
     /**
      * called at start and when window is moved, to ensure mouse locations are accurately reported relative to our drawable area
