@@ -722,6 +722,10 @@ public class KrumPlayer {
                 onRope = true; 
                 airborne = false;
                 ropeAttachmentPoints.add(collisionPoint);
+                if (!wasOnRope) {
+                    ammo[ROPE]--;
+                    firedThisTurn[ROPE]++;
+                }
                 wasOnRope = true;
                 ropeLength = Math.sqrt((collisionPoint.x - ropeOrigin().x) * (collisionPoint.x - ropeOrigin().x) + (collisionPoint.y - ropeOrigin().y) * (collisionPoint.y - ropeOrigin().y));
             }
@@ -1160,8 +1164,6 @@ public class KrumPlayer {
             if (ammo[ROPE] < 1 || firedThisTurn[ROPE] >= shotsPerTurn[ROPE]) {
                 return;
             }
-            ammo[ROPE]--;
-            firedThisTurn[ROPE]++;
         }
         shootingRope = true;        
         ropeAttachmentPoints.clear();
