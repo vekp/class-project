@@ -93,6 +93,21 @@ public class SpaceMazeGame {
                 }
                 case "botCollision" -> {
                     logger.info("bot collision detected on server from client");
+                    // I'll look into this repition, the issue is the bots can move
+                    // too fast and trigger this call more times than allowed before
+                    // the server sends the playerDead message back.
+                    int playerLives = player.getLives();
+                    if (playerLives > 0) {
+                        player.removeLife(1);
+                        playerLives = player.getLives();
+                        if (playerLives > 0) {
+                            renderingCommands.add(new JsonObject().put("command", "playerLives")
+                                    .put("lives", playerLives));
+                        } else {
+                            mazeControl.playerDead();
+                            renderingCommands.add(new JsonObject().put("command", "playerDead"));
+                        }
+                    }
                 }
                 case "gameTimer" -> {
                     String currentTime = mazeControl.mazeTimer.getCurrentTime();

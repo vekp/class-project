@@ -410,6 +410,22 @@ public class SpaceMaze implements GameClient {
                 statusBar.updateScore(totalScore);
                 displayGameOver(totalScore, totalTime);
             }
+            // TODO: Niraj add call to playerDead - game over screen
+            case "playerDead" -> {
+                statusBar.stopTimer();
+                maze.stopTimer();
+            }
+            // TODO: Niraj updated player lives to be sent to statusBar
+            // Up to you if you want to take the String or the Int
+            case "playerLives" -> {
+                String playerLives = command.getString("lives");
+                try {
+                    int livesRemaining = Integer.parseInt(playerLives);
+                    logger.info("Player lives remaining: " + livesRemaining);
+                } catch (NumberFormatException e) {
+                    logger.error("Cannot convert playerLives to Integer");
+                }
+            }
             case "viewHighScore" -> displayHighScore();
             case "howToPlay" -> displayHelpPanel();
             case "backToMenu" -> displayMainMenu();

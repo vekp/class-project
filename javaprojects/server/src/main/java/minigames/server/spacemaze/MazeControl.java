@@ -304,32 +304,34 @@ public class MazeControl {
         int randomStartIndex = rand.nextInt(startLocationsList.size());
         playerLocation = startLocationsList.get(randomStartIndex);
         playerEntersMaze(playerLocation);
-    } else if (currentLevel == maxLevel){
-            logger.info("GAME FINISHED = TRUE");
-            gameFinished = true;
-            mazeTimer.stopTimer();
-            // Update time taken
-            timeTaken = mazeTimer.getTimeTaken();
-    } else {
-        logger.info("New Level conditions were not met!");
+        } else if (currentLevel == maxLevel) {
+            callGameOver();
+        } else {
+            logger.info("New Level conditions were not met!");
+        }
     }
-}
+
+    /*
+    * playerDead function - called by the server if the registered player runs out
+    * of lives
+     */
+    public void playerDead() {
+        gameFinished = true;
+        callGameOver();
+    }
 
 
     /* 
     * gameOver function - checks if player is at exit - called in updatePlayerLocationMaze
     * @ return timeTaken - return 
     */
-    public void checkGameOver() // REVIEW: Not using anymore?
+    public void callGameOver()
     {
-        if ((currentLevel == maxLevel)) // && (playerLocation == exitLocation))
-        {
-            gameFinished = true;
-            // Could also have a print message of game over
-            mazeTimer.stopTimer();
-            // Update time taken
-            timeTaken = mazeTimer.getTimeTaken();
-        }
+        gameFinished = true;
+        // Could also have a print message of game over
+        mazeTimer.stopTimer();
+        // Update time taken
+        timeTaken = mazeTimer.getTimeTaken();
     }
 
 
