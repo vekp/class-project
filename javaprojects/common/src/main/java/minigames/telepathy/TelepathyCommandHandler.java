@@ -13,25 +13,30 @@ public class TelepathyCommandHandler {
     
 
     /**
-     * Get a List of the attributes stored in a renderingCommand.
-     * @param renderingCommand: The renderingCommand portion of a RenderingPackage 
-     *      received from the server.
-     * @return ArrayList of Strings containing the attributes sent in the renderingCommand. 
+     * Get a List of the attributes stored in a JsonObject command.
+     * @param jsonCommand: The JSON portion of a network package with attributes
+     *      to be acquired. 
+     * @return ArrayList of Strings parsed from the 'attributes' key. If there are
+     *      no attributes or the key does not exist an empty ArrayList is returned.
      */
-    public static ArrayList<String> getAttributes(JsonObject renderingCommand){
-        System.out.println("Get attributes: " + renderingCommand.toString());
+    public static ArrayList<String> getAttributes(JsonObject jsonCommand){
+        System.out.println("Get attributes: " + jsonCommand.toString());
         
         ArrayList<String> strAttributes = new ArrayList<>();
 
         // JsonObject must have a TelepathyCommand
         try{
-            TelepathyCommands.valueOf(renderingCommand.getString("command"));
+            TelepathyCommands.valueOf(jsonCommand.getString("command"));
         } catch(IllegalArgumentException e){
-            throw new TelepathyCommandException(renderingCommand.getString("command"), "Not a valid Telepathy Command");
+            throw new TelepathyCommandException(jsonCommand.getString("command"), "Not a valid Telepathy Command");
         }
 
         // Get each string stored in the JsonArray
-        JsonArray jsonAttributes = renderingCommand.getJsonArray("attributes");
+        JsonArray jsonAttributes = jsonCommand.getJsonArray("attributes");
+        if(jsonAttributes == null){
+            return strAttributes;
+        }
+
         for(int i = 0; i < jsonAttributes.size(); i++){
             strAttributes.add(jsonAttributes.getString(i));
         }

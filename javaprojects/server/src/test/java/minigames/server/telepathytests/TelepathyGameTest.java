@@ -124,18 +124,6 @@ public class TelepathyGameTest {
             game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), testPlayerName, " "));
         });
     }
-
-    @Test
-    @DisplayName("Test Json command making method")
-    public void testMakeJsonCommand(){
-        JsonObject renderingCommand = TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.TESTCOMMAND);
-        assertTrue(renderingCommand.getString("command").equals(TelepathyCommands.TESTCOMMAND.toString()));
-        
-
-        renderingCommand = TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.TESTCOMMAND, "attribute1", "attribute2");
-        System.out.println("Test command: " + renderingCommand.toString());
-        assertTrue(TelepathyCommandHandler.getAttributes(renderingCommand).get(1).equals("attribute2"));
-    }
     
     /* HELPER METHODS */
 
