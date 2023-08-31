@@ -38,7 +38,7 @@ public class SpaceMazeGame {
     public SpaceMazeGame(String name) {
         this.name = name;
         this.mazeControl = new MazeControl();
-        this.player = new SpacePlayer(new Point(1,0));
+        this.player = new SpacePlayer(new Point(1,0), 5);
         players.put(name, this.player);
         this.level = 1;
     }
@@ -202,7 +202,7 @@ public class SpaceMazeGame {
             );
         } else {
             // Create the new player with starting position
-            SpacePlayer p = new SpacePlayer(new Point(1, 0));
+            SpacePlayer p = new SpacePlayer(new Point(1, 0), 5);
             players.put(playerName, p);
 
             ArrayList<JsonObject> renderingCommands = new ArrayList<>();

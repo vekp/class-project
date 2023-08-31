@@ -14,27 +14,27 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.lang.Math;
+import java.util.*;
 
 
-/*
+/**
  * Class for bot.
  * @author Nikolas Olins
  */
 
 public class SpaceBot extends SpaceEntity {
     private char tile;
-    //private Timer timer;
-    // May need to use this IRT mazeControl. remove it not required.
-    private char[][] mazeMap;
-
-    //private Timer botTimer;
     private Image botImage;
+    private ArrayList<Point> moves;
+    private boolean seeking;
+    private Point startLocation;
 
     public SpaceBot(Point startLocation) {
         super(startLocation);
         this.tile = '.';
-        //this.mazeMap = maze;
-        //botTimer = new Timer(0, null);
+        this.moves = new ArrayList<Point>();
+        this.seeking = true;
+        this.startLocation = new Point(startLocation);
         botImage = new ImageIcon(getClass().getResource("/images/spacemaze/alien1a.png")).getImage();
     }
 
@@ -98,40 +98,48 @@ public class SpaceBot extends SpaceEntity {
         }
 
     }
-    /*
-    public void moveBot() {
-        Point moveNext = getMoveAttempt();
-        if (MazeDisplay.isMoveValid(moveNext)) {
-            updateLocation(moveNext);
-        }
-    }
-    */
-    /*
-     * Method to randomly move a bot around.
-     * @param Optional int to test a specific movement direction, must be  0 <= x >= 3.
-     * @return Point with the attempted move location.
-     *//*
-    public void startTimer(int updateSpeed){
+    /**
+     * Private method to decide if the bot should perform seeking movement. This method checks if the bot is currently seeking, and if it is checks for a movement loop which may indicate a bot is stuck.
+     * @return boolean indicating the bot will choose to seek the player instead of moving randomly.
+     */
+    private boolean chooseSeeking() {
+        int aSize = moves.size();
+        // Check for a movement loop - last three elements form a sequence a,b,a
 
-        botTimer.setDelay(updateSpeed);
-        botTimer.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if(e.getSource() == botTimer) {
-                    System.out.println("Current location: " + location.x + ", " + location.y);
-                    Point moveNext = getMoveAttempt();
-                    updateLocation(moveNext);
-                }
+        if(seeking == false && aSize >= 5) {
+            seeking = true;
+            moves.clear();
+            return seeking;
+        }
+        else if(aSize >= 3 && seeking == true) {
+            Point moveZero = new Point(moves.get(aSize-1));
+            Point moveOne = new Point(moves.get(aSize-2));
+            Point moveTwo = new Point(moves.get(aSize-3));
+            // stuck sequence detected
+            if(moveZero.equals(moveTwo)) {
+                moves.clear();
+                seeking = false;
+                return seeking;
             }
-
-        });
-        botTimer.start();
-    }
-
-    public void stopTimer() {
-        if (botTimer != null) {
-            botTimer.stop();
         }
-    }*/
+
+        return seeking;
+
+    }
+    
+    public void move(Point playerPos) {
+        boolean goSeek = chooseSeeking();
+        
+        if(goSeek)
+        {
+            moveCloser(playerPos);
+        }
+        else
+        {
+            Random ran = new Random();
+            moveRandom(ran);
+        }
+    }
 
     /**
      * Public method to allow testing of the moveAttempt method.
@@ -146,7 +154,7 @@ public class SpaceBot extends SpaceEntity {
 
         return moveAttempt(move);
     }
-    // Method for normal use of the moveAttempt method.
+    // Method for normal use of the moveAttempt method. -- Possible deletion
     public Point getMoveAttempt() {
         Random ran = new Random();
         int decision = ran.nextInt(4);
@@ -203,6 +211,25 @@ public class SpaceBot extends SpaceEntity {
         
     }
 
+    /**
+     * Public overriden method to update the bot's location and add the move into the ArrayList<Point> for movement switching.
+     * @param newLocation a point representing the new location moved to.
+     */
+    @Override
+    public void updateLocation(Point newLocation) {
+        location = new Point(newLocation);
+        moves.add(new Point(newLocation));
+    }
+
+     /**
+     * Public method to reset the bot - back to its start location, default to seeking behaviour and clear the moves ArrayList.
+     */
+    public void reset() {
+        super.updateLocation(startLocation);
+        seeking = true;
+        moves.clear();
+
+    }
     
 
     /**

@@ -135,7 +135,7 @@ public class MazeDisplay extends JPanel {
                     bot.moveRandom(ran);
                     */
                     // always moving closer
-                    bot.moveCloser(playerPos);
+                    bot.move(playerPos);
                    
                     detectAndSendCollisions();
                 }
@@ -504,6 +504,7 @@ public class MazeDisplay extends JPanel {
                 if(playerPos.equals(botPosition)) {
                     logger.info("Collision detected");
                     spaceMaze.sendCommand("botCollision");
+                    bot.reset();
                 }
                 
             }
