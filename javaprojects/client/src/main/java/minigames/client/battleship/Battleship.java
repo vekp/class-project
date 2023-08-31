@@ -1,8 +1,10 @@
 package minigames.client.battleship;
 
 import io.vertx.core.json.JsonObject;
+import minigames.client.Animator;
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
+import minigames.client.Tickable;
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 
@@ -16,11 +18,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class Battleship implements GameClient {
 
-    MinigameNetworkClient mnClient;
+public class Battleship implements GameClient, Tickable {
+
     // Needed for sending commands to the server
+    MinigameNetworkClient mnClient;
+    int tickInterval = 60;
+    int tickTimer = 0;
+
     GameMetadata gm;
+
     // Player name
     String player;
 
@@ -53,12 +60,17 @@ public class Battleship implements GameClient {
     JTextArea messages;
     JScrollPane commandTerminal;
     JTextField userCommand;
+    boolean isQuitting;
+
+    //flag to indicate whether this client is in wait mode (which means it will be constantly asking
+    // for info refreshes from the server
+    boolean waiting;
+
 
     /**
      * Creates the panels and layout for the game
      */
     public Battleship() {
-        //TODO: Add current player label functionality
 
         // Heading
         heading = new JPanel(new GridBagLayout());  // Game title, Current player and Menu button
@@ -76,7 +88,7 @@ public class Battleship implements GameClient {
         achievementButton.addActionListener(e -> mnClient.getGameAchievements(player, gm.gameServer()));
         achievementButton.setFont(fonts.get(1));
 
-        for (JButton b : new JButton[] {menuButton, achievementButton}) {
+        for (JButton b : new JButton[]{menuButton, achievementButton}) {
             b.setOpaque(true);
             b.setBorder(buttonBorder);
             b.setFocusable(false);
@@ -85,6 +97,7 @@ public class Battleship implements GameClient {
                 public void mouseEntered(MouseEvent e) {
                     b.setBackground(Color.decode(bgColourHover));
                 }
+
                 @Override
                 public void mouseExited(MouseEvent e) {
                     b.setBackground(Color.decode(bgColour));
@@ -95,11 +108,10 @@ public class Battleship implements GameClient {
         title = new JLabel("< BattleShip >");
         title.setFont(fonts.get(0));
 
-        //TODO: set player name
-        currentPlayerName = new JLabel("Current Player: Mitcho");
+        currentPlayerName = new JLabel("Current Player: ");
         currentPlayerName.setFont(fonts.get(3));
         gbc.gridwidth = 3;
-        gbc.insets = new Insets(5,5,0,0);
+        gbc.insets = new Insets(5, 5, 0, 0);
         gbc.anchor = GridBagConstraints.FIRST_LINE_START;
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -107,7 +119,7 @@ public class Battleship implements GameClient {
         gbc.gridx = 0;
         gbc.gridy = 1;
         heading.add(achievementButton, gbc);
-        gbc.insets = new Insets(0,0,0,0);
+        gbc.insets = new Insets(0, 0, 0, 0);
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.weightx = 0.9;
         gbc.gridx = 1;
@@ -127,7 +139,7 @@ public class Battleship implements GameClient {
         nauticalMap.add(nauticalText);
 
         maps.add(nauticalMap);
-        maps.add(Box.createRigidArea(new Dimension(100,330)));
+        maps.add(Box.createRigidArea(new Dimension(100, 330)));
 
         targetMap = new JPanel();  // Add enemy ship grid
         targetText = new JTextArea();
@@ -149,10 +161,10 @@ public class Battleship implements GameClient {
         commandTerminal.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
                 " Command Terminal: ", TitledBorder.LEFT, TitledBorder.TOP, fonts.get(2), Color.WHITE));
         commandTerminal.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        commandTerminal.getVerticalScrollBar().setPreferredSize(new Dimension(0,0));
+        commandTerminal.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
         commandTerminal.setPreferredSize(new Dimension(800, 130));
         commandTerminal.setWheelScrollingEnabled(true);
-        DefaultCaret caret = (DefaultCaret)messages.getCaret();
+        DefaultCaret caret = (DefaultCaret) messages.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         terminal.add(commandTerminal, BorderLayout.NORTH);
 
@@ -173,7 +185,7 @@ public class Battleship implements GameClient {
         mainPanel.add(terminal);
 
         // Set colours for all panels
-        for (Component c : new Component[] {mainPanel, heading, title, currentPlayerName, nauticalMap, nauticalText,
+        for (Component c : new Component[]{mainPanel, heading, title, currentPlayerName, nauticalMap, nauticalText,
                 targetMap, targetText, maps, messages, commandTerminal, userCommand, menuButton, achievementButton}) {
             c.setForeground(Color.decode(fgColour));
             c.setBackground(Color.decode(bgColour));
@@ -182,6 +194,7 @@ public class Battleship implements GameClient {
 
     /**
      * Function to create an appropriate font list based on operating system
+     *
      * @return Arraylist of fint objects
      */
     public ArrayList<Font> determineFont() {
@@ -189,30 +202,30 @@ public class Battleship implements GameClient {
         if (System.getProperty("os.name").contains("Windows")) {
             // System.out.println("Windows fonts");
             return new ArrayList<>(
-                Arrays.asList(
-                        new Font("Lucida Sans Typewriter", Font.BOLD, 30),
-                        new Font("Lucida Sans Typewriter", Font.PLAIN, 20),
-                        new Font("Lucida Sans Typewriter", Font.BOLD, 18),
-                        new Font("Lucida Sans Typewriter", Font.PLAIN, 16)
-                ));
+                    Arrays.asList(
+                            new Font("Lucida Sans Typewriter", Font.BOLD, 30),
+                            new Font("Lucida Sans Typewriter", Font.PLAIN, 20),
+                            new Font("Lucida Sans Typewriter", Font.BOLD, 18),
+                            new Font("Lucida Sans Typewriter", Font.PLAIN, 16)
+                    ));
         } else if (System.getProperty("os.name").contains("Mac")) {
             // System.out.println("Mac fonts");
             return new ArrayList<>(
-                Arrays.asList(
-                        new Font("Andale Mono", Font.BOLD, 30),
-                        new Font("Andale Mono", Font.PLAIN, 20),
-                        new Font("Andale Mono", Font.BOLD, 18),
-                        new Font("Andale Mono", Font.PLAIN, 16)
-                ));
+                    Arrays.asList(
+                            new Font("Andale Mono", Font.BOLD, 30),
+                            new Font("Andale Mono", Font.PLAIN, 20),
+                            new Font("Andale Mono", Font.BOLD, 18),
+                            new Font("Andale Mono", Font.PLAIN, 16)
+                    ));
         } else {
             // System.out.println("Default fonts");
             return new ArrayList<>(
-                Arrays.asList(
-                        new Font("Monospaced", Font.BOLD, 30),
-                        new Font("Monospaced", Font.PLAIN, 20),
-                        new Font("Monospaced", Font.BOLD, 18),
-                        new Font("Monospaced", Font.PLAIN, 16)
-                ));
+                    Arrays.asList(
+                            new Font("Monospaced", Font.BOLD, 30),
+                            new Font("Monospaced", Font.PLAIN, 20),
+                            new Font("Monospaced", Font.BOLD, 18),
+                            new Font("Monospaced", Font.PLAIN, 16)
+                    ));
         }
 
     }
@@ -224,6 +237,7 @@ public class Battleship implements GameClient {
      * { "command": command }
      */
     public void sendCommand(String command) {
+        if (isQuitting) return;
         JsonObject json = new JsonObject().put("command", command);
 
         // Collections.singletonList() is a quick way of getting a "list of one item"
@@ -233,15 +247,19 @@ public class Battleship implements GameClient {
     /*
      * What happens when client is loaded into the main screen
      */
+
     /**
      * Loads the client into the main screen and renders it taking in the relevant information from the server
+     *
      * @param mnClient The Client Window
-     * @param game The meta-game data for the current game
-     * @param player The name of the player
+     * @param game     The meta-game data for the current game
+     * @param player   The name of the player
      */
     @Override
     public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {
         this.mnClient = mnClient;
+        mnClient.getAnimator().requestTick(this);
+        waiting = true; //this ensures we get at least 1 refresh to start
         this.gm = game;
         this.player = player;
 
@@ -260,11 +278,13 @@ public class Battleship implements GameClient {
                 Color.decode(bgColourHover),
                 fonts.get(0).getFontName(),
                 buttonBorder);
+
     }
 
     /**
      * Execute a specific command from the game's "vocabulary"
-     * @param game The meta-data of the current game
+     *
+     * @param game    The meta-data of the current game
      * @param command The JsonObject command to be executed
      */
     @Override
@@ -275,6 +295,7 @@ public class Battleship implements GameClient {
         // Note that this uses the -> version of case statements, not the : version
         // (which means we don't nead to say "break;" at the end of our cases)
         switch (command.getString("command")) {
+            case "inputAllowable" -> userCommand.setEditable(Boolean.parseBoolean(command.getString("allowed")));
             case "clearText" -> {
                 nauticalText.setText("");
                 targetText.setText("");
@@ -284,11 +305,26 @@ public class Battleship implements GameClient {
                 messages.setText(command.getString("history"));
                 messages.setCaretPosition(messages.getDocument().getLength());
             }
+            case "waitReady" -> {
+                messages.append("\nWaiting for other players to Ready");
+                userCommand.setEditable(false);
+            }
+            case "wait" -> {
+                messages.append("\nWaiting for Turn");
+                userCommand.setEditable(false);
+                waiting = true;
+            }
+            case "prepareTurn" -> {
+                //we only set this messaging on the first instance that we are told our turn is ready
+                waiting = false;
+                messages.append("\nIt is now your turn! Type in a coordinate");
+                userCommand.setEditable(true);
+
+            }
             case "updatePlayerName" -> currentPlayerName.setText("Current Player: " + command.getString("player"));
             case "placePlayer1Board" -> nauticalText.setText(nauticalText.getText() + command.getString("text"));
             case "placePlayer2Board" -> targetText.setText(targetText.getText() + command.getString("text"));
         }
-
     }
 
     /**
@@ -297,5 +333,29 @@ public class Battleship implements GameClient {
     @Override
     public void closeGame() {
         // Nothing to do
+        sendCommand("exitGame");
+        isQuitting = true;
+        // JOptionPane.showMessageDialog(mainPanel, "You will be returned to the main menu", "Exit", JOptionPane.INFORMATION_MESSAGE, null);
+    }
+
+
+    /**
+     * This client will constantly tick at some interval. If we're in the waiting state (e.g waiting for another
+     * player to take their turn), we will ask the server for updates in order to get any messages or info about the
+     * players turn, and also to be notified when it is now our turn.
+     * @param al the animator
+     * @param now current time
+     * @param delta delta time (time since last tick)
+     */
+    @Override
+    public void tick(Animator al, long now, long delta) {
+        al.requestTick(this);
+        tickTimer++;
+        if (tickTimer > tickInterval) {
+            tickTimer = 0;
+            if(waiting) {
+                sendCommand("refresh");
+            }
+        }
     }
 }
