@@ -275,7 +275,7 @@ public class Battleship implements GameClient, Tickable {
         mnClient.getMainWindow().pack();
 
         // Apply settings to notifications
-        mnClient.getNotificationManager().setMargins(20, 15, 15);
+        mnClient.getNotificationManager().setNotificationArea(mainPanel);
         mnClient.getNotificationManager().setStyling(
                 Color.decode(fgColour),
                 Color.decode(bgColourHover),
