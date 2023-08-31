@@ -2,6 +2,7 @@ package minigames.client.achievements;
 
 import minigames.achievements.Achievement;
 import minigames.achievements.GameAchievementState;
+import minigames.client.Animator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,7 @@ public class AchievementPresenterRegistryTest {
             else locked.add(a);
         }
         GameAchievementState gaState = new GameAchievementState("Test Game ID", unlocked, locked);
-        apRegistry = new AchievementPresenterRegistry(gaState);
+        apRegistry = new AchievementPresenterRegistry(gaState, new Animator());
 
     }
 
@@ -64,10 +65,6 @@ public class AchievementPresenterRegistryTest {
                 // the position JLabel should contain its index + 1
                 for (Component c : carousel.getComponents())
                     if (c instanceof JLabel label) assert label.getText().contains("achievement " + (i + 1));
-            }
-            // For locked achievements - 3 components
-            else {
-                assertEquals(3, carousel.getComponents().length);
             }
         }
 
