@@ -165,7 +165,7 @@ public class NotificationManager implements Tickable {
         JLayeredPane pane = new JLayeredPane();
         // Get parent container and position of area within its parent
         Container parent = notificationArea.getParent();
-        int index = parent.getComponentZOrder(pane);
+        int index = parent.getComponentZOrder(notificationArea);
         // Set sizes of pane and area
         pane.setPreferredSize(notificationArea.getPreferredSize());
         notificationArea.setBounds(0, 0, notificationArea.getPreferredSize().width, notificationArea.getPreferredSize().height);
