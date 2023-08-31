@@ -149,6 +149,9 @@ public class KrumGame implements GameClient {
         recordingTurn = true;
         turnOver = false;
         players[playerTurn].jumping = false;
+        for (int i = 0; i < KrumPlayer.shotsPerTurn.length; i++) {
+            players[playerTurn].firedThisTurn[i] = 0;
+        }
     }
 
     int numLivingPlayers() {
@@ -451,9 +454,9 @@ public class KrumGame implements GameClient {
             g.setColor(Color.red);
             timerString += "0";
         }
-
-        //draw replay text
         g.drawString(timerString, 5, 20);
+
+        //draw replay text        
         if (playingBackTurn) {
             g.setColor(Color.blue);
             g.drawString("SPECTATING", 310, 60);
@@ -499,6 +502,48 @@ public class KrumGame implements GameClient {
             g.setColor(Color.BLACK);
             g.setFont(new Font("Courier New", 1, 42));
             g.drawString(resultString, KrumC.RES_X / 2 - 160, 120);
+        }
+
+        // draw ammo
+        int tx = KrumC.RES_X - 52;
+        int ty = 16;
+        g.setFont(new Font("Courier New", 1, 18));
+        g.setColor(Color.black);
+        g.drawString("Ammo", tx, ty);
+
+        
+        tx += 34;
+        ty += 20;
+        drawAmmo(KrumPlayer.ZOOK, tx, ty, 0xED1C24, g);
+
+        ty += 18;
+        drawAmmo(KrumPlayer.NADE, tx, ty, 0x267F00, g);
+
+        ty += 18;
+        drawAmmo(KrumPlayer.JOEY, tx, ty, 0xB97A57, g);
+
+        ty += 18;
+        drawAmmo(KrumPlayer.ROPE, tx, ty, Color.ORANGE.getRGB(), g);
+
+
+    }
+
+    void drawAmmo(int w, int x, int y, int c, Graphics2D g) {
+        if (playerTurn < 0) return;
+        int a = players[playerTurn].ammo[w];
+        // if (players[playerTurn].firedThisTurn[w] >= KrumPlayer.shotsPerTurn[w]) {
+        //     c = c << 16;
+        //     c += 128;
+        // }
+        g.setColor(new Color(c));
+        String s = "" + a;
+        int o = 0;        
+        if (a >= 10) o += 11;
+        if (a >= 100) o += 11;
+        g.drawString(s, x - o, y);
+        if (players[playerTurn].firedThisTurn[w] >= KrumPlayer.shotsPerTurn[w]) {
+            g.setColor(new Color(0x80808080));
+            g.drawString(s, x - o, y);
         }
     }
 
@@ -575,7 +620,7 @@ public class KrumGame implements GameClient {
             players[playerTurn].rightKeyDownNextFrame = true;       
         }
         else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-            players[playerTurn].enterKeyDownNextFrame = true;
+            players[playerTurn].enterKeyPressed();
         }
         else if (e.getKeyCode() == KeyEvent.VK_UP) {
             players[playerTurn].upArrowKeyDownNextFrame = true;
@@ -602,7 +647,7 @@ public class KrumGame implements GameClient {
             players[playerTurn].rightKeyDownNextFrame = false;
         }
         else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-            players[playerTurn].enterKeyDownNextFrame = false;
+            players[playerTurn].enterKeyReleased();
         }
         else if (e.getKeyCode() == KeyEvent.VK_UP) {
             players[playerTurn].upArrowKeyDownNextFrame = false;

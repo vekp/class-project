@@ -20,6 +20,8 @@ import java.awt.geom.Point2D;
 import java.awt.Color;
 import java.awt.Font;
 
+import java.util.HashMap;
+
 /*
  * Class representing a player-controlled character
  */
@@ -33,6 +35,21 @@ public class KrumPlayer {
     double ypos;
     double xvel;
     double yvel;
+
+
+    
+    final static int ZOOK = 0;
+    final static int NADE = 1;
+    final static int JOEY = 2;
+    final static int ROPE = 3;
+    final static int BLOW = 4;
+    final static int[] startingAmmo = {99, 99, 3, 4, 2};
+    final static int[] shotsPerTurn = {1, 1, 1, 2, 1};
+    int[] ammo;
+    int[] firedThisTurn;
+    
+    
+
 
     boolean canShootRope;
 
@@ -200,7 +217,13 @@ public class KrumPlayer {
         };
         sprite = sprites[0];
         
-
+        ammo = new int[startingAmmo.length];
+        firedThisTurn = new int[ammo.length];
+        for (int i = 0; i < ammo.length; i++) {
+            ammo[i] = startingAmmo[i];
+            firedThisTurn[i] = 0;
+        }
+        
         
         
         alphaRaster = sprite.getAlphaRaster();
@@ -411,7 +434,8 @@ public class KrumPlayer {
         if (recordingFrame != null) {
             recordingFrame.activePlayer = playerIndex;
             recordingFrame.frameCount = tick;
-            spriteLook();
+            if (!walking && !onRope && !airborne)
+                spriteLook();
             recordingFrame.spriteIndex = spriteIndex;
             recordingFrame.lastAimAngle = lastAimAngle;
             recordingFrame.facingRight = facingRight;
@@ -504,7 +528,7 @@ public class KrumPlayer {
             }
         }
         if (enterKeyDownNextFrame) {
-            enterKeyPressed();
+            fireJoey();
             enterKeyDownNextFrame = false;
             if (recordingFrame != null) {
                 recordingFrame.enterKeyDown = true;
@@ -1132,6 +1156,13 @@ public class KrumPlayer {
 
     void shootRope() {
         if (!canShootRope) return;
+        if (!wasOnRope) {
+            if (ammo[ROPE] < 1 || firedThisTurn[ROPE] >= shotsPerTurn[ROPE]) {
+                return;
+            }
+            ammo[ROPE]--;
+            firedThisTurn[ROPE]++;
+        }
         shootingRope = true;        
         ropeAttachmentPoints.clear();
         walking = false;
@@ -1163,10 +1194,26 @@ public class KrumPlayer {
     }
 
     void enterKeyPressed() {
+        if (ammo[JOEY] > 0 && firedThisTurn[JOEY] < shotsPerTurn[JOEY]) {
+            enterKeyDownNextFrame = true;
+        }
+    }
+
+    void enterKeyReleased() {
+        enterKeyDownNextFrame = false;
+    }
+
+    void fireJoey() {
+        ammo[JOEY]--;
+        firedThisTurn[JOEY]++;
         joey.spawn(playerCentre().x - joey.sprite.getWidth() / 2,playerCentre().y - joey.sprite.getHeight() / 2,xvel + 1 * (facingRight ? 1 : -1), yvel - 1, tick, facingRight);
     }
 
     void startGrenadeFire(MouseEvent e) {
+        if (ammo[NADE] < 1 || firedThisTurn[NADE] >= shotsPerTurn[NADE]) {
+            //todo: play 'click' sound effect
+            return;
+        }
         firingGrenade = true;
         fireGrenadeStart = System.nanoTime();
     }
@@ -1180,6 +1227,11 @@ public class KrumPlayer {
     }
 
     void shootGrenade(long power) {
+        if (ammo[NADE] < 1) {
+            return;
+        }
+        ammo[NADE]--;
+        firedThisTurn[NADE]++;
         power /= 100000000; 
         grenade = new KrumGrenade((int)(xpos + sprite.getWidth()/2 + Math.cos(grenadeAimAngle) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(grenadeAimAngle) * KrumC.psd), Math.cos(grenadeAimAngle) * power + xvel, Math.sin(grenadeAimAngle) * power * -1 + yvel, grenadeSeconds, grenadeSprite, levelRaster, tick);
     }
@@ -1189,6 +1241,10 @@ public class KrumPlayer {
      * @param e
      */
     void startFire(MouseEvent e) {
+        if (ammo[ZOOK] < 1 || firedThisTurn[ZOOK] >= shotsPerTurn[ZOOK]) {
+            //todo: play 'click' sound effect
+            return;
+        }
         firing = true;
         fireStart = System.nanoTime();
     }
@@ -1210,6 +1266,11 @@ public class KrumPlayer {
      * @param power
      */
     void shoot(long power) {
+        if (ammo[ZOOK] < 1) {
+            return;
+        }
+        firedThisTurn[ZOOK]++;
+        ammo[ZOOK]--;
         power /= 100000000;   
         projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(shootAimAngle) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(shootAimAngle) * KrumC.psd), Math.cos(shootAimAngle) * power + xvel, Math.sin(shootAimAngle) * power * -1 + yvel, projectileSprite, levelRaster);
     }
