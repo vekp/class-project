@@ -1,6 +1,7 @@
 package minigames.server.achievements;
 
 import minigames.achievements.Achievement;
+import minigames.achievements.GameAchievementState;
 import minigames.server.GameServer;
 
 import java.util.*;
@@ -119,5 +120,47 @@ public class AchievementHandler {
         PlayerAchievementProfile player = playerManager.getPlayer(playerID);
         if (player != null) return player.hasEarnedAchievement(handlerID, achievementID);
         else return false;
+    }
+
+    /**
+     * Puts together a game state object containing the list of locked, unlocked, and hidden achievements
+     * for a particular player. Used by the server to put together data packets to send to the client for display
+     * @param playerID the player we want achievements for
+     * @param gameName the name we want to attach to the achievement data. Since the handler usually is keyed by a
+     *                 class type (not a game name), it might be more appropriate to pass in a game's title for the
+     *                 user to read.
+     * @return a game state object containing lists of unlocked and locked achievements for this player in this game
+     */
+    public GameAchievementState getAchievementState(String playerID, String gameName){
+        List<Achievement> gameAchievements = database.getAchievementsByGame(getHandlerID());
+        //if there are no achievements for this handler we will not provide a state for it
+        if (gameAchievements.size() == 0) return null;
+
+        GameAchievementState state = new GameAchievementState(gameName, new ArrayList<>(), new ArrayList<>());
+
+        //hidden achievements that have not yet been unlocked should be shown at the END of the list of locked
+        //achievements, put them in here for now so they can be added afterwards
+        List<Achievement> hiddenLocked = new ArrayList<>();
+        //the list used depends on whether the player has this achievement or not
+        for (Achievement current : gameAchievements) {
+            if (playerHasEarnedAchievement(playerID, current.name())) {
+                state.unlocked().add(current);
+            } else {
+                //If player hasn't unlocked it, and it's a hidden achievement, we do not send the 'real'
+                //achievement but instead make a dummy 'hidden' achievement - keeps it secret but still shows
+                // the player that there is something to unlock
+                if (current.hidden()) {
+                    Achievement hiddenAchievement = new Achievement(current.name(), "This is a secret " +
+                            "achievement, play the game to unlock it", 0, "", true);
+                    hiddenLocked.add(hiddenAchievement);
+                } else {
+                    state.locked().add(current);
+                }
+            }
+        }
+        //once we are done sorting through achievments, add any hidden locked achievements to the end of the
+        // locked list to show up at the bottom.
+        state.locked().addAll(hiddenLocked);
+        return state;
     }
 }

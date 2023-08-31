@@ -42,6 +42,8 @@ public class Cell {
         return cellType.toString();
     }
 
+    public boolean hasBeenShot() {return this.shotAt;}
+
     public int getHorizontalCoord() {
         return horizontalCoord;
     }
@@ -49,9 +51,14 @@ public class Cell {
     public int getVerticalCoordInt() {
         return verticalCoord;
     }
+
     public String getVerticalCoordString() {
         String chars = "ABCDEFGHIJ";
         return String.valueOf(chars.charAt(verticalCoord));
+    }
+
+    public String getBothCoords(){
+        return ""+this.getVerticalCoordString()+this.getHorizontalCoord();
     }
 
     // Setters
@@ -61,7 +68,6 @@ public class Cell {
      */
     public void setCellType(CellType cellType) {
         this.cellType = cellType;
-        this.shotAt = true;
     }
 
     public void setHorizontalCoord(int horizontalCoord) {
@@ -71,4 +77,6 @@ public class Cell {
     public void setVerticalCoord(int verticalCoord) {
         this.verticalCoord = verticalCoord;
     }
+
+    public void shoot(){this.shotAt = true;}
 }
