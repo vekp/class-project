@@ -23,7 +23,7 @@ public class NotificationManager implements Tickable {
     JPanel notificationPanel;
     // Margins to leave between frame edge and notification
     private int topMargin, leftMargin, rightMargin;
-    // Size of notification panel
+    // Alignment of notification panel
     private float alignment;
     private int height;
     // Panel's position
@@ -34,7 +34,7 @@ public class NotificationManager implements Tickable {
     private int displayTime;
     // Timer starts when notification is fully displayed
     private long startTime;
-    boolean applyColourAndFontStyling;
+    private boolean applyColourAndFontStyling;
     private Color backgroundColor;
     private Color foregroundColor;
     private String fontName;
@@ -91,7 +91,7 @@ public class NotificationManager implements Tickable {
             notificationPanel.setBorder(border);
         }
         // apply custom styling of colours and font
-        applyStyling(notificationPanel);
+        if (applyColourAndFontStyling) applyStyling(notificationPanel);
         // make dismissible
         if (isDismissible) {
             notificationPanel.addMouseListener(new MouseAdapter() {
@@ -172,8 +172,15 @@ public class NotificationManager implements Tickable {
      * Setter for changing the speed at which the notification slides up and down.
      * @param animationSpeed speed in pixels per 16ms tick.
      */
-    public void setAnimationSpeed(int animationSpeed) {
+    public void setAnimation(int animationSpeed) {
         this.animationSpeed = animationSpeed;
+    }
+
+    /**
+     * Set animation using bool to enable or disable animations completely.
+     */
+    public void setAnimation(boolean enabled) {
+        this.animationSpeed = enabled? 4 : 1000;
     }
 
     /**
@@ -225,7 +232,7 @@ public class NotificationManager implements Tickable {
      */
     public void resetToDefaultSettings() {
         setAlignment(Component.RIGHT_ALIGNMENT);
-        setAnimationSpeed(4);
+        setAnimation(4);
         setDisplayTime(5000);
         setMargins(5, 5, 5);
         JPanel defaultPanel = new JPanel();
@@ -235,14 +242,15 @@ public class NotificationManager implements Tickable {
         setApplyColourAndFontStyling(false);
     }
 
-    public void setApplyColourAndFontStyling(boolean applyColourAndFontStyling) {
+    /**
+     * Specifies whether or not to call applyColourAndFontStyling
+     */
+    private void setApplyColourAndFontStyling(boolean applyColourAndFontStyling) {
         this.applyColourAndFontStyling = applyColourAndFontStyling;
     }
 
     /**
      * Set the colours to be applied to notifications
-     * @param foregroundColour
-     * @param backgroundColour
      */
     public void setColours(Color foregroundColour, Color backgroundColour) {
         this.foregroundColor = foregroundColour;
@@ -258,13 +266,15 @@ public class NotificationManager implements Tickable {
         setApplyColourAndFontStyling(true);
     }
 
+    /**
+     * Set the border to be applied to notifications
+     */
+    public void setBorder(Border border) {
+        this.border = border;
+    }
 
     /**
      * Set styling for foreground/background colours, font and border in one method.
-     * @param foregroundColour
-     * @param backgroundColour
-     * @param fontName
-     * @param border
      */
     public void setStyling(Color foregroundColour, Color backgroundColour, String fontName, Border border) {
         setColours(foregroundColour, backgroundColour);
@@ -273,9 +283,17 @@ public class NotificationManager implements Tickable {
     }
 
     /**
+     * Set styling for foreground/background colours, font and border based on a component.
+     */
+    public void setStyling(Component component) {
+        setColours(component.getForeground(), component.getBackground());
+        setFont(component.getFont().getFontName());
+        if (component instanceof JComponent jc) setBorder(jc.getBorder());
+    }
+
+    /**
      * Apply font, foreground and background colours to a Component.
      * If Container, recurse through its children.
-     * @param component
      */
     private void applyStyling(Component component) {
         // Set colours
@@ -295,11 +313,4 @@ public class NotificationManager implements Tickable {
         }
     }
 
-    /**
-     * Set the border to be applied to notifications
-     * @param border
-     */
-    public void setBorder(Border border) {
-        this.border = border;
-    }
 }

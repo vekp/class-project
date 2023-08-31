@@ -21,7 +21,6 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.RenderingPackage;
 
-
 public class MinigameNetworkServer {
 
     /**
@@ -190,6 +189,22 @@ public class MinigameNetworkServer {
                 promise.complete(r);
             }));
             return resp;
+        });
+
+        // Saves submissions from Survey
+        router.post("/sendSurveyData").handler((ctx) -> {
+            // JSON data from the request body
+            JsonObject jsonData = ctx.getBodyAsJson();
+            SurveyDatabaseHandler databaseHandler = new SurveyDatabaseHandler();
+            
+            if (jsonData != null) {                
+                databaseHandler.saveToSurveyDatabase(jsonData);
+                ctx.response().end("JSON data received and logged.");
+            } else {
+                ctx.response()
+                   .setStatusCode(400) 
+                   .end("Invalid JSON data.");
+            }
         });
 
         server.requestHandler(router).listen(port, (http) -> {

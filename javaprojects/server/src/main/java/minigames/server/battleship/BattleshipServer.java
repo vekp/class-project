@@ -9,12 +9,9 @@ import minigames.rendering.RenderingPackage;
 import minigames.server.ClientType;
 import minigames.server.GameServer;
 import minigames.server.achievements.AchievementHandler;
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.HashMap;
 import java.util.Random;
-
-import static minigames.server.battleship.achievements.FOUR_CORNERS;
 
 /**
  * An enum containing all Achievements to be passed to the AchievementHandler for tracking
@@ -114,6 +111,12 @@ public class BattleshipServer implements GameServer {
     @Override
     public GameMetadata[] getGamesInProgress() {
         return games.keySet().stream().map((name) -> {
+            if (games.get(name).getPlayerNames().length == 2 && !games.get(name).getPlayerNames()[1].equals("Computer")) {
+                return new GameMetadata("Battleship", name, games.get(name).getPlayerNames(), false);
+            }if (games.get(name).getPlayerNames().length == 0) {
+//                games.remove(games.get(name).gameName);
+                return new GameMetadata("Battleship", name, games.get(name).getPlayerNames(), false);
+            }
             return new GameMetadata("Battleship", name, games.get(name).getPlayerNames(), true);
         }).toArray(GameMetadata[]::new);
     }
@@ -150,7 +153,8 @@ public class BattleshipServer implements GameServer {
     @Override
     public Future<RenderingPackage> callGame(CommandPackage cp) {
         BattleshipGame g = games.get(cp.gameId());
+//        if (cp.commands().get(0).getValue("command").equals("exitGame") && g.getPlayerNames().length == 0) games.remove(g.gameName);
         return Future.succeededFuture(g.runCommands(cp));
     }
-    
+
 }

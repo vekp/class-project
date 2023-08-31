@@ -1,4 +1,4 @@
-package minigames.battleship;
+package minigames.server.battleship;
 
 import org.junit.jupiter.api.Test;
 
