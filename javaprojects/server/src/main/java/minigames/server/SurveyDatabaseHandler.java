@@ -20,7 +20,7 @@ public class SurveyDatabaseHandler {
         feedbackObject.put("ui_rating", jsonData.getString("ui_rating"));
         feedbackObject.put("enjoyment_rating", jsonData.getString("enjoyment_rating"));
         feedbackObject.put("functionality_rating", jsonData.getString("functionality_rating"));
-    
+
         feedbackArray.add(feedbackObject);
 
         // Save JSON object to a local file

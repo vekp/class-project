@@ -18,7 +18,6 @@ import java.awt.FlowLayout; // Import FlowLayout from the java.awt package
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
-import minigames.client.gameshow.GameShowUI;
 import minigames.rendering.GameMetadata;
 import minigames.commands.CommandPackage;
 

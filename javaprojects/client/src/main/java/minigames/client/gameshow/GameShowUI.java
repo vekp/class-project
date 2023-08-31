@@ -3,6 +3,7 @@ package minigames.client.gameshow;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -37,9 +38,6 @@ public class GameShowUI {
         private final static String startButtonPath = "./GameShowImages/start-button.png";
         private static final ImageIcon startButton = new ImageIcon(startButtonPath);
 
-        private static JFrame mainWindow = null;
-        private static JPanel homeScreen = null;
-
         public static JPanel lobbyHeader;
         public static JPanel memoryHeader;
         public static JPanel scrambleHeader;
@@ -48,18 +46,22 @@ public class GameShowUI {
         public static JPanel lobbyPanel;
         public static JPanel consistantPanel = null;
         public static Font pixelFont;
+        public JPanel homeScreenPanel;
 
         public static Font pixelFont() {
+                return pixelFont;
+        }
 
+        public void gameShowUI() {
                 try {
-                        pixelFont = Font.createFont(Font.TRUETYPE_FONT, new File("./Fonts/Minecraft.ttf"))
-                                        .deriveFont(30f);
+                        pixelFont = Font.createFont(Font.TRUETYPE_FONT,
+                                        getClass().getResourceAsStream("/Fonts/Minecraft.ttf"));
                         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-                        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("./Fonts/Minecraft.ttf")));
+                        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT,
+                                        getClass().getResourceAsStream("/Fonts/Minecraft.ttf")));
                 } catch (IOException | FontFormatException e) {
                         System.out.println(e);
                 }
-                return pixelFont;
 
         }
 
@@ -75,8 +77,10 @@ public class GameShowUI {
                 JPanel homeScreenPanel;
 
                 JButton lobby;
+                System.out.println("check1");
 
                 pixelFont();
+                System.out.println("check2");
 
                 homeScreenPanel = new JPanel(new GridBagLayout());
                 GridBagConstraints gbc = new GridBagConstraints();
@@ -91,6 +95,7 @@ public class GameShowUI {
                 gbc.gridx = 0;
                 gbc.gridy = 0;
                 homeScreenPanel.add(lobby, gbc);
+                System.out.println("check3");
 
                 background = new JLabel(
                                 new ImageIcon(hScreenBackground.getImage()));
@@ -105,14 +110,15 @@ public class GameShowUI {
 
                 lobby.addActionListener(e -> {
 
-                        mainWindow.setContentPane(generateConsistentPanel());
-                        mainWindow.pack();
-                        mainWindow.setLocationRelativeTo(null);
-                        mainWindow.setVisible(true);
+                        // mainWindow.setContentPane(generateConsistentPanel());
+                        // mainWindow.pack();
+                        // mainWindow.setLocationRelativeTo(null);
+                        // mainWindow.setVisible(true);
 
                 });
-
+                System.out.println("check4");
                 return homeScreenPanel;
+
         }
 
         public static JPanel generateLobbyHeader() {

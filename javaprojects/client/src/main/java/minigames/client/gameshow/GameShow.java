@@ -13,8 +13,6 @@ import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.JButton;
-import javax.swing.JPanel;
 // import javax.swing.JTextArea;
 // import javax.swing.JTextField;
 import javax.swing.*;
@@ -66,6 +64,8 @@ public class GameShow implements GameClient {
     JPanel titleArea;
     JLabel title;
 
+    JPanel homeScreen;
+
     JPanel gameContainer;
     JPanel gameArea;
     JPanel gameSelect;
@@ -81,60 +81,69 @@ public class GameShow implements GameClient {
     JPanel gamePanel;
 
     public GameShow() {
-        background = new JPanel(new BorderLayout());
-        background.setPreferredSize(new Dimension(800, 600));
-        background.setBackground(Color.WHITE);
+        System.out.println("check5");
 
-        titleArea = new JPanel(new BorderLayout());
-        titleArea.setPreferredSize(new Dimension(800, 100));
-        titleArea.setBackground(new Color(255, 255, 0));
+        homeScreen = GameShowUI.generateHomeScreen();
+        System.out.println("check6");
 
-        title = new JLabel("GAME SHOW", SwingConstants.CENTER);
-        title.setFont(new Font("Arial Black", Font.PLAIN, 60));
-
-        titleArea.add(title, BorderLayout.CENTER);
-
-        background.add(titleArea, BorderLayout.NORTH);
-
-        gameContainer = new JPanel(new BorderLayout());
-        gameContainer.setPreferredSize(new Dimension(700, 400));
-        gameContainer.setBorder(new EmptyBorder(20, 20, 20, 20));
-        gameContainer.setBackground(Color.WHITE);
-
-        gameSelect = new JPanel(new BorderLayout());
-        gameSelect.setPreferredSize(new Dimension(760, 40));
-        gameSelect.setBackground(new Color(255, 106, 210));
-
-        gameSelectInstructions = new JLabel("Select a game to play", SwingConstants.CENTER);
-        gameSelectInstructions.setFont(new Font("Arial", Font.PLAIN, 24));
-
-        gameSelect.add(gameSelectInstructions, BorderLayout.CENTER);
-
-        gameArea = new JPanel();
-        gameArea.setLayout(new BoxLayout(gameArea, BoxLayout.Y_AXIS));
-        gameArea.setBackground(new Color(255, 106, 210));
-
-        wordScramble = new JButton("Word Scramble");
-        wordScramble.setAlignmentX(Component.CENTER_ALIGNMENT);
-        wordScramble.addActionListener((evt) -> WordScramble.welcome(this));
-        gameArea.add(wordScramble);
-
-        imageGuesserStart = new JButton("Image Guesser");
-        imageGuesserStart.setAlignmentX(Component.CENTER_ALIGNMENT);
-        imageGuesserStart.addActionListener((evt) -> sendCommand(new JsonObject().put("command", "imageGuesser")));
-        gameArea.add(imageGuesserStart);
-
-        memoryGame = new JButton("Memory Game");
-        memoryGame.setAlignmentX(Component.CENTER_ALIGNMENT);
-        gameArea.add(memoryGame);
-
-        guessingGame = new JButton("Guess the Animal");
-        guessingGame.setAlignmentX(Component.CENTER_ALIGNMENT);
-        gameArea.add(guessingGame);
-
-        gameContainer.add(gameArea);
-
-        background.add(gameContainer);
+        /*
+         * background = new JPanel(new BorderLayout());
+         * background.setPreferredSize(new Dimension(800, 600));
+         * background.setBackground(Color.WHITE);
+         * 
+         * titleArea = new JPanel(new BorderLayout());
+         * titleArea.setPreferredSize(new Dimension(800, 100));
+         * titleArea.setBackground(new Color(255, 255, 0));
+         * 
+         * title = new JLabel("GAME SHOW", SwingConstants.CENTER);
+         * title.setFont(new Font("Arial Black", Font.PLAIN, 60));
+         * 
+         * titleArea.add(title, BorderLayout.CENTER);
+         * 
+         * background.add(titleArea, BorderLayout.NORTH);
+         * 
+         * gameContainer = new JPanel(new BorderLayout());
+         * gameContainer.setPreferredSize(new Dimension(700, 400));
+         * gameContainer.setBorder(new EmptyBorder(20, 20, 20, 20));
+         * gameContainer.setBackground(Color.WHITE);
+         * 
+         * gameSelect = new JPanel(new BorderLayout());
+         * gameSelect.setPreferredSize(new Dimension(760, 40));
+         * gameSelect.setBackground(new Color(255, 106, 210));
+         * 
+         * gameSelectInstructions = new JLabel("Select a game to play",
+         * SwingConstants.CENTER);
+         * gameSelectInstructions.setFont(new Font("Arial", Font.PLAIN, 24));
+         * 
+         * gameSelect.add(gameSelectInstructions, BorderLayout.CENTER);
+         * 
+         * gameArea = new JPanel();
+         * gameArea.setLayout(new BoxLayout(gameArea, BoxLayout.Y_AXIS));
+         * gameArea.setBackground(new Color(255, 106, 210));
+         * 
+         * wordScramble = new JButton("Word Scramble");
+         * wordScramble.setAlignmentX(Component.CENTER_ALIGNMENT);
+         * wordScramble.addActionListener((evt) -> WordScramble.welcome(this));
+         * gameArea.add(wordScramble);
+         * 
+         * imageGuesserStart = new JButton("Image Guesser");
+         * imageGuesserStart.setAlignmentX(Component.CENTER_ALIGNMENT);
+         * imageGuesserStart.addActionListener((evt) -> sendCommand(new
+         * JsonObject().put("command", "imageGuesser")));
+         * gameArea.add(imageGuesserStart);
+         * 
+         * memoryGame = new JButton("Memory Game");
+         * memoryGame.setAlignmentX(Component.CENTER_ALIGNMENT);
+         * gameArea.add(memoryGame);
+         * 
+         * guessingGame = new JButton("Guess the Animal");
+         * guessingGame.setAlignmentX(Component.CENTER_ALIGNMENT);
+         * gameArea.add(guessingGame);
+         * 
+         * gameContainer.add(gameArea);
+         * 
+         * background.add(gameContainer);
+         */
 
     }
 
@@ -178,17 +187,20 @@ public class GameShow implements GameClient {
      */
     @Override
     public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {
+
         this.mnClient = mnClient;
         this.gm = game;
         this.player = player;
+        System.out.println("check7");
 
         // Add our components to the north, south, east, west, or centre of the main
         // window's BorderLayout
-        mnClient.getMainWindow().addCenter(GameShowUI.generateHomeScreen());
-
-        // Don't forget to call pack - it triggers the window to resize and repaint
-        // itself
+        mnClient.getMainWindow().addCenter(homeScreen);
         mnClient.getMainWindow().pack();
+
+        System.out.println("check8");
+        // mnClient.getMainWindow().setVisible(true)
+
         logger.log(Level.INFO, "load executed for player: {0}, game: {1}", new Object[] { player, game.name() });
 
     }
