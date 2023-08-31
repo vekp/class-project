@@ -161,6 +161,35 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         playerPanel.add(difficulty);
         playerPanel.add(matches);
         playerPanel.add(stopwatch);
+
+
+
+        /*
+        // ADDED BACK IN FOR POSSIBLE USE LATER
+        
+        // TODO - wonky implementation. Needs more time in the oven.
+        // Update rows and columns based on the selected difficulty
+        // Listen for changes based on users selected difficulty to update the cardGridPanel
+        difficultyComboBox.addActionListener((ActionEvent e) -> {
+            // Get the selected difficulty from the JComboBox
+            String selectedDifficulty = (String) difficultyComboBox.getSelectedItem();
+            // Update rows and columns based on the selected difficulty
+            switch (Objects.requireNonNull(selectedDifficulty)) {
+                case "Easy" -> {
+                    rows = 3;
+                    columns = 4;
+                }
+                case "Medium" -> {
+                    rows = 4;
+                    columns = 4;
+                }
+                case "Hard" -> {
+                    rows = 5;
+                    columns = 4;
+                }
+            }
+        */
+
     }
 
 
@@ -301,6 +330,10 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
 
 
 
+
+
+
+
  // THIS METHOD CURRENTLY NOT IN USE - MAY NEED IT LATER FOR THE TIMER OR MULTIPLAYER??....
     /** a variable called every tick that probes the server for the current state */
     @Override
@@ -314,6 +347,32 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         al.requestTick(this);
     }
 
+// FIX - How to revert back to original (e.g. 1 minute) once Game Over message pops up and player clicks "OK"?
+    // TimerListener implementing ActionListener - Define timer countdown & call method to update stopwatch
+    public class TimerListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (timeElapsed[1] == 0) {
+                if (timeElapsed[0] == 0) {
+                    ((Timer) e.getSource()).stop();
+                    JOptionPane.showMessageDialog(null, "Game Over!");
+                } 
+                else {
+                    timeElapsed[0]--;
+                    timeElapsed[1] = 59;
+                }
+            } 
+            else {
+                timeElapsed[1]--;
+            }
+            updateStopwatch();
+        }
+    }
+
+    // Method to update stopwatch
+    private void updateStopwatch() {
+        stopwatch.setText(String.format("Time elapsed: %02d:%02d", timeElapsed[0], timeElapsed[1]));
+    }
 
     // Run
     public static void main(String[] args) {
@@ -365,7 +424,8 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         this.mnClient = mnClient;
         this.gm = game;
         this.player = player;
-        //playerName.setText("Player: " + player);
+
+        playerName.setText("Player: " + player);
         
         // Update Player Name
         updatePlayerName(player);

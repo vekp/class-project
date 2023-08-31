@@ -1,6 +1,6 @@
 package minigames.server.memory;
 
-import java.util.Random;
+import java.util.*;
 
 public class DeckOfCards {
 
@@ -91,20 +91,31 @@ public class DeckOfCards {
     public DeckOfCards(int numberOfCards, boolean pairs) {
         Random rand = new Random();
         cardStack = new PlayingCard[numberOfCards];
-        if (numberOfCards % 2 == 1 && pairs == true) {
+        if (numberOfCards % 2 == 1 && pairs) {
             throw new IllegalArgumentException("Deck of pairs cannot be constructed", new Throwable("If pairs == true, number of cards % 2 must == 0"));
         }
-        if (pairs == true) {
+        if (pairs) {
             for (int i = 0; i < numberOfCards; i+=2) {
-                PlayingCard card = new PlayingCard(suits[0], values[i], true);
-                PlayingCard cardPair = new PlayingCard(card);
-                cardStack[i] = card;
-                cardStack[i+1] = cardPair;
+                PlayingCard card = null;
+                while (card == null) {
+                    card = new PlayingCard(suits[rand.nextInt(suits.length)], values[rand.nextInt(values.length)], true);
+                    if (!Arrays.asList(cardStack).contains(card)) { // no duplicate cards allowed
+                        PlayingCard cardPair = new PlayingCard(card);
+                        cardStack[i] = card;
+                        cardStack[i+1] = cardPair;
+                    }
+                }
             }
         } else {
             for (int i = 0; i < numberOfCards; i++) {
-                PlayingCard card = new PlayingCard(suits[0], values[i], true);
-                cardStack[i] = card;
+                PlayingCard card = null;
+                while (card == null) {
+                    card = new PlayingCard(suits[rand.nextInt(suits.length)], values[rand.nextInt(values.length)], true);
+                    if (!Arrays.asList(cardStack).contains(card)) { // no duplicate cards allowed
+                        PlayingCard cardPair = new PlayingCard(card);
+                        cardStack[i] = card;
+                    }
+                }
             }
         }
     }
