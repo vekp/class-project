@@ -1354,10 +1354,15 @@ public class KrumPlayer {
         else if (blowtorchWidening || blowtorchWide) {
             KrumPlayer otherPlayer = players[1 - playerIndex];
             // destory level and hit opponent            
-            double y = (int)blowtorchStartY;
-            double x = (int)blowtorchStartX;
-            double xdist = (blowtorchStartX + Math.cos(blowtorchAimAngle) * (blowtorchLength - BLOWTORCH_MAX_WIDTH / 2)) - x;
-            double ydist = (blowtorchStartY - Math.sin(blowtorchAimAngle) * (blowtorchLength - BLOWTORCH_MAX_WIDTH / 2)) - y;
+            // double y = (int)blowtorchStartY;
+            // double x = (int)blowtorchStartX;
+            int maxDrawWidth = BLOWTORCH_MAX_WIDTH / 2;
+            double ex = (int)(blowtorchStartX + Math.cos(blowtorchAimAngle) * (blowtorchLength));
+            double ey = (int)(blowtorchStartY - Math.sin(blowtorchAimAngle) * (blowtorchLength));
+            double x = (int)(blowtorchStartX + Math.cos(blowtorchAimAngle) * (maxDrawWidth / 2));
+            double y = (int)(blowtorchStartY - Math.sin(blowtorchAimAngle) * (maxDrawWidth / 2));
+            double xdist = ex - x;
+            double ydist = ey - y;
             if (xdist == 0) xdist = 0.000001;
             if (ydist == 0) ydist = 0.000001;
             double larger = Math.max(Math.abs(xdist), Math.abs(ydist));
