@@ -492,12 +492,11 @@ public class KrumGame implements GameClient {
         }
         if (ending) {
             String resultString = "";
-            int w = winner + 1;
             if (winner == -1) {
                 resultString += "Game drawn!";
             }
             else {
-                if (w == myPlayerIndex)
+                if (winner == myPlayerIndex)
                     resultString += "You win!";
                 else 
                     resultString += "You lose!";

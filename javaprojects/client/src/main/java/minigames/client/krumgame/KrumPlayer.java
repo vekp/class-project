@@ -1389,14 +1389,15 @@ public class KrumPlayer {
                                 ) { // possible hit
                                     if (otherPlayer.alphaRaster.getPixel((int)(xt - otherPlayer.xpos), (int)(yt - otherPlayer.ypos), empty)[0] > KrumC.OPACITY_THRESHOLD) {
                                         otherPlayer.damage(KrumC.BLOWTORCH_DAMAGE);
-                                        double kba = KrumHelpers.angleBetween(playerCentre().x, playerCentre().y, otherPlayer.playerCentre().x, otherPlayer.playerCentre().y);
+                                        //double kba = KrumHelpers.angleBetween(playerCentre().x, playerCentre().y, otherPlayer.playerCentre().x, otherPlayer.playerCentre().y);
+                                        double kba = blowtorchAimAngle;
                                         double kbm = KrumC.BLOWTORCH_KNOCKBACK;
-                                        if (Math.sin(kba) < 0.2 && Math.sin(kba) > -0.707) {
+                                        if (Math.sin(kba) < 0.3 && Math.sin(kba) > -0.707) {
                                             if (Math.cos(kba) > 0) {
-                                                kba = Math.asin(0.2);
+                                                kba = Math.asin(0.3);
                                             }
                                             else {
-                                                kba = -Math.asin(0.2);
+                                                kba = Math.PI - Math.asin(0.3);
                                             }
                                         }
                                         otherPlayer.xvel += Math.cos(kba) * kbm;
