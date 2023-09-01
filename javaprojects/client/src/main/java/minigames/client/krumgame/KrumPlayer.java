@@ -1424,6 +1424,20 @@ public class KrumPlayer {
             
             blowtorchWide = true;
             blowtorchWidening = false;
+
+            double kba = (Math.PI + blowtorchAimAngle) % (2 * Math.PI);
+            if (Math.sin(kba) < 0.3 && Math.sin(kba) > -0.707) {
+                if (Math.cos(kba) > 0) {
+                    kba = Math.asin(0.3);
+                }
+                else {
+                    kba = Math.PI - Math.asin(0.3);
+                }
+            }
+            double kbm = KrumC.BLOWTORCH_KNOCKBACK / 1.8;
+            xvel += Math.cos(kba) * kbm;
+            yvel -= Math.sin(kba) * kbm;
+            airborne = true;
         }        
         blowtorchFrameCount++;
         if (blowtorchFrameCount > BLOWTORCH_FRAMES + 6) {
