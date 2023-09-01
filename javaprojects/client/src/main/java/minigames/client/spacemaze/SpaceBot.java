@@ -1,29 +1,19 @@
 package minigames.client.spacemaze;
 
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.util.Random;
 import minigames.spacemaze.SpaceEntity;
 import javax.swing.ImageIcon;
-import java.io.IOException;
-import java.io.File;
-import java.awt.Color;
-//import javax.swing.Timer;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.lang.Math;
-import java.util.*;
-
 
 /**
- * Class for bot.
+ * Class for bots used within the maze, derived from SpaceEntity.
  * @author Nikolas Olins
  */
 
 public class SpaceBot extends SpaceEntity {
-    private char tile;
     private Image botImage;
     private ArrayList<Point> moves;
     private boolean seeking;
@@ -31,7 +21,6 @@ public class SpaceBot extends SpaceEntity {
 
     public SpaceBot(Point startLocation) {
         super(startLocation);
-        this.tile = '.';
         this.moves = new ArrayList<Point>();
         this.seeking = true;
         this.startLocation = new Point(startLocation);
@@ -44,7 +33,6 @@ public class SpaceBot extends SpaceEntity {
      */
     private ArrayList<Point> getValidMoves() {
         ArrayList<Point> validMoves = new ArrayList<Point>();
-        int validDecision;
         
         // Checking for valid moves, 0 : Up, 1 : Right, 2 : Down, 3 : Left.
         for(int i = 0;i<4;i++) {
@@ -65,10 +53,7 @@ public class SpaceBot extends SpaceEntity {
      * @return a Point of the a move to close the distance to the player.
      */
     private Point distanceCloser(Point playerPos, ArrayList<Point> possibleMoves) {
-        //calculate current distance
-        int currYDistance = Math.abs(playerPos.y - location.y);
-        int currxDistance = Math.abs(playerPos.x - location.x);
-        double currDistance = Math.hypot(currYDistance, currxDistance);
+
         // Set to -1 to show no current moves improve distance.
         int bestMove = -1;
         // set to a distance not possible on the map.
@@ -104,16 +89,16 @@ public class SpaceBot extends SpaceEntity {
      */
     private boolean chooseSeeking() {
         int aSize = moves.size();
-        // Check for a movement loop - last three elements form a sequence a,b,a
-
+        
+        // is not seeking (random move) and moved at least 5 moves, start seeking again
         if(seeking == false && aSize >= 5) {
             seeking = true;
             moves.clear();
             return seeking;
         }
+        // Check for a movement loop - last three elements form a sequence a,b,a if seeking and travelled at least three moves
         else if(aSize >= 3 && seeking == true) {
             Point moveZero = new Point(moves.get(aSize-1));
-            Point moveOne = new Point(moves.get(aSize-2));
             Point moveTwo = new Point(moves.get(aSize-3));
             // stuck sequence detected
             if(moveZero.equals(moveTwo)) {
@@ -126,46 +111,12 @@ public class SpaceBot extends SpaceEntity {
         return seeking;
 
     }
-    
-    public void move(Point playerPos) {
-        boolean goSeek = chooseSeeking();
-        
-        if(goSeek)
-        {
-            moveCloser(playerPos);
-        }
-        else
-        {
-            Random ran = new Random();
-            moveRandom(ran);
-        }
-    }
 
     /**
-     * Public method to allow testing of the moveAttempt method.
-     * @param move an int representing the direction to move. 0 : Up, 1 : right, 2 : down, 3 : left.
-     * @return a Point representing the new position after making the move.
-     */
-    public Point getMoveAttempt(int move) {
-        if(move < 0 || move > 3)
-        {
-            throw new IllegalArgumentException("The movement test input must be between 0 and 3 inclusive.");
-        }
-
-        return moveAttempt(move);
-    }
-    // Method for normal use of the moveAttempt method. -- Possible deletion
-    public Point getMoveAttempt() {
-        Random ran = new Random();
-        int decision = ran.nextInt(4);
-
-        return moveAttempt(decision);
-    }
-    /**
-     * Method to make the bot choose a move which decreases the distance to the player.
+     * Private method to make the bot choose a move which decreases the distance to the player.
      * @param playerPosition a Point representing the players current position.
      */
-    public void moveCloser(Point playerPosition) {
+    private void moveCloser(Point playerPosition) {
          ArrayList<Point> validMoves = getValidMoves();
 
         if (validMoves.size() > 0) {
@@ -186,10 +137,10 @@ public class SpaceBot extends SpaceEntity {
     }
 
     /**
-     * Method to make the bot move randomly.
+     * Private method to make the bot move randomly.
      * @param ran an instance of the Random class.
      */
-    public void moveRandom(Random ran) {
+    private void moveRandom(Random ran) {
         
         int validDecision;
         ArrayList<Point> validMoves = getValidMoves();
@@ -212,28 +163,7 @@ public class SpaceBot extends SpaceEntity {
     }
 
     /**
-     * Public overriden method to update the bot's location and add the move into the ArrayList<Point> for movement switching.
-     * @param newLocation a point representing the new location moved to.
-     */
-    @Override
-    public void updateLocation(Point newLocation) {
-        location = new Point(newLocation);
-        moves.add(new Point(newLocation));
-    }
-
-     /**
-     * Public method to reset the bot - back to its start location, default to seeking behaviour and clear the moves ArrayList.
-     */
-    public void reset() {
-        super.updateLocation(startLocation);
-        seeking = true;
-        moves.clear();
-
-    }
-    
-
-    /**
-     * Public method to resolve the move command into a new Point.
+     * Private method to resolve the move command into a new Point.
      * @param move an int representing the direction to move. 0 : Up, 1 : right, 2 : down, 3 : left.
      * @return a Point representing the new position after making the move.
      */
@@ -261,17 +191,62 @@ public class SpaceBot extends SpaceEntity {
 
         return moveAttempt;
     }
-    // Way for the bot to record what it is standing on (key,power up etc)
-    /*
-    public void setTile(char t) {
-        tile = t;
+
+     /**
+     * Protected overriden method to update the bot's location and add the move into the ArrayList<Point> for movement switching.
+     * @param newLocation a point representing the new location moved to.
+     */
+    @Override
+    public void updateLocation(Point newLocation) {
+        location = new Point(newLocation);
+        moves.add(new Point(newLocation));
+    }
+    
+     /**
+     * Public method to make the bot move.
+     * @param playerPos a Point representing the player's current position. Used only for seeking movement.
+     */
+    public void move(Point playerPos) {
+        boolean goSeek = chooseSeeking();
+        
+        if(goSeek)
+        {
+            moveCloser(playerPos);
+        }
+        else
+        {
+            Random ran = new Random();
+            moveRandom(ran);
+        }
+    }
+    
+     /**
+     * Public method to reset the bot - back to its start location, default to seeking behaviour and clear the moves ArrayList.
+     */
+    public void reset() {
+        super.updateLocation(startLocation);
+        seeking = true;
+        moves.clear();
+
     }
 
-    public char getTile() {
-        return tile;
-    }
-    */
     public Image getBotImage() {
         return botImage;
+    }
+
+
+    //-----------------------------Testing Methods------------------------------
+    /**
+     * Public method to allow testing of the moveAttempt method.
+     * @param move an int representing the direction to move. 0 : Up, 1 : right, 2 : down, 3 : left.
+     * @return a Point representing the new position after making the move.
+     */
+    public Point getMoveAttempt(int move) {
+        if(move < 0 || move > 3)
+        {
+            throw new IllegalArgumentException("The movement test input must be between 0 and 3 inclusive.");
+        }
+
+        return moveAttempt(move);
     }
 }

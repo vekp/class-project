@@ -39,7 +39,7 @@ public class SpaceMazeGameTests {
 
     // Player class tests
     
-    private SpacePlayer player = new SpacePlayer(startLocation);
+    private SpacePlayer player = new SpacePlayer(startLocation, 5);
 
     @DisplayName("Check the player constructor")
     @Test
@@ -114,7 +114,7 @@ public class SpaceMazeGameTests {
      *                   
      */
     //Point startLocation1 = new Point(1,0);
-    private SpacePlayer player1 = new SpacePlayer(startLocation);
+    private SpacePlayer player1 = new SpacePlayer(startLocation, 5);
     private MazeControl maze1 = new MazeControl();      
 
          
