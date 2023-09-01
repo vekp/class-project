@@ -401,6 +401,8 @@ public class Telepathy implements GameClient, Tickable{
     }
 
     
+    // TODO: This implemetation can be improved using lists and loops...coded this way to explore  
+    // UI elements with individual buttons
     public JPanel colourSideTiles(){
 
         JPanel colours = new JPanel();
@@ -493,6 +495,9 @@ public class Telepathy implements GameClient, Tickable{
         return colours;
     }
     
+
+    // TODO: This implemetation can be improved using lists loops...coded this way to explore 
+    //UI elements with individual buttons 
     public JPanel symbolSideTiles(){
 
         JPanel symbols = new JPanel();
