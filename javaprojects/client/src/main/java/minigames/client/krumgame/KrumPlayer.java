@@ -30,7 +30,7 @@ public class KrumPlayer {
     final double FALL_DAMAGE_VELOCITY_THRESHOLD = 3.0;
     final int FALL_DAMAGE_MAX = 25;
 
-    int hp;
+    double hp;
     double xpos;
     double ypos;
     double xvel;
@@ -143,7 +143,7 @@ public class KrumPlayer {
     double blowtorchAimAngle;
     int blowtorchFrameCount;
     final static int BLOWTORCH_MAX_LENGTH = 200;
-    final static int BLOWTORCH_MIN_WIDTH = 5;
+    final static int BLOWTORCH_MIN_WIDTH = 1;
     final static int BLOWTORCH_MAX_WIDTH = 45;
     final static int BLOWTORCH_FRAMES = 120;
     final static double BLOWTORCH_INC = (double)BLOWTORCH_MAX_LENGTH / BLOWTORCH_FRAMES;
@@ -204,7 +204,7 @@ public class KrumPlayer {
         this.ypos = ypos;
         this.active = false;
         this.aimAngleRadians = 0;
-        this.hp = 100;
+        this.hp = 250;
         this.spriteDir = spriteFileName;
         firstLanding = true;
         canShootRope = true;
@@ -456,7 +456,7 @@ public class KrumPlayer {
         g.setFont(new Font("Courier New", 1, 12));
         g.setColor(new Color(64, 192, 64));
         String hpString = "";
-        hpString += this.hp;
+        hpString += (int)Math.ceil(this.hp);
         g.drawString(hpString, (int)this.xpos + (int)sprite.getWidth() / 4, (int)this.ypos - 12);
     }
 
@@ -1416,7 +1416,7 @@ public class KrumPlayer {
         dead = true;
     }
 
-    public void damage(int damage) {
+    public void damage(double damage) {
         hp -=  damage;
         if (hp <= 0)
             die(); 

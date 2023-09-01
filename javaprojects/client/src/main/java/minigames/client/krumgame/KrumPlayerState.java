@@ -8,7 +8,7 @@ import java.awt.geom.Point2D;
  */
 
 public class KrumPlayerState {
-    int hp;
+    double hp;
     double xpos;
     double ypos;
     double xvel;
