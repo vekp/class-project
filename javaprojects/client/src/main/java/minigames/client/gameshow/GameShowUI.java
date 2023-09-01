@@ -17,26 +17,32 @@ import javax.swing.JTextField;
 
 public class GameShowUI {
 
-        private final static String hSBackgroundPath = "./GameShowImages/homescreen-background.jpg";
-        private static final ImageIcon hScreenBackground = new ImageIcon(hSBackgroundPath);
+        private final static String dir = "./src/main/java/minigames/client/gameshow/GameShowImages/";
 
-        private final static String lobbyButtonPath = "./GameShowImages/lobby-button.png";
-        private static final ImageIcon lobbyButton = new ImageIcon(lobbyButtonPath);
+        // private final static String hSBackgroundPath =
+        // "./GameShohomescreen-background.jpgwImages/homescreen-background.jpg";
+        private static final ImageIcon hScreenBackground = new ImageIcon(dir + "homescreen-background.jpg");
 
-        private final static String lobbyIconPath = "./GameShowImages/lobby.png";
-        private static final ImageIcon lobbyIcon = new ImageIcon(lobbyIconPath);
+        // private final static String lobbyButtonPath =
+        // "./GameShowImages/lobby-button.png";
+        private static final ImageIcon lobbyButton = new ImageIcon(dir + "lobby-button.png");
 
-        private final static String memoryIconPath = "./GameShowImages/memory.png";
-        private static final ImageIcon memoryIcon = new ImageIcon(memoryIconPath);
+        // private final static String lobbyIconPath = "./GameShowImages/lobby.png";
+        private static final ImageIcon lobbyIcon = new ImageIcon(dir + "lobby.png");
 
-        private final static String scrambleIconPath = "./GameShowImages/scramble.png";
-        private static final ImageIcon scrambleIcon = new ImageIcon(scrambleIconPath);
+        // private final static String memoryIconPath = "./GameShowImages/memory.png";
+        private static final ImageIcon memoryIcon = new ImageIcon(dir + "memory.png");
 
-        private final static String revealIconPath = "./GameShowImages/reveal.png";
-        private static final ImageIcon revealIcon = new ImageIcon(revealIconPath);
+        // private final static String scrambleIconPath =
+        // "./GameShowImages/scramble.png";
+        private static final ImageIcon scrambleIcon = new ImageIcon(dir + "scramble.png");
 
-        private final static String startButtonPath = "./GameShowImages/start-button.png";
-        private static final ImageIcon startButton = new ImageIcon(startButtonPath);
+        // private final static String revealIconPath = "./GameShowImages/reveal.png";
+        private static final ImageIcon revealIcon = new ImageIcon(dir + "reveal.png");
+
+        // private final static String startButtonPath =
+        // "./GameShowImages/start-button.png";
+        private static final ImageIcon startButton = new ImageIcon(dir + "start-button.png");
 
         public static JPanel lobbyHeader;
         public static JPanel memoryHeader;
@@ -77,12 +83,11 @@ public class GameShowUI {
                 JPanel homeScreenPanel;
 
                 JButton lobby;
-                System.out.println("check1");
 
                 pixelFont();
-                System.out.println("check2");
 
                 homeScreenPanel = new JPanel(new GridBagLayout());
+                homeScreenPanel.setPreferredSize(new Dimension(800, 600));
                 GridBagConstraints gbc = new GridBagConstraints();
 
                 lobby = new JButton(
@@ -95,10 +100,10 @@ public class GameShowUI {
                 gbc.gridx = 0;
                 gbc.gridy = 0;
                 homeScreenPanel.add(lobby, gbc);
-                System.out.println("check3");
 
                 background = new JLabel(
-                                new ImageIcon(hScreenBackground.getImage()));
+                                new ImageIcon(hScreenBackground.getImage().getScaledInstance(800, 600,
+                                                Image.SCALE_DEFAULT)));
                 gbc.fill = GridBagConstraints.HORIZONTAL;
                 gbc.gridx = 0;
                 gbc.gridy = 0;
@@ -116,7 +121,7 @@ public class GameShowUI {
                         // mainWindow.setVisible(true);
 
                 });
-                System.out.println("check4");
+
                 return homeScreenPanel;
 
         }

@@ -81,10 +81,8 @@ public class GameShow implements GameClient {
     JPanel gamePanel;
 
     public GameShow() {
-        System.out.println("check5");
 
         homeScreen = GameShowUI.generateHomeScreen();
-        System.out.println("check6");
 
         /*
          * background = new JPanel(new BorderLayout());
@@ -191,14 +189,12 @@ public class GameShow implements GameClient {
         this.mnClient = mnClient;
         this.gm = game;
         this.player = player;
-        System.out.println("check7");
 
         // Add our components to the north, south, east, west, or centre of the main
         // window's BorderLayout
         mnClient.getMainWindow().addCenter(homeScreen);
         mnClient.getMainWindow().pack();
 
-        System.out.println("check8");
         // mnClient.getMainWindow().setVisible(true)
 
         logger.log(Level.INFO, "load executed for player: {0}, game: {1}", new Object[] { player, game.name() });
