@@ -34,10 +34,19 @@ public class SpaceMazeGameTests {
         assertFalse(gameTimer.getIsTimerRunning());
         gameTimer.startTimer();
         assertTrue(gameTimer.getIsTimerRunning());
+        gameTimer.stopTimer();
     }
-    Point startLocation = new Point(0,0);
+
+    @DisplayName("Check the final time is 0 until game is finished")
+    @Test
+    public void testTimeTakenWhenGameRunning() {
+        gameTimer.startTimer();
+        assertEquals(gameTimer.getTimeTaken(), 0);
+        gameTimer.stopTimer();
+    }
 
     // Player class tests
+    Point startLocation = new Point(0,0);
     
     private SpacePlayer player = new SpacePlayer(startLocation, 5);
 
@@ -85,9 +94,9 @@ public class SpaceMazeGameTests {
     @Test
     public void testPlayerCalculateScore() {
         long timeTaken = 40;
-        int initialScore = 10000;
+        int initialScore = 8000;
 
-        int correctScore = (int)(initialScore - (50*40));
+        int correctScore = (int)(initialScore - (20*40));
 
         assertEquals(correctScore, player.calculateScore(timeTaken, initialScore));
     }
