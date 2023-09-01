@@ -392,6 +392,8 @@ public class KrumGame implements GameClient {
                     readyToStartTurn = false;
                 else if (p.flashFramesLeft > 0)
                     readyToStartTurn = false;
+                else if (p.blowtorchActive)
+                    readyToStartTurn = false;
             }  
             if (rf != null)
                 sendFrame(rf); 
@@ -521,6 +523,8 @@ public class KrumGame implements GameClient {
         drawAmmo(KrumPlayer.JOEY, tx, ty, 0xB97A57, g);
         ty += 18;
         drawAmmo(KrumPlayer.ROPE, tx, ty, Color.ORANGE.getRGB(), g);
+        ty += 18;
+        drawAmmo(KrumPlayer.BLOW, tx, ty, 0x8afff7, g);
     }
 
     void drawAmmo(int w, int x, int y, int c, Graphics2D g) {

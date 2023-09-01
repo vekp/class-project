@@ -43,7 +43,7 @@ public class KrumPlayer {
     final static int JOEY = 2;
     final static int ROPE = 3;
     final static int BLOW = 4;
-    final static int[] startingAmmo = {99, 99, 3, 4, 2};
+    final static int[] startingAmmo = {99, 99, 3, 4, 1};
     final static int[] shotsPerTurn = {1, 1, 1, 2, 1};
     int[] ammo;
     int[] firedThisTurn;
@@ -1438,6 +1438,8 @@ public class KrumPlayer {
         if (ammo[BLOW] < 1 || firedThisTurn[BLOW] >= shotsPerTurn[BLOW] || blowtorchActive) {
             return;
         }
+        ammo[BLOW]--;
+        firedThisTurn[BLOW]++;
         blowtorchFrameCount = 0;
         blowtorchActive = true;
         blowtorchLength = 0;
