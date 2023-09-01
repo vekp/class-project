@@ -121,6 +121,8 @@ public class KrumPlayer {
 
     boolean enterKeyDownNextFrame = false;
 
+    boolean stuck = false;
+
     boolean upArrowKeyDownNextFrame;
     boolean downArrowKeyDownNextFrame;
     boolean upArrowKeyUpNextFrame;
@@ -636,7 +638,6 @@ public class KrumPlayer {
                 endFire(null);
         }
 
-
         if (airborne) {
             double oldx = xpos;
             double oldy = ypos;
@@ -677,27 +678,34 @@ public class KrumPlayer {
                     return;
                 }
             }
-            if (nonDirectionalCollisionCheck(new int[] {1,1,1,1}) && stuckFrames <= 10){
-                //System.out.println("player " + playerIndex + " may be stuck");
-                collision = true;
-                stuckFrames++;
-                if (stuckFrames > 10) {
-                    xvel *= -1;                    
-                    System.out.println("player " + playerIndex + " IS STUCK");
+            if (nonDirectionalCollisionCheck(new int[] {1,1,1,1})) {
+                if(stuckFrames <= 10){
+                    //System.out.println("player " + playerIndex + " may be stuck");
+                    collision = true;
+                    stuckFrames++;
+                    if (stuckFrames > 10) {
+                        xvel *= -1;                    
+                        System.out.println("player " + playerIndex + " IS STUCK");
+                        stuck = true;
+                    }
+                    int inc = Math.abs(Math.max((int)xvel, (int)yvel));
+                    inc++;
+                    int i = inc;
+                    while(nonDirectionalCollisionCheck(new int[] {0,0,0,1}) && i > 0) {
+                        xpos -= xvel / inc;
+                        ypos -= yvel / inc;
+                        i--;
+                    }
+                    xvel *= 0.9;
+                    yvel *= 0.9;           
                 }
-                int inc = Math.abs(Math.max((int)xvel, (int)yvel));
-                inc++;
-                int i = inc;
-                while(nonDirectionalCollisionCheck(new int[] {0,0,0,1}) && i > 0) {
-                    xpos -= xvel / inc;
-                    ypos -= yvel / inc;
-                    i--;
+                else {
+                    stuckFrames = 0;
                 }
-                xvel *= 0.9;
-                yvel *= 0.9;           
-            }
+            } 
             else {
                 stuckFrames = 0;
+                stuck = false;
             }
             if ((l && xvel < 0) || (r && xvel > 0)) {
                 double mag = Math.max(Math.abs(xvel) * -0.5, 0.2);
@@ -723,13 +731,14 @@ public class KrumPlayer {
                 walkedOffEdge = false;
                 shootingRope = false;
                 wasOnRope = false;     
-                canShootRope = true;           
+                canShootRope = true;    
+                stuck = false;       
             }
             if (collision && wasOnRope) {
                 canShootRope = false;
             }
         }
-        if (walking && (!airborne || walkedOffEdge) && !blowtorchActive) {
+        if (walking && (!airborne || walkedOffEdge || stuck) && !blowtorchActive) {
             double origX = xpos;
             double origY = ypos;
             xpos += KrumC.WALK_SPEED * (facingRight ? 1 : -1);
