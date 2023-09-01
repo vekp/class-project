@@ -62,4 +62,7 @@ public class KrumC {
     static final long JUMP_MAX_POWER = BILLION * 3;
 
     static final long PROJECTILES_MAX_POWER = BILLION * 2;
+
+    static final double BLOWTORCH_DAMAGE = 0.0004;
+    static final double BLOWTORCH_KNOCKBACK = 0.0001;
 }

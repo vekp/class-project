@@ -154,6 +154,7 @@ public class KrumPlayer {
     double blowtorchStartY;
     boolean blowtorchLengthening = false;
     boolean blowtorchWidening = true;
+    boolean blowtorchWide = false;
 
     long jumpPower;
     boolean jumpNextFrame;
@@ -179,6 +180,9 @@ public class KrumPlayer {
     int empty[];
 
     KrumJoey joey;
+
+    KrumPlayer[] players;
+
     
     /**
      * 
@@ -342,6 +346,7 @@ public class KrumPlayer {
         playerIndex = index;
         this.spriteGun = KrumHelpers.readSprite(spriteDir + "bazooka.png");
         spriteIndexNextFrame = spriteIndex;
+        this.players = players;
     }
 
     void stop() {
@@ -394,7 +399,7 @@ public class KrumPlayer {
         int y = (int)blowtorchStartY;
         int maxDrawWidth = BLOWTORCH_MAX_WIDTH / 2;
         if (blowtorchActive) {
-            if (blowtorchWidening) {                
+            if (blowtorchWidening || blowtorchWide) {                
                 g.setStroke(new BasicStroke(maxDrawWidth));
                 x += Math.cos(blowtorchAimAngle) * maxDrawWidth;
                 y -= Math.sin(blowtorchAimAngle) * maxDrawWidth;
@@ -1346,15 +1351,9 @@ public class KrumPlayer {
             blowtorchWidening = true;
             blowtorchLengthening = false;
         }
-        else if (blowtorchWidening) {
-
-            
-        }
-        blowtorchFrameCount++;
-        if (blowtorchFrameCount > BLOWTORCH_FRAMES + 6) {
-            blowtorchActive = false;
-            blowtorchWidening = false;
-            // destroy level
+        else if (blowtorchWidening || blowtorchWide) {
+            KrumPlayer otherPlayer = players[1 - playerIndex];
+            // destory level and hit opponent            
             double y = (int)blowtorchStartY;
             double x = (int)blowtorchStartX;
             double xdist = (blowtorchStartX + Math.cos(blowtorchAimAngle) * (blowtorchLength - BLOWTORCH_MAX_WIDTH / 2)) - x;
@@ -1378,16 +1377,51 @@ public class KrumPlayer {
                     for(int yt = (int)(y - BLOWTORCH_MAX_WIDTH / 2); yt <= (int)(y + BLOWTORCH_MAX_WIDTH / 2); yt++) {
                         if (yt < 0) continue;
                         if (yt >= KrumC.RES_Y) break;
-                        if (KrumHelpers.distanceBetween(x, y, xt, yt) <= BLOWTORCH_MAX_WIDTH / 2) {
-                            levelRaster.setPixel(xt, yt, z);
+                        if (KrumHelpers.distanceBetween(x, y, xt, yt) <= BLOWTORCH_MAX_WIDTH / 2) { // if within radius
+                            if (blowtorchWidening) { 
+                                    // destroy level
+                                    levelRaster.setPixel(xt, yt, z);
+                                }
+                            else {
+                                // hit opponent
+                                if  (   xt >= otherPlayer.xpos && xt < otherPlayer.xpos + otherPlayer.alphaRaster.getWidth() 
+                                    &&  yt >= otherPlayer.ypos && yt < otherPlayer.ypos + otherPlayer.alphaRaster.getHeight()
+                                ) { // possible hit
+                                    if (otherPlayer.alphaRaster.getPixel((int)(xt - otherPlayer.xpos), (int)(yt - otherPlayer.ypos), empty)[0] > KrumC.OPACITY_THRESHOLD) {
+                                        otherPlayer.damage(KrumC.BLOWTORCH_DAMAGE);
+                                        double kba = KrumHelpers.angleBetween(playerCentre().x, playerCentre().y, otherPlayer.playerCentre().x, otherPlayer.playerCentre().y);
+                                        double kbm = KrumC.BLOWTORCH_KNOCKBACK;
+                                        if (Math.sin(kba) < 0.2 && Math.sin(kba) > -0.707) {
+                                            if (Math.cos(kba) > 0) {
+                                                kba = Math.asin(0.2);
+                                            }
+                                            else {
+                                                kba = -Math.asin(0.2);
+                                            }
+                                        }
+                                        otherPlayer.xvel += Math.cos(kba) * kbm;
+                                        otherPlayer.yvel -= Math.sin(kba) * kbm;
+                                        otherPlayer.airborne = true;
+                                    }
+                                } 
+                            }
                         }
                     }
                 }
                 x += xinc;
                 y += yinc;                
             }
+            
+            blowtorchWide = true;
+            blowtorchWidening = false;
+        }        
+        blowtorchFrameCount++;
+        if (blowtorchFrameCount > BLOWTORCH_FRAMES + 6) {
             airborne = true;
+            blowtorchActive = false;
+            blowtorchWide = false;
         }
+            
     }
 
     void fireBlowtorch() {
