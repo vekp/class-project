@@ -579,8 +579,7 @@ public class KrumPlayer {
             fireBlowtorch();
             fireBlowtorchNextFrame = false;
             if (recordingFrame != null) {
-                recordingFrame.fireBlowtorch = true;
-                recordingFrame.blowtorchAimAngle = blowtorchAimAngle;
+                recordingFrame.fireBlowtorch = true;                
             }
         }
         upArrowKeyDown = upArrowKeyDownNextFrame;
@@ -590,6 +589,7 @@ public class KrumPlayer {
             recordingFrame.downArrowKeyDown = downArrowKeyDownNextFrame;
             recordingFrame.leftKeyDown = leftKeyDownNextFrame;
             recordingFrame.rightKeyDown = rightKeyDownNextFrame; 
+            recordingFrame.blowtorchAimAngle = blowtorchAimAngle;
             // recordingTurn.frames.add(recordingFrame);
         }
         if (projectile != null) {
@@ -1390,13 +1390,13 @@ public class KrumPlayer {
         blowtorchLength = 0;
         blowtorchWidening = false;
         blowtorchLengthening = true;
+        blowtorchStartX = playerCentre().x;
+        blowtorchStartY = playerCentre().y;
     }
 
     void fireTorchNextFrame() {
         fireBlowtorchNextFrame = true;
         blowtorchAimAngle = calcAimAngle();
-        blowtorchStartX = playerCentre().x;
-        blowtorchStartY = playerCentre().y;
     }
 
 
