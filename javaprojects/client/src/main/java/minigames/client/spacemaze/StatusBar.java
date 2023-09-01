@@ -1,6 +1,7 @@
 package minigames.client.spacemaze;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -43,11 +44,11 @@ public class StatusBar extends JPanel {
     //Lives Panel
     JPanel livesPanel; //Main container to display lives
     JLabel livesRemaining;
-    JPanel lifeImage;  //sub containers for individual lives
-    JPanel lifeImage1;
-    JPanel lifeImage2;
-    JPanel lifeImage3;
-    JPanel lifeImage4;
+    //JPanel lifeImage;  //sub containers for individual lives
+    JPanel livesOnlyPanel; //JPanel that displays only the lives.
+
+    ImageIcon lifeImage;
+    
     
 
     /**
@@ -72,29 +73,25 @@ public class StatusBar extends JPanel {
         //and loop the Image labels 
         //Todo, implement loops 
         customFont = customFont.deriveFont(13f);
-        livesPanel = new JPanel(new FlowLayout());
-        livesPanel.setPreferredSize(new Dimension(120, 40));
+        livesPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        livesPanel.setPreferredSize(new Dimension(250, 40));
         livesPanel.setBackground(Color.BLACK);
-        livesRemaining = new JLabel("lives: ", SwingConstants.LEFT);
+        livesRemaining = new JLabel("lives:", SwingConstants.LEFT);
         livesRemaining.setFont(customFont);
         livesRemaining.setForeground(Color.WHITE);
         livesPanel.add(livesRemaining);
 
+        livesOnlyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        livesOnlyPanel.setPreferredSize(new Dimension(180, 40));
+        livesOnlyPanel.setBackground(Color.BLACK);
+        livesPanel.add(livesOnlyPanel);
+
         
         try {
-            ImageIcon lifeImage = new ImageIcon(getClass().getResource("/images/spacemaze/spaceShip2aUp.png"));
+            lifeImage = new ImageIcon(getClass().getResource("/images/spacemaze/spaceShip2aUp.png"));
             Image image = lifeImage.getImage();
             Image transform = image.getScaledInstance(30, 30, java.awt.Image.SCALE_SMOOTH);
             lifeImage = new ImageIcon(transform);
-            JLabel picLabel = new JLabel(lifeImage);
-            JLabel picLabel1 = new JLabel(lifeImage);
-            JLabel picLabel2 = new JLabel(lifeImage);
-            JLabel picLabel3 = new JLabel(lifeImage);
-
-            livesPanel.add(picLabel);
-            livesPanel.add(picLabel1);
-            livesPanel.add(picLabel2);
-            livesPanel.add(picLabel3);
 
         } catch (Exception e){
             logger.error(e);
@@ -121,7 +118,7 @@ public class StatusBar extends JPanel {
         gameTimer = new JLabel("Timer: 0", SwingConstants.CENTER);
         gameTimer.setForeground(Color.WHITE);
         gameTimer.setFont(customFont);
-        gbc.insets = new Insets(-100, 0, 0, 0);
+        gbc.insets = new Insets(-100, -70, 0, 0);
         gbc.gridx = 1;
         statusBar.add(gameTimer, gbc);
 
@@ -134,7 +131,7 @@ public class StatusBar extends JPanel {
         statusBar.add(level, gbc);
 
         //Lives Panel
-        gbc.weightx = 0;
+        gbc.weightx = 1;
         gbc.gridwidth = 1;
         gbc.gridx = 0;
         gbc.gridy = 1;
@@ -207,4 +204,15 @@ public class StatusBar extends JPanel {
             timer.purge();
         }
     }
+
+    public void updatePlayerLives(int playerLives){
+        livesOnlyPanel.removeAll();
+        logger.info("PlayerLives deducted: " + playerLives);
+        for (int i = 0; i<playerLives; i++){
+            livesOnlyPanel.add(new JLabel(lifeImage));
+        }
+        livesOnlyPanel.revalidate();
+        livesOnlyPanel.repaint();
+    }
+
 }

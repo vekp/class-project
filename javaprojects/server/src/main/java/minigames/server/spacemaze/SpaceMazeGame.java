@@ -120,7 +120,8 @@ public class SpaceMazeGame {
                     JsonObject serializedMazeArray = new JsonObject()
                             .put("command", "firstLevel")
                             .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()))
-                            .put("botStartLocations", mazeControl.getBotStartLocations());
+                            .put("botStartLocations", mazeControl.getBotStartLocations())
+                            .put("playerLives", player.getLives());
                     renderingCommands.add(serializedMazeArray);
                 }
                 case "onExit" -> {

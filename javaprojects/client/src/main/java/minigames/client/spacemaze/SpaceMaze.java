@@ -369,10 +369,13 @@ public class SpaceMaze implements GameClient {
                 JsonArray serialisedArray = command.getJsonArray("mazeArray");
                 // Get bot start locations
                 JsonArray botStartLocations = command.getJsonArray("botStartLocations");
+                int playerLives = command.getInteger("playerLives");
                 if (!serialisedArray.isEmpty()) {
                     // Only call this once, or we get multiple timer tasks running
                     loadMaze(serialisedArray, botStartLocations);
+                    statusBar.updatePlayerLives(playerLives);
                 }
+
             }
             case "nextLevel" -> {
                 JsonArray serialisedArray = command.getJsonArray("mazeArray");
@@ -421,6 +424,7 @@ public class SpaceMaze implements GameClient {
                 String playerLives = command.getString("lives");
                 try {
                     int livesRemaining = Integer.parseInt(playerLives);
+                    statusBar.updatePlayerLives(livesRemaining);
                     logger.info("Player lives remaining: " + livesRemaining);
                 } catch (NumberFormatException e) {
                     logger.error("Cannot convert playerLives to Integer");
