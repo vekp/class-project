@@ -163,6 +163,16 @@ public class KrumPlayer {
     double shootAimAngle;
     double ropeAimAngle;
 
+    boolean punchNextFrame = false;
+    boolean punching = false;
+    boolean punchedThisTurn = false;
+    int punchFrame;
+    BufferedImage[] punchSprites;
+    BufferedImage punchSprite;
+    WritableRaster punchRaster;
+
+    boolean punchHit = false;
+
 
     double lastAimAngle;
     double lastMouseX;
@@ -347,6 +357,14 @@ public class KrumPlayer {
         this.spriteGun = KrumHelpers.readSprite(spriteDir + "bazooka.png");
         spriteIndexNextFrame = spriteIndex;
         this.players = players;
+
+        punchSprites = new BufferedImage[6];
+        punchSprites[0] = KrumHelpers.readSprite("kangaroo_sprite/punch1.png");
+        punchSprites[1] = KrumHelpers.readSprite("kangaroo_sprite/punch2.png");
+        punchSprites[2] = KrumHelpers.readSprite("kangaroo_sprite/punch3.png");
+        punchSprites[3] = KrumHelpers.readSprite("kangaroo_sprite/punch1L.png");
+        punchSprites[4] = KrumHelpers.readSprite("kangaroo_sprite/punch2L.png");
+        punchSprites[5] = KrumHelpers.readSprite("kangaroo_sprite/punch3L.png");
     }
 
     void stop() {
@@ -417,14 +435,17 @@ public class KrumPlayer {
         }
 
         //Sprite Drawing   
-        spriteGun();
+        
         if (flashFramesLeft <= 0 || flashFramesLeft % 4 == 0) {
-            g.drawImage(sprite, null, (int)xpos, (int)ypos);               
-            if (!facingRight) {
+            g.drawImage(sprite, null, (int)xpos, (int)ypos);   
+            if (!punching) {
+                spriteGun();
+                if (!facingRight) {
                 g.drawImage(spriteGun, null, (int)xpos + 7, (int)ypos + 6);
-            } else {
-                g.drawImage(spriteGun, null, (int)xpos + 10, (int)ypos + 6);
-            }
+                } else {
+                    g.drawImage(spriteGun, null, (int)xpos + 10, (int)ypos + 6);
+                }
+            }                      
         }  
         
         //draw shot power bar
@@ -458,6 +479,10 @@ public class KrumPlayer {
         }
 
 
+        // draw punch
+        if (punching) {
+            g.drawImage(punchSprite, null, (int)xpos, (int)ypos);
+        }
 
         //draw hp
         g.setFont(new Font("Courier New", 1, 12));
@@ -465,6 +490,8 @@ public class KrumPlayer {
         String hpString = "";
         hpString += (int)Math.ceil(this.hp);
         g.drawString(hpString, (int)this.xpos + (int)sprite.getWidth() / 4, (int)this.ypos - 12);
+
+    
     }
 
     /**
@@ -509,6 +536,7 @@ public class KrumPlayer {
             fireBlowtorchNextFrame = playbackFrame.fireBlowtorch;
             blowtorchAimAngle = playbackFrame.blowtorchAimAngle;
             lastAimAngle = playbackFrame.lastAimAngle;
+            punchNextFrame = playbackFrame.punch;
             if (facingRight != playbackFrame.facingRight) {
                 facingRight = playbackFrame.facingRight;
                 spriteGun();
@@ -531,6 +559,7 @@ public class KrumPlayer {
             enterKeyDownNextFrame = false;
             upArrowKeyDownNextFrame = false;
             downArrowKeyDownNextFrame = false;
+            punchNextFrame = false;
         }
         if (shootNextFrame) {
             shoot(shotPower);
@@ -609,14 +638,14 @@ public class KrumPlayer {
             joey.update(tick);
         } 
         if (leftKeyDownNextFrame && !leftKeyDown) {
-            if (!airborne && !onRope) {
+            if ((!airborne && !onRope) || stuck) {
                 walking = true;                
             }
             setDirection(false, levelRaster);
             leftKeyDown = true;
         }
         if (rightKeyDownNextFrame && !rightKeyDown) {
-            if (!airborne && !onRope) {
+            if ((!airborne && !onRope) || stuck) {
                 walking = true;                
             }
             setDirection(true, levelRaster);
@@ -633,6 +662,16 @@ public class KrumPlayer {
         if (flashFramesLeft > 0) flashFramesLeft--;
         if (blowtorchActive) {
             updateBlowtorch();
+        }
+        if (punchNextFrame) {
+            if (recordingFrame != null) {
+                recordingFrame.punch = true;
+            }
+            punchNextFrame = false;
+            punch();
+        }
+        if (punching) {
+            updatePunch();
         }
 
         //fire weapons if at max power
@@ -1350,6 +1389,8 @@ public class KrumPlayer {
         else if (blowtorchLengthening) {
             blowtorchWidening = true;
             blowtorchLengthening = false;
+            blowtorchStartX = playerCentre().x;
+            blowtorchStartY = playerCentre().y;
         }
         else if (blowtorchWidening || blowtorchWide) {
             KrumPlayer otherPlayer = players[1 - playerIndex];
@@ -1468,6 +1509,70 @@ public class KrumPlayer {
         blowtorchAimAngle = calcAimAngle();
     }
 
+    void updatePunch() {        
+        if (punchFrame >= 15) {
+            punching = false;
+            return;
+        }
+        int frame = 0;
+        if (punchFrame < 4)
+            frame = 0;
+        else if (punchFrame < 8)
+            frame = 1;
+        else if (punchFrame < 15)
+            frame = 2;
+        else if (punchFrame < 20)
+            frame = 1;
+        else if (punchFrame < 25)
+            frame = 0;
+        if (!facingRight) 
+            frame += 3;
+        punchSprite = punchSprites[frame];
+        punchFrame++;
+
+        if (punchFrame <= 16 && !punchHit) {
+            punchRaster = punchSprite.getAlphaRaster();
+            KrumPlayer otherPlayer = players[1 - playerIndex];
+            for (int x = 0; x < punchSprite.getWidth(); x++) {
+                for (int y = 0; y < punchSprite.getHeight(); y++) {
+                    int rx = (int)xpos - (int)otherPlayer.xpos + x;
+                    int ry = (int)ypos - (int)otherPlayer.ypos + y;
+                    if (rx < 0 || rx >= otherPlayer.sprite.getWidth()) continue;
+                    if (ry < 0 || ry >= otherPlayer.sprite.getHeight()) continue;
+                    if (punchRaster.getPixel(x, y, empty)[0] > KrumC.OPACITY_THRESHOLD
+                    && otherPlayer.alphaRaster.getPixel(rx, ry, empty)[0] < KrumC.OPACITY_THRESHOLD) {
+                        punchHit = true;
+                        double punchMag = KrumC.PUNCH_FORCE;
+                        double punchAng = KrumC.PUNCH_ANGLE;
+                        if (!facingRight)
+                            punchAng = Math.PI - punchAng;
+                        otherPlayer.xvel += punchMag * Math.cos(punchAng);
+                        otherPlayer.yvel -= punchMag * Math.sin(punchAng);
+                        otherPlayer.airborne = true;
+                        otherPlayer.damage(KrumC.PUNCH_DAMAGE);
+                        return;
+                    }
+                }
+            }
+        }
+        
+    }
+
+    void punch() {
+        if (punchedThisTurn) return;
+        punchedThisTurn = true;
+        punching = true;
+        punchFrame = 0;
+        punchHit = false;
+        punchNextFrame = false;
+    }
+
+
+
+    void punchNextFrame() {
+        if (!punching)
+            punchNextFrame = true;
+    }
 
     /**
      * called at start and when window is moved, to ensure mouse locations are accurately reported relative to our drawable area

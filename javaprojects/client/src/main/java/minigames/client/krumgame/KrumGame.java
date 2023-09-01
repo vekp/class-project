@@ -152,6 +152,7 @@ public class KrumGame implements GameClient {
         for (int i = 0; i < KrumPlayer.shotsPerTurn.length; i++) {
             players[playerTurn].firedThisTurn[i] = 0;
         }
+        players[playerTurn].punchedThisTurn = false;
     }
 
     int numLivingPlayers() {
@@ -632,6 +633,9 @@ public class KrumGame implements GameClient {
         // }
         else if (e.getKeyCode() == KeyEvent.VK_B) {
             players[playerTurn].fireTorchNextFrame();
+        }
+        else if (e.getKeyCode() == KeyEvent.VK_P) {
+            players[playerTurn].punchNextFrame();
         }
     }
     void keyUp(KeyEvent e) {

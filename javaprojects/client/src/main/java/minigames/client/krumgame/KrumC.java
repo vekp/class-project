@@ -65,4 +65,8 @@ public class KrumC {
 
     static final double BLOWTORCH_DAMAGE = 3;
     static final double BLOWTORCH_KNOCKBACK = 1;
+
+    static final double PUNCH_FORCE = 5.5;
+    static final double PUNCH_ANGLE = Math.PI / 3.5;
+    static final int PUNCH_DAMAGE = 1;
 }

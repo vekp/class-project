@@ -33,6 +33,7 @@ public class KrumInputFrame {
     public boolean facingRight;
     public boolean fireBlowtorch;
     public double blowtorchAimAngle;
+    public boolean punch;
     public KrumInputFrame() {
 
     }
