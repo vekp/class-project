@@ -57,7 +57,7 @@ public class MySQLConnector {
             Class.forName("com.mysql.cj.jdbc.Driver");
 
             // Establish the database connection
-            try (Connection connection = DriverManager.getConnection(JDBC_URL, DB_USERNAME, DB_PASSWORD)) {
+            try (Connection connection = DriverManager.getConnection(jdbcUrl, dbUsername, dbPassword)) {
 
                 // Create a PreparedStatement
                 String query = "UPDATE This_Game_Table SET XP = ? WHERE Username = ?";
