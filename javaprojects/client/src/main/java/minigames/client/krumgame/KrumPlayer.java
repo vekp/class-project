@@ -1369,6 +1369,7 @@ public class KrumPlayer {
             if (ydist < 0) yinc *= -1;
             double z[] = {0};
             System.out.println(larger);
+            boolean hitopp = false;
             for (int i = 0; i < larger; i++) {
                 //System.out.println("x " + x + ", y " + y);
                 for(int xt = (int)(x - BLOWTORCH_MAX_WIDTH / 2); xt <= (int)(x + BLOWTORCH_MAX_WIDTH / 2); xt++) {
@@ -1382,27 +1383,13 @@ public class KrumPlayer {
                                     // destroy level
                                     levelRaster.setPixel(xt, yt, z);
                                 }
-                            else {
+                            else if (!hitopp) {
                                 // hit opponent
                                 if  (   xt >= otherPlayer.xpos && xt < otherPlayer.xpos + otherPlayer.alphaRaster.getWidth() 
                                     &&  yt >= otherPlayer.ypos && yt < otherPlayer.ypos + otherPlayer.alphaRaster.getHeight()
                                 ) { // possible hit
                                     if (otherPlayer.alphaRaster.getPixel((int)(xt - otherPlayer.xpos), (int)(yt - otherPlayer.ypos), empty)[0] > KrumC.OPACITY_THRESHOLD) {
-                                        otherPlayer.damage(KrumC.BLOWTORCH_DAMAGE);
-                                        //double kba = KrumHelpers.angleBetween(playerCentre().x, playerCentre().y, otherPlayer.playerCentre().x, otherPlayer.playerCentre().y);
-                                        double kba = blowtorchAimAngle;
-                                        double kbm = KrumC.BLOWTORCH_KNOCKBACK;
-                                        if (Math.sin(kba) < 0.3 && Math.sin(kba) > -0.707) {
-                                            if (Math.cos(kba) > 0) {
-                                                kba = Math.asin(0.3);
-                                            }
-                                            else {
-                                                kba = Math.PI - Math.asin(0.3);
-                                            }
-                                        }
-                                        otherPlayer.xvel += Math.cos(kba) * kbm;
-                                        otherPlayer.yvel -= Math.sin(kba) * kbm;
-                                        otherPlayer.airborne = true;
+                                        hitopp = true;
                                     }
                                 } 
                             }
@@ -1411,6 +1398,23 @@ public class KrumPlayer {
                 }
                 x += xinc;
                 y += yinc;                
+            }
+            if (hitopp) {
+                otherPlayer.damage(KrumC.BLOWTORCH_DAMAGE);
+                //double kba = KrumHelpers.angleBetween(playerCentre().x, playerCentre().y, otherPlayer.playerCentre().x, otherPlayer.playerCentre().y);
+                double kba = blowtorchAimAngle;
+                double kbm = KrumC.BLOWTORCH_KNOCKBACK;
+                if (Math.sin(kba) < 0.3 && Math.sin(kba) > -0.707) {
+                    if (Math.cos(kba) > 0) {
+                        kba = Math.asin(0.3);
+                    }
+                    else {
+                        kba = Math.PI - Math.asin(0.3);
+                    }
+                }
+                otherPlayer.xvel += Math.cos(kba) * kbm;
+                otherPlayer.yvel -= Math.sin(kba) * kbm;
+                otherPlayer.airborne = true;
             }
             
             blowtorchWide = true;
