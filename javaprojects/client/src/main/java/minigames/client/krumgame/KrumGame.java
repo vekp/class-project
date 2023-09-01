@@ -497,7 +497,10 @@ public class KrumGame implements GameClient {
                 resultString += "Game drawn!";
             }
             else {
-                resultString += "Player " + w + " wins!";
+                if (w == myPlayerIndex)
+                    resultString += "You win!";
+                else 
+                    resultString += "You lose!";
             }
             g.setColor(Color.BLACK);
             g.setFont(new Font("Courier New", 1, 42));
