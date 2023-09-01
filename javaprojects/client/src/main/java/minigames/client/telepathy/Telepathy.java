@@ -53,6 +53,8 @@ public class Telepathy implements GameClient, Tickable{
     /** Your name */    
     String player;
 
+    ActionListener buttonListener;
+
     JPanel telepathyBoard; // integrated game board
     JPanel gridIndexWest; // alphabetical index
     JPanel gridIndexNorth; // numerical index
@@ -63,7 +65,7 @@ public class Telepathy implements GameClient, Tickable{
     JPanel sidePanel; // board game side panel
     JPanel colourSymbolPanel; //  nested panel listing the colours and symbols in the gameboard
     
-
+    JButton startGame; // Button to initialise game
     int buttonClicks = 0; // an int to track button clicks
 
     int ROWS = 9; // adjustable variable for grid size
@@ -119,13 +121,14 @@ public class Telepathy implements GameClient, Tickable{
         backButton.setPreferredSize(new Dimension(20, 40));
         backButton.addActionListener(e -> {
             telepathyNotificationManager.dismissCurrentNotification();
+            startGame.setEnabled(true);
             int resetButtonCLicks = 0;
             buttonClicks = resetButtonCLicks;
             sendCommand(TelepathyCommands.QUIT.toString());
         });
 
         // Temporary button to start the game...would be better for the Welcome Message to appear on Telepathy startup
-       JButton startGame = new JButton("Start a Game!");
+       startGame = new JButton("Start a Game!");
        startGame.setPreferredSize(new Dimension(20, 40));
         startGame.addActionListener(e -> {
             activateWelcomeMessage();
@@ -138,14 +141,11 @@ public class Telepathy implements GameClient, Tickable{
         buttonPanel.add(backButton);
         buttonPanel.add(startGame);
        
-        
-
        
-        ActionListener buttonListener = evt -> {
+        buttonListener = evt -> {
             // on click event: iterates through the button array
             /* compares the grid button with the get(Source) JButton and displays a pop-up 
             message enabling players to finalise their selection */
-            
             JButton selectedBtn = (JButton) evt.getSource();
             for (int row = 0; row < buttonGrid.length; row++) {
                 for (int col = 0; col < buttonGrid[row].length; col++) {
@@ -158,7 +158,8 @@ public class Telepathy implements GameClient, Tickable{
             }
         };
         // a nested for loop to add buttons with ActionListeners to the panel
-        // UPDATE code here to add colours and symbols??
+        // UPDATE code here to add colours and symbols?? 
+        //FIXME: Refactor code / need to implement code that disables board buttons during popup messages / board object?
         for (int row = 0; row < buttonGrid.length; row++) {
             for (int col = 0; col < buttonGrid.length; col++) {
                 buttonGrid[row][col] = new JButton();
@@ -166,6 +167,7 @@ public class Telepathy implements GameClient, Tickable{
                 buttonGrid[row][col].addActionListener(buttonListener);
                 board.add(buttonGrid[row][col]);
             }
+
         }
 
         // added components to the telepathyBoard panel
@@ -200,6 +202,7 @@ public class Telepathy implements GameClient, Tickable{
 
         
     }
+
     /**
      * A JPanel displaying a welcome message and information about game play.
      * @return popupWelcome JPanel 
@@ -274,6 +277,7 @@ public class Telepathy implements GameClient, Tickable{
     public void activateQuestOrGuessMessage(int x, int y){
         questionOrFinalGuess = questionOrGuess(x, y);
         telepathyNotificationManager.setAnimationSpeed(8);
+         // TODO update with new method in NotificationManager to adapt where it appears
         telepathyNotificationManager.setAlignment(0.5f);
         telepathyNotificationManager.showNotification(questionOrFinalGuess); 
     }
@@ -287,6 +291,7 @@ public class Telepathy implements GameClient, Tickable{
     public void selectTargetTile(int x, int y){
         confirmTargetTile = confirmTargetTile(x, y);
         telepathyNotificationManager.setAnimationSpeed(8);
+         // TODO update with new method in NotificationManager to adapt where it appears
         telepathyNotificationManager.setAlignment(0.5f);
         telepathyNotificationManager.showNotification(confirmTargetTile); 
     }
@@ -300,7 +305,7 @@ public class Telepathy implements GameClient, Tickable{
      */
 
      public JPanel confirmTargetTile(int x, int y){
-    
+
         JPanel confirmTargetTile = new JPanel();
         confirmTargetTile.setLayout(new BorderLayout());
         confirmTargetTile.setPreferredSize(new Dimension(400, 150));
@@ -354,6 +359,7 @@ public class Telepathy implements GameClient, Tickable{
      * @param int y represetning the y coordinate of the selected tile
      * @return questionOrGuess JPanel
      */
+
     public JPanel questionOrGuess(int x, int y){
     
         JPanel questionOrGuess = new JPanel();
