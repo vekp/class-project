@@ -60,6 +60,8 @@ public class Telepathy implements GameClient, Tickable{
     JPanel welcomeMessage; // first popup message to start game
     JPanel confirmTargetTile; // popup panel to confirm players target tile selection
     JPanel questionOrFinalGuess; // popup panel that asks player about their button selection
+    JPanel sidePanel; // board game side panel
+    JPanel colourSymbolPanel; //  nested panel listing the colours and symbols in the gameboard
     
 
     int buttonClicks = 0; // an int to track button clicks
@@ -109,7 +111,7 @@ public class Telepathy implements GameClient, Tickable{
         //a panel for the 2D button array
         board = new JPanel();
         board.setLayout(new GridLayout(ROWS, COLS, GAP, GAP));
-        board.setMaximumSize(new Dimension(350, 350));
+        board.setMaximumSize(new Dimension(500, 500));
         board.setBorder(new EmptyBorder(10, 10, 10, 10));
         
         // Button to go back to the main menu
@@ -173,6 +175,29 @@ public class Telepathy implements GameClient, Tickable{
         telepathyBoard.add(gridIndexNorth, BorderLayout.NORTH, SwingConstants.CENTER);
         telepathyBoard.add(board, BorderLayout.CENTER);
 
+        sidePanel = new JPanel();
+        sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS)); 
+        sidePanel.setPreferredSize(new Dimension(300, 600));       
+
+        Font font = new Font("futura", Font.BOLD, 16);
+        JLabel heading = new JLabel("Tile Features");
+        heading.setFont(font);
+        heading.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+       
+        colourSymbolPanel = new JPanel();
+        colourSymbolPanel.setLayout(new FlowLayout());
+        colourSymbolPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        colourSymbolPanel.setOpaque(true);
+        JPanel colours = colourSideTiles();
+        JPanel symbols = symbolSideTiles();
+        
+        colourSymbolPanel.add(colours);
+        colourSymbolPanel.add(symbols);
+
+        sidePanel.add(heading);
+        sidePanel.add(colourSymbolPanel);
+
         
     }
     /**
@@ -186,6 +211,7 @@ public class Telepathy implements GameClient, Tickable{
         popupWelcome.setLayout(new BoxLayout(popupWelcome, BoxLayout.PAGE_AXIS));
         popupWelcome.setPreferredSize(new Dimension(300, 300));
         
+        
         Font font = new Font("futura", Font.BOLD, 20);
         Font subFont = new Font("georgia", Font.ITALIC, 18);
 
@@ -194,27 +220,32 @@ public class Telepathy implements GameClient, Tickable{
         JLabel heading = new JLabel("Telepathy");
         JLabel subHeading = new JLabel("are you telepathic " + player + "? ");
         heading.setFont(font);
+        heading.setAlignmentX(Component.CENTER_ALIGNMENT);
         subHeading.setFont(subFont);
+        subHeading.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
 
-        headings.add(heading, heading.CENTER_ALIGNMENT);
-        headings.add(subHeading, subHeading.CENTER_ALIGNMENT);
+        headings.add(heading);
+        headings.add(subHeading);
 
         JTextPane description = new JTextPane();
         description.setText("\n\n\nTo start a game, choose your target tile!\n\n\nOnce your target tile is selected, start asking questions by clicking another tile...");
         description.setEditable(false);
+        description.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JButton gotIt = new JButton("Got it!");
         gotIt.setPreferredSize(new Dimension(20, 40));
+        gotIt.setAlignmentX(Component.CENTER_ALIGNMENT);
         gotIt.addActionListener(e -> {
             int updateButtonClicks = buttonClicks++; 
             telepathyNotificationManager.dismissCurrentNotification();
         });
 
 
-        popupWelcome.add(headings, headings.CENTER_ALIGNMENT);
-        popupWelcome.add(subHeading, subHeading.CENTER_ALIGNMENT);
-        popupWelcome.add(description, description.CENTER_ALIGNMENT);
-        popupWelcome.add(gotIt, gotIt.CENTER_ALIGNMENT);
+        popupWelcome.add(headings);
+        popupWelcome.add(subHeading);
+        popupWelcome.add(description);
+        popupWelcome.add(gotIt);
 
         
 
@@ -228,6 +259,7 @@ public class Telepathy implements GameClient, Tickable{
     public void activateWelcomeMessage(){
         welcomeMessage = popupWelcomeMessage();
         telepathyNotificationManager.setAnimationSpeed(8);
+        // TODO update with new method in NotificationManager to adapt where it appears
         telepathyNotificationManager.setAlignment(0.5f);
         telepathyNotificationManager.setDisplayTime(0);
         telepathyNotificationManager.showNotification(welcomeMessage, false);
@@ -368,6 +400,149 @@ public class Telepathy implements GameClient, Tickable{
         return questionOrGuess;
     }
 
+    
+    public JPanel colourSideTiles(){
+
+        JPanel colours = new JPanel();
+        colours.setLayout(new BoxLayout(colours, BoxLayout.Y_AXIS));
+        colours.setPreferredSize(new Dimension(100, 600));
+        
+        JButton red = new JButton("Red");
+        red.setBackground(Color.RED);
+        red.setForeground(Color.RED);
+        red.setOpaque(true);
+        red.setBorderPainted(true);
+        red.setFocusPainted(false);
+        red.setPreferredSize(new Dimension(70, 60));
+        JButton pink = new JButton("Pink");
+        pink.setBackground(Color.PINK);
+        pink.setForeground(Color.PINK);
+        pink.setOpaque(true);
+        pink.setBorderPainted(true);
+        pink.setFocusPainted(false);
+        pink.setPreferredSize(new Dimension(70, 60));
+        JButton cyan = new JButton("Cyan");
+        cyan.setBackground(Color.CYAN);
+        cyan.setForeground(Color.CYAN);
+        cyan.setOpaque(true);
+        cyan.setBorderPainted(true);
+        cyan.setFocusPainted(false);
+        cyan.setPreferredSize(new Dimension(70, 60));
+        JButton grey = new JButton("Grey");
+        grey.setBackground(Color.GRAY);
+        grey.setForeground(Color.GRAY);
+        grey.setOpaque(true);
+        grey.setBorderPainted(true);
+        grey.setFocusPainted(false);
+        grey.setPreferredSize(new Dimension(70, 60));
+        JButton yellow = new JButton("Yellow");
+        yellow.setBackground(Color.YELLOW);
+        yellow.setForeground(Color.YELLOW);
+        yellow.setOpaque(true);
+        yellow.setBorderPainted(true);
+        yellow.setFocusPainted(false);
+        yellow.setPreferredSize(new Dimension(70, 60));
+        JButton magenta = new JButton("Purple");
+        magenta.setBackground(Color.MAGENTA);
+        magenta.setForeground(Color.MAGENTA);
+        magenta.setOpaque(true);
+        magenta.setBorderPainted(true);
+        magenta.setFocusPainted(false);
+        magenta.setPreferredSize(new Dimension(70, 60));
+        JButton orange = new JButton("Orange");
+        orange.setBackground(Color.ORANGE);
+        orange.setForeground(Color.ORANGE);
+        orange.setOpaque(true);
+        orange.setBorderPainted(true);
+        orange.setFocusPainted(false);
+        orange.setPreferredSize(new Dimension(70, 60));
+        JButton blue = new JButton("Blue");
+        blue.setBackground(Color.BLUE);
+        blue.setForeground(Color.BLUE);
+        blue.setOpaque(true);
+        blue.setBorderPainted(true);
+        blue.setFocusPainted(false);
+        blue.setPreferredSize(new Dimension(70, 60));
+        JButton green = new JButton("Green");
+        green.setBackground(Color.GREEN);
+        green.setForeground(Color.GREEN);
+        green.setOpaque(true);
+        green.setBorderPainted(true);
+        green.setFocusPainted(false);
+        green.setPreferredSize(new Dimension(70, 60));
+       
+
+        colours.add(red);
+        colours.add(Box.createRigidArea(new Dimension(0, 5)));
+        colours.add(green);
+        colours.add(Box.createRigidArea(new Dimension(0, 5)));
+        colours.add(pink);
+        colours.add(Box.createRigidArea(new Dimension(0, 5)));
+        colours.add(blue);
+        colours.add(Box.createRigidArea(new Dimension(0, 5)));
+        colours.add(grey);
+        colours.add(Box.createRigidArea(new Dimension(0, 5)));
+        colours.add(yellow);
+        colours.add(Box.createRigidArea(new Dimension(0, 5)));
+        colours.add(cyan);
+        colours.add(Box.createRigidArea(new Dimension(0, 5)));
+        colours.add(magenta);
+        colours.add(Box.createRigidArea(new Dimension(0, 5)));
+        colours.add(orange);
+
+        return colours;
+    }
+    
+    public JPanel symbolSideTiles(){
+
+        JPanel symbols = new JPanel();
+        symbols.setLayout(new BoxLayout(symbols, BoxLayout.Y_AXIS));
+        symbols.setPreferredSize(new Dimension(100, 600));
+        
+        JButton hearts = new JButton("!!");
+        hearts.setPreferredSize(new Dimension(70, 60));
+        JButton stars = new JButton("<3");
+        stars.setPreferredSize(new Dimension(70, 60));
+        JButton diamonds = new JButton("??");
+        diamonds.setPreferredSize(new Dimension(70, 60));
+        JButton spades = new JButton("*");
+        spades.setPreferredSize(new Dimension(70, 60));
+        JButton clubs = new JButton("D");
+        clubs.setPreferredSize(new Dimension(70, 60));
+        JButton moons = new JButton("d");
+        moons.setPreferredSize(new Dimension(70, 60));
+        JButton circles = new JButton("s");
+        circles.setPreferredSize(new Dimension(70, 60));
+        JButton questionMarks = new JButton("c");
+        questionMarks.setPreferredSize(new Dimension(70, 60));
+        JButton exclamationMarks = new JButton("O");
+        exclamationMarks.setPreferredSize(new Dimension(70, 60));
+        
+        symbols.add(hearts);
+        symbols.add(Box.createRigidArea(new Dimension(0, 5)));
+        symbols.add(stars);
+        symbols.add(Box.createRigidArea(new Dimension(0, 5)));
+        symbols.add(diamonds);
+        symbols.add(Box.createRigidArea(new Dimension(0, 5)));
+        symbols.add(spades);
+        symbols.add(Box.createRigidArea(new Dimension(0, 5)));
+        symbols.add(clubs);
+        symbols.add(Box.createRigidArea(new Dimension(0, 5)));
+        symbols.add(moons);
+        symbols.add(Box.createRigidArea(new Dimension(0, 5)));
+        symbols.add(circles);
+        symbols.add(Box.createRigidArea(new Dimension(0, 5)));
+        symbols.add(questionMarks);
+        symbols.add(Box.createRigidArea(new Dimension(0, 5)));
+        symbols.add(exclamationMarks);
+
+        return symbols;
+    }
+    
+
+
+
+
 
 
     /**
@@ -398,6 +573,7 @@ public class Telepathy implements GameClient, Tickable{
 
         // Add our components to the north, south, east, west, or centre of the main window's BorderLayout
         mnClient.getMainWindow().addCenter(telepathyBoard);
+        mnClient.getMainWindow().addWest(sidePanel);
 
         // Activate popup welcome message when window is opened
         //FIXME attempted code to activate welcome message on start up
