@@ -381,7 +381,6 @@ public class KrumPlayer {
         firing = false;
         firingGrenade = false;
         shootingRope = false;
-        blowtorchActive = false;
     }
 
     Point2D.Double playerCentre() {
