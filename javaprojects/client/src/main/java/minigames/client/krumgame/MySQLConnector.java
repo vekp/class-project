@@ -2,57 +2,79 @@ package minigames.client.krumgame;
 
 import java.sql.*;
 
-//This code is run any time a new user enters their username. We use that username to source the XP on file and
-//return it into our main algorithm. This code will be accessible by all developers.
 
 public class MySQLConnector {
-    
 
-    
-    public static void main(String[] args) {
+    // TODO: Update variables with actual values
+    private static final String jdbcUrl = "jdbc:mysql://localhost:3306/database_name";
+    private static final String dbUsername = "your_username";
+    private static final String dbPassword = "your_password";
 
-        //Imported from start of game
-        String UNEUserName = "tempUser";
-
-        //Variables to access MySQL database - assuming there is a username and password - change appropriately
-        
-        String jdbcUrl = "jdbc:mysql://localhost:3306/database_name";
-        String username = "your_username";
-        String password = "your_password";
-
+    /**
+     * This method tries to retrieve xp associated with the username if it exists
+     * else it inserts the username into the database and set xp as 0.
+     */
+    public static int getXpForUser(String username) {
+        int xp = 0;
         try {
             // Load the MySQL JDBC driver
             Class.forName("com.mysql.cj.jdbc.Driver");
 
             // Establish the database connection
-            Connection connection = DriverManager.getConnection(jdbcUrl, username, password);
+            try (Connection connection = DriverManager.getConnection(jdbcUrl, dbUsername, dbPassword)) {
 
-            // Create a statement
-            Statement statement = connection.createStatement();
+                // TODO: Create a prepared statement for the SELECT query
+                String selectQuery = "SELECT XP FROM This_Game_Table WHERE Username = ?";
+                try (PreparedStatement preparedStatement = connection.prepareStatement(selectQuery)) {
+                    preparedStatement.setString(1, username);
+                    try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                        if (resultSet.next()) {
+                            xp = resultSet.getInt("XP");
+                        } else {
+                            // Insert new user with default XP of 0
+                            String insertQuery = "INSERT INTO This_Game_Table (Username, XP) VALUES (?, 0)";
+                            try (PreparedStatement insertStatement = connection.prepareStatement(insertQuery)) {
+                                insertStatement.setString(1, username);
+                                insertStatement.executeUpdate();
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+        return xp;
+    }
 
-            // Execute a query - Example only
-            String query = "SELECT XP FROM This_Game_Table";
-            ResultSet resultSet = statement.executeQuery(query);
 
-            // Process the result set
-            while (resultSet.next()) {
-                //check columnLabels etc.
-                int xp = resultSet.getInt("level");
-                // ... Retrieve other columns as needed
-                System.out.println("Username is" + UNEUserName + ", XP is: " + xp);
-                //xp must also be returned to the xp value in LevelUp.java
+    /**
+     * This method is for updating the xp of a user.
+     */
+    public static void updateXpForUser(String username, int newXp) {
+        try {
+            // Load the MySQL JDBC driver
+            Class.forName("com.mysql.cj.jdbc.Driver");
 
+            // Establish the database connection
+            try (Connection connection = DriverManager.getConnection(JDBC_URL, DB_USERNAME, DB_PASSWORD)) {
+
+                // Create a PreparedStatement
+                String query = "UPDATE This_Game_Table SET XP = ? WHERE Username = ?";
+                try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+                    // Set the parameters
+                    preparedStatement.setInt(1, newXp);
+                    preparedStatement.setString(2, username);
+
+                    // Execute the update
+                    preparedStatement.executeUpdate();
+                }
             }
 
-            // Close resources
-            resultSet.close();
-            statement.close();
-            connection.close();
-
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
+        } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
     }
 }
+
