@@ -466,6 +466,7 @@ public class MazeControl {
         // If player location equals location of wormhole trap - return true
         if (wormholeLocationsList.contains(playerLocation))
         {
+            wormholeLocationsList.remove(playerLocation);
             return true;
         }
         else
@@ -483,6 +484,7 @@ public class MazeControl {
         // If player location equals location of bomb trap - return true
         if (bombLocationsList.contains(playerLocation))
         {
+            bombLocationsList.remove(playerLocation);
             return true;
         }
         else{
@@ -551,6 +553,14 @@ public class MazeControl {
     public List<Point> getBotStartLocations()
     {
         return botsLocationsList;
+    }
+
+    /*
+    * getCurrentLevel function - returns current game level
+    * @return current level - int
+     */
+    public int getCurrentLevel() {
+        return this.currentLevel;
     }
 
 }

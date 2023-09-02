@@ -170,9 +170,9 @@ public class MazeDisplay extends JPanel {
      * Called from SpaceMaze class when a command is received to updateMaze
      * @param mazeMap char[][] of the current maze layout
      */
-    public void updateMaze(char[][] mazeMap){
-        this.mazeMap = mazeMap;
-        playerPos = findCharOnMap(mazeMap, 'P');
+    public void updateMaze(char[][] mazeArray){
+        this.mazeMap = mazeArray;
+        playerPos = findCharOnMap(mazeArray, 'P');
         mazeMap[startPos.y][startPos.x] = 'S';
         repaint();
     }
@@ -181,8 +181,8 @@ public class MazeDisplay extends JPanel {
      * To be called when we start a new level.
      * @param mazeMap the new level
      */
-    public void newLevel(char[][] mazeMap, ArrayList<SpaceBot> newBots){
-        this.mazeMap = mazeMap;
+    public void newLevel(char[][] mazeArray, ArrayList<SpaceBot> newBots){
+        this.mazeMap = mazeArray;
         this.startPos = findCharOnMap(mazeMap, 'P');
         this.playerPos = findCharOnMap(mazeMap, 'P');
         this.exitPoint = findCharOnMap(mazeMap, 'E');

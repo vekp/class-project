@@ -37,6 +37,15 @@ public class SpacePlayer extends SpaceEntity {
         return playerScore += subTotalScore;
     }
 
+    /**
+     * Public method for reseting the players attributes between games
+     */
+    public void resetPlayer(){
+        this.numKeys = 0;
+        this.playerScore = 0;
+        this.numLives = 5;
+    }
+
      /**
      * Public method for getting the number of keys the player has.
      * @return an int of the quantity of keys the player has.

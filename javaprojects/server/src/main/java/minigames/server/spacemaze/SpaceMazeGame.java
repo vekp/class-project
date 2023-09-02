@@ -29,8 +29,6 @@ public class SpaceMazeGame {
     // The instance of MazeControl for this individual game
     MazeControl mazeControl;
 
-    int level;
-
     /**
      * Constructor
      * @param name to identify the individual game
@@ -38,9 +36,7 @@ public class SpaceMazeGame {
     public SpaceMazeGame(String name) {
         this.name = name;
         this.player = new SpacePlayer(new Point(1,0), 5);
-        this.mazeControl = new MazeControl(this.player);
         players.put(name, this.player);
-        this.level = 1;
     }
 
     // Players in this game
@@ -116,6 +112,8 @@ public class SpaceMazeGame {
                 }
                 case "requestGame" -> {
                     // Moved here from the constructor to only start the timer on maze load
+                    player.resetPlayer();
+                    this.mazeControl = new MazeControl(this.player);
                     mazeControl.playerEntersMaze(new Point(1, 0));
                     JsonObject serializedMazeArray = new JsonObject()
                             .put("command", "firstLevel")
@@ -126,17 +124,15 @@ public class SpaceMazeGame {
                 }
                 case "onExit" -> {
                     mazeControl.newLevel();
-                    //player.resetKeys();
                     player.calculateScore(mazeControl.timeTaken, 8000);
                     String playerScoreString = String.valueOf(player.getPlayerScore());
                     if (!mazeControl.gameFinished) {
-                        this.level++;
                         JsonObject serializedMazeArray = new JsonObject()
                                 .put("command", "nextLevel")
                                 .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()))
                                 .put("botStartLocations", mazeControl.getBotStartLocations())
                                 .put("totalScore", playerScoreString)
-                                .put("level", Integer.toString(level));
+                                .put("level", Integer.toString(mazeControl.getCurrentLevel()));
                         renderingCommands.add(serializedMazeArray);
                     } else {
                         int time = mazeControl.timeTaken;
