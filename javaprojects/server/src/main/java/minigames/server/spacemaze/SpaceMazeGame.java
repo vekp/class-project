@@ -37,8 +37,8 @@ public class SpaceMazeGame {
      */
     public SpaceMazeGame(String name) {
         this.name = name;
-        this.mazeControl = new MazeControl();
         this.player = new SpacePlayer(new Point(1,0), 5);
+        this.mazeControl = new MazeControl(this.player);
         players.put(name, this.player);
         this.level = 1;
     }
@@ -126,6 +126,7 @@ public class SpaceMazeGame {
                 }
                 case "onExit" -> {
                     mazeControl.newLevel();
+                    //player.resetKeys();
                     player.calculateScore(mazeControl.timeTaken, 8000);
                     String playerScoreString = String.valueOf(player.getPlayerScore());
                     if (!mazeControl.gameFinished) {

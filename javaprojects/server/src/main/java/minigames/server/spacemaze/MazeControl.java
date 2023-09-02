@@ -32,11 +32,13 @@ public class MazeControl {
     public int timeTaken;
 
     // Player info
+    SpacePlayer mazePlayer;
     private Point playerLocation;
     private List<Point> playerPrevLocationList = new ArrayList<Point>();
 
     // Start info - locations of maze entrances
-    private List<Point> startLocationsList = new ArrayList<Point>();  
+    //private List<Point> startLocationsList = new ArrayList<Point>();  
+    private Point startLocation;
     //private Point[] startLocations;  
 
     // Exit info - location of maze exit
@@ -55,6 +57,7 @@ public class MazeControl {
 
     // Traps info
     private List<Point> wormholeLocationsList = new ArrayList<Point>();
+    private List<Point> bombLocationsList = new ArrayList<Point>();
     // Bots info
     private List<Point> botsLocationsList = new ArrayList<Point>();
 
@@ -65,11 +68,13 @@ public class MazeControl {
     public Boolean gameFinished = false;
     // winner variable???
 
-    /*
-     * Constructor - sets fields (update to take player???)
-     */
-    public MazeControl() 
+
+    
+    // MazeControl - set player
+    public MazeControl(SpacePlayer player)
     {
+        // Set/link player;
+        this.mazePlayer = player;
         // Start maze on level 1
         this.currentLevel = 1;   
         // Set number of keys to unlock exit (level num)
@@ -102,18 +107,19 @@ public class MazeControl {
         return newMaze.getMazeInitArray();
     }
 
+ 
     /*
      * playerEntersMaze function - populates maze with player and starts timer
      * controlled by SpaceMazeGame
      * @param player - SpacePlayer 
-     */
+    */
     public void playerEntersMaze(Point playerLoc)
     {
         // Place player in maze - start location
         // Sets players location
         playerLocation = playerLoc;
         // checks players location is in startLocations List
-        if (startLocationsList.contains(playerLocation))
+        if (startLocation.equals(playerLocation))
         {
             // Set (x, y) to 'P'
             // NB - array[row = y][col = x]
@@ -128,6 +134,8 @@ public class MazeControl {
         mazeTimer.startTimer();
 
     }
+    
+
 
     /*
      * getExitLocation function - returns exit location in maze array
@@ -149,21 +157,23 @@ public class MazeControl {
         {
             for (int x = 0; x < mazeArray[y].length; x++)
             {
+                // Add start location
                 if (mazeArray[y][x] == 'S')
                 {
-                    startLocationsList.add(new Point(x, y));
+                    startLocation = new Point(x, y);
                 }
+                // Add exit location
                 else if (mazeArray[y][x] == 'E')
                 {
                     exitLocation = new Point(x, y);
                 }
+                // Add key locations
                 else if (mazeArray[y][x] == 'K')
                 {
-                    //private List<Point> keyLocationsList = new ArrayList<Point>();
                     keyLocationsList.add(new Point(x, y));
                 }
                 
-                // add bot locations
+                // Add bot locations
                 else if (mazeArray[y][x] == 'B')
                 {
                     botsLocationsList.add(new Point(x, y));
@@ -171,17 +181,21 @@ public class MazeControl {
                     // Removing bot locations once logged, controlled by client.
                     mazeArray[y][x] = '.';
                 }
-                // add trap locations - wormhole and timewarp
-                // add wormhole
+                // Add trap locations - wormhole and timewarp
+                // Add wormhole
                 else if (mazeArray[y][x] == 'H')
                 {
                     wormholeLocationsList.add(new Point(x, y));
                 }
-                // add timewarp
+                // Add timewarp
 
-                // add pickup locations - bomb and bonus points
-                // add bomb
-                // add bonus points
+                // Add pickup locations - bomb and bonus points
+                // Add bomb
+                else if (mazeArray[y][x] == 'M')
+                {
+                    bombLocationsList.add(new Point(x, y));
+                }
+                // Add bonus points
                 else if (mazeArray[y][x] == '$')
                 {
                     bonusPointsLocationsList.add(new Point(x, y));
@@ -293,17 +307,24 @@ public class MazeControl {
         // Initalise keyStatus with collected = false
         setKeyStatus(keyLocationsList);
 
-        // Reposition bots
-
         // Current time taken to update score
         timeTaken = mazeTimer.getSubTotalTime();
 
         // Re-position player's start location -- this will be problematic for >1 players
         // Select random location from startLocationsList and calls playerEntersMaze
-        Random rand = new Random();
-        int randomStartIndex = rand.nextInt(startLocationsList.size());
-        playerLocation = startLocationsList.get(randomStartIndex);
+        //Random rand = new Random();
+        //int randomStartIndex = rand.nextInt(startLocationsList.size());
+        //playerLocation = startLocationsList.get(randomStartIndex);
+        playerLocation = startLocation;
         playerEntersMaze(playerLocation);
+        // Reset player's number of keys to zero
+
+        mazePlayer.resetKeys();
+        int mazePlayerNumKeys = mazePlayer.checkNumberOfKeys()
+        System.out.println("Called resetKeys(), player numKeys = " + mazePlayerNumKeys);
+        //logger.info("PlayerKeys reset attempt! numKeys = " + mazePlayer.checkNumberOfKeys()); 
+        
+
         } else if (currentLevel == maxLevel) {
             callGameOver();
         } else {
@@ -406,15 +427,13 @@ public class MazeControl {
             mazeTimer.reduceTime();
         }
 
-        // Set (x, y) to 'P'
-        // NB - array[row = y][col = x]
-        //mazeArray[x][y] = 'P';
+        // Set new player location to 'P'
         mazeArray[newMove.y][newMove.x] = 'P';
         // Set previous player location to '.'
         mazeArray[prevMove.y][prevMove.x]= '.';
 
         // Check if player location picks up a key
-        updateKeyStatus(player, playerLocation);
+        updateKeyStatus(mazePlayer, playerLocation);
 
         // Check if player steps on a trap - wormhole
         if (collisionDetectWormhole())
@@ -428,16 +447,23 @@ public class MazeControl {
             mazeArray[prevMove.y][prevMove.x]= '.';
             mazeArray[newMove.y][newMove.x]= '.';
         }
+        
+        // Check if player steps on a trap - bomb
+        if(collisionDetectBomb())
+        {
+            // Remove all walls (replace with path - '.') within one tile
+            blowUpWalls();
 
-        // Check if game is over
-        //checkGameOver();
+        }
     }
 
-    // check if player collides with a trap
-    // collisionDetectWormhole()
+    /*
+     * collisionDetectWormhole()
+     * @return boolean - true of playerLocation equals a wormhole location
+     */
     public boolean collisionDetectWormhole()
     {
-        // If player location equals location of trap - spring trap
+        // If player location equals location of wormhole trap - return true
         if (wormholeLocationsList.contains(playerLocation))
         {
             return true;
@@ -448,9 +474,26 @@ public class MazeControl {
         }
     }
 
-    // collisionDetectBomb()
+    /*
+     * collisionDetectBomb()
+     * @return boolean - true of playerLocation equals a bomb location
+     */
+    public boolean collisionDetectBomb()
+    {
+        // If player location equals location of bomb trap - return true
+        if (bombLocationsList.contains(playerLocation))
+        {
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
     
-
+    /*
+     * randomRelocationPoint() function - randomly selects a valid random Point location
+     * @return point - a randomly selected Point
+     */
     // Random player relocation
     public Point randomRelocationPoint()
     {
@@ -465,10 +508,31 @@ public class MazeControl {
         return randomLocation;
     }
 
-    // Blow up walls
+    /*
+     * blowUpWalls function - blows up the wall tiles around the player's location
+     */
     public void blowUpWalls()
     {
-        // change all 'W' points 1 (or 2) blocks deep around player to '.'
+        // Set allDirections to co-ords north, south, eaat, west of player by one tile
+        Point north = new Point(playerLocation.x, playerLocation.y-1);
+        Point east = new Point(playerLocation.x+1, playerLocation.y);
+        Point south = new Point(playerLocation.x, playerLocation.y+1);
+        Point west = new Point(playerLocation.x-1, playerLocation.y);
+        List<Point> allDirections = new ArrayList<Point>(){
+            {
+                add(north);
+                add(east);
+                add(south);
+                add(west);
+            }
+        };
+        // Iterate through allDirections and change tiles to path('.')
+        for (int i = 0; i < allDirections.size(); i++)
+        {
+            int tempX = allDirections.get(i).x;
+            int tempY = allDirections.get(i).y;
+            mazeArray[tempY][tempX] = '.';
+        }
 
     }
 

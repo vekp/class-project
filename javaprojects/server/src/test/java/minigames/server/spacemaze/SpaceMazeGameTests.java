@@ -117,6 +117,18 @@ public class SpaceMazeGameTests {
         assertEquals((currentNumKeys+1), player.checkNumberOfKeys());
     }
 
+    @DisplayName("Check player - resetKeys()")
+    @Test
+    public void testPlayerResetKey() {
+        int currentNumKeys = player.checkNumberOfKeys();
+        System.out.println("currentNumKeys: " + currentNumKeys);
+        player.addKey();
+        System.out.println("addKey: " + player.checkNumberOfKeys());
+        player.resetKeys();
+        assertEquals(currentNumKeys, player.checkNumberOfKeys());
+        System.out.println("resetKeys: " + player.checkNumberOfKeys());
+    }
+
     
     /*
      * Test MazeControl - 
@@ -124,7 +136,7 @@ public class SpaceMazeGameTests {
      */
     //Point startLocation1 = new Point(1,0);
     private SpacePlayer player1 = new SpacePlayer(startLocation, 5);
-    private MazeControl maze1 = new MazeControl();      
+    private MazeControl maze1 = new MazeControl(player1);      
 
          
     @DisplayName("Check validMove -- invalid")
