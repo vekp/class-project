@@ -14,34 +14,32 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.OverlayLayout;
+import javax.swing.SwingUtilities;
+
+import minigames.client.Main;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class GameShowUI {
 
         private final static String dir = "./src/main/java/minigames/client/gameshow/GameShowImages/";
 
-        // private final static String hSBackgroundPath =
-        // "./GameShohomescreen-background.jpgwImages/homescreen-background.jpg";
+        private final static String fontdir = "./src/main/java/minigames/client/gameshow/Fonts/";
+
         private static final ImageIcon hScreenBackground = new ImageIcon(dir + "homescreen-background.jpg");
 
-        // private final static String lobbyButtonPath =
-        // "./GameShowImages/lobby-button.png";
-        private static final ImageIcon lobbyButton = new ImageIcon(dir + "lobby-button.png");
+        private static final ImageIcon lobbyButton = new ImageIcon(dir + "lobby-button.png");// make home button
 
-        // private final static String lobbyIconPath = "./GameShowImages/lobby.png";
         private static final ImageIcon lobbyIcon = new ImageIcon(dir + "lobby.png");
 
-        // private final static String memoryIconPath = "./GameShowImages/memory.png";
         private static final ImageIcon memoryIcon = new ImageIcon(dir + "memory.png");
 
-        // private final static String scrambleIconPath =
-        // "./GameShowImages/scramble.png";
         private static final ImageIcon scrambleIcon = new ImageIcon(dir + "scramble.png");
 
-        // private final static String revealIconPath = "./GameShowImages/reveal.png";
         private static final ImageIcon revealIcon = new ImageIcon(dir + "reveal.png");
 
-        // private final static String startButtonPath =
-        // "./GameShowImages/start-button.png";
         private static final ImageIcon startButton = new ImageIcon(dir + "start-button.png");
 
         public static JPanel lobbyHeader;
@@ -54,22 +52,25 @@ public class GameShowUI {
         public static Font pixelFont;
         public JPanel homeScreenPanel;
 
-        public static Font pixelFont() {
-                return pixelFont;
-        }
+        private int alpha = 255;
+        private int increment = -5;
+        private FadePanel background;
 
-        public void gameShowUI() {
+        public static Font pixelFont() {
                 try {
-                        pixelFont = Font.createFont(Font.TRUETYPE_FONT,
-                                        getClass().getResourceAsStream("/Fonts/Minecraft.ttf"));
+                        pixelFont = Font.createFont(Font.TRUETYPE_FONT, new File(fontdir + "Minecraft.ttf"));
                         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-                        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT,
-                                        getClass().getResourceAsStream("/Fonts/Minecraft.ttf")));
+                        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File(fontdir + "Minecraft.ttf")));
+
                 } catch (IOException | FontFormatException e) {
                         System.out.println(e);
                 }
-
+                return pixelFont;
         }
+
+        /**
+         * method to add pixelFont to Graphics Environment
+         */
 
         /**
          * method to generate the home screen
@@ -80,50 +81,60 @@ public class GameShowUI {
         public static JPanel generateHomeScreen() {
 
                 JLabel background;
-                JPanel homeScreenPanel;
+                FadePanel homeScreenPanel;
 
-                JButton lobby;
-
-                pixelFont();
-
-                homeScreenPanel = new JPanel(new GridBagLayout());
-                homeScreenPanel.setPreferredSize(new Dimension(800, 600));
-                GridBagConstraints gbc = new GridBagConstraints();
-
-                lobby = new JButton(
-                                new ImageIcon(lobbyButton.getImage().getScaledInstance(300, 130, Image.SCALE_DEFAULT)));
-                lobby.setContentAreaFilled(false);
-                lobby.setFocusPainted(false);
-                lobby.setBorderPainted(false);
-                gbc.fill = GridBagConstraints.HORIZONTAL;
-                gbc.anchor = GridBagConstraints.SOUTH;
-                gbc.gridx = 0;
-                gbc.gridy = 0;
-                homeScreenPanel.add(lobby, gbc);
+                homeScreenPanel = new FadePanel();
 
                 background = new JLabel(
                                 new ImageIcon(hScreenBackground.getImage().getScaledInstance(800, 600,
                                                 Image.SCALE_DEFAULT)));
-                gbc.fill = GridBagConstraints.HORIZONTAL;
-                gbc.gridx = 0;
-                gbc.gridy = 0;
-                gbc.ipadx = 10;
-                gbc.ipady = 20;
-                gbc.gridheight = 1;
-                gbc.gridwidth = 1;
-                homeScreenPanel.add(background, gbc);
 
-                lobby.addActionListener(e -> {
+                homeScreenPanel.add(background);
 
-                        // mainWindow.setContentPane(generateConsistentPanel());
-                        // mainWindow.pack();
-                        // mainWindow.setLocationRelativeTo(null);
-                        // mainWindow.setVisible(true);
+                homeScreenPanel.setAlpha(0.5);
 
+                SwingUtilities.invokeLater(new Runnable() {
+
+                        public void run() {
+                                var main = new GameShowUI();
+                                main.background = homeScreenPanel;
+                                main.makeUI();
+                        }
                 });
 
                 return homeScreenPanel;
+        }
 
+        public void makeUI() {
+
+                new javax.swing.Timer(40, new ActionListener() {
+
+                        public void actionPerformed(ActionEvent e) {
+
+                                if (alpha <= 0) {
+                                        return;
+                                }
+                                alpha += increment;
+
+                                background.setAlpha(alpha / 255f);
+                                // System.out.println(background.getAlpha());
+
+                        }
+                }).start();
+        }
+
+        public static JPanel generateIntroPanel() {
+                pixelFont();
+                JPanel introPanel = new JPanel();
+                introPanel.setLayout(new OverlayLayout(introPanel));
+
+                JPanel topPanel = generateHomeScreen();
+                JPanel bottomPanel = generateConsistentPanel();
+
+                introPanel.add(topPanel);
+                introPanel.add(bottomPanel);
+
+                return introPanel;
         }
 
         public static JPanel generateLobbyHeader() {
@@ -137,7 +148,8 @@ public class GameShowUI {
                 lobbyHeader.setBackground(Color.ORANGE);
 
                 lobbyHeaderImage = new JLabel(
-                                new ImageIcon(lobbyIcon.getImage()));
+                                new ImageIcon(lobbyIcon.getImage().getScaledInstance(600, 100,
+                                                Image.SCALE_DEFAULT)));
 
                 lobbyInstructions = new JTextField("Start a solo game now or wait for other players to join");
                 lobbyInstructions.setEditable(false);
@@ -163,7 +175,8 @@ public class GameShowUI {
                 memoryHeader.setBackground(Color.ORANGE);
 
                 memoryHeaderImage = new JLabel(
-                                new ImageIcon(memoryIcon.getImage()));
+                                new ImageIcon(memoryIcon.getImage().getScaledInstance(800, 100,
+                                                Image.SCALE_DEFAULT)));
 
                 memoryInstructions = new JTextField("add memory instructions");
                 memoryInstructions.setEditable(false);
@@ -240,6 +253,7 @@ public class GameShowUI {
                 gameContainer = new JPanel(new BorderLayout());
 
                 gameContainer.add(lobbyPanel);
+                gameContainer.setMinimumSize(new Dimension(800, 600));
 
                 return gameContainer;
         }
@@ -256,27 +270,25 @@ public class GameShowUI {
 
                 lobbyPanel = new JPanel(new BorderLayout());
 
-                miniMiniGame = new JPanel();
-                miniMiniGame.setMinimumSize(new Dimension(600, 800));
+                miniMiniGame = new JPanel(new BorderLayout());
+                miniMiniGame.setMinimumSize(new Dimension(400, 250));
 
                 startGame = new JButton(
-                                new ImageIcon(startButton.getImage().getScaledInstance(600, 100, Image.SCALE_DEFAULT)));// TODO:
-                                                                                                                        // change
-                                                                                                                        // button
-                                                                                                                        // image
+                                new ImageIcon(startButton.getImage().getScaledInstance(300, 50, Image.SCALE_DEFAULT)));
                 startGame.setContentAreaFilled(false);
                 startGame.setFocusPainted(false);
                 startGame.setBorderPainted(false);
 
+                miniMiniGame.add(startGame, BorderLayout.PAGE_END);
+
                 players = new JTextArea("Players in lobby: " + "", 20, 30);// TODO: get names of players
                 players.setFont(pixelFont.deriveFont(15f));
                 JScrollPane scrollableTextArea = new JScrollPane(players);
-                scrollableTextArea.setMinimumSize(new Dimension(600, 800));
+                scrollableTextArea.setMinimumSize(new Dimension(400, 250));
 
                 lobbyPanel.add(lobbyHeader, BorderLayout.PAGE_START);
                 lobbyPanel.add(scrollableTextArea, BorderLayout.LINE_START);
                 lobbyPanel.add(miniMiniGame, BorderLayout.LINE_END);
-                lobbyPanel.add(startGame, BorderLayout.PAGE_END);
 
                 return lobbyPanel;
         }

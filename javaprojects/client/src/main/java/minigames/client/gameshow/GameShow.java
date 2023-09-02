@@ -1,36 +1,19 @@
 package minigames.client.gameshow;
 
-import minigames.client.gameshow.GridPanel;
-import minigames.client.gameshow.ImageGuesser;
-
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
+
 import java.util.Collections;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-// import javax.swing.JTextArea;
-// import javax.swing.JTextField;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.FlowLayout; // Import FlowLayout from the java.awt package
 
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
 import minigames.rendering.GameMetadata;
 import minigames.commands.CommandPackage;
-
-import java.awt.AlphaComposite;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.util.Random;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * A very simple interface for a text-based game.
@@ -82,67 +65,6 @@ public class GameShow implements GameClient {
 
     public GameShow() {
 
-        homeScreen = GameShowUI.generateHomeScreen();
-
-        /*
-         * background = new JPanel(new BorderLayout());
-         * background.setPreferredSize(new Dimension(800, 600));
-         * background.setBackground(Color.WHITE);
-         * 
-         * titleArea = new JPanel(new BorderLayout());
-         * titleArea.setPreferredSize(new Dimension(800, 100));
-         * titleArea.setBackground(new Color(255, 255, 0));
-         * 
-         * title = new JLabel("GAME SHOW", SwingConstants.CENTER);
-         * title.setFont(new Font("Arial Black", Font.PLAIN, 60));
-         * 
-         * titleArea.add(title, BorderLayout.CENTER);
-         * 
-         * background.add(titleArea, BorderLayout.NORTH);
-         * 
-         * gameContainer = new JPanel(new BorderLayout());
-         * gameContainer.setPreferredSize(new Dimension(700, 400));
-         * gameContainer.setBorder(new EmptyBorder(20, 20, 20, 20));
-         * gameContainer.setBackground(Color.WHITE);
-         * 
-         * gameSelect = new JPanel(new BorderLayout());
-         * gameSelect.setPreferredSize(new Dimension(760, 40));
-         * gameSelect.setBackground(new Color(255, 106, 210));
-         * 
-         * gameSelectInstructions = new JLabel("Select a game to play",
-         * SwingConstants.CENTER);
-         * gameSelectInstructions.setFont(new Font("Arial", Font.PLAIN, 24));
-         * 
-         * gameSelect.add(gameSelectInstructions, BorderLayout.CENTER);
-         * 
-         * gameArea = new JPanel();
-         * gameArea.setLayout(new BoxLayout(gameArea, BoxLayout.Y_AXIS));
-         * gameArea.setBackground(new Color(255, 106, 210));
-         * 
-         * wordScramble = new JButton("Word Scramble");
-         * wordScramble.setAlignmentX(Component.CENTER_ALIGNMENT);
-         * wordScramble.addActionListener((evt) -> WordScramble.welcome(this));
-         * gameArea.add(wordScramble);
-         * 
-         * imageGuesserStart = new JButton("Image Guesser");
-         * imageGuesserStart.setAlignmentX(Component.CENTER_ALIGNMENT);
-         * imageGuesserStart.addActionListener((evt) -> sendCommand(new
-         * JsonObject().put("command", "imageGuesser")));
-         * gameArea.add(imageGuesserStart);
-         * 
-         * memoryGame = new JButton("Memory Game");
-         * memoryGame.setAlignmentX(Component.CENTER_ALIGNMENT);
-         * gameArea.add(memoryGame);
-         * 
-         * guessingGame = new JButton("Guess the Animal");
-         * guessingGame.setAlignmentX(Component.CENTER_ALIGNMENT);
-         * gameArea.add(guessingGame);
-         * 
-         * gameContainer.add(gameArea);
-         * 
-         * background.add(gameContainer);
-         */
-
     }
 
     public void wordScrambleGuess(boolean correct) {
@@ -192,6 +114,7 @@ public class GameShow implements GameClient {
 
         // Add our components to the north, south, east, west, or centre of the main
         // window's BorderLayout
+        homeScreen = GameShowUI.generateIntroPanel();
         mnClient.getMainWindow().addCenter(homeScreen);
         mnClient.getMainWindow().pack();
 

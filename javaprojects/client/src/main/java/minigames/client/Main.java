@@ -4,6 +4,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import minigames.client.battleship.Battleship;
 import minigames.client.muddletext.MuddleText;
+import minigames.client.gameshow.FadePanel;
 import minigames.client.gameshow.GameShow;
 import minigames.client.telepathy.Telepathy;
 import io.vertx.core.Launcher;
