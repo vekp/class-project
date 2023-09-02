@@ -37,6 +37,11 @@ import java.util.List;
 import java.util.Optional;
 import java.awt.geom.Point2D;
 
+//Imports for sound effects
+import java.net.URL;
+import javax.swing.*;
+import javax.sound.sampled.*;
+
 import minigames.krumgame.KrumInputFrame;
 
 import minigames.client.krumgame.components.*;
@@ -149,6 +154,8 @@ public class KrumGame implements GameClient {
         recordingTurn = true;
         turnOver = false;
         players[playerTurn].jumping = false;
+        //Below is playSound that should link to KrumSoundPlayer - commented out until it works
+        //playSound("/SoundEffects/sound4.wav");
         for (int i = 0; i < KrumPlayer.shotsPerTurn.length; i++) {
             players[playerTurn].firedThisTurn[i] = 0;
         }
