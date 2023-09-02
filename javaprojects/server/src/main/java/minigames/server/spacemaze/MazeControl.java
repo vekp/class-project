@@ -320,7 +320,7 @@ public class MazeControl {
         // Reset player's number of keys to zero
 
         mazePlayer.resetKeys();
-        int mazePlayerNumKeys = mazePlayer.checkNumberOfKeys()
+        int mazePlayerNumKeys = mazePlayer.checkNumberOfKeys();
         System.out.println("Called resetKeys(), player numKeys = " + mazePlayerNumKeys);
         //logger.info("PlayerKeys reset attempt! numKeys = " + mazePlayer.checkNumberOfKeys()); 
         
