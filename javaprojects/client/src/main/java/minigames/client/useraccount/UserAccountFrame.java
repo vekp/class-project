@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+
+
 public class UserAccountFrame extends JFrame implements ActionListener {
 
         private JTextField emailField;
@@ -43,9 +45,11 @@ public class UserAccountFrame extends JFrame implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e){
                 String emailInput = emailField.getText();
+                // FileGenerator user = new FileGenerator("emailInput");
+                        // user.generateFile();
 
                 if (emailInput.contains("@myune.edu.au")) {
-                        System.out.println("Welcome, " + emailInput + ", enjoy your session!");
+                        System.out.println("Welcome, " + emailInput + ", enjoy your session!");                        
                         this.dispose();
                 } else {
                         System.out.println("Please enter a valid email address.");
