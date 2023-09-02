@@ -9,7 +9,7 @@ import java.util.Random;
 
 public class QuoteGenerator {
     public static void main(String[] args) {
-        String filePath = "quotes.txt";
+        String filePath = "/quotes.txt";
 
         List<String> lines = new ArrayList<>();
         
