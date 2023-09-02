@@ -36,20 +36,12 @@ public class AchievementPresenterRegistry implements Tickable {
         LEFT(panelWidth),
         RIGHT(-panelWidth);
         final private int initialX;
+        float currentX;
 
         Direction(int initialX) {
             this.initialX = initialX;
         }
 
-        /**
-         * Calculate new X position from given old X position
-         */
-        int newX(int oldX) {
-            return switch (this) {
-                case LEFT -> (int) Math.floor(oldX * 0.85);
-                case RIGHT -> (int) Math.ceil(oldX * 0.85);
-            };
-        }
     }
     // Direction of animation movement of the panels
     private Direction direction;
@@ -220,6 +212,7 @@ public class AchievementPresenterRegistry implements Tickable {
         }
         // Position and add the incoming achievement panel
         if (nextAchievement.getBounds().equals(new Rectangle(0, 0, 0, 0))) {
+            direction.currentX = direction.initialX;
             nextAchievement.setBounds(direction.initialX, 0, panelWidth, panelHeight);
             centrePanel.add(nextAchievement);
         }
@@ -227,8 +220,8 @@ public class AchievementPresenterRegistry implements Tickable {
         leftButton.setEnabled(false);
         rightButton.setEnabled(false);
         // Calculate and set new positions
-        int nextX = (int) nextAchievement.getLocation().getX();
-        int newX = direction.newX(nextX);
+        direction.currentX *= 0.85;
+        int newX = Math.round(direction.currentX);
         currentAchievement.setLocation(newX - direction.initialX, 0);
         nextAchievement.setLocation(newX, 0);
         // Stop if final position reached
