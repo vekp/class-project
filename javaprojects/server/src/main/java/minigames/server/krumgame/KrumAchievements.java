@@ -9,9 +9,9 @@ enum achievements{
             case TARZAN_DEATH:   return "Tarzan Rope Death"; //User kills an opponent while shooting from a rope
             case LASER_DEATH:    return "Laser Death"; //Kill an opponent with a laser
             case MAP_SLAP:       return "Map Trap"; //Blow up a piece of a certain map (or each map)
-            case JOEY_SUICIDE;   return "Joey Suicide"; // Kill yourself with a Joey
-            case DIRECT_HIT;     return "Direct Hit with Grenade"; //Achievement for a Direct hit with a grenade, no bounce
-            case LONG_RANGE;     return "Long Range Bazooka"; //Shot with a Bazooka over 600 pixels away
+            case JOEY_SUICIDE:   return "Joey Suicide"; // Kill yourself with a Joey
+            case DIRECT_HIT:     return "Direct Hit with Grenade"; //Achievement for a Direct hit with a grenade, no bounce
+            case LONG_RANGE:     return "Long Range Bazooka"; //Shot with a Bazooka over 600 pixels away
             default:             return "Unknown Achievement";
         }
     }
