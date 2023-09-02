@@ -7,6 +7,7 @@ import org.apache.logging.log4j.core.util.Loader;
 import java.awt.*;
 import java.util.Collections;
 import javax.swing.*;
+import javax.swing.GroupLayout.Alignment;
 
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
@@ -30,7 +31,7 @@ public class SnakeGameText implements GameClient {
     String player;
 
     /**Buttons, JLabels and JPanels */
-    JButton start, score, help, back, exit;
+    JButton start, score, help, back, back1, exit;
     JLabel headerText, footerText, helpText, helpText1, controlText, highScore, playerName, scoreText;
     JPanel headerPanel, footerPanel, mainMenuPanel, buttonPanel, helpPanel, scorePanel;
 
@@ -42,6 +43,7 @@ public class SnakeGameText implements GameClient {
         //Button Dimension
         buttonDimension = new Dimension(150, 50);
 
+        //Customized Font
         customBigFont = new Font("Monospaced", Font.PLAIN, 32);
         customSmallFont = new Font("Monospaced", Font.PLAIN, 24);
 
@@ -59,88 +61,7 @@ public class SnakeGameText implements GameClient {
         headerPanel.add(headerText, g);
 
 
-        /**Help Panel */
-        helpPanel = new JPanel();
-        helpPanel.setLayout(new GridBagLayout());
-        helpPanel.setPreferredSize(new Dimension(800, 500));
-        helpPanel.setBackground(Color.YELLOW);
-        helpText = new JLabel("INSTRUCTIONS");
-        helpText.setFont(customBigFont);
-        helpText.setForeground(Color.BLACK);
-
-        g.insets = new Insets(-200, 0, 0, 0);
-        g.gridx = 0;
-        g.gridy = 0;
-        helpPanel.add(helpText, g);
-
-        //control text
-        controlText = new JLabel("Control:");
-        controlText.setFont(customSmallFont);
-        controlText.setForeground(Color.BLACK);
-
-        g.insets = new Insets(50, 0, 0, 0);
-        g.gridx = 0;
-        g.gridy = 1;
-        helpPanel.add(controlText, g);
-
-
-        /**help text */
-        helpText = new JLabel("W, S, A, D / Arrow Keys to control the player");
-        helpText.setFont(customSmallFont);
-        helpText.setForeground(Color.BLACK);
-
-        g.insets = new Insets(20, 0, 0, 0);
-        g.gridx = 0;
-        g.gridy = 2;
-        helpPanel.add(helpText, g);
-
-        helpText1 = new JLabel("- Collect food to score High");
-        helpText1.setFont(customSmallFont);
-        helpText1.setForeground(Color.BLACK);
-
-        g.insets = new Insets(20, 0, 0, 0);
-        g.gridx = 0;
-        g.gridy = 3;
-        helpPanel.add(helpText1, g);
-
-
-        /**Score Panel */
-        scorePanel = new JPanel();
-        scorePanel.setLayout(new GridBagLayout());
-        scorePanel.setPreferredSize(new Dimension(800, 500));
-        scorePanel.setBackground(Color.YELLOW);
-
-        highScore = new JLabel("High Score:");
-        highScore.setPreferredSize(new Dimension(600, 200));
-        highScore.setAlignmentX(Component.CENTER_ALIGNMENT);
-        highScore.setFont(customSmallFont);
-        highScore.setForeground(Color.BLACK);
-        
-        g.insets = new Insets(-200, 0, 0, 0);
-        g.gridx = 0;
-        g.gridy = 0;
-        scorePanel.add(highScore, g);
-
-
-        playerName = new JLabel("Player Name");
-        playerName.setFont(customSmallFont);
-        playerName.setForeground(Color.BLACK);
-
-        g.insets = new Insets(20, 20, 0, 0);
-        g.gridx = 0;
-        g.gridy = 1;
-        scorePanel.add(playerName, g);
-
-        scoreText= new JLabel("Score");
-        scoreText.setFont(customSmallFont);
-        scoreText.setForeground(Color.BLACK);
-
-        g.insets = new Insets(20, 20, 0, 0);
-        g.gridx = 1;
-        g.gridy = 1;
-        scorePanel.add(scoreText, g);
-
-         /** Footer Panel*/
+        /** Footer Panel*/
         footerPanel = new JPanel();
         footerPanel.setPreferredSize(new Dimension(800,30));
         footerPanel.setBackground(Color.BLACK);
@@ -152,7 +73,6 @@ public class SnakeGameText implements GameClient {
         footerText.setForeground(Color.WHITE);
         footerText.setFont(new Font("Monospaced", Font.PLAIN, 16));
         footerPanel.add(footerText,g);
-        
 
         /** Menu section */
         mainMenuPanel = new JPanel();
@@ -160,48 +80,49 @@ public class SnakeGameText implements GameClient {
         mainMenuPanel.setPreferredSize(new Dimension(800,800));
         mainMenuPanel.setBackground(Color.BLACK);
     
-
         /** Button Panel inside menu section*/
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-        buttonPanel.setPreferredSize(new Dimension(800,700));
-        buttonPanel.setBackground(Color.BLACK);
-
+        buttonPanel.setPreferredSize(new Dimension(800,800));
+        buttonPanel.setBackground(Color.black);
+        
 
         /**Button Section*/
-
         start = new JButton("Start Game");
-        start.setAlignmentX(Component.CENTER_ALIGNMENT);
         start.addActionListener((evt) -> sendCommand("START"));
 
         score = new JButton("Score");
-        score.setAlignmentX(Component.CENTER_ALIGNMENT);
         score.addActionListener((evt) -> sendCommand("SCORE"));
 
         help = new JButton("Help");
-        help.setAlignmentX(Component.CENTER_ALIGNMENT);
         help.addActionListener((evt) -> sendCommand("HELP"));
 
         back = new JButton("Back");
-        back.setAlignmentX(Component.CENTER_ALIGNMENT);
-        help.addActionListener((evt) -> sendCommand("BACK"));
+        back.addActionListener((evt) -> sendCommand("BACK"));
 
+        back1 = new JButton("Back");
+        back1.addActionListener((evt) -> sendCommand("BACK"));
+
+        /**setting back buttons dimension */
+        back.add(Box.createRigidArea(new Dimension(15,15)));
+        back.setPreferredSize(buttonDimension);
+        back.setMaximumSize(buttonDimension);
+
+        back1.add(Box.createRigidArea(new Dimension(15,15)));
+        back1.setPreferredSize(buttonDimension);
+        back1.setMaximumSize(buttonDimension);
 
         exit = new JButton("Exit");
-        exit.setAlignmentX(Component.CENTER_ALIGNMENT);
-        help.addActionListener((evt) -> sendCommand("EXIT"));
-
-
+        exit.addActionListener((evt) -> sendCommand("EXIT"));
 
 
         /** Adding buttons into button panel*/
-        for (Component c : new Component[] { start, score, help, back, exit }) {
+        for (Component c : new Component[] { start, score, help, exit }) {
             buttonPanel.add(c);
             buttonPanel.add(Box.createRigidArea(new Dimension(15,15)));
             c.setPreferredSize(buttonDimension);
             c.setMaximumSize(buttonDimension);
             ((AbstractButton) c).setAlignmentX(Component.CENTER_ALIGNMENT);
-        
     
         }
 
@@ -212,6 +133,106 @@ public class SnakeGameText implements GameClient {
         g.insets = new Insets(200, 0, 0, 0);
         mainMenuPanel.add(buttonPanel, g);
 
+
+        /**Adding Extra Panels for main menu */
+        
+
+        /**Help Panel */
+        helpPanel = new JPanel();
+        helpPanel.setBackground(Color.BLACK);
+        helpPanel.setPreferredSize(new Dimension(800, 800));
+        helpPanel.setLayout(new GridBagLayout());
+
+        /**Help Text */
+        helpText = new JLabel("INSTRUCTIONS");
+        helpText.setFont(customBigFont);
+        helpText.setForeground(Color.white);
+
+        g.insets = new Insets(-450, 0, 0, 0);
+        g.gridx = 0;
+        g.gridy = 0;
+        helpPanel.add(helpText, g);
+
+        //control text
+        controlText = new JLabel("Control:");
+        controlText.setFont(customSmallFont);
+        controlText.setForeground(Color.white);
+
+        g.insets = new Insets(-550, -650, 0, 0);
+        g.gridx = 0;
+        g.gridy = 1;
+        helpPanel.add(controlText, g);
+
+
+        /**help text */
+        helpText = new JLabel("W, S, A, D / Arrow Keys to control the snake");
+        helpText.setFont(customSmallFont);
+        helpText.setForeground(Color.white);
+
+        g.insets = new Insets(-550, 120, 0, 0);
+        g.gridx = 0;
+        g.gridy = 1;
+        helpPanel.add(helpText, g);
+
+        helpText1 = new JLabel("- Collect food to score High");
+        helpText1.setFont(customSmallFont);
+        helpText1.setForeground(Color.white);
+
+        g.insets = new Insets(-450, -160, 0, 0);
+        g.gridx = 0;
+        g.gridy = 1;
+        helpPanel.add(helpText1, g);
+
+
+        g.insets = new Insets(200, 10, 0, 0);
+        g.gridx = 0;
+        g.gridy = 1;
+        helpPanel.add(back1, g);
+
+
+        /**Score Panel */
+        scorePanel = new JPanel();
+        scorePanel.setBackground(Color.BLACK);
+        scorePanel.setPreferredSize(new Dimension(800, 800));
+        scorePanel.setLayout(new GridBagLayout());
+
+       /**Score Text */
+        highScore = new JLabel("High Score");
+        highScore.setAlignmentX(Component.CENTER_ALIGNMENT);
+        highScore.setFont(customSmallFont);
+        highScore.setForeground(Color.WHITE);
+        
+        g.insets = new Insets(-400, 100, 0, 0);
+        g.gridx = 0;
+        g.gridy = 0;
+        scorePanel.add(highScore, g);
+
+
+        playerName = new JLabel("Player Name: ");
+        playerName.setFont(customSmallFont);
+        playerName.setForeground(Color.white);
+
+        g.insets = new Insets(-400, -300, 0, 0);
+        g.gridx = 0;
+        g.gridy = 1;
+        scorePanel.add(playerName, g);
+
+        scoreText= new JLabel("Score: ");
+        scoreText.setFont(customSmallFont);
+        scoreText.setForeground(Color.white);
+
+        g.insets = new Insets(-400, 80, 0, 0);
+        g.gridx = 1;
+        g.gridy = 1;
+        scorePanel.add(scoreText, g);
+
+        g.insets = new Insets(200, 100, 0, 0);
+        g.gridx = 0;
+        g.gridy = 1;
+        scorePanel.add(back, g);
+
+     
+       
     }
 
     /**
@@ -283,7 +304,7 @@ public class SnakeGameText implements GameClient {
 
     public void displayMainMenu(){
         mnClient.getMainWindow().clearAll();
-        mnClient.getMainWindow().addCenter(mainMenuPanel);
+        mnClient.getMainWindow().addCenter(mainMenuPanel.add(buttonPanel));
         mnClient.getMainWindow().addSouth(footerPanel);
         mnClient.getMainWindow().addNorth(headerPanel);
         mnClient.getMainWindow().pack();
