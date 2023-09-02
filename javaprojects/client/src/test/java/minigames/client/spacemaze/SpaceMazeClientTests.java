@@ -4,10 +4,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.*;
 import java.awt.Point;
+import java.util.ArrayList;
 
 import org.junit.jupiter.api.Disabled;
 import java.io.*;
@@ -15,6 +17,25 @@ import static org.mockito.Mockito.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 public class SpaceMazeClientTests {
+
+    private MazeDisplay maze;
+
+    /**
+     * Setting up a maze display for testing logic
+     */
+    @BeforeEach
+    public void dummyMazeArray(){
+        SpaceMaze spaceMaze = new SpaceMaze();
+        ArrayList<SpaceBot> bots = new ArrayList<>();
+        char [][] mazeMap = {
+                {'S','.', 'U'},
+                {'K', 'B','?'},
+                {'M', '$', 'T'},
+                {'H', 'E', 'W'},
+                {'P', '.', '.'},
+        };
+        maze = new MazeDisplay(mazeMap, spaceMaze, bots);
+    }
 
     Point startLocation = new Point(0,0);
     // Bot class tests
@@ -105,6 +126,69 @@ public class SpaceMazeClientTests {
     }
     */
 
+    /**
+     * Test to check if moving on to a locked exit or wall is
+     * returned as false
+     *
+     * @author Andrew McKenzie
+     */
+    @Test
+    @DisplayName("Testing in valid move requests are false")
+    public void testInvalidMoves() {
+        // Locked Exit
+        assertFalse(maze.isMoveValid(new Point(1, 3)));
+        // Wall
+        assertFalse(maze.isMoveValid(new Point(2, 3)));
+        // Out of bounds in all four directions
+        assertFalse(maze.isMoveValid(new Point(0, -1)));
+        assertFalse(maze.isMoveValid(new Point(-1, 0)));
+        assertFalse(maze.isMoveValid(new Point(1, 5)));
+        assertFalse(maze.isMoveValid(new Point(3, 0)));
+    }
 
+    /**
+     * Test to check if moving onto a valid tile returns true
+     *
+     * @author Andrew McKenzie
+     */
+    @Test
+    @DisplayName("Testing valid moves are true")
+    public void testValidMovesAreValid() {
+        // Start tile
+        assertTrue(maze.isMoveValid(new Point(0, 0)));
+        // Path tile
+        assertTrue(maze.isMoveValid(new Point(1, 0)));
+        // Unlocked Exit tile
+        assertTrue(maze.isMoveValid(new Point(2, 0)));
+        // Key
+        assertTrue(maze.isMoveValid(new Point(0, 1)));
+        // Bot
+        assertTrue(maze.isMoveValid(new Point(1, 1)));
+        // Pick Ups
+        assertTrue(maze.isMoveValid(new Point(2, 1)));
+        // Mine
+        assertTrue(maze.isMoveValid(new Point(0, 2)));
+        // Bonus Chest
+        assertTrue(maze.isMoveValid(new Point(1, 2)));
+        // Timewarp
+        assertTrue(maze.isMoveValid(new Point(2, 2)));
+        // Wormhole
+        assertTrue(maze.isMoveValid(new Point(0, 3)));
+    }
+
+    /**
+     * Test to confirm the method findCharOnMap returns the
+     * correct Point object
+     *
+     * @author Andrew McKenzie
+     */
+    @Test
+    @DisplayName("Checking find char returns the correct point")
+    public void testFindingAChar() {
+        Point testExit = new Point();
+        testExit = maze.findCharOnMap(maze.mazeMap, 'E');
+        Point actualExit = new Point(1, 3);
+        assertTrue(testExit.equals(actualExit));
+    }
 
 }

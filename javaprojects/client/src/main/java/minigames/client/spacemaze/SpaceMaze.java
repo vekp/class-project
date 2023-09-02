@@ -56,6 +56,9 @@ public class SpaceMaze implements GameClient {
     /** Your name */
     String player;
 
+    //Class to hold all images for client side use
+    Images images;
+
     //Header Section
     JPanel headerPanel;
     JLabel headerText;
@@ -109,6 +112,9 @@ public class SpaceMaze implements GameClient {
      * Constructor
      */
     public SpaceMaze() {
+
+        // Getting the single instance if the Images class
+        images = Images.getInstance();
 
         loadCustomFont();
         

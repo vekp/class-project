@@ -22,12 +22,23 @@ public class SpaceMazeGameTests {
     // Timer class tests
     private GameTimer gameTimer = new GameTimer();
 
+    /**
+     * Test to check when a timer object is created that the
+     * timer is not started as well.
+     *
+     * @author Andrew McKenzie
+     */
     @DisplayName("Check timer constructor doesn't start the timing")
     @Test
     public void testTimerConstructor(){
         assertFalse(gameTimer.getIsTimerRunning());
     }
 
+    /**
+     * Test to confirm a call to startTimer actually starts the timer
+     *
+     * @author Andrew McKenzie
+     */
     @DisplayName("Check startTimer starts the timer")
     @Test
     public void testTimerStarts(){
@@ -37,6 +48,12 @@ public class SpaceMazeGameTests {
         gameTimer.stopTimer();
     }
 
+    /**
+     * Test to check that a call for the total time taken
+     * returns 0 while the timer is still running.
+     *
+     * @author Andrew McKenzie
+     */
     @DisplayName("Check the final time is 0 until game is finished")
     @Test
     public void testTimeTakenWhenGameRunning() {

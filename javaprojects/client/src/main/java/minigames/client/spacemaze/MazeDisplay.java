@@ -15,11 +15,6 @@ import javax.swing.JPanel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.awt.Image;
-import javax.swing.ImageIcon;
-import java.io.IOException;
-import java.io.File;
-
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -35,34 +30,35 @@ import java.util.HashMap;
 public class MazeDisplay extends JPanel {
 
     private static final Logger logger = LogManager.getLogger(MazeDisplay.class);
+
+    // The client side controller for sending commands to server
     SpaceMaze spaceMaze;
+
+    // The maze map for the static valid move method
+    public static char[][] mazeMap;
+
+    // Maze Points needed in this class
     private Point playerPos;
     private Point moveTo;
     private Point exitPoint;
-    public static char[][] mazeMap;
+    private Point startPos;
+
+    // ArrayList of SpaceBot objects in the maze
     private ArrayList<SpaceBot> bots;
+    // Delay in milliseconds between bot movement
+    private int botDelay = 300;
+
+    // Game window and tile dimensions
     int jPanelWidth = 800;
     int jPanelHeight = 600;
     int tileWidth;
     int tileHeight;
-    private int botDelay = 300;
+
+    // Direction of the player, used for selecting player image
     private String playerDirection;
-    private Point startPos;
 
     // For controlling the image displayed each cycle
     private Integer imageCycle = 1;
-
-    // Hashmaps of various images to cycle through
-    private HashMap<String, Image> playerImages = new HashMap<String, Image>();
-    private HashMap<Integer, Image> wallImages = new HashMap<Integer, Image>();
-    private HashMap<Integer, Image> keyImages = new HashMap<Integer, Image>();
-    private HashMap<Integer, Image> lockedExitImages = new HashMap<Integer, Image>();
-    private HashMap<Integer, Image> unlockedExitImages = new HashMap<Integer, Image>();
-    private HashMap<Integer, Image> bombImages = new HashMap<Integer, Image>();
-
-    private Image chestImage;
-    private Image startImage;
-    private Image wormHoleImage;
 
     // Timer for the game automation
     Timer timer;
@@ -85,11 +81,10 @@ public class MazeDisplay extends JPanel {
         this.setPreferredSize(new Dimension(jPanelWidth, jPanelHeight));
         this.bots = loadedBots;
         this.startTimer();
-        this.loadImages();
         this.playerDirection = "Down";
         this.setBackground(Color.BLACK);
 
-        //Focus Listener for Logging purposes
+        // Focus Listener for Logging purposes
         this.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -102,7 +97,7 @@ public class MazeDisplay extends JPanel {
             }
         });
 
-        //Action Listener
+        // Action Listener
         this.addKeyListener(new KeyListener() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -140,7 +135,8 @@ public class MazeDisplay extends JPanel {
                     detectAndSendCollisions();
                 }
 
-                if (imageCycle < 49) {
+                // For controlling the cycling of images with multiple pngs
+                if (imageCycle < 60) {
                     imageCycle++;
                 } else {
                     imageCycle = 1;
@@ -266,6 +262,12 @@ public class MazeDisplay extends JPanel {
         }
     }
 
+    /**
+     * Method to handle the process when the player attempts to move.
+     * @param info String for logging purposes
+     * @param direction Direction the player is moving
+     * @param nextPoint Next point the player is moving to
+     */
     public void handleDirection(String info, String direction, Point nextPoint){
         logger.info(info);
         if (isMoveValid(nextPoint)){
@@ -317,39 +319,39 @@ public class MazeDisplay extends JPanel {
     public void charToImage(Graphics g, int r, int c){
         switch (mazeMap[r][c]) {
             case 'W':
-                g.drawImage(wallImages.get((r+c)%4), c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
+                g.drawImage(Images.getImage("wallImages", (r+c) % 4), c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case 'S':
-                g.drawImage(startImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
+                g.drawImage(Images.getImage("startImage"), c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case '.':
                 g.setColor(Color.BLACK);
                 g.fillRect(c * tileWidth, r * tileHeight, tileWidth, tileHeight);
                 break;
             case 'K':
-                g.drawImage(keyImages.get(imageCycle % keyImages.size()),
+                g.drawImage(Images.getImage("keyImages", imageCycle % Images.getSize("keyImages")),
                         c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case 'P':
-                g.drawImage(playerImages.get(playerDirection), c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
+                g.drawImage(Images.getPlayerImage(playerDirection), c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case 'E':
-                g.drawImage(lockedExitImages.get(imageCycle % lockedExitImages.size()),
+                g.drawImage(Images.getImage("lockedImages", imageCycle % Images.getSize("lockedImages")),
                         c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case 'U':
-                g.drawImage(unlockedExitImages.get(imageCycle % unlockedExitImages.size()),
+                g.drawImage(Images.getImage("unlockedImages", imageCycle % Images.getSize("unlockedImages")),
                         c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case 'M':
-                g.drawImage(bombImages.get(imageCycle % bombImages.size()),
+                g.drawImage(Images.getImage("bombImages", imageCycle % Images.getSize("bombImages")),
                         c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case '$':
-                g.drawImage(chestImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
+                g.drawImage(Images.getImage("chestImage"), c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
             case 'H':
-                g.drawImage(wormHoleImage, c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
+                g.drawImage(Images.getImage("wormHoleImage"), c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
                 break;
         }
     }
@@ -405,72 +407,6 @@ public class MazeDisplay extends JPanel {
         }
         return moveTo;
     }
-
-    /**
-     * Method to load the various images needed
-     */
-    public void loadImages(){
-
-        // Player images
-        Image playerImage1 = new ImageIcon(getClass().getResource("/images/spacemaze/spaceShip2aUp.png")).getImage();
-        Image playerImage2 = new ImageIcon(getClass().getResource("/images/spacemaze/spaceShip2aDown.png")).getImage();
-        Image playerImage3 = new ImageIcon(getClass().getResource("/images/spacemaze/spaceShip2aRight.png")).getImage();
-        Image playerImage4 = new ImageIcon(getClass().getResource("/images/spacemaze/spaceShip2aLeft.png")).getImage();
-        playerImages.put("Up", playerImage1);
-        playerImages.put("Down", playerImage2);
-        playerImages.put("Right", playerImage3);
-        playerImages.put("Left", playerImage4);
-
-        // Wall images
-        Image wallImage1 = new ImageIcon(getClass().getResource("/images/spacemaze/asteriodNoB1.png")).getImage();
-        Image wallImage2 = new ImageIcon(getClass().getResource("/images/spacemaze/asteriodNoB2.png")).getImage();
-        Image wallImage3 = new ImageIcon(getClass().getResource("/images/spacemaze/asteriodNoB3.png")).getImage();
-        Image wallImage4 = new ImageIcon(getClass().getResource("/images/spacemaze/asteriodNoB4.png")).getImage();
-        wallImages.put(0, wallImage1);
-        wallImages.put(1, wallImage2);
-        wallImages.put(2, wallImage3);
-        wallImages.put(3, wallImage4);
-
-        // Key images
-        Image keyImage1 = new ImageIcon(getClass().getResource("/images/spacemaze/KeyNoB1a.png")).getImage();
-        Image keyImage2 = new ImageIcon(getClass().getResource("/images/spacemaze/keyNoB1.png")).getImage();
-        keyImages.put(0, keyImage1);
-        keyImages.put(1, keyImage2);
-
-        // Locked exit images
-        Image lockedImage1 = new ImageIcon(getClass().getResource("/images/spacemaze/LockedExitNoB1.png")).getImage();
-        Image lockedImage2 = new ImageIcon(getClass().getResource("/images/spacemaze/LockedExitNoB2.png")).getImage();
-        Image lockedImage3 = new ImageIcon(getClass().getResource("/images/spacemaze/LockedExitNoB3.png")).getImage();
-        lockedExitImages.put(0, lockedImage1);
-        lockedExitImages.put(1, lockedImage2);
-        lockedExitImages.put(2, lockedImage3);
-
-        // Unlocked exit images
-        Image unlockedImage1 = new ImageIcon(getClass().getResource("/images/spacemaze/UnlockedExitNoB1.png")).getImage();
-        Image unlockedImage2 = new ImageIcon(getClass().getResource("/images/spacemaze/UnlockedExitNoB2.png")).getImage();
-        Image unlockedImage3 = new ImageIcon(getClass().getResource("/images/spacemaze/UnlockedExitNoB3.png")).getImage();
-        unlockedExitImages.put(0, unlockedImage1);
-        unlockedExitImages.put(1, unlockedImage2);
-        unlockedExitImages.put(2, unlockedImage3);
-
-        // Chest image
-        chestImage = new ImageIcon(getClass().getResource("/images/spacemaze/chest1.png")).getImage();
-
-        // Start image
-        startImage = new ImageIcon(getClass().getResource("/images/spacemaze/startNoB1.png")).getImage();
-
-        // Bomb images
-        Image bombImage1 = new ImageIcon(getClass().getResource("/images/spacemaze/bomb1a.png")).getImage();
-        Image bombImage2 = new ImageIcon(getClass().getResource("/images/spacemaze/bomb1b.png")).getImage();
-        Image bombImage3 = new ImageIcon(getClass().getResource("/images/spacemaze/bomb1c.png")).getImage();
-        bombImages.put(0, bombImage1);
-        bombImages.put(1, bombImage2);
-        bombImages.put(2, bombImage3);
-
-        // Worm hole image (star image)
-        wormHoleImage = new ImageIcon(getClass().getResource("/images/spacemaze/star1.png")).getImage();
-    }
-
 
     /**
      * Method to check whether a move is valid
