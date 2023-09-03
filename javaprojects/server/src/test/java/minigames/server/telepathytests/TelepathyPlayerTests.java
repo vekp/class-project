@@ -61,9 +61,15 @@ public class TelepathyPlayerTests {
     public void testPlayerReady(){
         Player testPlayer = new Player("Bob");
 
+        // Initialised to false
         assertTrue(testPlayer.isReady() == false);
 
+        // Toggle sets to true
         testPlayer.toggleReady();
         assertTrue(testPlayer.isReady() == true);
+
+        // Toggle when ready sets back to false
+        testPlayer.toggleReady();
+        assertTrue(testPlayer.isReady() == false);
     }
 }
