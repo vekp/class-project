@@ -1,3 +1,5 @@
+package minigames.client.krumgame;
+
 enum achievements{
     SUICIDE_5, BAZOOKA_5, TARZAN_DEATH, LASER_DEATH, MAP_TRAP;
 

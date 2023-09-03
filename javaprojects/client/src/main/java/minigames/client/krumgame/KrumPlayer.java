@@ -187,7 +187,7 @@ public class KrumPlayer {
 
     int spriteIndexNextFrame;
 
-    int empty[];
+    double empty[];
 
     KrumJoey joey;
 
@@ -266,7 +266,7 @@ public class KrumPlayer {
         airborne = true;
         jumping = false;
         jumpStart = 0;        
-        int empty[] = null; // dummy array for use when calling getPixel
+        double empty[] = null; // dummy array for use when calling getPixel
 
         facingRight = true;
         deferredLanding = false;
@@ -1044,7 +1044,7 @@ public class KrumPlayer {
      * @return true if collision detected
      */
     boolean collisionCheck(WritableRaster levelRaster, int direction){ 
-        int empty[] = null;
+        double empty[] = null;
         if (direction == 0 || (direction == -1 && xvel < 0) || direction == -2 || direction == -3) { // left
             for (int i = (facingRight ? leftEdgeTop : rightEdgeTop) + 1; i < (facingRight ? leftEdgeBottom : rightEdgeBottom) - (yvel < 0 || direction == -2 ? 20 : 1); i++) {
                 if (ypos + i < 0) continue;
@@ -1415,6 +1415,7 @@ public class KrumPlayer {
             double z[] = {0};
             System.out.println(larger);
             boolean hitopp = false;
+            double[] empty = null;
             for (int i = 0; i < larger; i++) {
                 //System.out.println("x " + x + ", y " + y);
                 for(int xt = (int)(x - BLOWTORCH_MAX_WIDTH / 2); xt <= (int)(x + BLOWTORCH_MAX_WIDTH / 2); xt++) {
@@ -1426,7 +1427,8 @@ public class KrumPlayer {
                         if (KrumHelpers.distanceBetween(x, y, xt, yt) <= BLOWTORCH_MAX_WIDTH / 2) { // if within radius
                             if (blowtorchWidening) { 
                                     // destroy level
-                                    levelRaster.setPixel(xt, yt, z);
+                                    if (levelRaster.getPixel(xt, yt, empty)[0] != KrumC.INDESTRUCTIBLE_OPACITY)
+                                        levelRaster.setPixel(xt, yt, z);
                                 }
                             else if (!hitopp) {
                                 // hit opponent

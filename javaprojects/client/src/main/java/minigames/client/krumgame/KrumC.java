@@ -11,7 +11,7 @@ public class KrumC {
     static final long TARGET_FRAMETIME = 1000000000 / TARGET_FRAMERATE; // nanoseconds
 
     // pixels less opaque than this are ignored in collision and hit detection (0.0 = transparent, 1.0 = opaque)
-    static final double OPACITY_THRESHOLD = 0.7;
+    static final double OPACITY_THRESHOLD = 100;
 
     static final double GRAVITY = 0.08; // downward acceleration in pixels per frame
     static final double AIR_RES_FACTOR = 0.99; // movement in air of projectiles and players is multiplied by this factor every frame
@@ -69,4 +69,7 @@ public class KrumC {
     static final double PUNCH_FORCE = 5.5;
     static final double PUNCH_ANGLE = Math.PI / 3.5;
     static final int PUNCH_DAMAGE = 1;
+
+    public static final int INDESTRUCTIBLE_OPACITY = 254;
+    static final int DESTRUCTIBLE_OPACITY = 253;
 }

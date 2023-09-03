@@ -83,6 +83,9 @@ public class KrumGame implements GameClient {
     KrumPanel panel;
     long lastFrameTime;
 
+    ArrayList<KrumLevel> levels;
+    KrumLevel currentLevel;
+
     // Game loop and update controls
     boolean firstRun;
     boolean running = true;
@@ -113,15 +116,34 @@ public class KrumGame implements GameClient {
         waterLevel = KrumC.RES_Y - 1;
         // Initializing the background image
         //backgroundComponent = new Background("chameleon.png");
-        backgroundComponent = new Background("ropetestmap.png");
-        background = backgroundComponent.getImage();
-        alphaRaster = backgroundComponent.getAlphaRaster();
-
+        //backgroundComponent = new Background("ropetestmap.png");
+        // backgroundComponent = new Background("cave_test_2.png");
+        // background = backgroundComponent.getImage();
+        // alphaRaster = backgroundComponent.getAlphaRaster();
+        initializeLevels();
         initializePanel();
-        initializePlayers();
+        // initializePlayers();
         //initializeWind();     
         windString = "";
+    }
 
+    private void initializeLevels() {
+        levels = new ArrayList<KrumLevel>();
+        KrumLevel chameleon = new KrumLevel("chameleon.png", null, 235, 0, 600, 0);
+        KrumLevel ropetest = new KrumLevel("ropetestmap.png", null, 235, 0, 600, 0);
+        KrumLevel cavetest = new KrumLevel("cave_test_2.png", "cave_test_2_mask.png", 300, 500, 680, 110);
+        levels.add(chameleon);
+        levels.add(ropetest);
+        levels.add(cavetest);    
+        setActiveLevel(levels.size() - 1);   
+    }
+
+    private void setActiveLevel(int index) {
+        KrumLevel level = levels.get(index);
+        backgroundComponent = level.background;
+        background = backgroundComponent.getImage();
+        alphaRaster = backgroundComponent.getAlphaRaster();
+        initializePlayers(level);
     }
 
     private void initializePanel(){
@@ -129,10 +151,10 @@ public class KrumGame implements GameClient {
         panel.setPreferredSize(panel.getPreferredSize());
     }
 
-    private void initializePlayers(){
+    private void initializePlayers(KrumLevel level){
         players = new KrumPlayer[2];
-        players[0] = new KrumPlayer(235, 0, "kangaroo_sprite/", 8, 31, true, alphaRaster, 0, players);
-        players[1] = new KrumPlayer(600, 0, "kangaroo_sprite/", 8, 31, false, alphaRaster, 1, players);
+        players[0] = new KrumPlayer(level.p1x, level.p1y, "kangaroo_sprite/", 8, 31, true, alphaRaster, 0, players);
+        players[1] = new KrumPlayer(level.p2x, level.p2y, "kangaroo_sprite/", 8, 31, false, alphaRaster, 1, players);
         players[0].joey.otherPlayer = players[1];
         players[1].joey.otherPlayer = players[0];
         playerTurn = 0;

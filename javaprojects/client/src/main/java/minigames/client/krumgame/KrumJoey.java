@@ -32,7 +32,7 @@ public class KrumJoey extends KrumProjectile {
     boolean facingRight;
     double xpos;
     double ypos;
-    int empty[];
+    double empty[];
     int leftEdge[];
     int rightEdge[];
     int topEdge[];
@@ -338,7 +338,7 @@ public class KrumJoey extends KrumProjectile {
         }
     }
     boolean collisionCheck(WritableRaster levelRaster, int direction){ 
-        int empty[] = null;
+        double empty[] = null;
         if (direction == 0 || (direction == -1 && xvel < 0) || direction == -2 || direction == -3) { // left
             for (int i = (facingRight ? leftEdgeTop : rightEdgeTop) + 1; i < (facingRight ? leftEdgeBottom : rightEdgeBottom) - (yvel < 0 || direction == -2 ? 20 : 1); i++) {
                 if ((int)ypos + i < 0) continue;

@@ -1,3 +1,5 @@
+package minigames.server.krumgame;
+
 enum achievements{
     SUICIDE_5, BAZOOKA_5, TARZAN_DEATH, LASER_DEATH, MAP_SLAP, JOEY_SUICIDE, DIRECT_HIT, LONG_RANGE;
 
