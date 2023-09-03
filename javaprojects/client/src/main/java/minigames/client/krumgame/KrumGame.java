@@ -664,6 +664,7 @@ public class KrumGame implements GameClient {
     // mouse and key Down/Up functions are triggered via the listeners in KrumPanel
     void mouseDown(MouseEvent e){
         if (myPlayerIndex != playerTurn) return;
+        if (!playersInitialized) return;
         if (e.getButton() == MouseEvent.BUTTON1)
             players[playerTurn].startFire(e);
         else 
@@ -671,6 +672,7 @@ public class KrumGame implements GameClient {
     }
     void mouseUp(MouseEvent e) {
         if (myPlayerIndex != playerTurn) return;
+        if (!playersInitialized) return;
         if (e.getButton() == MouseEvent.BUTTON1 && players[playerTurn].firing)
             players[playerTurn].endFire(e);
         else if (players[playerTurn].firingGrenade)
