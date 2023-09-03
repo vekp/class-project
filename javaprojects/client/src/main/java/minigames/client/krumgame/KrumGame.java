@@ -625,6 +625,7 @@ public class KrumGame implements GameClient {
      * Main game loop
      */
     void startGame(){
+        panel.gameActive = true;
         lastFrameTime = System.nanoTime();
         while (choosingLevel || !initialized) {
             if (System.nanoTime() - lastFrameTime >= KrumC.TARGET_FRAMETIME) {

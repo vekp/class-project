@@ -18,8 +18,10 @@ import java.awt.KeyEventDispatcher;
  * The panel containing our game
  */
 public class KrumPanel extends JPanel {
+    boolean gameActive;
     KrumGame game;
     public KrumPanel(KrumGame g) {
+        gameActive = false;
         setBorder(BorderFactory.createLineBorder(Color.black));
         addMouseListener(new MouseAdapter(){
             @Override
@@ -46,18 +48,13 @@ public class KrumPanel extends JPanel {
         });
 
         // Ensure keyboard events reach this panel
-        /*
-         * I don't fully understand this code, but without it the keyboard 
-         * events seem to be absorbed somewhere earlier in the hierarchy, and  
-         * the key listener on this panel doesn't do anything
-         */
         JPanel t = this;
         KeyboardFocusManager focusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
         focusManager.addKeyEventDispatcher(new KeyEventDispatcher() {
             public boolean dispatchKeyEvent(KeyEvent e) {
                 if(focusManager.getFocusOwner()!=t){
                                 focusManager.redispatchEvent(t,e);
-                                return true;}
+                                return gameActive;}
                 else return false;
             }
         });
