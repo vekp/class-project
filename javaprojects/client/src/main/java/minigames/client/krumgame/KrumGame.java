@@ -732,7 +732,7 @@ public class KrumGame implements GameClient {
         else if (e.getKeyCode() == KeyEvent.VK_P) {
             players[playerTurn].punchNextFrame();
         }
-        else if (Character.isDigit(e.getKeyChar())) {
+        else if (choosingLevel && Character.isDigit(e.getKeyChar())) {
             int n = Character.getNumericValue(e.getKeyChar());
             if (n == 0) 
                 n = 10;
