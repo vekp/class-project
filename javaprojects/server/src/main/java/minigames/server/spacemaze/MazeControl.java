@@ -295,8 +295,12 @@ public class MazeControl {
         // Create new Maze, dependent on current level
         this.mazeArray = createNewMaze(currentLevel);
 
-        // Removing the previous bot locations
+        // Removing the previous locations
         botsLocationsList.clear();
+        wormholeLocationsList.clear();
+        bombLocationsList.clear();
+        bonusPointsLocationsList.clear();
+        keyLocationsList.clear();
 
         // Set start, key... locations
         set_locations();
