@@ -340,7 +340,6 @@ public class TelepathyGame {
     private boolean validName(String name){
         if(name == null) return false;
         if(name.isBlank()) return false;
-        if(name.contains(" ")) return false;
 
         return true;
     }
@@ -361,5 +360,13 @@ public class TelepathyGame {
      */
     public String getName(){
         return this.name;
+    }
+
+    /**
+     * Getter for the current game state.
+     * @return State enum for the current state.
+     */
+    public State getState(){
+        return this.state;
     }
 }
