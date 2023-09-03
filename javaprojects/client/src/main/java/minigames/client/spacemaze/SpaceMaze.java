@@ -421,8 +421,11 @@ public class SpaceMaze implements GameClient {
             }
             // TODO: Niraj add call to playerDead - game over screen
             case "playerDead" -> {
+                String totalScore = command.getString("totalScore");
+                String totalTime = command.getString("timeTaken");
                 statusBar.stopTimer();
                 maze.stopTimer();
+                displayGameOver(totalScore, totalTime);
             }
             // TODO: Niraj updated player lives to be sent to statusBar
             // Up to you if you want to take the String or the Int
