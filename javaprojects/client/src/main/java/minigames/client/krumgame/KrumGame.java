@@ -746,6 +746,7 @@ public class KrumGame implements GameClient {
     }
     void keyUp(KeyEvent e) {
         if (myPlayerIndex != playerTurn) return;
+        if (!playersInitialized) return;
         if (e.getKeyCode() == KeyEvent.VK_SPACE) { // Spacebar
             players[playerTurn].endJump(0);
         }  
