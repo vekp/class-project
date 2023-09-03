@@ -19,17 +19,20 @@ public class NotificationManager implements Tickable {
     private final JFrame frame;
     private JLayeredPane layeredPane;
     private final Animator animator;
-    private final List<Component> queuedNotifications;
+    private final List<Component> queuedNotifications = new LinkedList<>();
     JPanel notificationPanel;
     // Margins to leave between frame edge and notification
-    private int topMargin, leftMargin, rightMargin;
+    private Insets margins;
     // Alignment of notification panel
-    private float alignment;
-    private int height;
-    // Panel's position
-    private int currentX, currentY;
+    private float alignmentX, alignmentY;
+    private int notificationPanelHeight;
+    // Notification panel's position
+    private int currentX;
+    private double currentY;
+    // Notification panel's target position
+    private int targetY;
     // Speed in pixels to move per 16ms frame
-    private int animationSpeed;
+    private float animationSpeed;
     // Duration to wait in fully displayed state, in milliseconds
     private int displayTime;
     // Timer starts when notification is fully displayed
@@ -52,12 +55,9 @@ public class NotificationManager implements Tickable {
      * Constructor for NotificationManager
      * @param mnClient the currently running MinigameNetworkClient
      */
-
     public NotificationManager(MinigameNetworkClient mnClient) {
         this.frame = mnClient.getMainWindow().getFrame();
-        this.layeredPane = frame.getLayeredPane();
         this.animator = mnClient.getAnimator();
-        this.queuedNotifications = new LinkedList<>();
         resetToDefaultSettings();
     }
 
@@ -102,15 +102,20 @@ public class NotificationManager implements Tickable {
             });
         }
         // get panel dimensions
-        int width = (int) notificationPanel.getPreferredSize().getWidth();
-        height = (int) notificationPanel.getPreferredSize().getHeight();
+        // Notification panel dimensions
+        int notificationPanelWidth = (int) notificationPanel.getPreferredSize().getWidth();
+        notificationPanelHeight = (int) notificationPanel.getPreferredSize().getHeight();
         // calculate start position
-        int maxX = layeredPane.getWidth() - width - rightMargin;
-        int minX = leftMargin;
-        currentX = minX + (int) (alignment * (maxX - minX));
-        currentY = - height;
+        int maxX = layeredPane.getWidth() - notificationPanelWidth - margins.right;
+        int minX = margins.left;
+        currentX = minX + (int) (alignmentX * (maxX - minX));
+        currentY = -notificationPanelHeight;
+        // calculate target Y position
+        int minY = margins.top;
+        int maxY = layeredPane.getHeight() - notificationPanelHeight - margins.bottom;
+        targetY = minY + (int) (alignmentY * (maxY - minY));
         // set bounds, add to layer
-        notificationPanel.setBounds(currentX, currentY, width, height);
+        notificationPanel.setBounds(currentX, (int) currentY, notificationPanelWidth, notificationPanelHeight);
         layeredPane.add(notificationPanel, JLayeredPane.POPUP_LAYER);
         // start animating
         animator.requestTick(this);
@@ -130,9 +135,10 @@ public class NotificationManager implements Tickable {
             }
             // Move down from the top
             case MOVING_DOWN -> {
-                currentY = Math.min(topMargin, currentY + animationSpeed);
-                notificationPanel.setLocation(currentX, currentY);
-                if (currentY == topMargin) {
+                currentY += (targetY - currentY) * animationSpeed;
+                int y = (int) Math.round(currentY);
+                notificationPanel.setLocation(currentX, y);
+                if (y == targetY) {
                     startTime = now;
                     status = Status.FULLY_DISPLAYED;
                 }
@@ -145,15 +151,42 @@ public class NotificationManager implements Tickable {
             }
             // Move back up until out of view
             case MOVING_UP -> {
-                currentY = (currentY - animationSpeed);
-                notificationPanel.setLocation(currentX, currentY);
-                if (currentY <= -height) {
+                currentY -= (targetY - currentY) * animationSpeed;
+                int y = (int) Math.round(currentY);
+                notificationPanel.setLocation(currentX, y);
+                if (y <= -notificationPanelHeight) {
                     status = Status.IDLE;
                     layeredPane.remove(notificationPanel);
                 }
             }
         }
         al.requestTick(this);
+    }
+
+    /**
+     * Reset settings to their default values. Default values are: <br>
+     * alignmentX       :   Component.RIGHT_ALIGNMENT (1.0f) <br>
+     * alignmentY       :   Component.TOP_ALIGNMENT (0.0f) <br>
+     * animationSpeed   :   0.15f <br>
+     * displayTime      :   5000 <br>
+     * margins          :   Insets(5, 5, 5, 5) <br>
+     * colours          :   system default colours <br>
+     * font             :   system default font <br>
+     * border           :   EtchedBorder()
+     */
+    public void resetToDefaultSettings() {
+        setAlignmentX(Component.RIGHT_ALIGNMENT);
+        setAlignmentY(Component.TOP_ALIGNMENT);
+        setAnimationSpeed(0.2f);
+        setDisplayTime(5000);
+        setMargins(new Insets(5, 5, 5, 5));
+        // Dummy panel for getting system default colours and font
+        JPanel defaultPanel = new JPanel();
+        setColours(defaultPanel.getForeground(), defaultPanel.getBackground());
+        setFont(defaultPanel.getFont().getFontName());
+        setBorder(BorderFactory.createEtchedBorder());
+        setApplyColourAndFontStyling(false);
+        this.layeredPane = frame.getLayeredPane();
     }
 
     /**
@@ -177,30 +210,36 @@ public class NotificationManager implements Tickable {
     }
 
     /**
-     * Setter for changing the horizontal alignment of the notification.
-     * This can be used if default value of Component.CENTER_ALIGNMENT (0.5f) could cause notifications to obstruct
-     * important gameplay UI elements. Use together with setMargins for precise control of positioning.
-     * @param alignment a float representing desired horizontal alignment. Use Component alignment constants.
+     * Setter for horizontal alignment of the notification.
+     * Possible alignment values are in the range 0.0f - 1.0f, such as Component.LEFT_ALIGNMENT(0.0f),
+     * Component.CENTER_ALIGNMENT (0.5f), and the default Component.RIGHT_ALIGNMENT (1.0f).
      */
-    public void setAlignment(float alignment) {
-        if (alignment < 0) this.alignment = 0f;
-        else if (alignment > 1) this.alignment = 1.0f;
-        else this.alignment = alignment;
+    public void setAlignmentX(float alignmentX) {
+        this.alignmentX = alignmentX < 0 ? 0 : alignmentX > 1 ? 1 : alignmentX;
+    }
+
+    /**
+     * Setter for vertical alignment of the notification.
+     * Possible alignment values are in the range 0.0f - 1.0f, such as the default Component.TOP_ALIGNMENT(0.0f),
+     * Component.CENTER_ALIGNMENT (0.5f), and Component.BOTTOM (1.0f).
+     */
+    public void setAlignmentY(float alignmentY) {
+        this.alignmentY = alignmentY < 0 ? 0.0f : alignmentY > 1 ? 1.0f : alignmentY;
     }
 
     /**
      * Setter for changing the speed at which the notification slides up and down.
-     * @param animationSpeed speed in pixels per 16ms tick.
+     * @param animationSpeed float representing proportion of distance from current to target location to travel per tick
      */
-    public void setAnimation(int animationSpeed) {
-        this.animationSpeed = animationSpeed;
+    public void setAnimationSpeed(float animationSpeed) {
+        this.animationSpeed = animationSpeed < 0 ? 0.0f : animationSpeed > 1 ? 1.0f : animationSpeed;
     }
 
     /**
      * Set animation using bool to enable or disable animations completely.
      */
-    public void setAnimation(boolean enabled) {
-        this.animationSpeed = enabled? 4 : 1000;
+    public void animationEnabled(boolean enabled) {
+        this.animationSpeed = enabled? 0.15f : 1;
     }
 
     /**
@@ -215,15 +254,10 @@ public class NotificationManager implements Tickable {
 
     /**
      * Setter for altering the margins between edge of the frame and the notification panel at its fully displayed
-     * state. Can be used together with alignment setter for precise positioning.
-     * @param topMargin   distance from top of frame
-     * @param leftMargin  distance from left of frame
-     * @param rightMargin distance from right of frame
+     * state. Can be used together with alignment setters for precise positioning.
      */
-    public void setMargins(int topMargin, int leftMargin, int rightMargin) {
-        this.topMargin = topMargin;
-        this.leftMargin = leftMargin;
-        this.rightMargin = rightMargin;
+    public void setMargins(Insets insets) {
+        this.margins = insets;
     }
 
     /**
@@ -241,30 +275,7 @@ public class NotificationManager implements Tickable {
     }
 
     /**
-     * Reset settings to their default values. Default values are: <br>
-     * alignment        :   Component.RIGHT_ALIGNMENT (1.0f) <br>
-     * animationSpeed   :   4 <br>
-     * displayTime      :   5000 <br>
-     * margins          :   5 <br>
-     * colours          :   system default colours <br>
-     * font             :   system default font <br>
-     * border           :   EtchedBorder
-     */
-    public void resetToDefaultSettings() {
-        setAlignment(Component.RIGHT_ALIGNMENT);
-        setAnimation(4);
-        setDisplayTime(5000);
-        setMargins(5, 5, 5);
-        JPanel defaultPanel = new JPanel();
-        setColours(defaultPanel.getForeground(), defaultPanel.getBackground());
-        setFont(defaultPanel.getFont().getFontName());
-        setBorder(BorderFactory.createEtchedBorder());
-        setApplyColourAndFontStyling(false);
-        this.layeredPane = frame.getLayeredPane();
-    }
-
-    /**
-     * Specifies whether or not to call applyColourAndFontStyling
+     * Specifies whether to call applyColourAndFontStyling
      */
     private void setApplyColourAndFontStyling(boolean applyColourAndFontStyling) {
         this.applyColourAndFontStyling = applyColourAndFontStyling;
@@ -320,8 +331,8 @@ public class NotificationManager implements Tickable {
         // Set colours
         component.setForeground(foregroundColor);
         component.setBackground(backgroundColor);
-        if (component instanceof JComponent c) {
-            c.setOpaque(true);
+        if (component instanceof JComponent jc) {
+            jc.setOpaque(true);
         }
         // Set font
         Font f = component.getFont();
