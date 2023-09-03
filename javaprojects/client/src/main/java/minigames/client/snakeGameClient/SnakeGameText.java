@@ -2,12 +2,10 @@ package minigames.client.snakeGameClient;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.util.Loader;
-
 import java.awt.*;
 import java.util.Collections;
 import javax.swing.*;
-import javax.swing.GroupLayout.Alignment;
+import javax.swing.border.EmptyBorder;
 
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
@@ -31,9 +29,13 @@ public class SnakeGameText implements GameClient {
     String player;
 
     /**Buttons, JLabels and JPanels */
-    JButton start, score, help, back, back1, exit;
-    JLabel headerText, footerText, helpText, helpText1, controlText, highScore, playerName, scoreText;
+    JButton start, score, help, back, back1, exit, newGameButton, stopGameButton, exitButton;
+    JLabel headerText, footerText, helpText, helpText1, controlText, highScore, playerName, scoreText, playerNumber;
     JPanel headerPanel, footerPanel, mainMenuPanel, buttonPanel, helpPanel, scorePanel;
+    private JLabel[] pointInses;
+	private JLabel[] pointLabels;
+
+    private static final String[] snakePlayerStrs = { "Player Name:" };
 
     Dimension buttonDimension;    //Maximum and preferred dimension of button
 
@@ -89,7 +91,7 @@ public class SnakeGameText implements GameClient {
 
         /**Button Section*/
         start = new JButton("Start Game");
-        start.addActionListener((evt) -> sendCommand("START"));
+        start.addActionListener((evt) -> sendCommand("GAME"));
 
         score = new JButton("Score");
         score.addActionListener((evt) -> sendCommand("SCORE"));
@@ -229,9 +231,7 @@ public class SnakeGameText implements GameClient {
         g.insets = new Insets(200, 100, 0, 0);
         g.gridx = 0;
         g.gridy = 1;
-        scorePanel.add(back, g);
-
-     
+        scorePanel.add(back, g); 
        
     }
 
@@ -243,7 +243,6 @@ public class SnakeGameText implements GameClient {
      */
     public void sendCommand(String command) {
         JsonObject json = new JsonObject().put("command", command);
-
         // Collections.singletonList() is a quick way of getting a "list of one item"
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
     }
@@ -276,9 +275,8 @@ public class SnakeGameText implements GameClient {
             case "viewHighScore" -> displayHighScore();
             case "howToPlay" -> displayHelpPanel();
             case "backToMenu" -> displayMainMenu();
+            case "game" -> displaySnakeGame();
             case "exit" -> closeGame();
-
-
 
         }
 
@@ -318,6 +316,91 @@ public class SnakeGameText implements GameClient {
         mnClient.getMainWindow().pack();
     }
 
+    public void displaySnakeGame(){
+        mnClient.getMainWindow().clearAll();
+        mnClient.getMainWindow().addCenter(displayGame());
+        mnClient.getMainWindow().addNorth(headerPanel);
+        mnClient.getMainWindow().pack();
+    }
+ 
+    public JPanel displayGame(){
+        mnClient.getMainWindow().clearAll(); 
 
+        JPanel mainPanel = new JPanel();
+        mainPanel.setPreferredSize(new Dimension(800, 700));
+        mainPanel.setBackground(Color.BLACK);
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
+
+        
+
+        JPanel gamePanel = new JPanel();
+        gamePanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		gamePanel.setLayout(new BoxLayout(gamePanel, BoxLayout.Y_AXIS));
+        gamePanel.setPreferredSize(new Dimension(200, 650));
+        gamePanel.setBackground(Color.GRAY);
+        gamePanel.setAlignmentY(Component.LEFT_ALIGNMENT);
+
+        mainPanel.add(gamePanel);
+
+        
+
+        playerNumber = new JLabel("Start your game.");
+        playerNumber.setBorder(new EmptyBorder(10, 10, 10, 10));
+		playerNumber.setFont(new Font("TimesRoman", Font.PLAIN, 16));
+		playerNumber.setForeground(Color.BLUE);
+		gamePanel.add(playerNumber);
+
+        playerNumber.add(Box.createVerticalGlue());
+
+        JLabel pointIns = new JLabel("Point of snakes:");
+		pointIns.setFont(new Font("TimesRoman", Font.BOLD, 16));
+		playerNumber.add(pointIns);
+
+        Font fontPlain = new Font("TimesRoman", Font.PLAIN, 14);
+		Font fontBold = new Font("TimesRoman", Font.BOLD, 14);
+		pointInses = new JLabel[1];
+		pointLabels = new JLabel[1];
+        for (int i = 0; i < 1; i++) {
+			pointIns = new JLabel(snakePlayerStrs[i] + " "+ player);
+			pointIns.setFont(fontPlain);
+            pointIns.setForeground(Color.BLACK);
+			pointInses[i] = pointIns;
+
+			JLabel point = new JLabel("0");
+            point.setBorder(new EmptyBorder(5, 5, 5, 5));
+			point.setFont(fontBold);
+            point.setForeground(Color.BLACK);
+			pointLabels[i] = point;
+
+			gamePanel.add(pointIns);
+			gamePanel.add(point);
+		}
+
+        gamePanel.add(Box.createVerticalGlue());
+
+        Font btnFont = new Font("TimesRoman", Font.PLAIN, 14);
+		newGameButton = new JButton("New game");
+		newGameButton.setFont(btnFont);
+        newGameButton.addActionListener((evt) -> sendCommand("NEW"));
+		gamePanel.add(newGameButton);
+		gamePanel.add(Box.createVerticalGlue());
+
+        stopGameButton = new JButton("Stop game");
+		stopGameButton.setFont(btnFont);
+		stopGameButton.addActionListener((evt) -> sendCommand("STOP"));
+		gamePanel.add(stopGameButton);
+		gamePanel.add(Box.createVerticalGlue());
+
+        exitButton = new JButton("Exit");
+		exitButton.setFont(btnFont);
+		exitButton.addActionListener((evt) -> sendCommand("EXIT"));
+		gamePanel.add(exitButton);
+		gamePanel.add(Box.createVerticalGlue());
+
+		return mainPanel; 
+    
+
+
+    }
 
 }

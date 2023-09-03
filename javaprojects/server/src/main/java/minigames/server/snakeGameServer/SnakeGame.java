@@ -102,15 +102,11 @@ public class SnakeGame {
             case "SCORE" -> renderingCommands.add(new JsonObject().put("command", "viewHighScore"));
             case "HELP" -> renderingCommands.add(new JsonObject().put("command", "howToPlay"));
             case "BACK" -> renderingCommands.add(new JsonObject().put("command", "backToMenu"));
+            case "GAME" -> renderingCommands.add(new JsonObject().put("command", "game"));
             case "EXIT" -> {
                 
                 }
-            }
-        
-
-    
-        
-
+        }
         
     
         return new RenderingPackage(this.gameMetadata(), renderingCommands);
@@ -131,7 +127,7 @@ public class SnakeGame {
 
             ArrayList<JsonObject> renderingCommands = new ArrayList<>();
             renderingCommands.add(new LoadClient("Snake", "Snake", name, playerName).toJson());
-            renderingCommands.add(new JsonObject().put("command", "clearText"));
+            renderingCommands.add(new JsonObject().put("NEW", "new"));
             renderingCommands.add(new JsonObject().put("command", "appendText").put("text", describeState(p)));
             renderingCommands.add(new JsonObject().put("command", "setDirections").put("directions", directions(p.x(), p.y())));
 
