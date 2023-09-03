@@ -16,26 +16,30 @@ public class KrumLevel {
         this.p2x = p2x;
         this.p2y = p2y;
         background = new Background(filename);
+        BufferedImage maskImage = null;
+        WritableRaster mask = null;
         if (maskFilename != null) {
-            BufferedImage maskImage = KrumHelpers.readSprite(maskFilename);
-            WritableRaster mask = maskImage.getAlphaRaster();
+            maskImage = KrumHelpers.readSprite(maskFilename);
+            mask = maskImage.getAlphaRaster();
             if (mask.getWidth() != background.getImage().getWidth() || mask.getHeight() != background.getImage().getHeight()) {
                 System.out.println("indestructibility mask doesn't match level size");
                 return;
             }
-            double[] empty = null;           
-            for (int x = 0; x < mask.getWidth(); x++) {
-                for (int y = 0; y < mask.getHeight(); y++) {
+        }
+        double[] empty = null;           
+        for (int x = 0; x < background.getImage().getWidth(); x++) {
+            for (int y = 0; y < background.getImage().getHeight(); y++) {
+                if (background.getAlphaRaster().getPixel(x,y,empty)[0] == KrumC.INDESTRUCTIBLE_OPACITY) {
+                    background.getAlphaRaster().setPixel(x,y,new double[] {KrumC.DESTRUCTIBLE_OPACITY});
+                }
+                if (mask != null) {
                     if (mask.getPixel(x,y,empty)[0] > KrumC.OPACITY_THRESHOLD) {                        
                         if (background.getAlphaRaster().getPixel(x,y,empty)[0] > KrumC.OPACITY_THRESHOLD) {
                             background.getAlphaRaster().setPixel(x,y,new double[] {KrumC.INDESTRUCTIBLE_OPACITY});
                         }
                     }
-                    else if (background.getAlphaRaster().getPixel(x,y,empty)[0] == KrumC.INDESTRUCTIBLE_OPACITY) {
-                        background.getAlphaRaster().setPixel(x,y,new double[] {KrumC.DESTRUCTIBLE_OPACITY});
-                    }
                 }
             }
-        }
+        }        
     }
 }
