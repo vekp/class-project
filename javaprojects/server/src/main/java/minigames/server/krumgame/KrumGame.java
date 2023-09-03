@@ -41,6 +41,9 @@ public class KrumGame{
 
     private long seed;
 
+    private int[] ready;
+    private int levelIndex;
+
     public KrumGame(String name){
         this.name = name;
         this.playerTurn = 0;
@@ -50,6 +53,8 @@ public class KrumGame{
         this.frames.add(new LinkedList<KrumInputFrame>());
         this.playerIndexCount = 0;
         this.seed = System.nanoTime();
+        this.ready = new int[] {-1, -1};
+        this.levelIndex = 0;
 
     }
 
@@ -153,6 +158,24 @@ public class KrumGame{
             JsonObject f = frames.get(index).remove().getJson();
             JsonObject j = new JsonObject().put("frame", f);
             renderingCommands.add(j);
+        }
+        else if (content.getValue("levelIndexSend") != null) {
+            levelIndex = content.getInteger("levelIndexSend");
+            return new RenderingPackage(gameMetadata(), renderingCommands);
+        }
+        else if (content.getValue("levelCheck") != null) {
+            JsonObject j = new JsonObject().put("levelIndex", levelIndex);
+            renderingCommands.add(j);
+            return new RenderingPackage(gameMetadata(), renderingCommands);
+        }
+        else if (content.getValue("readySend") != null) {
+            ready[content.getInteger("readySend")] = content.getInteger("level");
+            return new RenderingPackage(gameMetadata(), renderingCommands);
+        }
+        else if (content.getValue("readyCheck") != null) {
+            JsonObject j = new JsonObject().put("p1ready", ready[0]).put("p2ready", ready[1]);
+            renderingCommands.add(j);
+            return new RenderingPackage(gameMetadata(), renderingCommands);
         }
         else {
             int pindex;

@@ -66,7 +66,16 @@ public class KrumGame implements GameClient {
     boolean ending = false;
     int winner = -1;
     double waterLevel;
+    boolean choosingLevel;
 
+    int currentLevelIndex = 0;
+    boolean ready;
+    KrumLevel currentLevel;
+
+    boolean initialized;
+    boolean playersInitialized;
+
+    
     // Player information
     String player;
 
@@ -83,8 +92,8 @@ public class KrumGame implements GameClient {
     KrumPanel panel;
     long lastFrameTime;
 
+
     ArrayList<KrumLevel> levels;
-    KrumLevel currentLevel;
 
     // Game loop and update controls
     boolean firstRun;
@@ -109,6 +118,10 @@ public class KrumGame implements GameClient {
     long seed; // seed for Random() -- needs to be the same for all clients clients
 
     public KrumGame() {  
+        initialized = false;
+        playersInitialized = false;
+        ready = false;
+        choosingLevel = true;
         receivedFrames = new ArrayList<KrumInputFrame>();
         //rand = new Random(); 
         firstRun = true;
@@ -116,15 +129,15 @@ public class KrumGame implements GameClient {
         waterLevel = KrumC.RES_Y - 1;
         // Initializing the background image
         //backgroundComponent = new Background("chameleon.png");
-        //backgroundComponent = new Background("ropetestmap.png");
-        // backgroundComponent = new Background("cave_test_2.png");
-        // background = backgroundComponent.getImage();
-        // alphaRaster = backgroundComponent.getAlphaRaster();
-        initializeLevels();
+        //background = backgroundComponent.getImage();
+        //alphaRaster = backgroundComponent.getAlphaRaster();
         initializePanel();
-        // initializePlayers();
+        initializeLevels();
+        setActiveLevel(0);                           
+        //initializePlayers();
         //initializeWind();     
-        windString = "";
+        windString = "";        
+        initialized = true;
     }
 
     private void initializeLevels() {
@@ -135,15 +148,20 @@ public class KrumGame implements GameClient {
         levels.add(chameleon);
         levels.add(ropetest);
         levels.add(cavetest);    
-        setActiveLevel(levels.size() - 1);   
+        setActiveLevel(0);           
     }
 
     private void setActiveLevel(int index) {
-        KrumLevel level = levels.get(index);
-        backgroundComponent = level.background;
+        currentLevel = levels.get(index);
+        backgroundComponent = currentLevel.background;
         background = backgroundComponent.getImage();
-        alphaRaster = backgroundComponent.getAlphaRaster();
-        initializePlayers(level);
+        alphaRaster = backgroundComponent.getAlphaRaster();        
+        currentLevelIndex = index;        
+    }
+
+    private void setReady() {
+        ready = true;
+        sendReady();
     }
 
     private void initializePanel(){
@@ -160,6 +178,7 @@ public class KrumGame implements GameClient {
         playerTurn = 0;
         savedTurns = new KrumTurn[] {new KrumTurn(players, background, windX, windY, updateCount, ending, running, winner, waterLevel), new KrumTurn(players, background, windX, windY, updateCount, ending, running, winner, waterLevel)};       
         currentTurn = savedTurns[playerTurn];
+        playersInitialized = true;
     }
 
     /** 
@@ -313,7 +332,7 @@ public class KrumGame implements GameClient {
     /**
      * Called once per frame to update game state
      */
-    void update() {       
+    void update() {   
         if (myPlayerIndex == playerTurn) {
             recordingTurn = true;
             playingBackTurn = false;
@@ -457,13 +476,16 @@ public class KrumGame implements GameClient {
         g.drawImage(background, null, 0, 0);
 
         //draw players and their weapons
-        for (KrumPlayer p : players) {
-            if (p.dead) continue;
-            p.draw(g, playerTurn);
-            if (p.projectile != null) p.projectile.draw(g);
-            if (p.grenade != null) p.grenade.draw(g);
-            if (p.joey.active) p.joey.draw(g);
-        }        
+        if (playersInitialized) {
+            for (KrumPlayer p : players) {
+                if (p.dead) continue;
+                p.draw(g, playerTurn);
+                if (p.projectile != null) p.projectile.draw(g);
+                if (p.grenade != null) p.grenade.draw(g);
+                if (p.joey.active) p.joey.draw(g);
+            }
+        } 
+       
 
         //draw wind info
         g.setColor(Color.red);
@@ -539,22 +561,45 @@ public class KrumGame implements GameClient {
         }
 
         // draw ammo
-        int tx = KrumC.RES_X - 52;
-        int ty = 16;
-        g.setFont(new Font("Courier New", 1, 18));
-        g.setColor(Color.black);
-        g.drawString("Ammo", tx, ty);        
-        tx += 34;
-        ty += 20;
-        drawAmmo(KrumPlayer.ZOOK, tx, ty, 0xED1C24, g);
-        ty += 18;
-        drawAmmo(KrumPlayer.NADE, tx, ty, 0x267F00, g);
-        ty += 18;
-        drawAmmo(KrumPlayer.JOEY, tx, ty, 0xB97A57, g);
-        ty += 18;
-        drawAmmo(KrumPlayer.ROPE, tx, ty, Color.ORANGE.getRGB(), g);
-        ty += 18;
-        drawAmmo(KrumPlayer.BLOW, tx, ty, 0x8afff7, g);
+        if (playersInitialized) {
+            int tx = KrumC.RES_X - 52;
+            int ty = 16;
+            g.setFont(new Font("Courier New", 1, 18));
+            g.setColor(Color.black);
+            g.drawString("Ammo", tx, ty);        
+            tx += 34;
+            ty += 20;
+            drawAmmo(KrumPlayer.ZOOK, tx, ty, 0xED1C24, g);
+            ty += 18;
+            drawAmmo(KrumPlayer.NADE, tx, ty, 0x267F00, g);
+            ty += 18;
+            drawAmmo(KrumPlayer.JOEY, tx, ty, 0xB97A57, g);
+            ty += 18;
+            drawAmmo(KrumPlayer.ROPE, tx, ty, Color.ORANGE.getRGB(), g);
+            ty += 18;
+            drawAmmo(KrumPlayer.BLOW, tx, ty, 0x8afff7, g);
+        }
+
+
+        if (choosingLevel) {
+            g.setColor(Color.black);
+            g.setFont(new Font("Courier New", 1, 22));
+            if (myPlayerIndex == 0) {
+                if (!ready)
+                    g.drawString("Use number keys to change level, enter to start game", 10, 200);
+                else 
+                    g.drawString("Ready! Waiting for opponent", 200, 200);
+            }
+            else {
+                if (!ready) {
+                    g.drawString("Press enter key when ready", 200, 200);
+                }
+                else {
+                    g.drawString("Ready! Waiting for opponent to choose level", 50, 200);
+                }
+            }
+                
+        }
     }
 
     void drawAmmo(int w, int x, int y, int c, Graphics2D g) {
@@ -580,6 +625,18 @@ public class KrumGame implements GameClient {
      * Main game loop
      */
     void startGame(){
+        lastFrameTime = System.nanoTime();
+        while (choosingLevel || !initialized) {
+            if (System.nanoTime() - lastFrameTime >= KrumC.TARGET_FRAMETIME) {
+                if (!initialized) continue;
+                lastFrameTime = System.nanoTime();
+                if (myPlayerIndex != 0)
+                    requestLevelIndex();
+                checkReady(); 
+                panel.repaint();   
+            }              
+        }  
+        initializePlayers(currentLevel); 
         // Starting the Wind Manager
         windManager = new WindManager(seed);
         windX = windManager.getWindX();
@@ -619,6 +676,15 @@ public class KrumGame implements GameClient {
             players[playerTurn].endGrenadeFire(e);
     }
     void keyDown(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+            if (choosingLevel) {
+                setReady();
+                return;
+            }
+            else if (myPlayerIndex == playerTurn) {
+                players[playerTurn].enterKeyPressed();
+            }
+        }
         if (myPlayerIndex != playerTurn) return;
         if (e.getKeyCode() == KeyEvent.VK_SPACE) { // Spacebar
             if (players[playerTurn].airborne) {
@@ -647,10 +713,7 @@ public class KrumGame implements GameClient {
         }
         else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
             players[playerTurn].rightKeyDownNextFrame = true;       
-        }
-        else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-            players[playerTurn].enterKeyPressed();
-        }
+        }        
         else if (e.getKeyCode() == KeyEvent.VK_UP) {
             players[playerTurn].upArrowKeyDownNextFrame = true;
         }
@@ -665,6 +728,20 @@ public class KrumGame implements GameClient {
         }
         else if (e.getKeyCode() == KeyEvent.VK_P) {
             players[playerTurn].punchNextFrame();
+        }
+        else if (Character.isDigit(e.getKeyChar())) {
+            int n = Character.getNumericValue(e.getKeyChar());
+            if (n == 0) 
+                n = 10;
+            else 
+                n--;
+            if (n >= levels.size()) {
+                return;
+            }
+            if (myPlayerIndex == 0) {
+                sendLevelIndex(n);
+                setActiveLevel(n);                
+            }            
         }
     }
     void keyUp(KeyEvent e) {
@@ -743,6 +820,32 @@ public class KrumGame implements GameClient {
         gameThread.start();
     }
 
+
+    public void sendLevelIndex(int index) {
+        JsonObject j = new JsonObject().put("levelIndexSend", index);
+        mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(j)));
+    }
+
+    public void sendLevelIndex() {
+        sendLevelIndex(currentLevelIndex);
+    }
+
+    public void requestLevelIndex() {
+        JsonObject j = new JsonObject().put("levelCheck", 0);
+        mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(j)));
+    }
+
+    public void sendReady() {
+        System.out.println("ready");
+        JsonObject j = new JsonObject().put("readySend", myPlayerIndex).put("level", currentLevelIndex);
+        mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(j)));
+    }
+
+    public void checkReady() {
+        JsonObject j = new JsonObject().put("readyCheck", 0);
+        mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(j)));
+    }
+
     void disableInfoLogging(){
         // LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         // Configuration config = ctx.getConfiguration();
@@ -762,9 +865,12 @@ public class KrumGame implements GameClient {
         this.player = player;
         mnClient.getMainWindow().getFrame().addComponentListener(new ComponentAdapter() {
             public void componentMoved(ComponentEvent e) {
-                for (KrumPlayer p : players) {
-                    p.setMouseOffsets(panel.getLocationOnScreen().x, panel.getLocationOnScreen().y);
+                if (playersInitialized) {
+                    for (KrumPlayer p : players) {
+                        p.setMouseOffsets(panel.getLocationOnScreen().x, panel.getLocationOnScreen().y);
+                    }
                 }
+
             }
         });        
         mnClient.getMainWindow().clearAll();
@@ -781,6 +887,28 @@ public class KrumGame implements GameClient {
         JsonObject frame = command.getJsonObject("frame");
         if (frame != null) {
             addReceivedFrame(frame);
+            return;
+        }
+        if (command.containsKey("levelIndex")){
+            if (choosingLevel) {
+                int i = command.getInteger("levelIndex");
+                if (i != currentLevelIndex) {
+                    setActiveLevel(i);
+                    if (ready) {
+                        sendReady();
+                    }
+                }
+
+            }
+            return;
+        }
+        if (command.containsKey("p1ready") && command.containsKey("p2ready")){
+            int[] readyStatus = new int[]{-1,-1};
+            readyStatus[0] = command.getInteger("p1ready");
+            readyStatus[1] = command.getInteger("p2ready");
+            if (readyStatus[0] == readyStatus[1] && readyStatus[0] != -1) {
+                choosingLevel = false;
+            }
             return;
         }
         try {
