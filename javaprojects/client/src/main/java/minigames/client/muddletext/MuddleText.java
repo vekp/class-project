@@ -3,10 +3,7 @@ package minigames.client.muddletext;
 import java.awt.*;
 import java.util.Collections;
 
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.border.LineBorder;
 
 import io.vertx.core.json.JsonObject;
@@ -108,13 +105,11 @@ public class MuddleText implements GameClient {
         textArea.append("Starting...");
 
         // Notification Manager settings
-        mnClient.getNotificationManager().setNotificationArea(textArea);
-        mnClient.getNotificationManager().setStyling(
-                Color.GREEN,
-                Color.BLACK,
-                "Monospaced",
-                new LineBorder(Color.GREEN)
-        );
+        mnClient.getSystemNotificationManager()
+                .setNotificationArea(textArea)
+                .setColours(Color.GREEN, Color.DARK_GRAY)
+                .setFont("Monospaced")
+                .setBorder(new LineBorder(new Color(0, 127, 0)));
 
         // Don't forget to call pack - it triggers the window to resize and repaint itself
         mnClient.getMainWindow().pack();

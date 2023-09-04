@@ -49,7 +49,7 @@ public class AchievementNotificationHandler implements Tickable {
             for (Achievement unlock : unlocks) {
                 AchievementPresenter presenter = new AchievementPresenter(unlock, true);
                 JPanel popup = presenter.smallAchievementPanel();
-                client.getNotificationManager().showNotification(popup);
+                client.getSystemNotificationManager().showNotification(popup);
             }
 
         anim.requestTick(this);

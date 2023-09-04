@@ -69,8 +69,8 @@ public class NotificationManager implements Tickable {
      * of the frame, pauses, and slides back up off the frame.
      * @param component the Component to display
      */
-    public void showNotification (Component component) {
-        showNotification(component, true);
+    public NotificationManager showNotification (Component component) {
+        return showNotification(component, true);
     }
 
     /**
@@ -79,11 +79,11 @@ public class NotificationManager implements Tickable {
      * @param component     the Component to display in the notification
      * @param isDismissible if the user should be able to click on it to dismiss it.
      */
-    public void showNotification(Component component, boolean isDismissible) {
+    public NotificationManager showNotification(Component component, boolean isDismissible) {
         // If something already in progress, add it to the queue and stop
         if (!status.equals(Status.IDLE)) {
             queuedNotifications.put(component, isDismissible);
-            return;
+            return this;
         }
         status = Status.MOVING_DOWN;
         // apply the set border if component does not already have one, or is a JInternalFrame
@@ -124,6 +124,7 @@ public class NotificationManager implements Tickable {
         layeredPane.add(notification, JLayeredPane.POPUP_LAYER);
         // start animating
         animator.requestTick(this);
+        return this;
     }
 
     // Animate the notification panel depending on its current status
@@ -171,23 +172,19 @@ public class NotificationManager implements Tickable {
     }
 
     /**
-     * Display a message dialog with the given title and Component in the centre of the layered pane,
+     * Display a message dialog with the given title and Component,
      * after clearing notification queue and current notification.
      * Includes an OK button for dismissal.
      * Recommended only to use with your own instance of NotificationManager.
      */
-    public void showMessageDialog(String title, JComponent component, boolean okButtonRequired) {
+    public NotificationManager showMessageDialog(String title, JComponent component, boolean okButtonRequired) {
         clearNotificationQueue();
         dismissCurrentNotification();
         // Store current settings, store function to dismiss notification and restore settings
         int prevDisplayTime = displayTime;
-        float prevAlignmentX = alignmentX;
-        float prevAlignmentY = alignmentY;
         Runnable closeOperation = () -> {
             dismissCurrentNotification();
             setDisplayTime(prevDisplayTime);
-            setAlignmentX(prevAlignmentX);
-            setAlignmentY(prevAlignmentY);
         };
         // Make internal frame with OK button
         JInternalFrame dialog = new JInternalFrame(title, false, true);
@@ -218,36 +215,34 @@ public class NotificationManager implements Tickable {
         });
         // Disable repositioning
         for (MouseMotionListener mml : dialog.getMouseMotionListeners()) dialog.removeMouseMotionListener(mml);
-        // Disable auto dismissal and set position to centre
+        // Disable auto dismissal
         setDisplayTime(0);
-        setAlignmentX(Component.CENTER_ALIGNMENT);
-        setAlignmentY(Component.CENTER_ALIGNMENT);
         // Show the panel
         dialog.setVisible(true);
-        System.out.println(dialog.getBorder());
         showNotification(dialog, false);
         if (okButtonRequired) okButton.requestFocusInWindow();
+        return this;
     }
 
     /**
      * Call showMessageDialog using given title and component, and default value of true for okButtonRequired.
      */
-    public void showMessageDialog(String title, JComponent component) {
-        showMessageDialog(title, component, true);
+    public NotificationManager showMessageDialog(String title, JComponent component) {
+        return showMessageDialog(title, component, true);
     }
 
         /**
          * Reset settings to their default values. Default values are: <br>
          * alignmentX       :   Component.RIGHT_ALIGNMENT (1.0f) <br>
          * alignmentY       :   Component.TOP_ALIGNMENT (0.0f) <br>
-         * animationSpeed   :   0.15f <br>
+         * animationSpeed   :   0.2f <br>
          * displayTime      :   5000 <br>
          * margins          :   Insets(5, 5, 5, 5) <br>
          * colours          :   system default colours <br>
          * font             :   system default font <br>
          * border           :   EtchedBorder()
          */
-    public void resetToDefaultSettings() {
+    public NotificationManager resetToDefaultSettings() {
         setAlignmentX(Component.RIGHT_ALIGNMENT);
         setAlignmentY(Component.TOP_ALIGNMENT);
         setAnimationSpeed(0.2f);
@@ -260,13 +255,14 @@ public class NotificationManager implements Tickable {
         setBorder(BorderFactory.createEtchedBorder());
         setApplyColourAndFontStyling(false);
         this.layeredPane = frame.getLayeredPane();
+        return this;
     }
 
     /**
      * Set the area to contain notifications based on the given Component.
      * NOTE: This may not work as intended depending on the Layout Manager used by the Component's parent.
      */
-    public void setNotificationArea(Component notificationArea) {
+    public NotificationManager setNotificationArea(Component notificationArea) {
         // Create new layered pane
         JLayeredPane pane = new JLayeredPane();
         // Get parent container and position of area within its parent
@@ -280,6 +276,7 @@ public class NotificationManager implements Tickable {
         parent.add(pane, index);
         parent.revalidate();
         this.layeredPane = pane;
+        return this;
     }
 
     /**
@@ -287,8 +284,9 @@ public class NotificationManager implements Tickable {
      * Possible alignment values are in the range 0.0f - 1.0f, such as Component.LEFT_ALIGNMENT(0.0f),
      * Component.CENTER_ALIGNMENT (0.5f), and the default Component.RIGHT_ALIGNMENT (1.0f).
      */
-    public void setAlignmentX(float alignmentX) {
+    public NotificationManager setAlignmentX(float alignmentX) {
         this.alignmentX = alignmentX < 0 ? 0 : alignmentX > 1 ? 1 : alignmentX;
+        return this;
     }
 
     /**
@@ -296,23 +294,26 @@ public class NotificationManager implements Tickable {
      * Possible alignment values are in the range 0.0f - 1.0f, such as the default Component.TOP_ALIGNMENT(0.0f),
      * Component.CENTER_ALIGNMENT (0.5f), and Component.BOTTOM (1.0f).
      */
-    public void setAlignmentY(float alignmentY) {
+    public NotificationManager setAlignmentY(float alignmentY) {
         this.alignmentY = alignmentY < 0 ? 0.0f : alignmentY > 1 ? 1.0f : alignmentY;
+        return this;
     }
 
     /**
      * Setter for changing the speed at which the notification slides up and down.
      * @param animationSpeed float representing proportion of distance from current to target location to travel per tick
      */
-    public void setAnimationSpeed(float animationSpeed) {
+    public NotificationManager setAnimationSpeed(float animationSpeed) {
         this.animationSpeed = animationSpeed < 0 ? 0.0f : animationSpeed > 1 ? 1.0f : animationSpeed;
+        return this;
     }
 
     /**
      * Set animation using bool to enable or disable animations completely.
      */
-    public void animationEnabled(boolean enabled) {
-        this.animationSpeed = enabled? 0.15f : 1;
+    public NotificationManager animationEnabled(boolean enabled) {
+        this.animationSpeed = enabled? 0.2f : 1;
+        return this;
     }
 
     /**
@@ -321,30 +322,34 @@ public class NotificationManager implements Tickable {
      * manually dismissed by clicking on it or calling dismissCurrentNotification.
      * @param displayTime time in ms
      */
-    public void setDisplayTime(int displayTime) {
+    public NotificationManager setDisplayTime(int displayTime) {
         this.displayTime = displayTime;
+        return this;
     }
 
     /**
      * Setter for altering the margins between edge of the frame and the notification panel at its fully displayed
      * state. Can be used together with alignment setters for precise positioning.
      */
-    public void setMargins(Insets insets) {
+    public NotificationManager setMargins(Insets insets) {
         this.margins = insets;
+        return this;
     }
 
     /**
      * Dismiss the currently displayed notification if there is one.
      */
-    public void dismissCurrentNotification() {
+    public NotificationManager dismissCurrentNotification() {
         if (!status.equals(Status.IDLE)) status = Status.MOVING_UP;
+        return this;
     }
 
     /**
      * Clear all notifications in the queue. Does not affect current notification.
      */
-    public void clearNotificationQueue() {
+    public NotificationManager clearNotificationQueue() {
         queuedNotifications.clear();
+        return this;
     }
 
     /**
@@ -357,43 +362,48 @@ public class NotificationManager implements Tickable {
     /**
      * Set the colours to be applied to notifications
      */
-    public void setColours(Color foregroundColour, Color backgroundColour) {
+    public NotificationManager setColours(Color foregroundColour, Color backgroundColour) {
         this.foregroundColor = foregroundColour;
         this.backgroundColor = backgroundColour;
         setApplyColourAndFontStyling(true);
+        return this;
     }
 
     /**
      * Set font for notifications
      */
-    public void setFont(String fontname) {
+    public NotificationManager setFont(String fontname) {
         this.fontName = fontname;
         setApplyColourAndFontStyling(true);
+        return this;
     }
 
     /**
      * Set the border to be applied to notifications
      */
-    public void setBorder(Border border) {
+    public NotificationManager setBorder(Border border) {
         this.border = border;
+        return this;
     }
 
     /**
      * Set styling for foreground/background colours, font and border in one method.
      */
-    public void setStyling(Color foregroundColour, Color backgroundColour, String fontName, Border border) {
+    public NotificationManager setStyling(Color foregroundColour, Color backgroundColour, String fontName, Border border) {
         setColours(foregroundColour, backgroundColour);
         setFont(fontName);
         setBorder(border);
+        return this;
     }
 
     /**
      * Set styling for foreground/background colours, font and border based on a component.
      */
-    public void setStyling(Component component) {
+    public NotificationManager setStyling(Component component) {
         setColours(component.getForeground(), component.getBackground());
         setFont(component.getFont().getFontName());
         if (component instanceof JComponent jc) setBorder(jc.getBorder());
+        return this;
     }
 
     /**

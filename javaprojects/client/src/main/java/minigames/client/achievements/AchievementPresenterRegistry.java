@@ -224,7 +224,7 @@ public class AchievementPresenterRegistry implements Tickable {
         leftButton.setEnabled(false);
         rightButton.setEnabled(false);
         // Calculate and set new positions
-        direction.currentX *= 0.85;
+        direction.currentX *= 0.8;
         int newX = Math.round(direction.currentX);
         currentAchievement.setLocation(newX - direction.initialX, 0);
         nextAchievement.setLocation(newX, 0);
