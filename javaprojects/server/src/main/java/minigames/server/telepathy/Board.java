@@ -11,9 +11,10 @@ import java.util.Random;
 
 public class Board{
 
-    public Tile[][] board; 
-    int ROWS = 9; // adjustable variable for grid size
-    int COLS = 9; // adjustable variable for grid size
+    private Tile[][] board;
+    
+    private int ROWS = 9; // adjustable variable for grid size
+    private int COLS = 9; // adjustable variable for grid size
 
     /**
      * board constructor
@@ -22,13 +23,9 @@ public class Board{
         this.board = generateBoard(ROWS, COLS);
     }
 
-    //getter
-
-    public Tile[][] getBoard(){return this.board;}
-
-
     /**
      * A method to generate a 2D array of tile objects with assigned colour and symbol.
+     * 
      * @param rows an int representing number of rows on the board
      * @param cols an int representing number of columns on the board
      * @return a 2D array of Tile objects
@@ -55,12 +52,28 @@ public class Board{
         return board;
     }
 
+    
+    /**
+     * Get the board of tiles
+     * @return A 2-dimensional array of Tiles that represents the Telepathy game board.
+     */
+    public Tile[][] getBoard() {
+        return this.board;
+    }
+
+    /**
+     * Get a Tile at a specific coordinate of this Board.
+     * @param row The row of the desired Tile.
+     * @param column The column of the desired Tile.
+     * @return The Tile object at the desired coodinate.
+     */
+    public Tile getTile(int row, int column) {
+        return this.board[row][column];
+    }
 
     /**
      * A method to return a square at coordinates x, y from the board
      */
-
-    
     public Tile getTile(int x, int y, Board board){
 
         Tile tile = board.getBoard()[x][y];
@@ -72,11 +85,12 @@ public class Board{
     /**
      * A method to generate an ArrayList of colour constants for the board
      */
-    public ArrayList<Object> generateColours(){
+    public ArrayList<Object> generateColours() {
         ArrayList<Object> coloursList = new ArrayList<>(List.of(Colours.values()));
 
         return coloursList;
     }
+    
     /**
      * A method to generate an ArrayList of symbol constants for the board
      */
