@@ -37,34 +37,14 @@ import java.awt.event.ActionListener;
 
 
 public class ImageGuesser {
-    private JPanel gameContainer;
-    private JPanel inputPanel;
-    private String imageFileName;
-    private int gameId;
-    private MinigameNetworkClient mnClient;
-    private GameMetadata game;
-    private String player;
 
-    private JPanel outcomeContainer;
-    private static final Logger logger = Logger.getLogger(ImageGuesser.class.getName());
-
-    public ImageGuesser(MinigameNetworkClient mnClient, GameMetadata game,  JPanel gameContainer, String player, String imageFileName, int gameId) {
-        this.gameContainer = gameContainer;
-        this.imageFileName = imageFileName;
-        this.gameId = gameId;
-        this.mnClient = mnClient;
-        this.game = game;
-        this.player = player;
-    }
+    public void startImageGuesser(GameShow gs, String imageFileName) {
+        gs.gameContainer.removeAll();
+        gs.gameContainer.validate();
+        gs.gameContainer.repaint();
 
 
-    public void startImageGuesser() {
-        this.gameContainer.removeAll();
-        this.gameContainer.validate();
-        this.gameContainer.repaint();
-
-
-        String imageFolderLocation = "src/main/resources/images/memory_game_pics/" + this.imageFileName;
+        String imageFolderLocation = "src/main/resources/images/memory_game_pics/" + imageFileName;
         ImageIcon imageIcon = new ImageIcon(imageFolderLocation);
 
         // Load the image
@@ -88,9 +68,9 @@ public class ImageGuesser {
 
 
        // Create a panel for the guess input and submit button
-        this.inputPanel = new JPanel(new BorderLayout(10, 0));
-        this.inputPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
-        this.outcomeContainer = new JPanel(new BorderLayout(10, 0));
+        gs.inputPanel = new JPanel(new BorderLayout(10, 0));
+        gs.inputPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+        gs.outcomeContainer = new JPanel(new BorderLayout(10, 0));
 
 
         JPanel inputComponents = new JPanel(); // Create a container for fixed-size components
@@ -101,47 +81,50 @@ public class ImageGuesser {
         submitButton.addActionListener((evt) -> sendCommand(new JsonObject()
                 .put("command", "guessImage")
                 .put("guess", guessField.getText())
-                .put("gameId", this.gameId)));
+                .put("gameId", gs.gameId)));
 
         inputComponents.add(guessField);
         inputComponents.add(submitButton);
 
-        this.inputPanel.add(inputComponents, BorderLayout.CENTER); // Add the container with fixed-size components
-        this.inputPanel.add(this.outcomeContainer, BorderLayout.SOUTH);
+        gs.inputPanel.add(inputComponents, BorderLayout.CENTER); // Add the container with fixed-size components
+        gs.inputPanel.add(gs.outcomeContainer, BorderLayout.SOUTH);
         // Add the grid panel to the center of the container
-        this.gameContainer.add(gridPanel, BorderLayout.CENTER);
-        this.gameContainer.add(this.inputPanel, BorderLayout.SOUTH);
+        gs.gameContainer.add(gridPanel, BorderLayout.CENTER);
+        gs.gameContainer.add(gs.inputPanel, BorderLayout.SOUTH);
 
-        this.gameContainer.validate();
-        this.gameContainer.repaint();
+        gs.gameContainer.validate();
+        gs.gameContainer.repaint();
     }
 
-    public void guess( boolean correct) {
-        this.outcomeContainer.removeAll();
-        this.outcomeContainer.validate();
-        this.outcomeContainer.repaint();
+    public void guess(GameShow gs, boolean correct) {
+        gs.outcomeContainer.removeAll();
+        gs.outcomeContainer.validate();
+        gs.outcomeContainer.repaint();
         if (!correct) {
             JLabel tryAgain = new JLabel("That's not quite right :( Try again!",
                     SwingConstants.CENTER);
 
-            this.outcomeContainer.add(tryAgain, BorderLayout.CENTER);
+            gs.outcomeContainer.add(tryAgain, BorderLayout.CENTER);
         } else {
             JLabel congrats = new JLabel("Congratulations! You Win :)",
                     SwingConstants.CENTER);
-            this.outcomeContainer.add(congrats, BorderLayout.CENTER);
+            gs.outcomeContainer.add(congrats, BorderLayout.CENTER);
         }
         logger.log(Level.INFO, "GameShow instance created");
 
 
-        this.inputPanel.validate();
-        this.inputPanel.repaint();
+        gs.inputPanel.validate();
+        gs.inputPanel.repaint();
     }
 
-    public void sendCommand(JsonObject json) {
-        // Collections.singletonList() is a quick way of getting a "list of one item"
-        // logger.log(Level.INFO, "sendCommand called with command: {0}", command);
-        logger.log(Level.INFO, "Sending JSON: {0}", json.toString());
-        this.mnClient.send(new CommandPackage(this.game.gameServer(), this.game.name(), this.player, Collections.singletonList(json)));
+
+    private static void sendGuess(GameShow gs, String guess, int gameId) {
+        gs.sendCommand(new JsonObject()
+            .put("command", "guess")
+            .put("game", "imageGuesser")
+            .put("guess", guess)
+            .put("gameId", gameId)
+        );
     }
 
 }
