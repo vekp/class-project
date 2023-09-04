@@ -86,10 +86,10 @@ public class TelepathyBoardTests{
         expectedList.add(Colours.RED);
         expectedList.add(Colours.PINK);
         expectedList.add(Colours.BLUE);
-        expectedList.add(Colours.BROWN);
+        expectedList.add(Colours.CYAN);
         expectedList.add(Colours.YELLOW);
         expectedList.add(Colours.ORANGE);
-        expectedList.add(Colours.PURPLE);
+        expectedList.add(Colours.MAGENTA);
         expectedList.add(Colours.GREEN);
         expectedList.add(Colours.GREY);
 

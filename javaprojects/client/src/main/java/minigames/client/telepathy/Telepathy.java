@@ -460,7 +460,7 @@ public class Telepathy implements GameClient, Tickable{
         yellow.setBorderPainted(true);
         yellow.setFocusPainted(false);
         yellow.setPreferredSize(new Dimension(70, 60));
-        JButton magenta = new JButton("Purple");
+        JButton magenta = new JButton("Magenta");
         magenta.setBackground(Color.MAGENTA);
         magenta.setForeground(Color.MAGENTA);
         magenta.setOpaque(true);

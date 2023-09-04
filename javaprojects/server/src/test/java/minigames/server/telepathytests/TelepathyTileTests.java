@@ -10,11 +10,11 @@ public class TelepathyTileTests{
     @DisplayName("Tile object getters work as expected")
     public void testTileGetters(){
         
-        Tile tile = new Tile(0, 0, Colours.PURPLE, Symbols.HEARTS);
+        Tile tile = new Tile(0, 0, Colours.MAGENTA, Symbols.HEARTS);
 
         assertEquals(0, tile.getHorizontalPos());
         assertEquals(0, tile.getVerticalPos());
-        assertEquals(Colours.PURPLE, tile.getTileColour());
+        assertEquals(Colours.MAGENTA, tile.getTileColour());
         assertEquals(Symbols.HEARTS, tile.getTileSymbol());
 
     }
