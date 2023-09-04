@@ -206,6 +206,23 @@ public class MinigameNetworkServer {
             }
         });
 
+        // Gets submissions data from survey submissions
+        router.get("/surveyData").handler((ctx) -> {
+            SurveyDatabaseHandler databaseHandler = new SurveyDatabaseHandler();
+            String jsonData = databaseHandler.getFeedbackData().toJSONString();
+            
+            if (jsonData != null) {          
+                // String jsonData = feedbackData.toJSONString();      
+                ctx.response()
+                    .putHeader("content-type", "application/json")
+                    .end(jsonData);
+            } else {
+                ctx.response()
+                   .setStatusCode(400) 
+                   .end("No data read from the file.");
+            }
+        });
+
         server.requestHandler(router).listen(port, (http) -> {
             if (http.succeeded()) {
                 logger.info("Server started on {}", port);

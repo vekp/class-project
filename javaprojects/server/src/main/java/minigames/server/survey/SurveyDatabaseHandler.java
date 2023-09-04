@@ -16,8 +16,8 @@ public class SurveyDatabaseHandler {
     private JSONArray feedbackArray = new JSONArray();
     private static final String JSON_FILE_PATH = "feedback.json";
 
+    // Saves jsonData object to feedback.json file
     public void saveToSurveyDatabase(JsonObject jsonData) {
-        // JSON object to store the feedback data
         JSONObject feedbackObject = new JSONObject();
         feedbackObject.put("user_id", jsonData.getLong("user_id")); // Replace with real user ID
         feedbackObject.put("timestamp", getCurrentTimestamp());
@@ -33,6 +33,11 @@ public class SurveyDatabaseHandler {
 
         // Save updated JSON array back to the file
         saveFeedbackToJsonFile();
+    }
+
+    public JSONArray getFeedbackData() {
+        readExistingFeedbackData();
+        return feedbackArray;
     }
 
     private String getCurrentTimestamp() {
