@@ -276,7 +276,7 @@ public class TelepathyGame {
      *  The CLIENTUPDATE packets in GAMEOVER state should show who has won, who lost, etc...
      */
     private void gameOver(){
-        logger.info("*******Game has ended!*********");
+        logger.info("\n\n*******Game has ended!*********\n");
 
         this.state = State.GAMEOVER;
         for(String p : this.players.keySet()){
@@ -288,7 +288,7 @@ public class TelepathyGame {
      * Transition the game from the INITIALISE state to RUNNING state.
      */
     private void beginGame() {
-        logger.info("*******Game has started!*********");
+        logger.info("\n\n********Game has started!********\n");
 
         this.state = State.RUNNING;
         this.joinable = false;

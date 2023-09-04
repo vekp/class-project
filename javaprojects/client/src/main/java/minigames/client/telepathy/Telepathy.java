@@ -147,6 +147,7 @@ public class Telepathy implements GameClient, Tickable{
         // panel to display buttons
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+        buttonPanel.add(readyButton);
         buttonPanel.add(backButton);
         buttonPanel.add(startGame);
        
