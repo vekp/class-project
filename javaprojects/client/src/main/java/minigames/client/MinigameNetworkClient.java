@@ -61,6 +61,7 @@ public class MinigameNetworkClient {
 
     Optional<GameClient> gameClient;
     NotificationManager notificationManager;
+    NotificationManager achievementDialogViewer;
 
     public MinigameNetworkClient(Vertx vertx) {
         this.vertx = vertx;
@@ -72,6 +73,7 @@ public class MinigameNetworkClient {
 
         mainWindow = new MinigameNetworkClientWindow(this);
         notificationManager = new NotificationManager(this);
+        achievementDialogViewer = new NotificationManager(this);
         mainWindow.show();
     }
 
@@ -101,6 +103,10 @@ public class MinigameNetworkClient {
      */
     public NotificationManager getNotificationManager() {
         return this.notificationManager;
+    }
+
+    public NotificationManager getAchievementDialogViewer() {
+        return achievementDialogViewer;
     }
 
     /**
@@ -187,7 +193,7 @@ public class MinigameNetworkClient {
                     //display it in a message dialog in a background thread
                     vertx.executeBlocking(getGameAchievements -> {
                         AchievementPresenterRegistry ac = new AchievementPresenterRegistry(GameAchievementState.fromJSON(resp.bodyAsString()), getAnimator());
-                        ac.showGameAchievements(getMainWindow().getFrame());
+                        ac.showGameAchievements(achievementDialogViewer);
                         getGameAchievements.complete();
                     });
                     logger.info(resp.bodyAsString());
@@ -317,6 +323,7 @@ public class MinigameNetworkClient {
      * the server to get a list of available games.
      */
     public void runMainMenuSequence() {
+        achievementDialogViewer.dismissCurrentNotification();
         mainWindow.showStarfieldMessage("Minigame Network");
 
         ping().flatMap((s) -> getGameServers()).map((list) -> {

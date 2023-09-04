@@ -6,11 +6,14 @@ import minigames.client.Tickable;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.LinkedList;
-import java.util.List;
+import java.awt.event.MouseMotionListener;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * A class for managing popup notifications to display to players without disrupting gameplay.
@@ -19,19 +22,19 @@ public class NotificationManager implements Tickable {
     private final JFrame frame;
     private JLayeredPane layeredPane;
     private final Animator animator;
-    private final List<Component> queuedNotifications = new LinkedList<>();
-    JPanel notificationPanel;
+    private final HashMap<Component, Boolean> queuedNotifications = new LinkedHashMap<>();
+    Component notification;
     // Margins to leave between frame edge and notification
     private Insets margins;
     // Alignment of notification panel
     private float alignmentX, alignmentY;
-    private int notificationPanelHeight;
+    private int notificationHeight;
     // Notification panel's position
     private int currentX;
     private double currentY;
     // Notification panel's target position
     private int targetY;
-    // Speed in pixels to move per 16ms frame
+    // Speed of notification animation movement
     private float animationSpeed;
     // Duration to wait in fully displayed state, in milliseconds
     private int displayTime;
@@ -79,22 +82,24 @@ public class NotificationManager implements Tickable {
     public void showNotification(Component component, boolean isDismissible) {
         // If something already in progress, add it to the queue and stop
         if (!status.equals(Status.IDLE)) {
-            queuedNotifications.add(component);
+            queuedNotifications.put(component, isDismissible);
             return;
         }
         status = Status.MOVING_DOWN;
-        // create a panel to contain component
-        notificationPanel = new JPanel();
-        notificationPanel.add(component);
-        // apply the set border if component does not already have one
-        if (component instanceof JComponent jc && jc.getBorder() == null) {
-            notificationPanel.setBorder(border);
+        // apply the set border if component does not already have one, or is a JInternalFrame
+        if (component instanceof JInternalFrame || component instanceof JComponent jc && jc.getBorder() != null) {
+            notification = component;
+        } else {
+            JPanel panel = new JPanel();
+            panel.add(component);
+            panel.setBorder(border);
+            notification = panel;
         }
         // apply custom styling of colours and font
-        if (applyColourAndFontStyling) applyStyling(notificationPanel);
+        if (applyColourAndFontStyling) applyStyling(notification);
         // make dismissible
         if (isDismissible) {
-            notificationPanel.addMouseListener(new MouseAdapter() {
+            notification.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     status = Status.MOVING_UP;
@@ -103,20 +108,20 @@ public class NotificationManager implements Tickable {
         }
         // get panel dimensions
         // Notification panel dimensions
-        int notificationPanelWidth = (int) notificationPanel.getPreferredSize().getWidth();
-        notificationPanelHeight = (int) notificationPanel.getPreferredSize().getHeight();
+        int notificationWidth = (int) notification.getPreferredSize().getWidth();
+        notificationHeight = (int) notification.getPreferredSize().getHeight();
         // calculate start position
-        int maxX = layeredPane.getWidth() - notificationPanelWidth - margins.right;
+        int maxX = layeredPane.getWidth() - notificationWidth - margins.right;
         int minX = margins.left;
         currentX = minX + (int) (alignmentX * (maxX - minX));
-        currentY = -notificationPanelHeight;
+        currentY = -notificationHeight;
         // calculate target Y position
         int minY = margins.top;
-        int maxY = layeredPane.getHeight() - notificationPanelHeight - margins.bottom;
+        int maxY = layeredPane.getHeight() - notificationHeight - margins.bottom;
         targetY = minY + (int) (alignmentY * (maxY - minY));
         // set bounds, add to layer
-        notificationPanel.setBounds(currentX, (int) currentY, notificationPanelWidth, notificationPanelHeight);
-        layeredPane.add(notificationPanel, JLayeredPane.POPUP_LAYER);
+        notification.setBounds(currentX, (int) currentY, notificationWidth, notificationHeight);
+        layeredPane.add(notification, JLayeredPane.POPUP_LAYER);
         // start animating
         animator.requestTick(this);
     }
@@ -128,7 +133,9 @@ public class NotificationManager implements Tickable {
             case IDLE -> {
                 // Display next item in the queue if exists
                 if (!queuedNotifications.isEmpty()) {
-                    showNotification(queuedNotifications.remove(0));
+                    Component c = queuedNotifications.keySet().iterator().next();
+                    boolean b = queuedNotifications.remove(c);
+                    showNotification(c, b);
                 }
                 // No more animation required, end here
                 return;
@@ -137,7 +144,7 @@ public class NotificationManager implements Tickable {
             case MOVING_DOWN -> {
                 currentY += (targetY - currentY) * animationSpeed;
                 int y = (int) Math.round(currentY);
-                notificationPanel.setLocation(currentX, y);
+                notification.setLocation(currentX, y);
                 if (y == targetY) {
                     startTime = now;
                     status = Status.FULLY_DISPLAYED;
@@ -151,12 +158,12 @@ public class NotificationManager implements Tickable {
             }
             // Move back up until out of view
             case MOVING_UP -> {
-                currentY -= (targetY - currentY) * animationSpeed;
+                currentY -= (targetY - currentY) * animationSpeed * 2; // Doubled to increase dismissal responsiveness
                 int y = (int) Math.round(currentY);
-                notificationPanel.setLocation(currentX, y);
-                if (y <= -notificationPanelHeight) {
+                notification.setLocation(currentX, y);
+                if (y <= -notificationHeight) {
                     status = Status.IDLE;
-                    layeredPane.remove(notificationPanel);
+                    layeredPane.remove(notification);
                 }
             }
         }
@@ -164,16 +171,82 @@ public class NotificationManager implements Tickable {
     }
 
     /**
-     * Reset settings to their default values. Default values are: <br>
-     * alignmentX       :   Component.RIGHT_ALIGNMENT (1.0f) <br>
-     * alignmentY       :   Component.TOP_ALIGNMENT (0.0f) <br>
-     * animationSpeed   :   0.15f <br>
-     * displayTime      :   5000 <br>
-     * margins          :   Insets(5, 5, 5, 5) <br>
-     * colours          :   system default colours <br>
-     * font             :   system default font <br>
-     * border           :   EtchedBorder()
+     * Display a message dialog with the given title and Component in the centre of the layered pane,
+     * after clearing notification queue and current notification.
+     * Includes an OK button for dismissal.
+     * Recommended only to use with your own instance of NotificationManager.
      */
+    public void showMessageDialog(String title, JComponent component, boolean okButtonRequired) {
+        clearNotificationQueue();
+        dismissCurrentNotification();
+        // Store current settings, store function to dismiss notification and restore settings
+        int prevDisplayTime = displayTime;
+        float prevAlignmentX = alignmentX;
+        float prevAlignmentY = alignmentY;
+        Runnable closeOperation = () -> {
+            dismissCurrentNotification();
+            setDisplayTime(prevDisplayTime);
+            setAlignmentX(prevAlignmentX);
+            setAlignmentY(prevAlignmentY);
+        };
+        // Make internal frame with OK button
+        JInternalFrame dialog = new JInternalFrame(title, false, true);
+        dialog.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.insets = new Insets(10, 20, 10, 20);
+        gbc.gridy = GridBagConstraints.RELATIVE;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        dialog.add(component, gbc);
+        // OK button to dismiss the panel and restore previous settings
+        JButton okButton = null;
+        if (okButtonRequired) {
+            okButton = new JButton("OK");
+            gbc.anchor = GridBagConstraints.EAST;
+            gbc.fill = GridBagConstraints.NONE;
+            gbc.insets = new Insets(0, 20, 10, 20);
+            dialog.add(okButton, gbc);
+            okButton.addActionListener(e -> closeOperation.run());
+        }
+        // Set close operation
+        dialog.setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
+        dialog.addInternalFrameListener(new InternalFrameAdapter() {
+            @Override
+            public void internalFrameClosing(InternalFrameEvent e) {
+                closeOperation.run();
+            }
+        });
+        // Disable repositioning
+        for (MouseMotionListener mml : dialog.getMouseMotionListeners()) dialog.removeMouseMotionListener(mml);
+        // Disable auto dismissal and set position to centre
+        setDisplayTime(0);
+        setAlignmentX(Component.CENTER_ALIGNMENT);
+        setAlignmentY(Component.CENTER_ALIGNMENT);
+        // Show the panel
+        dialog.setVisible(true);
+        System.out.println(dialog.getBorder());
+        showNotification(dialog, false);
+        if (okButtonRequired) okButton.requestFocusInWindow();
+    }
+
+    /**
+     * Call showMessageDialog using given title and component, and default value of true for okButtonRequired.
+     */
+    public void showMessageDialog(String title, JComponent component) {
+        showMessageDialog(title, component, true);
+    }
+
+        /**
+         * Reset settings to their default values. Default values are: <br>
+         * alignmentX       :   Component.RIGHT_ALIGNMENT (1.0f) <br>
+         * alignmentY       :   Component.TOP_ALIGNMENT (0.0f) <br>
+         * animationSpeed   :   0.15f <br>
+         * displayTime      :   5000 <br>
+         * margins          :   Insets(5, 5, 5, 5) <br>
+         * colours          :   system default colours <br>
+         * font             :   system default font <br>
+         * border           :   EtchedBorder()
+         */
     public void resetToDefaultSettings() {
         setAlignmentX(Component.RIGHT_ALIGNMENT);
         setAlignmentY(Component.TOP_ALIGNMENT);
@@ -245,7 +318,7 @@ public class NotificationManager implements Tickable {
     /**
      * Setter for changing duration of time the notification will remain in its fully displayed state, before
      * it starts moving back up. If displayTime <= 0, the notification will stay on screen indefinitely until
-     * manually dismissed by clicking on it.
+     * manually dismissed by clicking on it or calling dismissCurrentNotification.
      * @param displayTime time in ms
      */
     public void setDisplayTime(int displayTime) {
