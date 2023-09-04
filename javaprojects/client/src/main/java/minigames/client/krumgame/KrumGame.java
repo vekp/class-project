@@ -18,6 +18,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.checkerframework.checker.units.qual.C;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 
@@ -41,8 +42,6 @@ import java.awt.geom.Point2D;
 import java.net.URL;
 import javax.swing.*;
 import javax.sound.sampled.*;
-
-import minigames.krumgame.KrumInputFrame;
 
 import minigames.client.krumgame.components.*;
 /**
@@ -78,6 +77,10 @@ public class KrumGame implements GameClient {
     
     // Player information
     String player;
+    Color primaryColor = new Color(50, 122, 87);
+    Color secondaryColor = new Color(255, 224, 119);
+    Color gunColor = new Color(237, 28, 36);
+
 
     // Wind properties
     WindManager windManager;
@@ -171,8 +174,8 @@ public class KrumGame implements GameClient {
 
     private void initializePlayers(KrumLevel level){
         players = new KrumPlayer[2];
-        players[0] = new KrumPlayer(level.p1x, level.p1y, "kangaroo_sprite/", 8, 31, true, alphaRaster, 0, players);
-        players[1] = new KrumPlayer(level.p2x, level.p2y, "kangaroo_sprite/", 8, 31, false, alphaRaster, 1, players);
+        players[0] = new KrumPlayer(level.p1x, level.p1y, "kangaroo_sprite/", 8, 31, true, alphaRaster, 0, players, primaryColor, secondaryColor, gunColor);
+        players[1] = new KrumPlayer(level.p2x, level.p2y, "kangaroo_sprite/", 8, 31, false, alphaRaster, 1, players, primaryColor, secondaryColor, gunColor);
         players[0].joey.otherPlayer = players[1];
         players[1].joey.otherPlayer = players[0];
         playerTurn = 0;

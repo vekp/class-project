@@ -63,6 +63,9 @@ public class KrumPlayer {
     String spriteDir;
     BufferedImage sprite;
     BufferedImage spriteGun;
+    Color primaryColor;
+    Color secondaryColor;
+    Color gunColor;
     WritableRaster alphaRaster; // alpha values (opacities) of player sprite pixels
     WritableRaster levelRaster; // alpha values of level pixels
 
@@ -204,7 +207,7 @@ public class KrumPlayer {
      * @param direction     true = pleyer faces right at beginning of fame
      * @param level         alpha raster of level
      */
-    KrumPlayer(int xpos, int ypos, String spriteFileName, int panelX, int panelY, boolean direction, WritableRaster level, int index, KrumPlayer[] players) {
+    KrumPlayer(int xpos, int ypos, String spriteFileName, int panelX, int panelY, boolean direction, WritableRaster level, int index, KrumPlayer[] players, Color primaryColor, Color secondaryColor, Color gunColor) {
         this.levelRaster = level;
         topEdgeLeft = -1;
         topEdgeRight = -1;
@@ -224,6 +227,10 @@ public class KrumPlayer {
         this.spriteDir = spriteFileName;
         firstLanding = true;
         canShootRope = true;
+
+        this.primaryColor = primaryColor;
+        this.secondaryColor = secondaryColor;
+        this.gunColor = gunColor;
 
         BufferedImage joeySprite = KrumHelpers.readSprite("joey.png");
 
@@ -246,6 +253,11 @@ public class KrumPlayer {
             KrumHelpers.readSprite(spriteDir + "90_UP_L.png"),
             KrumHelpers.readSprite(spriteDir + "90_DOWN_L.png")
         };
+
+        for (BufferedImage i : sprites) {
+            i = applyCustomColors(i);
+        }
+
         sprite = sprites[0];
         
         ammo = new int[startingAmmo.length];
@@ -355,6 +367,7 @@ public class KrumPlayer {
         tick = 0;
         playerIndex = index;
         this.spriteGun = KrumHelpers.readSprite(spriteDir + "bazooka.png");
+        this.spriteGun = applyCustomGunColor(this.spriteGun);
         spriteIndexNextFrame = spriteIndex;
         this.players = players;
 
@@ -1167,6 +1180,52 @@ public class KrumPlayer {
 
 
     };
+
+    BufferedImage applyCustomColors(BufferedImage i) {
+        int pixel;
+        int red;
+        int blue;
+        int green;
+
+        for (int x = 0; x < i.getWidth(); x++) {
+            for (int y = 0; y < i.getHeight(); y++) {
+                pixel = i.getRGB(x, y);
+                red = (pixel & 0x00ff0000) >> 16;
+                green = (pixel & 0x0000ff00) >> 8;
+                blue = pixel & 0x000000ff;
+
+                if (red == 255 && green == 224 && blue == 119) {
+                    i.setRGB(x, y, secondaryColor.getRGB());
+                } else if (red == 185 && green == 122 && blue == 87) {
+                    i.setRGB(x, y, primaryColor.getRGB());
+                }
+            }
+        }
+        return i;
+    }
+
+     BufferedImage applyCustomGunColor (BufferedImage i) {
+        int pixel;
+        int red;
+        int blue;
+        int green;
+
+        for (int x = 0; x < i.getWidth(); x++) {
+            for (int y = 0; y < i.getHeight(); y++) {
+                pixel = i.getRGB(x, y);
+                red = (pixel & 0x00ff0000) >> 16;
+                green = (pixel & 0x0000ff00) >> 8;
+                blue = pixel & 0x000000ff;
+
+                if (red == 237 && green == 28 && blue == 36) {
+                    i.setRGB(x, y, gunColor.getRGB());
+                } else if (red == 185 && green == 122 && blue == 87) {
+                    i.setRGB(x, y, primaryColor.getRGB());
+                }
+            }
+        }
+        return i;
+     }
 
     double calcAimAngle() {
         int mx = MouseInfo.getPointerInfo().getLocation().x - xoff;
