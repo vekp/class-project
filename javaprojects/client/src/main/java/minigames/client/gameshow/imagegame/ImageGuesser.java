@@ -38,7 +38,7 @@ import java.awt.event.ActionListener;
 
 public class ImageGuesser {
 
-    public void startImageGuesser(GameShow gs, String imageFileName) {
+    public static void startImageGuesser(GameShow gs, String imageFileName, int gameId) {
         gs.gameContainer.removeAll();
         gs.gameContainer.validate();
         gs.gameContainer.repaint();
@@ -78,7 +78,7 @@ public class ImageGuesser {
 
         JTextField guessField = new JTextField(20);
         JButton submitButton = new JButton("Submit Guess");
-        submitButton.addActionListener((evt) -> sendCommand(new JsonObject()
+        submitButton.addActionListener((evt) -> gs.sendCommand(new JsonObject()
                 .put("command", "guessImage")
                 .put("guess", guessField.getText())
                 .put("gameId", gs.gameId)));
@@ -96,7 +96,7 @@ public class ImageGuesser {
         gs.gameContainer.repaint();
     }
 
-    public void guess(GameShow gs, boolean correct) {
+    public static void guess(GameShow gs, boolean correct) {
         gs.outcomeContainer.removeAll();
         gs.outcomeContainer.validate();
         gs.outcomeContainer.repaint();
@@ -110,7 +110,7 @@ public class ImageGuesser {
                     SwingConstants.CENTER);
             gs.outcomeContainer.add(congrats, BorderLayout.CENTER);
         }
-        logger.log(Level.INFO, "GameShow instance created");
+        // logger.log(Level.INFO, "GameShow instance created");
 
 
         gs.inputPanel.validate();
