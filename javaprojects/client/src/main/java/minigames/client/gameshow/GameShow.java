@@ -77,12 +77,16 @@ public class GameShow implements GameClient {
     JPanel gameSelect;
     JLabel gameSelectInstructions;
     JPanel guessContainer;
-    ImageGuesser imageGuesser;
+    // ImageGuesser imageGuesser;
+    JPanel inputPanel;
+    JPanel outcomeContainer;
 
     JButton wordScramble;
     JButton imageGuesserStart;
     JButton memoryGame;
     JButton guessingGame;
+
+    int gameId;
 
     public GameShow() {
         background = new JPanel(new BorderLayout());
@@ -242,12 +246,10 @@ public class GameShow implements GameClient {
                 wordScrambleGuess(command.getBoolean("outcome"));
             }
             case "startImageGuesser" -> {
-                this.imageGuesser = new ImageGuesser(this.mnClient, game, this.gameContainer, this.player, command.getString("imageFilePath"), (int) command.getInteger("gameId"));
-                this.imageGuesser.startImageGuesser();
-
+                ImageGuesser.startImageGuesser(this, command.getString("imageFilePath"), (int) command.getInteger("gameId"));
             }
             case "guessImageOutcome" -> {
-                this.imageGuesser.guess(command.getBoolean("outcome"));
+                ImageGuesser.guess(this, command.getBoolean("outcome"));
             }
 
         }
