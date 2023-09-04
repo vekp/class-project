@@ -271,7 +271,7 @@ public class Telepathy implements GameClient, Tickable{
      */
     public void activateWelcomeMessage(){
         welcomeMessage = popupWelcomeMessage();
-        telepathyNotificationManager.setAnimationSpeed(8);
+        telepathyNotificationManager.setAnimation(8);
         // TODO update with new method in NotificationManager to adapt where it appears
         telepathyNotificationManager.setAlignment(0.5f);
         telepathyNotificationManager.setDisplayTime(0);
@@ -286,7 +286,7 @@ public class Telepathy implements GameClient, Tickable{
 
     public void activateQuestOrGuessMessage(int x, int y){
         questionOrFinalGuess = questionOrGuess(x, y);
-        telepathyNotificationManager.setAnimationSpeed(8);
+        telepathyNotificationManager.setAnimation(8);
          // TODO update with new method in NotificationManager to adapt where it appears
         telepathyNotificationManager.setAlignment(0.5f);
         telepathyNotificationManager.showNotification(questionOrFinalGuess); 
@@ -300,7 +300,7 @@ public class Telepathy implements GameClient, Tickable{
      */
     public void selectTargetTile(int x, int y){
         confirmTargetTile = confirmTargetTile(x, y);
-        telepathyNotificationManager.setAnimationSpeed(8);
+        telepathyNotificationManager.setAnimation(8);
          // TODO update with new method in NotificationManager to adapt where it appears
         telepathyNotificationManager.setAlignment(0.5f);
         telepathyNotificationManager.showNotification(confirmTargetTile); 
