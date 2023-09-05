@@ -35,8 +35,7 @@ public class TelepathyGame {
     // Logs output
     private static final Logger logger = LogManager.getLogger(TelepathyGame.class);
 
-    // Name assigned to the game on creation
-    private String name;
+    private String gameName;
     private int maxPlayers;
     private boolean joinable; 
 
@@ -44,6 +43,7 @@ public class TelepathyGame {
     private HashMap<String, Player> players = new HashMap<>();
     
     private State state;
+    private String winner;
 
     /**
      * Constructs a new game of Telepathy with a given name.
@@ -51,8 +51,9 @@ public class TelepathyGame {
      * @param name: String with the name to use for this game.
      */
     public TelepathyGame(String name) {
-        this.name = name;
+        this.gameName = name;
         this.maxPlayers = 2;
+        this.winner = " ";
         
         this.joinable = true;
         this.state = State.INITIALISE;
@@ -65,7 +66,7 @@ public class TelepathyGame {
      *         game can be joined.
      */
     public GameMetadata telepathyGameMetadata() {
-        return new GameMetadata("Telepathy", name, this.players.keySet().toArray(new String[this.players.size()]), this.joinable);
+        return new GameMetadata("Telepathy", this.gameName, this.players.keySet().toArray(new String[this.players.size()]), this.joinable);
     }
 
     /**
@@ -101,12 +102,12 @@ public class TelepathyGame {
                 case QUIT -> renderingCommands.addAll(quitGame(commandPackage.player()));
                 case SYSTEMQUIT -> renderingCommands.addAll(fullQuitGame(commandPackage.player()));
                 case TOGGLEREADY -> renderingCommands.addAll(toggleReadyState(commandPackage.player()));
-                //case ASKQUESTION -> renderingCommands.addAll(takeQuestion());
-                //case FINALGUESS -> renderingCommands.addAll(takeQuestion()); 
+                case ASKQUESTION -> renderingCommands.addAll(takeQuestion(commandObject, commandPackage.player()));
+                case CHOOSETILE -> renderingCommands.addAll(chooseTile(commandObject, commandPackage.player()));
+                case FINALGUESS -> renderingCommands.addAll(takeQuestion(commandObject, commandPackage.player())); 
                 case REQUESTUPDATE -> renderingCommands.addAll(updateClient(commandPackage.player()));
                 default -> {
                     renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.INVALIDCOMMAND));
-                    
                 }
             }    
         }
@@ -124,7 +125,7 @@ public class TelepathyGame {
      * @return RenderingPackage with instructions for the client.
      */
     public RenderingPackage joinGame(String playerName) {
-        logger.info(playerName + " wants to join Telepathy game"+ this.name);
+        logger.info(playerName + " wants to join Telepathy game"+ this.gameName);
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
 
         if (!validName(playerName)) {
@@ -140,7 +141,7 @@ public class TelepathyGame {
             // Add the player to the game
             this.players.put(playerName, new Player(playerName));
             renderingCommands
-                    .add(new NativeCommands.LoadClient("Telepathy", "Telepathy", this.name, playerName).toJson());
+                    .add(new NativeCommands.LoadClient("Telepathy", "Telepathy", this.gameName, playerName).toJson());
             
             // Extra commands to initialise the client window
             
@@ -151,45 +152,93 @@ public class TelepathyGame {
 
             // Inform other players
             for(String p : this.players.keySet()){
-                if (!p.equals(name)) {this.players.get(p).addUpdate(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.MODIFYPLAYER, playerName, "joined"));}
+                if (!p.equals(this.gameName)) {this.players.get(p).addUpdate(
+                    TelepathyCommandHandler.makeJsonCommand(
+                        TelepathyCommands.MODIFYPLAYER, 
+                        playerName, 
+                        "joined"));}
             }
         }
            
         return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
     }
 
-    private ArrayList<JsonObject> takeQuestion(CommandPackage command){
+    /* *********************************
+     * CommandPackage handling methods
+     * *********************************/
+
+    /**
+     * Handle a question from the client. The question can be a regular question 
+     * asking for more information or the final question, specified by the command
+     * value used.
+     * 
+     * @param commandObject: The JsonObject with the command from the client.
+     * @param playerName: Name of the player asking the question.
+     * @return ArrayList of the commands to be sent back to the client with the response.
+     */
+    private ArrayList<JsonObject> takeQuestion(JsonObject commandObject, String playerName){
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         if(this.state != State.RUNNING){
-            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.INVALIDCOMMAND));
+            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
+                TelepathyCommands.INVALIDCOMMAND,
+                "Cannot take question. Game not in RUNNING state"));
             return renderingCommands;
+        }
+
+        TelepathyCommands commandValue = TelepathyCommands.valueOf(commandObject.getString("command"));
+        if(commandValue == TelepathyCommands.ASKQUESTION){
+            // TODO: Tile comparison
+            // TODO: Make partial comparison between guess and chosenTile
+
+            // Check for partial match
+        } else if(commandValue == TelepathyCommands.FINALGUESS){
+            // TODO Make full comparison between guess and chosenTile
+            
+            // Check for exact match
         }
 
         return renderingCommands;
     }
 
     /**
-     * Handle player questions.
-     * 
-     * @param commandPackage CommandPackage with ASKQUESTION command value used.
-     * @return RenderingPackage with the result of the question.
-     
-    private RenderingPackage takePlayerQuestion(CommandPackage commandPackage){
+     * Handler for the player selecting the Tile for their opponent to guess.
+     * @param commandObject: JsonObject with the CHOOSETILE command value and tile
+     *      coordinates.
+     * @param playerName: Name of the player that is selecting their tile.
+     * @return RenderingCommands indicating any changes the client needs to render.
+     */
+    private ArrayList<JsonObject> chooseTile(JsonObject commandObject, String playerName){
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
+        if(this.state != State.TILESELECTION){
+            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
+                TelepathyCommands.INVALIDCOMMAND, 
+                "ERROR: Attempting to choose Tile while in " + State.TILESELECTION + " state."));
+        }
         
-        return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
-    }
+        // Tile coordinates
+        int x = Integer.parseInt(TelepathyCommandHandler.getAttributes(commandObject).get(0));
+        int y = Integer.parseInt(TelepathyCommandHandler.getAttributes(commandObject).get(1));
 
-    private ArrayList<JsonObject> takeFinalGuess(CommandPackage commandPackage){
-        ArrayList<JsonObject> renderingCommands = new ArrayList<>();
-        if(this.state != State.RUNNING){
-            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.INVALIDCOMMAND));
-            return renderingCommands;
+        // Get the Tile then set the Player's chosen tile.
+        Tile chosenTile = this.players.get(playerName).getBoard().getTile(x, y);        
+        boolean chooseSuccess = this.players.get(playerName).setChosenTile(chosenTile);
+
+        // TODO Determine how client should update to represent chosen tile
+
+        if(chooseSuccess){
+            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
+                TelepathyCommands.POPUP,
+                "Selected tile set!"));
+        } else{
+            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
+                TelepathyCommands.INVALIDCOMMAND, 
+                "Player tile has already been set"));
         }
 
+        // Check for state transition from TILESELECTION to RUNNING
+        transitionToRunning();
         return renderingCommands;
     }
-    */
 
     /**
      * Called when a player wants to leave the game. The response tells the client to go
@@ -224,8 +273,6 @@ public class TelepathyGame {
         return renderingCommands;
     }
 
-    
-    
     /**
      * Get the pending updates for a client that has requested them.
      * @param playerString: String containing the player's name
@@ -251,20 +298,10 @@ public class TelepathyGame {
             return renderingCommands;
         }
         
-
         this.players.get(playerToToggle).toggleReady();
-        // Check if all players are ready 
-        boolean allReady = true;
-        for (String player : this.players.keySet()) {
-            if (!this.players.get(player).isReady()) {
-                allReady = false;
-                break;
-            }
-        }
-
-        // Start game if game full and players are ready
-        if (this.players.size() == this.maxPlayers && allReady) { beginGame(); }
-
+        
+        transitionToTileSelection();
+        
         // Make response for client - update their ready button
         renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.BUTTONUPDATE,
                 "readyButton",
@@ -272,6 +309,93 @@ public class TelepathyGame {
 
         return renderingCommands;
     }
+
+    
+
+    /* ******************************
+     * State transition methods
+     * ******************************/
+
+    /**
+     * Method for transitioning from INITIALISE to TILESELECTION. Checks that the 
+     * game is in the correct state, the game is full and that all players are
+     * ready.
+     */
+    private void transitionToTileSelection() {
+        if(this.state != State.INITIALISE){ return;}
+        if(this.players.size() < this.maxPlayers){ return;}
+
+        // Check if all players are ready 
+        for (String player : this.players.keySet()) {
+            if (!this.players.get(player).isReady()) {
+                return; 
+            }
+        }
+
+        logger.info("\n\n********Moving to tile select...!********\n");
+
+        this.state = State.TILESELECTION;
+        this.joinable = false;
+
+        // Send game start message
+        updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(
+            TelepathyCommands.POPUP,
+            "Game is starting! Choose your tile..."));
+        
+        // TODO: enable the game board
+    }
+
+    /**
+     * Method for transitioning from the TILESELECTION to RUNNING state. This method
+     * checks if the conditions for changing states have occured and then changes
+     * state or does nothing.
+     */
+    private void transitionToRunning(){
+        // Must be in TILESELECTION state
+        if(this.state != State.TILESELECTION){
+            return;
+        }
+
+        // All players must have selected a Tile
+        for(String p : this.players.keySet()){
+            if(this.players.get(p).getChosenTile() == null){
+                return;
+            }
+        }
+
+        this.state = State.RUNNING;
+        updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(
+            TelepathyCommands.POPUP, "Tiles are selected. It is not player 1's turn"));
+    }
+
+    /**
+     * Handle gameOver sequence. Currently just informs client that the game is over and 
+     * sends a QUIT command.
+     * 
+     * TODO - Finish implementation
+     *  The GAMEOVER state should keep the game running until all players leave on
+     *  their own volition. 
+     *  The CLIENTUPDATE packets in GAMEOVER state should show who has won, who lost, etc...
+     */
+    private void transitionToGameOver(){
+        // Check for game over conditions
+        // If player leaves while game is running
+        // If player gets correct final guess
+        // If player gets incorrect final guess
+
+        logger.info("\n\n*******Game has ended!*********\n");
+
+        this.state = State.GAMEOVER;
+        for(String p : this.players.keySet()){
+            this.players.get(p).addUpdate(TelepathyCommandHandler.makeJsonCommand(
+                TelepathyCommands.GAMEOVER, 
+                this.winner));
+        }
+    }
+
+    /* *********************************
+     * Private helper methods
+     * *********************************/
 
     /**
      * Used for adding commands to the update queue for all players on the server.
@@ -296,70 +420,9 @@ public class TelepathyGame {
 
         // End the game if a player leaves while game is RUNNING
         if(this.state != State.INITIALISE){
-            gameOver();
+            transitionToGameOver();
         }
     }
-
-    /**
-     * Handle gameOver sequence. Currently just informs client that the game is over and 
-     * sends a QUIT command.
-     * 
-     * TODO - Finish implementation
-     *  The GAMEOVER state should keep the game running until all players leave on
-     *  their own volition. 
-     *  The CLIENTUPDATE packets in GAMEOVER state should show who has won, who lost, etc...
-     */
-    private void gameOver(){
-        logger.info("\n\n*******Game has ended!*********\n");
-
-        this.state = State.GAMEOVER;
-        for(String p : this.players.keySet()){
-            this.players.get(p).addUpdate(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.GAMEOVER));
-        }
-    }
-
-    /**
-     * Transition the game from the INITIALISE state to RUNNING state.
-     */
-    private void beginGame() {
-        logger.info("\n\n********Game has started!********\n");
-
-        this.state = State.RUNNING;
-        this.joinable = false;
-        
-    }
-
-    /**
-     * Create a JsonObject that can be used for RenderingCommands.
-     * @param command The command value to be used for the rendering command JsonObject.
-     * @param attributes An optional list of attributes to append to the attributes field.
-     * @return A JsonObject with a String mapped to a 'command' key, and an array of
-     *      Strings mapped to an 'attributes' key.
-     
-    public static JsonObject makeJsonCommand(TelepathyCommands command, String... attributes) {
-        JsonObject jsonObject = new JsonObject().put("command", command.toString());
-        if (attributes.length > 0) {
-            jsonObject.put("attributes", new JsonArray().add(attributes));
-        }
-            
-        return jsonObject;
-    }
-    */
-
-        /**
-     * Remove a player from the game by setting their spot to in this.players to null.
-     * 
-     * @param playerName The player to remove from the game.
-     
-    private void removePlayer(String playerName){
-        for(int i = 0; i < this.players.length; i++){
-            if(this.players[i] == null) continue;
-            if(this.players[i].getName().equals(playerName)){
-                this.players[i] = null;
-                continue;
-            }
-        }
-    }*/
 
     /**
      * Checks if a name is valid for use.
@@ -393,7 +456,7 @@ public class TelepathyGame {
      * @return String value with the name.
      */
     public String getName(){
-        return this.name;
+        return this.gameName;
     }
 
     /**

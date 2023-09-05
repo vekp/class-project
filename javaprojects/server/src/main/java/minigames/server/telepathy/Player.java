@@ -19,6 +19,7 @@ public class Player {
     private ArrayList<JsonObject> pendingUpdates;
 
     private Tile chosenTile;
+    private int turns;
 
     /**
      * Construct a new player with a new board state.
@@ -35,6 +36,14 @@ public class Player {
         this.pendingUpdates = new ArrayList<>();
 
         this.chosenTile = null;
+        this.turns = 0;
+    }
+
+    /**
+     * Increment this Player's turn counter by 1.
+     */
+    public void incrementTurns(){
+        this.turns++;
     }
 
     /**
@@ -61,11 +70,11 @@ public class Player {
 
     /**
      * Set the Player's chosen tile. This field can only be set once at the start
-     * of the game, so the return value shows if setting was successful.
+     * of the game. Once set the field is locked.
      * @param tile: The Tile object to set as this Player's chosen tile.
      * @return boolean value with the result of setting.
      */
-    public boolean chooseTile(Tile tile){
+    public boolean setChosenTile(Tile tile){
         if(this.chosenTile == null){
             this.chosenTile = tile;
             return true;
@@ -113,7 +122,7 @@ public class Player {
      * Get the Player's chosen Tile.
      * @return A Tile object representing the Player's chosen Tile.
      */
-    public Tile getTile(){
+    public Tile getChosenTile(){
         return this.chosenTile;
     }
 
@@ -125,6 +134,13 @@ public class Player {
         return this.ready;
     }
 
+    /**
+     * Get the number of turns this player has taken.
+     * @return intger value with this player's turn count.
+     */
+    public int getTurnCounter(){
+        return this.turns;
+    }
     /**
      * Get a String that can represent this Player. Uses their name.
      */

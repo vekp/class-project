@@ -42,8 +42,10 @@ public enum TelepathyCommands {
     * INVALIDCOMMAND: Used to respond to an invalid CommandPackage.
     */
  
-    JOINGAMESUCCESS, JOINGAMEFAIL, TOGGLEREADY, ASKQUESTION, FINALGUESS, BUTTONPRESS, BUTTONUPDATE, REQUESTUPDATE, NOUPDATE, 
-    GAMESTART, GAMEOVER, SYSTEMQUIT, QUIT, MODIFYPLAYER, TESTCOMMAND, INVALIDCOMMAND;
+    JOINGAMESUCCESS, JOINGAMEFAIL, TOGGLEREADY, ASKQUESTION, FINALGUESS, 
+    CHOOSETILE, BUTTONPRESS, BUTTONUPDATE, REQUESTUPDATE, NOUPDATE, 
+    GAMESTART, GAMEOVER, SYSTEMQUIT, QUIT, MODIFYPLAYER, POPUP,
+    TESTCOMMAND, INVALIDCOMMAND;
 
     public String toString(){
         return switch(this){
@@ -51,6 +53,7 @@ public enum TelepathyCommands {
             case JOINGAMEFAIL -> "JOINGAMEFAIL";
             case TOGGLEREADY -> "TOGGLEREADY";
             case BUTTONPRESS -> "BUTTONPRESS";
+            case CHOOSETILE -> "CHOOSETILE";
             case ASKQUESTION -> "ASKQUESTION";
             case FINALGUESS -> "FINALGUESS";
             case BUTTONUPDATE -> "BUTTONUPDATE";
@@ -60,6 +63,7 @@ public enum TelepathyCommands {
             case QUIT -> "QUIT";
             case SYSTEMQUIT -> "SYSTEMQUIT";
             case MODIFYPLAYER -> "MODIFYPLAYER";
+            case POPUP -> "POPUP";
             case TESTCOMMAND -> "TESTCOMMAND";
             case INVALIDCOMMAND -> "INVALIDCOMMAND";
             default -> "NO-STRING-CONFIGURED";
