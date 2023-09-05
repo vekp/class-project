@@ -4,18 +4,13 @@ import minigames.client.MinigameNetworkClient;
 
 import io.vertx.core.json.JsonObject;
 
-// import java.awt.BorderLayout;
-// import javax.swing.BorderFactory; 
-import javax.swing.border.Border;
-// import javax.swing.border.TitledBorder;
-// import javax.swing.border.EtchedBorder;
-// import java.awt.GridLayout;
+
+import javax.swing.border.*;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-// import java.awt.Color;
-
-import java.io.*;
 import javax.swing.*;
+import java.io.*;
 import java.awt.*;
 import java.util.*;
 
@@ -133,7 +128,7 @@ public class Survey extends JPanel implements ActionListener {
         uiRatingPanel.add(uiRatingThree);
         uiRatingPanel.add(uiRatingFour);
         uiRatingPanel.add(uiRatingFive);
-        uiRatingPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        uiRatingPanel.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 1));
 
         // Ensures only one of the radio buttons are selected at a time
         uiRatingButtonGroup= new ButtonGroup();
@@ -163,7 +158,7 @@ public class Survey extends JPanel implements ActionListener {
         enjoymentPanel.add(enjoymentThree);
         enjoymentPanel.add(enjoymentFour);
         enjoymentPanel.add(enjoymentFive);
-        enjoymentPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        enjoymentPanel.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 1));
 
 
         enjoymentButtonGroup= new ButtonGroup();
@@ -193,7 +188,7 @@ public class Survey extends JPanel implements ActionListener {
         functionalityPanel.add(functionalityThree);
         functionalityPanel.add(functionalityFour);
         functionalityPanel.add(functionalityFive);
-        functionalityPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        functionalityPanel.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 1));
 
 
         functionalityButtonGroup= new ButtonGroup();
@@ -223,7 +218,7 @@ public class Survey extends JPanel implements ActionListener {
         difficultyPanel.add(difficultyThree);
         difficultyPanel.add(difficultyFour);
         difficultyPanel.add(difficultyFive);
-        difficultyPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        difficultyPanel.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 1));
 
         // Ensures only one of the radio buttons are selected at a time
         difficultyButtonGroup= new ButtonGroup();
@@ -253,7 +248,7 @@ public class Survey extends JPanel implements ActionListener {
         overallRatingPanel.add(overallRatingThree);
         overallRatingPanel.add(overallRatingFour);
         overallRatingPanel.add(overallRatingFive);
-        overallRatingPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        overallRatingPanel.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 1));
 
         // Ensures only one of the radio buttons are selected at a time
         overallRatingButtonGroup= new ButtonGroup();
