@@ -37,7 +37,7 @@ public class SpaceMazeClientTests {
         maze = new MazeDisplay(mazeMap, spaceMaze, bots);
     }
 
-    Point startLocation = new Point(0,0);
+    Point startLocation = new Point(1,1);
     // Bot class tests
     private SpaceBot bot = new SpaceBot(startLocation);
     @DisplayName("Check the bot constructor")

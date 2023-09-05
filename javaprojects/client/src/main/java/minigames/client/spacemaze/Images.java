@@ -336,11 +336,11 @@ public class Images {
      */
     public void loadTitleImages(){
         try{
-            titleImage1 = ImageIO.read(getClass().getResource("/images/spacemaze/title1.png"));
-            titleImage2 = ImageIO.read(getClass().getResource("/images/spacemaze/title2a.png"));
-            titleImage3 = ImageIO.read(getClass().getResource("/images/spacemaze/title2b.png"));
-            titleImage4 = ImageIO.read(getClass().getResource("/images/spacemaze/title2c.png"));
-            titleImage5 = ImageIO.read(getClass().getResource("/images/spacemaze/title2d.png"));
+            titleImage1 = ImageIO.read(getClass().getResource("/images/spacemaze/Title1.png"));
+            titleImage2 = ImageIO.read(getClass().getResource("/images/spacemaze/Title2a.png"));
+            titleImage3 = ImageIO.read(getClass().getResource("/images/spacemaze/Title2b.png"));
+            titleImage4 = ImageIO.read(getClass().getResource("/images/spacemaze/Title2c.png"));
+            titleImage5 = ImageIO.read(getClass().getResource("/images/spacemaze/Title2d.png"));
             titleImages.put(0, titleImage1);
             titleImages.put(1, titleImage2);
             titleImages.put(2, titleImage3);
