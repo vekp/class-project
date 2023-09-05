@@ -23,7 +23,7 @@ public class Survey extends JPanel implements ActionListener {
 
     // (labels and buttons need to be registered here)
     private JPanel titlePanel, counterPanel, backPanel, gameNamePanel, surveyQuestionsPanelGroup, surveyQuestionsPanelLeft, surveyQuestionsPanelRight, feedbackPanel, submitPanel, footerPanel, uiRatingPanel, enjoymentPanel, functionalityPanel; 
-    private JLabel counterLabel, headingLabel, testLabel, gameNameLabel, feedbackLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, gameNameTextLabel;
+    private JLabel counterLabel, headingLabel, testLabel, gameNameLabel, blankLabel, feedbackLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, gameNameTextLabel, helpLabel;
     private JButton counterButton, backButton, submitButton;
     private JTextArea feedbackText;
     private JRadioButton uiRatingOne, uiRatingTwo, uiRatingThree, uiRatingFour, uiRatingFive, enjoymentOne, enjoymentTwo, enjoymentThree, enjoymentFour, enjoymentFive, functionalityOne, functionalityTwo, functionalityThree, functionalityFour, functionalityFive;
@@ -42,6 +42,7 @@ public class Survey extends JPanel implements ActionListener {
     private Font fontHeading = new Font("unispace", Font.BOLD, 24);
     private Font fontLabel = new Font("unispace", Font.PLAIN, 18);
     private Font fontText = new Font("unispace", Font.PLAIN, 16);
+    private Font fontHelp = new Font("unispace", Font.PLAIN, 14);
     private Font fontButton = new Font("unispace", Font.PLAIN, 12);
 
     // Background image variable declaration
@@ -97,11 +98,20 @@ public class Survey extends JPanel implements ActionListener {
         gameNameLabel.setFont(fontLabel);
         gameNameLabel.setForeground (Color.WHITE);
 
+        // Blank Label (currently allows the grid items the correct spacing until a refactor occurs)
+        blankLabel = new JLabel();
+
         // gameName TextLabel
         gameNameTextLabel = new JLabel();
         gameNameTextLabel.setText(callingGame);
         gameNameTextLabel.setFont(fontText);
         gameNameTextLabel.setForeground (Color.WHITE);
+
+        // rating explanation help TextLabel
+        helpLabel = new JLabel();
+        helpLabel.setText("<html>"+ "Using a scale of 1: Very Low to 5: Very High. Please rate the following questions." +"</html>");
+        helpLabel.setFont(fontHelp);
+        helpLabel.setForeground (Color.YELLOW);
 
         // User Interface Rating Label
         uiRatingLabel = new JLabel();
@@ -212,8 +222,9 @@ public class Survey extends JPanel implements ActionListener {
 
         // surveyQuestionsPanelLeft (incorporates all Question titles for the survey)
         surveyQuestionsPanelLeft = new JPanel();
-        surveyQuestionsPanelLeft.setLayout(new GridLayout(5, 0));
+        surveyQuestionsPanelLeft.setLayout(new GridLayout(6, 0));
         surveyQuestionsPanelLeft.add(gameNameLabel);
+        surveyQuestionsPanelLeft.add(blankLabel);
         surveyQuestionsPanelLeft.add(uiRatingLabel);
         surveyQuestionsPanelLeft.add(enjoymentLabel);
         surveyQuestionsPanelLeft.add(functionalityLabel);
@@ -221,8 +232,9 @@ public class Survey extends JPanel implements ActionListener {
 
         // surveyQuestionsPanelRight (incorporates all Question responses for the survey)
         surveyQuestionsPanelRight = new JPanel();
-        surveyQuestionsPanelRight.setLayout(new GridLayout(5, 0));
+        surveyQuestionsPanelRight.setLayout(new GridLayout(6, 0));
         surveyQuestionsPanelRight.add(gameNameTextLabel);
+        surveyQuestionsPanelRight.add(helpLabel);
         surveyQuestionsPanelRight.add(uiRatingPanel);
         surveyQuestionsPanelRight.add(enjoymentPanel);
         surveyQuestionsPanelRight.add(functionalityPanel);
