@@ -18,6 +18,8 @@ public class Player {
     private boolean ready;
     private ArrayList<JsonObject> pendingUpdates;
 
+    private Tile chosenTile;
+
     /**
      * Construct a new player with a new board state.
      * 
@@ -31,6 +33,62 @@ public class Player {
         this.ready = false;
         this.board = new Board();
         this.pendingUpdates = new ArrayList<>();
+
+        this.chosenTile = null;
+    }
+
+    /**
+     * Add a command to the queue of update commands. Only commands that are valid
+     * TelepathyCommands can be added to the queue.
+     * @param newCommand The new command to be added to the update list.
+     */
+    public void addUpdate(JsonObject newCommand){
+        try{
+            TelepathyCommands.valueOf(newCommand.getString("command"));
+            this.pendingUpdates.add(newCommand);
+        } catch(IllegalArgumentException e){
+            throw new TelepathyCommandException(newCommand.getString("command"), "Not a valid Telepathy command.");
+        }
+            
+    }
+
+    /**
+     * Toggles the player's current ready state.
+     */
+    public void toggleReady() {
+        this.ready = !this.ready;
+    }
+
+    /**
+     * Set the Player's chosen tile. This field can only be set once at the start
+     * of the game, so the return value shows if setting was successful.
+     * @param tile: The Tile object to set as this Player's chosen tile.
+     * @return boolean value with the result of setting.
+     */
+    public boolean chooseTile(Tile tile){
+        if(this.chosenTile == null){
+            this.chosenTile = tile;
+            return true;
+        } else{
+            return false;
+        }
+    }
+
+    /**
+     * Get the updates pending for this Player. Clear the List so that a command is only
+     * sent once.
+     * @return Copy of the updateCommands List. 
+     */
+    public ArrayList<JsonObject> getUpdates(){
+        ArrayList<JsonObject> updatesToSend = new ArrayList<>(this.pendingUpdates);
+        // If there are no updates - send NOUPDATES command
+        if(updatesToSend.size() == 0){
+            updatesToSend.add(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.NOUPDATE));
+        }
+        
+        this.pendingUpdates.clear();
+        
+        return updatesToSend;
     }
 
     /**
@@ -52,42 +110,11 @@ public class Player {
     }
 
     /**
-     * Add a command to the queue of update commands. Only commands that are valid
-     * TelepathyCommands can be added to the queue.
-     * @param newCommand The new command to be added to the update list.
+     * Get the Player's chosen Tile.
+     * @return A Tile object representing the Player's chosen Tile.
      */
-    public void addUpdate(JsonObject newCommand){
-        try{
-            TelepathyCommands.valueOf(newCommand.getString("command"));
-            this.pendingUpdates.add(newCommand);
-        } catch(IllegalArgumentException e){
-            throw new TelepathyCommandException(newCommand.getString("command"), "Not a valid Telepathy command.");
-        }
-            
-    }
-
-    /**
-     * Get the updates pending for this Player. Clear the List so that a command is only
-     * sent once.
-     * @return Copy of the updateCommands List. 
-     */
-    public ArrayList<JsonObject> getUpdates(){
-        ArrayList<JsonObject> updatesToSend = new ArrayList<>(this.pendingUpdates);
-        // If there are no updates - send NOUPDATES command
-        if(updatesToSend.size() == 0){
-            updatesToSend.add(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.NOUPDATE));
-        }
-        
-        this.pendingUpdates.clear();
-        
-        return updatesToSend;
-    }
-
-    /**
-     * Toggles the player's current ready state.
-     */
-    public void toggleReady() {
-        this.ready = !this.ready;
+    public Tile getTile(){
+        return this.chosenTile;
     }
 
     /**
