@@ -54,7 +54,7 @@ public class Survey extends JPanel implements ActionListener {
     public static final String FRAME_TITLE = "Game Survey";
 
     // Game that calls the survey (CHANGE TO BE REUSABLE)
-    public String callingGame = "GAME THAT CALLS THE SURVEY";
+    public String callingGame = "(Your Game Name Here!)";
 
     // Main Survey Class
     public Survey(MinigameNetworkClient mnClient) {
@@ -115,7 +115,7 @@ public class Survey extends JPanel implements ActionListener {
 
         // User Interface Rating Label
         uiRatingLabel = new JLabel();
-        uiRatingLabel.setText("User Interface Rating: ");
+        uiRatingLabel.setText("User Interface: ");
         uiRatingLabel.setFont(fontLabel);
         uiRatingLabel.setForeground (Color.WHITE);
 
@@ -145,7 +145,7 @@ public class Survey extends JPanel implements ActionListener {
 
         // Enjoyment Rating Label
         enjoymentLabel = new JLabel();
-        enjoymentLabel.setText("Enjoyment Rating: ");
+        enjoymentLabel.setText("Enjoyment: ");
         enjoymentLabel.setFont(fontLabel);
         enjoymentLabel.setForeground (Color.WHITE);
 
@@ -175,7 +175,7 @@ public class Survey extends JPanel implements ActionListener {
 
         // Functionality Rating Label
         functionalityLabel = new JLabel();
-        functionalityLabel.setText("Functionality Rating: ");
+        functionalityLabel.setText("Functionality: ");
         functionalityLabel.setFont(fontLabel);
         functionalityLabel.setForeground (Color.WHITE);
 
