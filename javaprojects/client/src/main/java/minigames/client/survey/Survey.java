@@ -22,12 +22,12 @@ import java.util.*;
 public class Survey extends JPanel implements ActionListener {
 
     // (labels and buttons need to be registered here)
-    private JPanel titlePanel, counterPanel, backPanel, gameNamePanel, surveyQuestionsPanelGroup, surveyQuestionsPanelLeft, surveyQuestionsPanelRight, feedbackPanel, submitPanel, footerPanel, uiRatingPanel, enjoymentPanel, functionalityPanel; 
-    private JLabel counterLabel, headingLabel, testLabel, gameNameLabel, blankLabel, feedbackLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, gameNameTextLabel, helpLabel;
-    private JButton counterButton, backButton, submitButton;
+    private JPanel titlePanel, counterPanel, backPanel, gameNamePanel, surveyQuestionsPanelGroup, surveyQuestionsPanelLeft, surveyQuestionsPanelRight, feedbackPanel, submitPanel, footerPanel, uiRatingPanel, enjoymentPanel, functionalityPanel, difficultyPanel, overallRatingPanel, resultsPanel; 
+    private JLabel counterLabel, headingLabel, testLabel, gameNameLabel, blankLabel, feedbackLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, difficultyLabel,overallRatingLabel, gameNameTextLabel, helpLabel;
+    private JButton backButton, submitButton, resultsButton;
     private JTextArea feedbackText;
-    private JRadioButton uiRatingOne, uiRatingTwo, uiRatingThree, uiRatingFour, uiRatingFive, enjoymentOne, enjoymentTwo, enjoymentThree, enjoymentFour, enjoymentFive, functionalityOne, functionalityTwo, functionalityThree, functionalityFour, functionalityFive;
-    private ButtonGroup uiRatingButtonGroup, enjoymentButtonGroup, functionalityButtonGroup;
+    private JRadioButton uiRatingOne, uiRatingTwo, uiRatingThree, uiRatingFour, uiRatingFive, enjoymentOne, enjoymentTwo, enjoymentThree, enjoymentFour, enjoymentFive, functionalityOne, functionalityTwo, functionalityThree, functionalityFour, functionalityFive, difficultyOne, difficultyTwo, difficultyThree, difficultyFour, difficultyFive, overallRatingOne, overallRatingTwo, overallRatingThree, overallRatingFour, overallRatingFive;
+    private ButtonGroup uiRatingButtonGroup, enjoymentButtonGroup, functionalityButtonGroup, difficultyButtonGroup, overallRatingButtonGroup;
     private Border borderPosition, raisedBevel, loweredBevel, outerColourBorder, styledOuterBorder, innerColourBorder, styledInnerBorder, styledBorders, finalBorder;
     // Colours
     // Colours of panels, buttons and radio buttons
@@ -39,11 +39,11 @@ public class Survey extends JPanel implements ActionListener {
     private Color outerBorderLineColour = new Color(22,59,121,255);
     private Color innerborderLineColour = new Color(64,28,99,255);
 
-    private Font fontHeading = new Font("unispace", Font.BOLD, 24);
-    private Font fontLabel = new Font("unispace", Font.PLAIN, 18);
-    private Font fontText = new Font("unispace", Font.PLAIN, 16);
-    private Font fontHelp = new Font("unispace", Font.PLAIN, 14);
-    private Font fontButton = new Font("unispace", Font.PLAIN, 12);
+    private Font fontHeading = new Font("Open sans semibold", Font.BOLD, 24);
+    private Font fontLabel = new Font("Open sans semibold", Font.PLAIN, 20);
+    private Font fontText = new Font("Lucida console", Font.PLAIN, 16);
+    private Font fontHelp = new Font("Open sans semibold", Font.PLAIN, 14);
+    private Font fontButton = new Font("Open sans semibold", Font.PLAIN, 12);
 
     // Background image variable declaration
     private Image image;
@@ -68,7 +68,7 @@ public class Survey extends JPanel implements ActionListener {
         //This creates a nice main Survey frame.
 
         // Frame size and position
-        borderPosition = BorderFactory.createEmptyBorder(80, 80, 80, 80);
+        borderPosition = BorderFactory.createEmptyBorder(10, 70, 10, 70);
         // Creates a raised coloured bevel border
         raisedBevel = BorderFactory.createRaisedBevelBorder();
         outerColourBorder = BorderFactory.createLineBorder(outerBorderLineColour, 4);
@@ -203,6 +203,66 @@ public class Survey extends JPanel implements ActionListener {
         functionalityButtonGroup.add(functionalityFour);
         functionalityButtonGroup.add(functionalityFive);
 
+        // Game Difficulty Rating Label
+        difficultyLabel = new JLabel();
+        difficultyLabel.setText("Game Difficulty: ");
+        difficultyLabel.setFont(fontLabel);
+        difficultyLabel.setForeground (Color.WHITE);
+
+        // Game Difficulty Rating Panel
+        difficultyPanel = new JPanel();
+        difficultyPanel.setLayout(new GridLayout(0, 5));
+        difficultyOne = new JRadioButton("1");
+        difficultyTwo = new JRadioButton("2");
+        difficultyThree = new JRadioButton("3");
+        difficultyFour = new JRadioButton("4");
+        difficultyFive = new JRadioButton("5");
+        difficultyThree.setSelected(true);
+        difficultyPanel.add(difficultyOne);
+        difficultyPanel.add(difficultyTwo);
+        difficultyPanel.add(difficultyThree);
+        difficultyPanel.add(difficultyFour);
+        difficultyPanel.add(difficultyFive);
+        difficultyPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+        // Ensures only one of the radio buttons are selected at a time
+        difficultyButtonGroup= new ButtonGroup();
+        difficultyButtonGroup.add(difficultyOne);
+        difficultyButtonGroup.add(difficultyTwo);
+        difficultyButtonGroup.add(difficultyThree);
+        difficultyButtonGroup.add(difficultyFour);
+        difficultyButtonGroup.add(difficultyFive);
+
+        // Overall Rating Label
+        overallRatingLabel = new JLabel();
+        overallRatingLabel.setText("Overall Rating: ");
+        overallRatingLabel.setFont(fontLabel);
+        overallRatingLabel.setForeground (Color.WHITE);
+
+        // Overall Rating Panel
+        overallRatingPanel = new JPanel();
+        overallRatingPanel.setLayout(new GridLayout(0, 5));
+        overallRatingOne = new JRadioButton("1");
+        overallRatingTwo = new JRadioButton("2");
+        overallRatingThree = new JRadioButton("3");
+        overallRatingFour = new JRadioButton("4");
+        overallRatingFive = new JRadioButton("5");
+        overallRatingThree.setSelected(true);
+        overallRatingPanel.add(overallRatingOne);
+        overallRatingPanel.add(overallRatingTwo);
+        overallRatingPanel.add(overallRatingThree);
+        overallRatingPanel.add(overallRatingFour);
+        overallRatingPanel.add(overallRatingFive);
+        overallRatingPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+        // Ensures only one of the radio buttons are selected at a time
+        overallRatingButtonGroup= new ButtonGroup();
+        overallRatingButtonGroup.add(overallRatingOne);
+        overallRatingButtonGroup.add(overallRatingTwo);
+        overallRatingButtonGroup.add(overallRatingThree);
+        overallRatingButtonGroup.add(overallRatingFour);
+        overallRatingButtonGroup.add(overallRatingFive);
+
         // feedback Label
         feedbackLabel = new JLabel();
         feedbackLabel.setText("Feedback: ");
@@ -222,22 +282,26 @@ public class Survey extends JPanel implements ActionListener {
 
         // surveyQuestionsPanelLeft (incorporates all Question titles for the survey)
         surveyQuestionsPanelLeft = new JPanel();
-        surveyQuestionsPanelLeft.setLayout(new GridLayout(6, 0));
+        surveyQuestionsPanelLeft.setLayout(new GridLayout(8, 0));
         surveyQuestionsPanelLeft.add(gameNameLabel);
         surveyQuestionsPanelLeft.add(blankLabel);
         surveyQuestionsPanelLeft.add(uiRatingLabel);
         surveyQuestionsPanelLeft.add(enjoymentLabel);
         surveyQuestionsPanelLeft.add(functionalityLabel);
+        surveyQuestionsPanelLeft.add(difficultyLabel);
+        surveyQuestionsPanelLeft.add(overallRatingLabel);
         surveyQuestionsPanelLeft.add(feedbackLabel);
 
         // surveyQuestionsPanelRight (incorporates all Question responses for the survey)
         surveyQuestionsPanelRight = new JPanel();
-        surveyQuestionsPanelRight.setLayout(new GridLayout(6, 0));
+        surveyQuestionsPanelRight.setLayout(new GridLayout(8, 0));
         surveyQuestionsPanelRight.add(gameNameTextLabel);
         surveyQuestionsPanelRight.add(helpLabel);
         surveyQuestionsPanelRight.add(uiRatingPanel);
         surveyQuestionsPanelRight.add(enjoymentPanel);
         surveyQuestionsPanelRight.add(functionalityPanel);
+        surveyQuestionsPanelRight.add(difficultyPanel);
+        surveyQuestionsPanelRight.add(overallRatingPanel);
         surveyQuestionsPanelRight.add(feedbackPanel);
 
         // surveyQuestionsPanelGroup (incorporates all panels from the left and right groups for the survey)
@@ -260,12 +324,19 @@ public class Survey extends JPanel implements ActionListener {
         submitButton.setFont(fontButton);
         submitButton.addActionListener(e -> submit(mnClient));
         submitPanel.add(submitButton);
+
+        // Results Button
+        resultsPanel = new JPanel();
+        resultsButton = new JButton("Results");
+        resultsButton.setFont(fontButton);
+        // resultsButton.addActionListener());
+        resultsPanel.add(resultsButton);
         
         // Footer Panel
         footerPanel = new JPanel();
-        // Have to set footer panel bg manually
         footerPanel.add(backPanel, BorderLayout.WEST);
-        footerPanel.add(submitPanel, BorderLayout.EAST);
+        footerPanel.add(submitPanel, BorderLayout.CENTER);
+        footerPanel.add(resultsPanel, BorderLayout.EAST);
         this.add(footerPanel, BorderLayout.SOUTH);
         
         panelColourChange(mainBgColour, fgColour);
@@ -282,6 +353,35 @@ public class Survey extends JPanel implements ActionListener {
         return(image);
     }
 
+    // WIP creating dynamic radio buttons
+
+    // public void generateRadioGroup(String name, int totalButtons, String panelName) {
+    //     panelName.setLayout(new GridLayout(0, totalButtons));
+        
+        // uiRatingPanel = new JPanel();
+        // uiRatingPanel.setLayout(new GridLayout(0, 5));
+        // uiRatingOne = new JRadioButton("1");
+        // uiRatingTwo = new JRadioButton("2");
+        // uiRatingThree = new JRadioButton("3");
+        // uiRatingFour = new JRadioButton("4");
+        // uiRatingFive = new JRadioButton("5");
+        // uiRatingThree.setSelected(true);
+        // uiRatingPanel.add(uiRatingOne);
+        // uiRatingPanel.add(uiRatingTwo);
+        // uiRatingPanel.add(uiRatingThree);
+        // uiRatingPanel.add(uiRatingFour);
+        // uiRatingPanel.add(uiRatingFive);
+        // uiRatingPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+        // // Ensures only one of the radio buttons are selected at a time
+        // uiRatingButtonGroup= new ButtonGroup();
+        // uiRatingButtonGroup.add(uiRatingOne);
+        // uiRatingButtonGroup.add(uiRatingTwo);
+        // uiRatingButtonGroup.add(uiRatingThree);
+        // uiRatingButtonGroup.add(uiRatingFour);
+        // uiRatingButtonGroup.add(uiRatingFive);
+    // }
+
     public void submit(MinigameNetworkClient mnClient) {
         String text = feedbackText.getText();
         
@@ -289,12 +389,16 @@ public class Survey extends JPanel implements ActionListener {
         int uiRating = Integer.parseInt(getSelectedRadioButtonValue(uiRatingButtonGroup));
         int enjoymentRating = Integer.parseInt(getSelectedRadioButtonValue(enjoymentButtonGroup));
         int functionalityRating = Integer.parseInt(getSelectedRadioButtonValue(functionalityButtonGroup));
+        int difficultyRating = Integer.parseInt(getSelectedRadioButtonValue(difficultyButtonGroup));
+        int overallRating = Integer.parseInt(getSelectedRadioButtonValue(overallRatingButtonGroup));
 
         JsonObject surveyData = new JsonObject()
             .put("user_id", 111)
             .put("ui_rating", uiRating)
             .put("enjoyment_rating", enjoymentRating)
             .put("functionality_rating", functionalityRating)
+            .put("difficulty_rating", difficultyRating)
+            .put("overall_rating", overallRating)
             .put("feedback_text", text);
 
         mnClient.sendSurveyData(surveyData).onSuccess(e -> mnClient.runMainMenuSequence());
@@ -316,7 +420,7 @@ public class Survey extends JPanel implements ActionListener {
     // Change colour of panels (overrides singular setting of colour)
     public void panelColourChange(Color backColour, Color foreColour) {
         // footerPanel breaks the code, if clause sorts it
-        JPanel panels[] = {titlePanel, backPanel, surveyQuestionsPanelGroup, surveyQuestionsPanelLeft, surveyQuestionsPanelRight, feedbackPanel, submitPanel, uiRatingPanel, enjoymentPanel, functionalityPanel, footerPanel};
+        JPanel panels[] = {titlePanel, backPanel, surveyQuestionsPanelGroup, surveyQuestionsPanelLeft, surveyQuestionsPanelRight, feedbackPanel, submitPanel, resultsPanel, uiRatingPanel, enjoymentPanel, functionalityPanel, difficultyPanel, overallRatingPanel, footerPanel};
         for(JPanel panel: panels){
             if(panel != null) {
             panel.setBackground(backColour);
@@ -327,7 +431,7 @@ public class Survey extends JPanel implements ActionListener {
 
     // Change colour of radio buttons (overrides singular setting of colour)
     public void radioColourChange(Color backColour, Color foreColour) {
-        JRadioButton rbuttons[] = {uiRatingOne, uiRatingTwo, uiRatingThree, uiRatingFour, uiRatingFive, enjoymentOne, enjoymentTwo, enjoymentThree, enjoymentFour, enjoymentFive, functionalityOne, functionalityTwo, functionalityThree, functionalityFour, functionalityFive};
+        JRadioButton rbuttons[] = {uiRatingOne, uiRatingTwo, uiRatingThree, uiRatingFour, uiRatingFive, enjoymentOne, enjoymentTwo, enjoymentThree, enjoymentFour, enjoymentFive, functionalityOne, functionalityTwo, functionalityThree, functionalityFour, functionalityFive, difficultyOne, difficultyTwo, difficultyThree, difficultyFour, difficultyFive, overallRatingOne, overallRatingTwo, overallRatingThree, overallRatingFour, overallRatingFive};
         for(JRadioButton rb: rbuttons){
             if(rb != null) {
             rb.setBackground(backColour);
@@ -338,7 +442,7 @@ public class Survey extends JPanel implements ActionListener {
 
     // Change colour of buttons (overrides singular setting of colour)
     public void buttonColourChange(Color backColour, Color foreColour) {
-        JButton buttons[] = {backButton, submitButton};
+        JButton buttons[] = {backButton, submitButton, resultsButton};
         for(JButton button: buttons){
             if(button != null) {
             button.setBackground(backColour);
