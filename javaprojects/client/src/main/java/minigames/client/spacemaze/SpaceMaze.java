@@ -6,6 +6,8 @@ import org.apache.logging.log4j.Logger;
 import java.util.*;
 import io.vertx.core.json.JsonArray;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -18,6 +20,10 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
 
+import java.util.HashMap;
+import java.awt.image.BufferedImage;
+
+
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -25,12 +31,17 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.JLabel;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+
 import java.awt.Insets;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
+
 import javax.swing.JComponent;
 import javax.swing.AbstractButton;
 import javax.swing.Box;
+import javax.swing.Timer;
 
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
@@ -38,6 +49,8 @@ import minigames.client.spacemaze.MazeDisplay;
 import minigames.client.MinigameNetworkClient;
 import minigames.rendering.GameMetadata;
 import minigames.commands.CommandPackage;
+import minigames.client.spacemaze.Images;
+
 
 /**
  * Class to set up the window, communicate with server and
@@ -62,6 +75,15 @@ public class SpaceMaze implements GameClient {
     //Header Section
     JPanel headerPanel;
     JLabel headerText;
+    private HashMap<Integer, BufferedImage> titleImages;
+    private int currentImageIndex;
+    private Timer timer;
+    ImageIcon headerImage1;
+    ImageIcon headerImage2a;
+    ImageIcon headerImage2b;
+    ImageIcon headerImage2c;
+    ImageIcon headerImage2d;
+
 
     //Menu Section
     JPanel mainMenuPanel; 
@@ -127,10 +149,12 @@ public class SpaceMaze implements GameClient {
         headerPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
-        headerText = new JLabel("SPACE MAZE");
-        headerText.setForeground(Color.WHITE);
-        headerText.setFont(customFont);
+        loadMainMenuHeader();
+        // headerText = new JLabel(headerImage1);
+        // headerText.setForeground(Color.WHITE);
+        // headerText.setFont(customFont);
         headerPanel.add(headerText, gbc);
+
 
         //Menu Section
         mainMenuPanel = new JPanel();
@@ -372,6 +396,7 @@ public class SpaceMaze implements GameClient {
 
             case "startGame" -> sendCommand("requestGame");
             case "firstLevel" -> {
+                stopTimer();
                 JsonArray serialisedArray = command.getJsonArray("mazeArray");
                 // Get bot start locations
                 JsonArray botStartLocations = command.getJsonArray("botStartLocations");
@@ -478,10 +503,10 @@ public class SpaceMaze implements GameClient {
     }
 
     public void displayMainMenu(){
+        startTimer();
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(mainMenuPanel);
         mnClient.getMainWindow().addSouth(developerCredits);
-        headerText.setText("SPACE MAZE");
         mnClient.getMainWindow().addNorth(headerPanel);
         mnClient.getMainWindow().pack();
     }
@@ -543,10 +568,11 @@ public class SpaceMaze implements GameClient {
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(gameOverPanel);
         mnClient.getMainWindow().addSouth(developerCredits);
-        headerText.setText("GAME OVER!");
+        //headerText = new JLabel("GAME OVER!"); //Maybe GameOver animation?
         mnClient.getMainWindow().addNorth(headerPanel);
         mnClient.getMainWindow().pack();
 
+        headerPanel.repaint();
         gameOverPanel.setFocusable(true);
         gameOverPanel.requestFocusInWindow();
 
@@ -640,6 +666,50 @@ public class SpaceMaze implements GameClient {
             case KeyEvent.VK_ESCAPE:
                 sendCommand("backToMenu");
                 break;
+        }
+    }
+
+    /**
+     * Method that renders the main menu simple animation gif
+     *
+     */
+    public void loadMainMenuHeader(){
+        try {
+            //Get TitleImages hashmap from images class.
+            titleImages = Images.getImageHashMap();
+            headerImage1 = new ImageIcon(titleImages.get(0)); //Set one image as default starter image.
+            currentImageIndex = 0; 
+
+            headerText = new JLabel(new ImageIcon(titleImages.get(currentImageIndex)));
+            timer = new Timer(400, new ActionListener() { //Timer to switch image at every 400ms.
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    currentImageIndex++;
+                    if (currentImageIndex >= titleImages.size()){
+                        currentImageIndex = 0;
+                    }
+                    headerText.setIcon(new ImageIcon(titleImages.get(currentImageIndex)));
+                    headerPanel.repaint();
+                }
+            });
+            timer.start();
+
+        } catch (Exception e){
+            logger.error("Image loading error?");
+        }
+        
+    }
+
+    public void stopTimer(){
+        if (timer != null){
+            timer.stop();
+        }
+    }
+
+    public void startTimer(){
+        if (timer != null){
+            timer.start();
         }
     }
 }

@@ -1,5 +1,6 @@
 package minigames.client.spacemaze;
 
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import java.io.IOException;
@@ -63,6 +64,13 @@ public class Images {
     private static BufferedImage bombImage1;
     private static BufferedImage bombImage2;
 
+    //Title Images
+    private static BufferedImage titleImage1;
+    private static BufferedImage titleImage2;
+    private static BufferedImage titleImage3;
+    private static BufferedImage titleImage4;
+    private static BufferedImage titleImage5;
+
     // HashMap for storing all the images
     private static HashMap<String, BufferedImage> singleImages;
     private static HashMap<Integer, BufferedImage> unlockedImages;
@@ -71,6 +79,8 @@ public class Images {
     private static HashMap<Integer, BufferedImage> wallImages;
     private static HashMap<Integer, BufferedImage> bombImages;
     private static HashMap<Integer, BufferedImage> keyImages;
+    private static HashMap<Integer, BufferedImage> titleImages;
+
 
     /**
      * Constructor - private to restrict the object creation
@@ -107,6 +117,7 @@ public class Images {
         wallImages = new HashMap<Integer, BufferedImage>();
         bombImages = new HashMap<Integer, BufferedImage>();
         keyImages = new HashMap<Integer, BufferedImage>();
+        titleImages = new HashMap<Integer, BufferedImage>();
 
         try {
             chestImage = ImageIO.read(getClass().getResource("/images/spacemaze/chest1.png"));
@@ -124,6 +135,7 @@ public class Images {
             loadWallImages();
             loadLockedExitImages();
             loadUnlockedExitImages();
+            loadTitleImages();
 
         } catch (IOException e) {
             logger.error("Image loading failed: {} ", e);
@@ -317,5 +329,50 @@ public class Images {
         } catch (IOException e) {
             logger.error("Image loading failed: {} ", e);
         }
+    }
+
+    /**
+     * Method to load Menu Title Images.
+     */
+    public void loadTitleImages(){
+        try{
+            titleImage1 = ImageIO.read(getClass().getResource("/images/spacemaze/title1.png"));
+            titleImage2 = ImageIO.read(getClass().getResource("/images/spacemaze/title2a.png"));
+            titleImage3 = ImageIO.read(getClass().getResource("/images/spacemaze/title2b.png"));
+            titleImage4 = ImageIO.read(getClass().getResource("/images/spacemaze/title2c.png"));
+            titleImage5 = ImageIO.read(getClass().getResource("/images/spacemaze/title2d.png"));
+            titleImages.put(0, titleImage1);
+            titleImages.put(1, titleImage2);
+            titleImages.put(2, titleImage3);
+            titleImages.put(3, titleImage4);
+            titleImages.put(4, titleImage5);
+
+            for (int i=0; i<titleImages.size(); i++){
+                BufferedImage resizedImage = resizeImage(titleImages.get(i), 590, 190);
+                titleImages.put(i, resizedImage);
+            }
+
+        }
+        catch (IOException e) {
+            logger.error("Image loading failed: {} ", e);
+        }
+    }
+
+    /**
+     * Method to Resize BufferedImages to target Height and width
+     */
+    public BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight){
+        BufferedImage resizedImage = new BufferedImage(590, 190, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics2D = resizedImage.createGraphics();
+        graphics2D.drawImage(originalImage, 0, 0, targetWidth, targetHeight, null);
+        graphics2D.dispose();
+        return resizedImage;
+    }
+
+     /**
+     * Method to that returns a hashmap with Buffered Images for main menu title animation.
+     */
+    public static HashMap<Integer, BufferedImage> getImageHashMap(){
+        return titleImages;
     }
 }
