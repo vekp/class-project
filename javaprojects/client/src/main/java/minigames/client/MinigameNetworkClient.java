@@ -3,8 +3,14 @@ package minigames.client;
 import java.util.List;
 import java.util.Optional;
 
-import javax.swing.JLabel;
+import javax.swing.*;
 
+import minigames.achievements.Achievement;
+import minigames.achievements.GameAchievementState;
+import minigames.achievements.PlayerAchievementRecord;
+import minigames.client.achievements.AchievementPresenterRegistry;
+import minigames.client.achievements.AchievementUI;
+import minigames.client.notifications.NotificationManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -13,6 +19,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.HttpResponse;
 
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
@@ -24,18 +31,20 @@ import minigames.rendering.RenderingPackage;
 
 /**
  * The central cub of the client.
- * 
- * GameClients will be given a reference to this. 
+ * <p>
+ * GameClients will be given a reference to this.
  * From this, they can get the main window, to set up their UI
  * They can get the Animator, to register for ticks
  * They gan get a reference to Vertx, for starting any other verticles they might want (though most won't)
  */
 public class MinigameNetworkClient {
 
-    /** A logger for logging output */
+    /**
+     * A logger for logging output
+     */
     private static final Logger logger = LogManager.getLogger(MinigameNetworkClient.class);
 
-    /** 
+    /**
      * Host to connect to. Updated from Main.
      */
     public static String host = "localhost";
@@ -51,6 +60,7 @@ public class MinigameNetworkClient {
     Animator animator;
 
     Optional<GameClient> gameClient;
+    NotificationManager notificationManager;
 
     public MinigameNetworkClient(Vertx vertx) {
         this.vertx = vertx;
@@ -61,121 +71,245 @@ public class MinigameNetworkClient {
         vertx.setPeriodic(16, (id) -> animator.tick());
 
         mainWindow = new MinigameNetworkClientWindow(this);
+        notificationManager = new NotificationManager(this);
         mainWindow.show();
     }
 
-    /** Get a reference to the Vertx instance */
+    /**
+     * Get a reference to the Vertx instance
+     */
     public Vertx getVerx() {
         return this.vertx;
     }
 
-    /** Get a reference to the main window */
+    /**
+     * Get a reference to the main window
+     */
     public MinigameNetworkClientWindow getMainWindow() {
         return this.mainWindow;
     }
 
-    /** Get a reference to the animator */
+    /**
+     * Get a reference to the animator
+     */
     public Animator getAnimator() {
         return this.animator;
     }
 
-    /** Sends a ping to the server and logs the response */
+    /**
+     * Get a reference to the notification manager
+     */
+    public NotificationManager getNotificationManager() {
+        return this.notificationManager;
+    }
+
+    /**
+     * Sends a ping to the server and logs the response
+     */
     public Future<String> ping() {
         return webClient.get(port, host, "/ping")
-            .send()
-            .onSuccess((resp) -> {
-                logger.info(resp.bodyAsString());
-            })
-            .onFailure((resp) -> {
-                logger.error("Failed: {} ", resp.getMessage());
-            }).map((resp) -> resp.bodyAsString());        
+                .send()
+                .onSuccess((resp) -> {
+                    logger.info(resp.bodyAsString());
+                })
+                .onFailure((resp) -> {
+                    logger.error("Failed: {} ", resp.getMessage());
+                }).map((resp) -> resp.bodyAsString());
     }
 
-    /** Get the list of GameServers that are supported for this client type */
+    /**
+     * Get the list of GameServers that are supported for this client mediaFileName
+     */
     public Future<List<GameServerDetails>> getGameServers() {
         return webClient.get(port, host, "/gameServers/Swing")
-            .send()
-            .onSuccess((resp) -> {
-                logger.info(resp.bodyAsString());
-            })
-            .map((resp) -> 
-                resp.bodyAsJsonArray()
-                  .stream()
-                  .map((j) -> ((JsonObject)j).mapTo(GameServerDetails.class))
-                  .toList()
-            )
-            .onFailure((resp) -> {
-                logger.error("Failed: {} ", resp.getMessage());
-            });
+                .send()
+                .onSuccess((resp) -> {
+                    logger.info(resp.bodyAsString());
+                })
+                .map((resp) ->
+                        resp.bodyAsJsonArray()
+                                .stream()
+                                .map((j) -> ((JsonObject) j).mapTo(GameServerDetails.class))
+                                .toList()
+                )
+                .onFailure((resp) -> {
+                    logger.error("Failed: {} ", resp.getMessage());
+                });
     }
 
-    /** Get the metadata for all games currently running for a particular gameServer */
+    /**
+     * Get the metadata for all games currently running for a particular gameServer
+     */
     public Future<List<GameMetadata>> getGameMetadata(String gameServer) {
         return webClient.get(port, host, "/games/" + gameServer)
-            .send()
-            .onSuccess((resp) -> {
-                logger.info(resp.bodyAsString());
-            })
-            .map((resp) -> 
-                resp.bodyAsJsonArray()
-                  .stream()
-                  .map((j) -> ((JsonObject)j).mapTo(GameMetadata.class))
-                  .toList()
-            )
-            .onFailure((resp) -> {
-                logger.error("Failed: {} ", resp.getMessage());
-            });
+                .send()
+                .onSuccess((resp) -> {
+                    logger.info(resp.bodyAsString());
+                })
+                .map((resp) ->
+                        resp.bodyAsJsonArray()
+                                .stream()
+                                .map((j) -> ((JsonObject) j).mapTo(GameMetadata.class))
+                                .toList()
+                )
+                .onFailure((resp) -> {
+                    logger.error("Failed: {} ", resp.getMessage());
+                });
     }
 
-    /** Creates a new game on the server, running any commands that come back */
+    /**
+     * gets the current achievement data for the logged in / selected player
+     * this will be sent back as a JSON string that can be used to construct a PlayerAchievementRecord
+     */
+    public Future<String> getPlayerAchievements(AchievementUI ui, String playerID) {
+        return webClient.get(port, host, "/achievement/" + playerID)
+                .send()
+                .onSuccess((resp) -> {
+                    //re-create the player record from the JSON we should have been sent, and pass it
+                    //over to the UI to populate its panels
+                    ui.populateAchievementPanel(PlayerAchievementRecord.fromJSON(resp.bodyAsString()));
+                    logger.info(resp.bodyAsString());
+                })
+                .onFailure((resp) -> {
+                    logger.error("Failed: {} ", resp.getMessage());
+                }).map((resp) -> resp.bodyAsString());
+    }
+
+    /**
+     * gets the current achievement data for the logged in / selected player and selected game
+     * this will be sent back as a JSON string that can be used to construct a GameAchievementState
+     */
+    public Future<String> getGameAchievements(String playerID, String gameID) {
+        return webClient.get(port, host, "/achievement/" + playerID + "/" + gameID)
+                .send()
+                .onSuccess((resp) -> {
+                    //re-create the player's GameAchievementState from the JSON we should have been sent, and
+                    //display it in a message dialog in a background thread
+                    vertx.executeBlocking(getGameAchievements -> {
+                        AchievementPresenterRegistry ac = new AchievementPresenterRegistry(GameAchievementState.fromJSON(resp.bodyAsString()), getAnimator());
+                        ac.showGameAchievements(getMainWindow().getFrame());
+                        getGameAchievements.complete();
+                    });
+                    logger.info(resp.bodyAsString());
+                })
+                .onFailure((resp) -> {
+                    logger.error("Failed: {} ", resp.getMessage());
+                }).map((resp) -> resp.bodyAsString());
+    }
+
+    //this may need to be modified to only request achievements for the current player on the client?
+
+    /**
+     * Asks the server for a list of achievements that have just been unlocked.
+     *
+     * @return a list of achievements that were unlocked (since the last time this was called)
+     */
+    public Future<List<Achievement>> getRecentAchievements() {
+        return webClient.get(port, host, "/achievementUnlocks")
+                .send()
+                .onSuccess((resp) -> {
+                    //disabling this for now because this is requested periodically from the animator - it will spam
+                    //the console if we log this
+                    //  logger.info(resp.bodyAsString());
+                })
+                .map((resp) ->
+                        resp.bodyAsJsonArray()
+                                .stream()
+                                .map((j) -> ((JsonObject) j).mapTo(Achievement.class))
+                                .toList()
+                )
+                .onFailure((resp) -> {
+                    logger.error("Failed: {} ", resp.getMessage());
+                });
+    }
+
+    /**
+     * Sends a request to get the names of players currently registered on the server
+     * Temporary until player accounts are in
+     *
+     * @return a list of players on the server, separated by a ","
+     */
+    public Future<String> getPlayerNames() {
+        return webClient.get(port, host, "/playerList")
+                .send()
+                .onSuccess((resp) -> {
+                    logger.info(resp.bodyAsString());
+                }).map((resp) -> resp.bodyAsString())
+                .onFailure((resp) -> {
+                    logger.error("Failed: {} ", resp.getMessage());
+                });
+    }
+
+
+    /**
+     * Creates a new game on the server, running any commands that come back
+     */
     public Future<RenderingPackage> newGame(String gameServer, String playerName) {
         return webClient.post(port, host, "/newGame/" + gameServer)
-            .sendBuffer(Buffer.buffer(playerName))
-            .onSuccess((resp) -> {
-                logger.info(resp.bodyAsString());
-            })
-            .map((resp) -> {
-                JsonObject rpj = resp.bodyAsJsonObject();
-                return RenderingPackage.fromJson(rpj);
-            })
-            .onSuccess((rp) -> runRenderingPackage(rp))
-            .onFailure((resp) -> {
-                logger.error("Failed: {} ", resp.getMessage());
-            });
+                .sendBuffer(Buffer.buffer(playerName))
+                .onSuccess((resp) -> {
+                    logger.info(resp.bodyAsString());
+                })
+                .map((resp) -> {
+                    JsonObject rpj = resp.bodyAsJsonObject();
+                    return RenderingPackage.fromJson(rpj);
+                })
+                .onSuccess((rp) -> runRenderingPackage(rp))
+                .onFailure((resp) -> {
+                    logger.error("Failed: {} ", resp.getMessage());
+                });
     }
 
-    /** Joins a game on the server, running any commands that come back */
+    /**
+     * Joins a game on the server, running any commands that come back
+     */
     public Future<RenderingPackage> joinGame(String gameServer, String game, String playerName) {
         return webClient.post(port, host, "/joinGame/" + gameServer + "/" + game)
-            .sendBuffer(Buffer.buffer(playerName))
-            .onSuccess((resp) -> {
-                logger.info(resp.bodyAsString());
-            })
-            .map((resp) -> {
-                JsonObject rpj = resp.bodyAsJsonObject();
-                return RenderingPackage.fromJson(rpj);
-            })
-            .onSuccess((rp) -> runRenderingPackage(rp))
-            .onFailure((resp) -> {
-                logger.error("Failed: {} ", resp.getMessage());
-            });
+                .sendBuffer(Buffer.buffer(playerName))
+                .onSuccess((resp) -> {
+                    logger.info(resp.bodyAsString());
+                })
+                .map((resp) -> {
+                    JsonObject rpj = resp.bodyAsJsonObject();
+                    return RenderingPackage.fromJson(rpj);
+                })
+                .onSuccess((rp) -> runRenderingPackage(rp))
+                .onFailure((resp) -> {
+                    logger.error("Failed: {} ", resp.getMessage());
+                });
     }
 
-    /** Sends a CommandPackage to the server, running any commands that come back */
+    /**
+     * Sends a CommandPackage to the server, running any commands that come back
+     */
     public Future<RenderingPackage> send(CommandPackage cp) {
         return webClient.post(port, host, "/command")
-            .sendJson(cp)
-            .onSuccess((resp) -> {
-                logger.info(resp.bodyAsString());
-            })
-            .map((resp) -> {
-                JsonObject rpj = resp.bodyAsJsonObject();
-                return RenderingPackage.fromJson(rpj);
-            })
-            .onSuccess((rp) -> runRenderingPackage(rp))
-            .onFailure((resp) -> {
-                logger.error("Failed: {} ", resp.getMessage());
-            });
+                .sendJson(cp)
+                .onSuccess((resp) -> {
+                    logger.info(resp.bodyAsString());
+                })
+                .map((resp) -> {
+                    JsonObject rpj = resp.bodyAsJsonObject();
+                    return RenderingPackage.fromJson(rpj);
+                })
+                .onSuccess((rp) -> runRenderingPackage(rp))
+                .onFailure((resp) -> {
+                    logger.error("Failed: {} ", resp.getMessage());
+                });
+    }
+
+    /*
+     * Sends a JSON object of survey responses to the server for saving to a database
+     */
+    public Future<HttpResponse<Buffer>> sendSurveyData(JsonObject surveyData) {
+        return webClient.post(port, host, "/sendSurveyData")
+                .sendJson(surveyData)
+                .onSuccess((resp) -> {
+                    logger.info("Survey data sent successfully.");
+                })
+                .onFailure((resp) -> {
+                    logger.error("Failed to send survey data: {}", resp.getMessage());
+                });
     }
 
     /**
@@ -184,7 +318,7 @@ public class MinigameNetworkClient {
      */
     public void runMainMenuSequence() {
         mainWindow.showStarfieldMessage("Minigame Network");
-        
+
         ping().flatMap((s) -> getGameServers()).map((list) -> {
             logger.info("Got servers {}", list);
             return list;
@@ -194,7 +328,9 @@ public class MinigameNetworkClient {
         });
     }
 
-    /** Executes a LoadClient command */
+    /**
+     * Executes a LoadClient command
+     */
     private void execute(GameMetadata metadata, LoadClient lc) {
         logger.info("Loading client {} ", lc);
         mainWindow.clearAll();
@@ -203,7 +339,9 @@ public class MinigameNetworkClient {
         gc.load(this, metadata, lc.player());
     }
 
-    /** Executes the QuitToMenu command */
+    /**
+     * Executes the QuitToMenu command
+     */
     private void execute(QuitToMenu qtm) {
         gameClient.ifPresent((gc) -> gc.closeGame());
         gameClient = Optional.empty();
@@ -211,7 +349,9 @@ public class MinigameNetworkClient {
         runMainMenuSequence();
     }
 
-    /** Executes a ShowMenuError command */
+    /**
+     * Executes a ShowMenuError command
+     */
     private void execute(ShowMenuError sme) {
         // We can only show an error if there's no game client 
         // (otherwise we might mess with its display)
@@ -223,9 +363,9 @@ public class MinigameNetworkClient {
         }
     }
 
-    /** 
-     * Interprets and runs a rendering command. 
-     * If this is one of the (3) known native command, it runs it. 
+    /**
+     * Interprets and runs a rendering command.
+     * If this is one of the (3) known native command, it runs it.
      * If not, it passes it directly on to the current GameClient to interpret.
      */
     private void interpretCommand(GameMetadata metadata, JsonObject json) {
@@ -257,7 +397,9 @@ public class MinigameNetworkClient {
         }
     }
 
-    /** Interprets and executes all the commands in a rendering package */
+    /**
+     * Interprets and executes all the commands in a rendering package
+     */
     private void runRenderingPackage(RenderingPackage rp) {
         logger.info("Running rendering package");
         GameMetadata gm = rp.metadata();

@@ -1,38 +1,31 @@
 package minigames.client;
 
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
+import javax.swing.*;
 
-import minigames.client.achievementui.AchievementUI;
+import java.awt.event.ActionListener;
+
+import minigames.client.achievements.AchievementNotificationHandler;
+import minigames.client.achievements.AchievementUI;
+import minigames.client.survey.Survey;
 import minigames.client.backgrounds.Starfield;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.GameServerDetails;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.util.List;
 
 /**
  * The main window that appears.
- * 
+ * <p>
  * For simplicity, we give it a BorderLayout with panels for north, south, east, west, and center.
- * 
+ * <p>
  * This makes it simpler for games to load up the UI however they wish, though the default expectation
  * is that the centre just has an 800x600 canvas.
  */
 public class MinigameNetworkClientWindow {
 
     MinigameNetworkClient networkClient;
+    private final AchievementNotificationHandler achievementPopups;
 
     JFrame frame;
 
@@ -41,7 +34,7 @@ public class MinigameNetworkClientWindow {
     JPanel center;
     JPanel south;
     JPanel west;
-    JPanel east;    
+    JPanel east;
 
     JLabel messageLabel;
 
@@ -54,7 +47,9 @@ public class MinigameNetworkClientWindow {
         frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        parent = new JPanel(new BorderLayout());        
+        this.achievementPopups = new AchievementNotificationHandler(networkClient);
+
+        parent = new JPanel(new BorderLayout());
 
         north = new JPanel();
         parent.add(north, BorderLayout.NORTH);
@@ -74,50 +69,68 @@ public class MinigameNetworkClientWindow {
         nameField.setText("Algernon");
     }
 
-    /** Removes all components from the south panel */
+    /**
+     * Removes all components from the south panel
+     */
     public void clearSouth() {
         south.removeAll();
     }
 
-    /** Clears all sections of the UI  */
+    /**
+     * Clears all sections of the UI
+     */
     public void clearAll() {
-        for (JPanel p : new JPanel[] { north, south, east, west, center }) {
+        for (JPanel p : new JPanel[]{north, south, east, west, center}) {
             p.removeAll();
         }
     }
 
-    /** Adds a component to the north part of the main window */
+    /**
+     * Adds a component to the north part of the main window
+     */
     public void addNorth(java.awt.Component c) {
         north.add(c);
     }
 
-    /** Adds a component to the south part of the main window */
+    /**
+     * Adds a component to the south part of the main window
+     */
     public void addSouth(java.awt.Component c) {
         south.add(c);
     }
 
-    /** Adds a component to the east part of the main window */
+    /**
+     * Adds a component to the east part of the main window
+     */
     public void addEast(java.awt.Component c) {
         east.add(c);
     }
 
-    /** Adds a component to the west part of the main window */
+    /**
+     * Adds a component to the west part of the main window
+     */
     public void addWest(java.awt.Component c) {
         west.add(c);
     }
 
-    /** Adds a component to the center of the main window */
+    /**
+     * Adds a component to the center of the main window
+     */
     public void addCenter(java.awt.Component c) {
         center.add(c);
     }
 
-    /** "Packs" the frame, setting its size to match the preferred layout sizes of its component */
+    /**
+     * "Packs" the frame, setting its size to match the preferred layout sizes of its component
+     */
     public void pack() {
         frame.pack();
         parent.repaint();
     }
 
-    /** Makes the main window visible */
+    /**
+     * Makes the main window visible
+     */
     public void show() {
         pack();
         frame.setVisible(true);
@@ -132,7 +145,7 @@ public class MinigameNetworkClientWindow {
 
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.add(new Starfield(networkClient.animator), JLayeredPane.DEFAULT_LAYER);
-        layeredPane.setBackground(new Color(0,0,0,0));
+        layeredPane.setBackground(new Color(0, 0, 0, 0));
         layeredPane.setPreferredSize(new Dimension(800, 600));
 
         JLabel label = new JLabel(s);
@@ -142,7 +155,7 @@ public class MinigameNetworkClientWindow {
         label.setFont(new Font("Monospaced", Font.PLAIN, 36));
         Dimension labelSize = label.getPreferredSize();
         label.setSize(labelSize);
-        label.setLocation((int)(400 - labelSize.getWidth() / 2), (int)(300 - labelSize.getHeight() / 2));
+        label.setLocation((int) (400 - labelSize.getWidth() / 2), (int) (300 - labelSize.getHeight() / 2));
         layeredPane.add(label, JLayeredPane.MODAL_LAYER);
 
         center.add(layeredPane);
@@ -151,27 +164,29 @@ public class MinigameNetworkClientWindow {
 
     /**
      * Shows a list of GameServers to pick from
-     * 
+     * <p>
      * TODO: Prettify!
+     *
      * @param servers
      */
     public void showGameServers(List<GameServerDetails> servers) {
         frame.setTitle("COSC220 2023 Minigame Collection");
         clearAll();
+        networkClient.getNotificationManager().resetToDefaultSettings();
 
         JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         List<JPanel> serverPanels = servers.stream().map((gsd) -> {
-            JPanel p = new JPanel();
+            JPanel p = new JPanel(new BorderLayout());
             JLabel l = new JLabel(String.format("<html><h1>%s</h1><p>%s</p></html>", gsd.name(), gsd.description()));
             JButton newG = new JButton("Open games");
 
             newG.addActionListener((evt) -> {
                 networkClient.getGameMetadata(gsd.name())
-                  .onSuccess((list) -> showGames(gsd.name(), list));
+                        .onSuccess((list) -> showGames(gsd.name(), list));
             });
-
             p.add(l);
-            p.add(newG);
+            p.add(newG, BorderLayout.EAST);
             return p;
         }).toList();
 
@@ -183,25 +198,32 @@ public class MinigameNetworkClientWindow {
 
         // Create a button for the Achievement UI.
         JButton achievementsButton = new JButton("Achievements");
-        // Create action listener to use as back button action.
-        ActionListener returnAction = (a) -> {
-            showGameServers(servers);
-        };        achievementsButton.addActionListener(e -> {
-            clearAll();
-            JPanel achievements = new AchievementUI(returnAction);
-            frame.setTitle(AchievementUI.TITLE);
-            center.add(achievements);
-            pack();
+        achievementsButton.addActionListener(e -> {
+            AchievementUI achievements = new AchievementUI(networkClient);
+            achievements.load();
         });
         south.add(achievementsButton);
+
+        JButton surveyButton = new JButton("Survey");
+        surveyButton.addActionListener(e -> {
+            clearAll();
+            JPanel survey = new Survey(networkClient);
+            frame.setTitle(Survey.FRAME_TITLE);
+            center.add(survey);
+            pack();
+        });
+        south.add(surveyButton);
+
         pack();
     }
 
     /**
      * Shows a list of games to pick from
-     * 
+     * <p>
      * TODO: Prettify!
-     * @param servers
+     *
+     * @param gameServer
+     * @param inProgress
      */
     public void showGames(String gameServer, List<GameMetadata> inProgress) {
         clearAll();
@@ -247,5 +269,11 @@ public class MinigameNetworkClientWindow {
         parent.repaint();
     }
 
+    /**
+     * Return a reference to this window's frame
+     */
+    public JFrame getFrame() {
+        return frame;
+    }
 
 }
