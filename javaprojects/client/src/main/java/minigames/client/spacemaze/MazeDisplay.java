@@ -76,7 +76,7 @@ public class MazeDisplay extends JPanel {
         this.moveTo = new Point(playerPos);
         this.exitPoint = findCharOnMap(mazeMap, 'E');
         this.tileWidth = jPanelWidth / mazeMap[0].length;
-        this.tileHeight = jPanelHeight / mazeMap.length;
+        this.tileHeight = (jPanelHeight -1) / mazeMap.length;
         this.setLayout(new BorderLayout());
         this.setPreferredSize(new Dimension(jPanelWidth, jPanelHeight));
         this.bots = loadedBots;
