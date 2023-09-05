@@ -1,76 +1,109 @@
 package minigames.client.survey;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import minigames.client.MinigameNetworkClient;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import io.vertx.core.json.JsonObject;
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
+// import java.awt.BorderLayout;
+// import javax.swing.BorderFactory; 
+import javax.swing.border.Border;
+// import javax.swing.border.TitledBorder;
+// import javax.swing.border.EtchedBorder;
+// import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.Color;
+// import java.awt.Color;
 
+import java.io.*;
 import javax.swing.*;
 import java.awt.*;
-
-// import javax.swing.Dimension;
+import java.util.*;
 
 public class Survey extends JPanel implements ActionListener {
 
-    // Private variables 
     // (labels and buttons need to be registered here)
     private JPanel titlePanel, counterPanel, backPanel, gameNamePanel, surveyQuestionsPanelGroup, surveyQuestionsPanelLeft, surveyQuestionsPanelRight, feedbackPanel, submitPanel, footerPanel, uiRatingPanel, enjoymentPanel, functionalityPanel; 
-    private JLabel counterLabel, headingLabel, testLabel, gameNameLabel, feedbackLabel, uiRatingLabel, enjoymentLabel, functionalityLabel;
+    private JLabel counterLabel, headingLabel, testLabel, gameNameLabel, feedbackLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, gameNameTextLabel;
     private JButton counterButton, backButton, submitButton;
-    private JTextField gameNameText;
     private JTextArea feedbackText;
     private JRadioButton uiRatingOne, uiRatingTwo, uiRatingThree, uiRatingFour, uiRatingFive, enjoymentOne, enjoymentTwo, enjoymentThree, enjoymentFour, enjoymentFive, functionalityOne, functionalityTwo, functionalityThree, functionalityFour, functionalityFive;
     private ButtonGroup uiRatingButtonGroup, enjoymentButtonGroup, functionalityButtonGroup;
+    private Border borderPosition, raisedBevel, loweredBevel, outerColourBorder, styledOuterBorder, innerColourBorder, styledInnerBorder, styledBorders, finalBorder;
+    // Colours
+    // Colours of panels, buttons and radio buttons
+    private Color bgColour = new Color(255,255,255); // background
+    private Color fgColour = new Color(0,0,0); // foreground
+    // Background colour of main panel
+    // private Color mainBgColour = new Color(51,167,202);
+    private Color mainBgColour = new Color(46,114,173);
+    private Color outerBorderLineColour = new Color(22,59,121,255);
+    private Color innerborderLineColour = new Color(64,28,99,255);
+
+    private Font fontHeading = new Font("unispace", Font.BOLD, 24);
+    private Font fontLabel = new Font("unispace", Font.PLAIN, 18);
+    private Font fontText = new Font("unispace", Font.PLAIN, 16);
+    private Font fontButton = new Font("unispace", Font.PLAIN, 12);
+
+    // Background image variable declaration
+    private Image image;
+    private final String imageFolderPath = "src/main/resources/images/backgrounds/";
 
     // Public variables
     // Sets the Frame Title (top left corner)
     public static final String FRAME_TITLE = "Game Survey";
 
+    // Game that calls the survey (CHANGE TO BE REUSABLE)
+    public String callingGame = "GAME THAT CALLS THE SURVEY";
+
     // Main Survey Class
-    public Survey(ActionListener goBack) {
+    public Survey(MinigameNetworkClient mnClient) {
 
         // Survey main panel layout
         this.setPreferredSize(new Dimension(800, 600));
         this.setLayout(new GridLayout(0, 1));
         this.setLayout(new BorderLayout());
-        this.setBackground(Color.CYAN);
-        this.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
+        readBackgroundImage();
+
+        //This creates a nice main Survey frame.
+
+        // Frame size and position
+        borderPosition = BorderFactory.createEmptyBorder(80, 80, 80, 80);
+        // Creates a raised coloured bevel border
+        raisedBevel = BorderFactory.createRaisedBevelBorder();
+        outerColourBorder = BorderFactory.createLineBorder(outerBorderLineColour, 4);
+        styledOuterBorder = BorderFactory.createCompoundBorder(outerColourBorder, raisedBevel);
+        // Creates a lowered coloured bevel border
+        loweredBevel = BorderFactory.createLoweredBevelBorder();
+        innerColourBorder = BorderFactory.createLineBorder(innerborderLineColour, 3);
+        styledInnerBorder = BorderFactory.createCompoundBorder(innerColourBorder, loweredBevel);
+        // Combines the borders and sets them
+        styledBorders = BorderFactory.createCompoundBorder(outerColourBorder, innerColourBorder);
+        finalBorder = BorderFactory.createCompoundBorder(borderPosition, styledBorders);
+        this.setBorder(finalBorder);
 
         // Title Panel
         titlePanel = new JPanel();
         headingLabel = new JLabel();
-        headingLabel.setText("<html><h1 style='color: blue;'}>Game Survey</h1></html>");
+        headingLabel.setText("Game Survey");
+        headingLabel.setFont(fontHeading);
+
         titlePanel.add(headingLabel);
         this.add(titlePanel, BorderLayout.NORTH);
 
         // gameName Label
         gameNameLabel = new JLabel();
-        gameNameLabel.setText("Name: ");
-        gameNameLabel.setFont(new Font("Calibri", Font.PLAIN, 18));
+        gameNameLabel.setText("Game Name: ");
+        gameNameLabel.setFont(fontLabel);
 
-        // gameName Panel
-        gameNamePanel = new JPanel();
-        gameNameText = new JTextField(20);
-        gameNameText.setFont(new Font("Calibri", Font.PLAIN, 16));
-        gameNameText.setBounds(0,0,50,50);
-        gameNamePanel.add(gameNameText);
-        gameNamePanel.setBackground(Color.LIGHT_GRAY);
-
+        // gameName TextLabel
+        gameNameTextLabel = new JLabel();
+        gameNameTextLabel.setText(callingGame);
+        gameNameTextLabel.setFont(fontText);
 
         // User Interface Rating Label
         uiRatingLabel = new JLabel();
         uiRatingLabel.setText("User Interface Rating: ");
-        uiRatingLabel.setFont(new Font("Calibri", Font.PLAIN, 18));
+        uiRatingLabel.setFont(fontLabel);
 
         // User Interface Rating Panel
         uiRatingPanel = new JPanel();
@@ -86,6 +119,7 @@ public class Survey extends JPanel implements ActionListener {
         uiRatingPanel.add(uiRatingThree);
         uiRatingPanel.add(uiRatingFour);
         uiRatingPanel.add(uiRatingFive);
+        uiRatingPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
         // Ensures only one of the radio buttons are selected at a time
         uiRatingButtonGroup= new ButtonGroup();
@@ -98,7 +132,7 @@ public class Survey extends JPanel implements ActionListener {
         // Enjoyment Rating Label
         enjoymentLabel = new JLabel();
         enjoymentLabel.setText("Enjoyment Rating: ");
-        enjoymentLabel.setFont(new Font("Calibri", Font.PLAIN, 18));
+        enjoymentLabel.setFont(fontLabel);
 
         // Enjoyment Rating Panel
         enjoymentPanel = new JPanel();
@@ -114,6 +148,8 @@ public class Survey extends JPanel implements ActionListener {
         enjoymentPanel.add(enjoymentThree);
         enjoymentPanel.add(enjoymentFour);
         enjoymentPanel.add(enjoymentFive);
+        enjoymentPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
 
         enjoymentButtonGroup= new ButtonGroup();
         enjoymentButtonGroup.add(enjoymentOne);
@@ -125,7 +161,7 @@ public class Survey extends JPanel implements ActionListener {
         // Functionality Rating Label
         functionalityLabel = new JLabel();
         functionalityLabel.setText("Functionality Rating: ");
-        functionalityLabel.setFont(new Font("Calibri", Font.PLAIN, 18));
+        functionalityLabel.setFont(fontLabel);
 
         // Functionality Rating Panel
         functionalityPanel = new JPanel();
@@ -141,6 +177,8 @@ public class Survey extends JPanel implements ActionListener {
         functionalityPanel.add(functionalityThree);
         functionalityPanel.add(functionalityFour);
         functionalityPanel.add(functionalityFive);
+        functionalityPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
 
         functionalityButtonGroup= new ButtonGroup();
         functionalityButtonGroup.add(functionalityOne);
@@ -152,16 +190,17 @@ public class Survey extends JPanel implements ActionListener {
         // feedback Label
         feedbackLabel = new JLabel();
         feedbackLabel.setText("Feedback: ");
-        feedbackLabel.setFont(new Font("Calibri", Font.PLAIN, 18));
+        feedbackLabel.setFont(fontLabel);
 
         // feedback Panel
         feedbackPanel = new JPanel();
         feedbackText = new JTextArea();
-        feedbackText.setColumns(20);
+        feedbackText.setColumns(30);
         feedbackText.setLineWrap(true);
         feedbackText.setRows(5);
         feedbackText.setWrapStyleWord(true);
-        feedbackText.setFont(new Font("Calibri", Font.PLAIN, 16));
+        feedbackText.setFont(fontText);
+        feedbackText.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
         feedbackPanel.add(feedbackText);
 
         // surveyQuestionsPanelLeft (incorporates all Question titles for the survey)
@@ -176,7 +215,7 @@ public class Survey extends JPanel implements ActionListener {
         // surveyQuestionsPanelRight (incorporates all Question responses for the survey)
         surveyQuestionsPanelRight = new JPanel();
         surveyQuestionsPanelRight.setLayout(new GridLayout(5, 0));
-        surveyQuestionsPanelRight.add(gameNamePanel);
+        surveyQuestionsPanelRight.add(gameNameTextLabel);
         surveyQuestionsPanelRight.add(uiRatingPanel);
         surveyQuestionsPanelRight.add(enjoymentPanel);
         surveyQuestionsPanelRight.add(functionalityPanel);
@@ -187,66 +226,124 @@ public class Survey extends JPanel implements ActionListener {
         surveyQuestionsPanelGroup.setLayout(new GridLayout(0, 2));
         surveyQuestionsPanelGroup.add(surveyQuestionsPanelLeft);
         surveyQuestionsPanelGroup.add(surveyQuestionsPanelRight);
-        // surveyQuestionsPanelGroup.add(uiRatingPanel);
-        // surveyQuestionsPanelGroup.add(feedbackPanel);
         this.add(surveyQuestionsPanelGroup, BorderLayout.CENTER);
-
 
         // Back Button
         backPanel = new JPanel();
         backButton = new JButton("Back");
-        backButton.addActionListener(goBack);
+        backButton.setFont(fontButton);
+        backButton.addActionListener(e -> mnClient.runMainMenuSequence());
         backPanel.add(backButton);
         
         // Submit Button
         submitPanel = new JPanel();
         submitButton = new JButton("Submit");
-        submitButton.addActionListener(e -> submit());
+        submitButton.setFont(fontButton);
+        submitButton.addActionListener(e -> submit(mnClient));
         submitPanel.add(submitButton);
-
+        
         // Footer Panel
         footerPanel = new JPanel();
+        // Have to set footer panel bg manually
         footerPanel.add(backPanel, BorderLayout.WEST);
         footerPanel.add(submitPanel, BorderLayout.EAST);
         this.add(footerPanel, BorderLayout.SOUTH);
-
+        
+        panelColourChange(mainBgColour, fgColour);
         // ADD REQUEST TO ENDPOINTS HERE!!!
-
-
-
     }
 
-    public void submit() {
+    // Public Functions
+    public Image readBackgroundImage() {
+        try
+        {
+            image = javax.imageio.ImageIO.read(new File(imageFolderPath + "nebula.jpg"));
+        }
+        catch (Exception e) { e.printStackTrace(); /*handled in paintComponent()*/ }
+        return(image);
+    }
+
+    public void submit(MinigameNetworkClient mnClient) {
         String text = feedbackText.getText();
-    
-        // JSON object to store the feedback data
-        JSONObject feedbackObject = new JSONObject();
-        feedbackObject.put("user_id", "123"); // Replace with real user ID
-        feedbackObject.put("timestamp", getCurrentTimestamp());
-        feedbackObject.put("feedback_text", text);
-    
-        // Save JSON object to a local file
-        saveFeedbackToJsonFile(feedbackObject);
+        
+        // Get the selected values from the radio button groups
+        int uiRating = Integer.parseInt(getSelectedRadioButtonValue(uiRatingButtonGroup));
+        int enjoymentRating = Integer.parseInt(getSelectedRadioButtonValue(enjoymentButtonGroup));
+        int functionalityRating = Integer.parseInt(getSelectedRadioButtonValue(functionalityButtonGroup));
+
+        JsonObject surveyData = new JsonObject()
+            .put("user_id", 111)
+            .put("ui_rating", uiRating)
+            .put("enjoyment_rating", enjoymentRating)
+            .put("functionality_rating", functionalityRating)
+            .put("feedback_text", text);
+
+        mnClient.sendSurveyData(surveyData).onSuccess(e -> mnClient.runMainMenuSequence());
+    }
+
+    // Get the selected radio button value from a ButtonGroup
+    private String getSelectedRadioButtonValue(ButtonGroup buttonGroup) {
+        Enumeration<AbstractButton> buttons = buttonGroup.getElements();
+        while (buttons.hasMoreElements()) {
+            AbstractButton button = buttons.nextElement();
+            if (button.isSelected()) {
+                return button.getText();
+            }
+        }
+        return "";
+    }
+
+
+    // Change colour of panels (overrides singular setting of colour)
+    public void panelColourChange(Color backColour, Color foreColour) {
+        // footerPanel breaks the code, if clause sorts it
+        JPanel panels[] = {titlePanel, backPanel, surveyQuestionsPanelGroup, surveyQuestionsPanelLeft, surveyQuestionsPanelRight, feedbackPanel, submitPanel, uiRatingPanel, enjoymentPanel, functionalityPanel, footerPanel};
+        for(JPanel panel: panels){
+            if(panel != null) {
+            panel.setBackground(backColour);
+            panel.setForeground(foreColour);
+            }
+        }
+    }
+
+    // Change colour of radio buttons (overrides singular setting of colour)
+    public void radioColourChange(Color backColour, Color foreColour) {
+        JRadioButton rbuttons[] = {uiRatingOne, uiRatingTwo, uiRatingThree, uiRatingFour, uiRatingFive, enjoymentOne, enjoymentTwo, enjoymentThree, enjoymentFour, enjoymentFive, functionalityOne, functionalityTwo, functionalityThree, functionalityFour, functionalityFive};
+        for(JRadioButton rb: rbuttons){
+            if(rb != null) {
+            rb.setBackground(backColour);
+            rb.setForeground(foreColour);
+            }
+        }
+    }
+
+    // Change colour of buttons (overrides singular setting of colour)
+    public void buttonColourChange(Color backColour, Color foreColour) {
+        JButton buttons[] = {backButton, submitButton};
+        for(JButton button: buttons){
+            if(button != null) {
+            button.setBackground(backColour);
+            button.setForeground(foreColour);
+            }
+        }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
     }
 
-    private String getCurrentTimestamp() {
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return now.format(formatter);
-    }
-    
-    private void saveFeedbackToJsonFile(JSONObject feedbackObject) {
-        try (FileWriter fileWriter = new FileWriter("feedback.json", true)) {
-            // Append feedback to existing JSON file, otherwise create new one
-            fileWriter.write(feedbackObject.toJSONString());
-            fileWriter.write("\n");
-            fileWriter.flush();
-        } catch (IOException e) {
-            e.printStackTrace(); // Add proper exception handling
+    // Protected Functions
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        if(image != null) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.drawImage(image, 0, 0, getWidth(), getHeight(), this);
+            g2.dispose();
+        }
+        else {
+            System.out.println("no image to process");
         }
     }
 }
