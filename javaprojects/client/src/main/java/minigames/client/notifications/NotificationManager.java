@@ -165,6 +165,7 @@ public class NotificationManager implements Tickable {
                 if (y <= -notificationHeight) {
                     status = Status.IDLE;
                     layeredPane.remove(notification);
+                    notification = null;
                 }
             }
         }
@@ -255,6 +256,7 @@ public class NotificationManager implements Tickable {
         setBorder(BorderFactory.createEtchedBorder());
         setApplyColourAndFontStyling(false);
         this.layeredPane = frame.getLayeredPane();
+        if (notification != null && notification.getParent() != layeredPane) layeredPane.add(notification);
         return this;
     }
 
@@ -276,6 +278,7 @@ public class NotificationManager implements Tickable {
         parent.add(pane, index);
         parent.revalidate();
         this.layeredPane = pane;
+        if (notification != null) pane.add(notification);
         return this;
     }
 
