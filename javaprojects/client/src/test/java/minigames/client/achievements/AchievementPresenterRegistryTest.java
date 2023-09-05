@@ -1,11 +1,8 @@
 package minigames.client.achievements;
 
-import io.vertx.core.Vertx;
 import minigames.achievements.Achievement;
 import minigames.achievements.GameAchievementState;
 import minigames.client.Animator;
-import minigames.client.MinigameNetworkClient;
-import minigames.client.notifications.NotificationManager;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -61,7 +58,7 @@ public class AchievementPresenterRegistryTest {
         // No images
         for (int i = 0; i < 10; i++) {
             System.out.println(i);
-            JPanel carousel = apRegistry.achievementCarousel(i);
+            JPanel carousel = apRegistry.achievementCarousel.achievementCarouselPanel(i);
             // For unlocked achievements - 4 components
             if (i < 5) {
                 assertEquals(4, carousel.getComponents().length);

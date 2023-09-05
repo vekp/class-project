@@ -387,16 +387,6 @@ public class NotificationManager implements Tickable {
     }
 
     /**
-     * Set styling for foreground/background colours, font and border in one method.
-     */
-    public NotificationManager setStyling(Color foregroundColour, Color backgroundColour, String fontName, Border border) {
-        setColours(foregroundColour, backgroundColour);
-        setFont(fontName);
-        setBorder(border);
-        return this;
-    }
-
-    /**
      * Set styling for foreground/background colours, font and border based on a component.
      */
     public NotificationManager setStyling(Component component) {
