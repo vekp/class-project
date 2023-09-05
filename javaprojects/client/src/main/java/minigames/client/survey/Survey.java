@@ -86,6 +86,7 @@ public class Survey extends JPanel implements ActionListener {
         headingLabel = new JLabel();
         headingLabel.setText("Game Survey");
         headingLabel.setFont(fontHeading);
+        headingLabel.setForeground (Color.WHITE);
 
         titlePanel.add(headingLabel);
         this.add(titlePanel, BorderLayout.NORTH);
@@ -94,16 +95,19 @@ public class Survey extends JPanel implements ActionListener {
         gameNameLabel = new JLabel();
         gameNameLabel.setText("Game Name: ");
         gameNameLabel.setFont(fontLabel);
+        gameNameLabel.setForeground (Color.WHITE);
 
         // gameName TextLabel
         gameNameTextLabel = new JLabel();
         gameNameTextLabel.setText(callingGame);
         gameNameTextLabel.setFont(fontText);
+        gameNameTextLabel.setForeground (Color.WHITE);
 
         // User Interface Rating Label
         uiRatingLabel = new JLabel();
         uiRatingLabel.setText("User Interface Rating: ");
         uiRatingLabel.setFont(fontLabel);
+        uiRatingLabel.setForeground (Color.WHITE);
 
         // User Interface Rating Panel
         uiRatingPanel = new JPanel();
@@ -133,6 +137,7 @@ public class Survey extends JPanel implements ActionListener {
         enjoymentLabel = new JLabel();
         enjoymentLabel.setText("Enjoyment Rating: ");
         enjoymentLabel.setFont(fontLabel);
+        enjoymentLabel.setForeground (Color.WHITE);
 
         // Enjoyment Rating Panel
         enjoymentPanel = new JPanel();
@@ -162,6 +167,7 @@ public class Survey extends JPanel implements ActionListener {
         functionalityLabel = new JLabel();
         functionalityLabel.setText("Functionality Rating: ");
         functionalityLabel.setFont(fontLabel);
+        functionalityLabel.setForeground (Color.WHITE);
 
         // Functionality Rating Panel
         functionalityPanel = new JPanel();
@@ -191,6 +197,7 @@ public class Survey extends JPanel implements ActionListener {
         feedbackLabel = new JLabel();
         feedbackLabel.setText("Feedback: ");
         feedbackLabel.setFont(fontLabel);
+        feedbackLabel.setForeground (Color.WHITE);
 
         // feedback Panel
         feedbackPanel = new JPanel();
