@@ -339,7 +339,7 @@ public class Telepathy implements GameClient, Tickable{
         JButton yes = new JButton("Yes");
         yes.setPreferredSize(new Dimension(20, 40));
         yes.addActionListener(e -> {
-            sendCommand(TelepathyCommands.BUTTONPRESS, xyTargetTile);
+            sendCommand(TelepathyCommands.CHOOSETILE, Integer.toString(x), Integer.toString(y));
             int updateButtonClicks = buttonClicks++;
             telepathyNotificationManager.dismissCurrentNotification();
         });
@@ -572,12 +572,12 @@ public class Telepathy implements GameClient, Tickable{
      * @param attributes: Any attributes that need to be packaged with the command. 
      */
     public void sendCommand(TelepathyCommands command, String... attributes){
-        JsonObject json = new JsonObject().put("command", command.toString());
-        
-        if(attributes.length > 0) {json.put("attributes", new JsonArray().add(attributes));}
-        logger.info("Sending command: {}", json);
+        JsonObject jsonCommand = TelepathyCommandHandler.makeJsonCommand(
+            command, attributes
+        );
+        logger.info("Sending command: {}", jsonCommand);
 
-        mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
+        mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(jsonCommand)));
     }
  
 
