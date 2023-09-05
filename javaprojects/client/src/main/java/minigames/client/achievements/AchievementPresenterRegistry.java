@@ -4,6 +4,7 @@ import minigames.achievements.Achievement;
 import minigames.achievements.GameAchievementState;
 import minigames.client.Animator;
 import minigames.client.Tickable;
+import minigames.client.notifications.NotificationManager;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -36,20 +37,12 @@ public class AchievementPresenterRegistry implements Tickable {
         LEFT(panelWidth),
         RIGHT(-panelWidth);
         final private int initialX;
+        float currentX;
 
         Direction(int initialX) {
             this.initialX = initialX;
         }
 
-        /**
-         * Calculate new X position from given old X position
-         */
-        int newX(int oldX) {
-            return switch (this) {
-                case LEFT -> (int) Math.floor(oldX * 0.85);
-                case RIGHT -> (int) Math.ceil(oldX * 0.85);
-            };
-        }
     }
     // Direction of animation movement of the panels
     private Direction direction;
@@ -71,7 +64,7 @@ public class AchievementPresenterRegistry implements Tickable {
     /**
      * Create a panel containing a list of achievements
      */
-    public JPanel achievementListPanel() {
+    public JPanel achievementListPanel(NotificationManager notificationManager) {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         for (int i = 0; i < achievements.size(); i++) {
@@ -80,18 +73,20 @@ public class AchievementPresenterRegistry implements Tickable {
             achievementPanel.setLayout(new BoxLayout(achievementPanel, BoxLayout.X_AXIS));
             achievementPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
             // If achievement is unlocked, add mouse click listener to view it in carousel
-            if (ap.isUnlocked) makeClickable(achievementPanel, i);
+            if (ap.isUnlocked) {
+                makeClickable(achievementPanel, i, notificationManager);
+            }
             panel.add(achievementPanel);
         }
         return panel;
     }
 
     /**
-     * Makes an achievement panel clickable with border effects and click action to display large panel
+     * Make an achievement panel clickable with border effects and click action to display carousel
      * @param panel the achievement panel
      * @param index the position in the carousel
      */
-    private void makeClickable(JPanel panel, int index) {
+    private void makeClickable(JPanel panel, int index, NotificationManager notificationManager) {
         Border smallEmptyBorder = BorderFactory.createEmptyBorder(4, 4, 4, 4);
         Border mouseOverBorder = BorderFactory.createCompoundBorder(BorderFactory.createCompoundBorder(smallEmptyBorder,
                 BorderFactory.createBevelBorder(BevelBorder.RAISED)), smallEmptyBorder);
@@ -100,8 +95,12 @@ public class AchievementPresenterRegistry implements Tickable {
         panel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                JOptionPane.showMessageDialog(panel.getTopLevelAncestor(), achievementCarousel(index),
-                        gameID + " achievements", JOptionPane.PLAIN_MESSAGE);
+                if (notificationManager != null) {
+                    notificationManager.showMessageDialog(gameID + " achievements", achievementCarousel(index));
+                } else {
+                    JOptionPane.showMessageDialog(panel.getTopLevelAncestor(), achievementCarousel(index),
+                            gameID + " achievements", JOptionPane.PLAIN_MESSAGE);
+                }
             }
             @Override
             public void mousePressed(MouseEvent e) {
@@ -121,21 +120,20 @@ public class AchievementPresenterRegistry implements Tickable {
     }
 
     /**
-     * Display the player's achievements for the current game in a scroll pane message dialog
-     * @param frame the parent frame
+     * Display the player's achievements for the current game in a scroll pane message dialog using the
+     * given NotificationManager
      */
-    public void showGameAchievements(JFrame frame) {
-        JScrollPane scrollPane = AchievementUI.generateScrollPane(achievementListPanel());
+    public void showGameAchievements(NotificationManager notificationManager) {
+        JScrollPane scrollPane = AchievementUI.generateScrollPane(achievementListPanel(notificationManager));
         // Set pane size to fit inside frame
         scrollPane.setPreferredSize(new Dimension(
             Math.min(700, scrollPane.getPreferredSize().width + 20), // add some padding on the right
-            Math.min(500, scrollPane.getPreferredSize().height)
+            Math.min(400, scrollPane.getPreferredSize().height)
             )
         );
         scrollPane.getVerticalScrollBar().setUnitIncrement(5);
         scrollPane.setBorder(null);
-        JOptionPane.showMessageDialog(frame, scrollPane,
-                gameID + " achievements", JOptionPane.PLAIN_MESSAGE);
+        notificationManager.showMessageDialog(gameID + " achievements", scrollPane);
     }
 
     /**
@@ -150,11 +148,10 @@ public class AchievementPresenterRegistry implements Tickable {
         JPanel panel = new JPanel(new BorderLayout());
         centrePanel = new JPanel(null);
         panel.add(centrePanel, BorderLayout.CENTER);
-        // Add prev/next buttons
 
+        // Add prev/next buttons
         leftButton = new JButton("<");
         panel.add((leftButton), BorderLayout.WEST);
-
         rightButton = new JButton(">");
         panel.add(rightButton, BorderLayout.EAST);
 
@@ -167,7 +164,6 @@ public class AchievementPresenterRegistry implements Tickable {
         rightButton.setPreferredSize(new Dimension(50, panelHeight));
 
         updateCarousel(index);
-
         return panel;
     }
 
@@ -220,6 +216,7 @@ public class AchievementPresenterRegistry implements Tickable {
         }
         // Position and add the incoming achievement panel
         if (nextAchievement.getBounds().equals(new Rectangle(0, 0, 0, 0))) {
+            direction.currentX = direction.initialX;
             nextAchievement.setBounds(direction.initialX, 0, panelWidth, panelHeight);
             centrePanel.add(nextAchievement);
         }
@@ -227,8 +224,8 @@ public class AchievementPresenterRegistry implements Tickable {
         leftButton.setEnabled(false);
         rightButton.setEnabled(false);
         // Calculate and set new positions
-        int nextX = (int) nextAchievement.getLocation().getX();
-        int newX = direction.newX(nextX);
+        direction.currentX *= 0.8;
+        int newX = Math.round(direction.currentX);
         currentAchievement.setLocation(newX - direction.initialX, 0);
         nextAchievement.setLocation(newX, 0);
         // Stop if final position reached

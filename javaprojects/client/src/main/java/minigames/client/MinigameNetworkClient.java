@@ -1,5 +1,6 @@
 package minigames.client;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,7 +61,8 @@ public class MinigameNetworkClient {
     Animator animator;
 
     Optional<GameClient> gameClient;
-    NotificationManager notificationManager;
+    NotificationManager systemNotificationManager;
+    NotificationManager dialogNotificationManager;
 
     public MinigameNetworkClient(Vertx vertx) {
         this.vertx = vertx;
@@ -71,7 +73,8 @@ public class MinigameNetworkClient {
         vertx.setPeriodic(16, (id) -> animator.tick());
 
         mainWindow = new MinigameNetworkClientWindow(this);
-        notificationManager = new NotificationManager(this);
+        systemNotificationManager = new NotificationManager(this);
+        dialogNotificationManager = new NotificationManager(this);
         mainWindow.show();
     }
 
@@ -99,8 +102,12 @@ public class MinigameNetworkClient {
     /**
      * Get a reference to the notification manager
      */
-    public NotificationManager getNotificationManager() {
-        return this.notificationManager;
+    public NotificationManager getSystemNotificationManager() {
+        return this.systemNotificationManager;
+    }
+
+    public NotificationManager getDialogNotificationManager() {
+        return this.dialogNotificationManager;
     }
 
     /**
@@ -187,7 +194,7 @@ public class MinigameNetworkClient {
                     //display it in a message dialog in a background thread
                     vertx.executeBlocking(getGameAchievements -> {
                         AchievementPresenterRegistry ac = new AchievementPresenterRegistry(GameAchievementState.fromJSON(resp.bodyAsString()), getAnimator());
-                        ac.showGameAchievements(getMainWindow().getFrame());
+                        ac.showGameAchievements(dialogNotificationManager);
                         getGameAchievements.complete();
                     });
                     logger.info(resp.bodyAsString());
@@ -317,6 +324,11 @@ public class MinigameNetworkClient {
      * the server to get a list of available games.
      */
     public void runMainMenuSequence() {
+        systemNotificationManager.resetToDefaultSettings();
+        dialogNotificationManager.dismissCurrentNotification()
+                .resetToDefaultSettings()
+                .setAlignmentX(Component.CENTER_ALIGNMENT)
+                .setAlignmentY(Component.CENTER_ALIGNMENT);
         mainWindow.showStarfieldMessage("Minigame Network");
 
         ping().flatMap((s) -> getGameServers()).map((list) -> {

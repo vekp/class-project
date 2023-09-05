@@ -271,17 +271,15 @@ public class Battleship implements GameClient, Tickable {
 
         messages.append("Starting...");
 
+        // Apply settings to notifications
+        mnClient.getSystemNotificationManager()
+                .setNotificationArea(mainPanel)
+                .setColours(Color.decode(fgColour), Color.decode(bgColourHover))
+                .setFont(fonts.get(0).getFontName())
+                .setBorder(buttonBorder);
+
         // Don't forget to call pack - it triggers the window to resize and repaint itself
         mnClient.getMainWindow().pack();
-
-        // Apply settings to notifications
-        mnClient.getNotificationManager().setNotificationArea(mainPanel);
-        mnClient.getNotificationManager().setStyling(
-                Color.decode(fgColour),
-                Color.decode(bgColourHover),
-                fonts.get(0).getFontName(),
-                buttonBorder);
-
     }
 
     /**

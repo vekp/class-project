@@ -1,15 +1,10 @@
 package minigames.client.muddletext;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
+import java.awt.*;
 import java.util.Collections;
 
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.*;
+import javax.swing.border.LineBorder;
 
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
@@ -19,7 +14,6 @@ import minigames.commands.CommandPackage;
 
 /**
  * A very simple interface for a text-based game.
- * 
  * It understands three commands:
  * { "command": "clearText" } to clear the contents of the text area
  * { "command": "appendText", "text": text } to add contents to the text area
@@ -110,9 +104,15 @@ public class MuddleText implements GameClient {
 
         textArea.append("Starting...");
 
+        // Notification Manager settings
+        mnClient.getSystemNotificationManager()
+                .setNotificationArea(textArea)
+                .setColours(Color.GREEN, Color.DARK_GRAY)
+                .setFont("Monospaced")
+                .setBorder(new LineBorder(new Color(0, 127, 0)));
+
         // Don't forget to call pack - it triggers the window to resize and repaint itself
         mnClient.getMainWindow().pack();
-        mnClient.getNotificationManager().setMargins(15, 10, 10);
     }
 
     @Override
