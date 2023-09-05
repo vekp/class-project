@@ -85,32 +85,34 @@ public class TelepathyGame {
     public RenderingPackage runCommands(CommandPackage commandPackage) {
         logger.info("Received command package {}", commandPackage);
 
-        // The response that is to be sent back to client
-        RenderingPackage response;
-
-        // The TelepathyCommand used to specify how to handle the package
-        TelepathyCommands command;
-        try {
-            command = TelepathyCommands.valueOf(commandPackage.commands().get(0).getString("command"));
-        } catch (IllegalArgumentException e) {
-            // The command is invalid and handled by the default case - respond with INVALIDCOMMAND
-            throw new TelepathyCommandException(commandPackage.commands().get(0).getString("command"), "Not a defined TelepathyCommands");
-        }
-
-        // Switch case to choose which function to call - default case returns INVALIDCOMMAND
-        switch (command) {
-            case QUIT -> response = quitGame(commandPackage);
-            case SYSTEMQUIT -> response = fullQuitGame(commandPackage);
-            case TOGGLEREADY -> response = toggleReadyState(commandPackage);
-            case REQUESTUPDATE -> response = updateClient(commandPackage);
-            default -> {
-                ArrayList<JsonObject> renderingCommands = new ArrayList<>();
-                renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.INVALIDCOMMAND));
-                response = new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
+        // List of reponse commands generated
+        ArrayList<JsonObject> renderingCommands = new ArrayList<>();
+        for(JsonObject commandObject : commandPackage.commands()){
+            // The TelepathyCommand used to specify how to handle the package
+            TelepathyCommands command;
+            try {
+                command = TelepathyCommands.valueOf(commandObject.getString("command"));
+            } catch (IllegalArgumentException e) {
+                throw new TelepathyCommandException(commandObject.getString("command"), "Not a defined TelepathyCommands");
             }
+
+            // Switch case to choose which function to call
+            switch (command) {
+                case QUIT -> renderingCommands.addAll(quitGame(commandPackage.player()));
+                case SYSTEMQUIT -> renderingCommands.addAll(fullQuitGame(commandPackage.player()));
+                case TOGGLEREADY -> renderingCommands.addAll(toggleReadyState(commandPackage.player()));
+                //case ASKQUESTION -> renderingCommands.addAll(takeQuestion());
+                //case FINALGUESS -> renderingCommands.addAll(takeQuestion()); 
+                case REQUESTUPDATE -> renderingCommands.addAll(updateClient(commandPackage.player()));
+                default -> {
+                    renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.INVALIDCOMMAND));
+                    
+                }
+            }    
         }
 
-        return response;
+        RenderingPackage responsePackage = new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
+        return responsePackage;
     }
 
     /**
@@ -156,21 +158,53 @@ public class TelepathyGame {
         return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
     }
 
+    private ArrayList<JsonObject> takeQuestion(CommandPackage command){
+        ArrayList<JsonObject> renderingCommands = new ArrayList<>();
+        if(this.state != State.RUNNING){
+            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.INVALIDCOMMAND));
+            return renderingCommands;
+        }
+
+        return renderingCommands;
+    }
+
+    /**
+     * Handle player questions.
+     * 
+     * @param commandPackage CommandPackage with ASKQUESTION command value used.
+     * @return RenderingPackage with the result of the question.
+     
+    private RenderingPackage takePlayerQuestion(CommandPackage commandPackage){
+        ArrayList<JsonObject> renderingCommands = new ArrayList<>();
+        
+        return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
+    }
+
+    private ArrayList<JsonObject> takeFinalGuess(CommandPackage commandPackage){
+        ArrayList<JsonObject> renderingCommands = new ArrayList<>();
+        if(this.state != State.RUNNING){
+            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.INVALIDCOMMAND));
+            return renderingCommands;
+        }
+
+        return renderingCommands;
+    }
+    */
+
     /**
      * Called when a player wants to leave the game. The response tells the client to go
      * to the menu screen.
      * 
-     * @param commandPackage CommandPackage received with a QUIT command.
-     * @return RenderingPackage response to send with a QuitToMenu NativeCommand.
+     * @param leavingPlayer: String containing the name of the player leaving the game.
+     * @return renderingCommand response to send with a QuitToMenu NativeCommand.
      */
-    private RenderingPackage quitGame(CommandPackage commandPackage){
+    private ArrayList<JsonObject> quitGame(String leavingPlayer){
         ArrayList<JsonObject> renderingCommands =  new ArrayList<>();
         
-        String leavingPlayer = commandPackage.player();
         playerLeaveGame(leavingPlayer);
 
         renderingCommands.add(new NativeCommands.QuitToMenu().toJson());
-        return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
+        return renderingCommands;
     }
 
     /**
@@ -179,16 +213,64 @@ public class TelepathyGame {
      * instead of the QuitToMenu command prevents the client from hanging in gradlew if the 
      * game window is closed but still correctly removes the player from the game.
      * 
-     * @param commandPackage CommandPackage received with a SYSTEMQUIT command.
+     * @param leavingPlayer: String containing the name of the player leaving the game.
      * @return RenderingPackage response to send with a QUIT command.
      */
-    private RenderingPackage fullQuitGame(CommandPackage commandPackage) {
+    private ArrayList<JsonObject> fullQuitGame(String leavingPlayer) {
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
-        String leavingPlayer = commandPackage.player();
         playerLeaveGame(leavingPlayer);
 
         renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.QUIT));
-        return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
+        return renderingCommands;
+    }
+
+    
+    
+    /**
+     * Get the pending updates for a client that has requested them.
+     * @param playerString: String containing the player's name
+     * @return The RenderingPackage with any renderingCommands to be sent to the client.
+     */
+    private ArrayList<JsonObject> updateClient(String playerString){
+        Player player = this.players.get(playerString);    
+        return player.getUpdates();
+    }
+
+    /**
+     * Handler for TOGGLEREADY CommandPackages. Toggle the player's ready state and respond
+     * back to the client with the current state.
+     * @param playerToToggle: String with the name of the player.
+     * @return RenderingPackage responding with the player's current ready state.
+     */
+    private ArrayList<JsonObject> toggleReadyState(String playerToToggle) {
+        ArrayList<JsonObject> renderingCommands = new ArrayList<>();
+
+        // toggle ready can only occur during game startup
+        if(this.state != State.INITIALISE){
+            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.INVALIDCOMMAND));
+            return renderingCommands;
+        }
+        
+
+        this.players.get(playerToToggle).toggleReady();
+        // Check if all players are ready 
+        boolean allReady = true;
+        for (String player : this.players.keySet()) {
+            if (!this.players.get(player).isReady()) {
+                allReady = false;
+                break;
+            }
+        }
+
+        // Start game if game full and players are ready
+        if (this.players.size() == this.maxPlayers && allReady) { beginGame(); }
+
+        // Make response for client - update their ready button
+        renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.BUTTONUPDATE,
+                "readyButton",
+                String.valueOf(this.players.get(playerToToggle).isReady())));
+
+        return renderingCommands;
     }
 
     /**
@@ -202,54 +284,6 @@ public class TelepathyGame {
         }
     }
     
-    /**
-     * Get the pending updates for a client that has requested them.
-     * @param command CommandPackage with client information
-     * @return The RenderingPackage with any renderingCommands to be sent to the client.
-     */
-    private RenderingPackage updateClient(CommandPackage command){
-        Player player = this.players.get(command.player());
-    
-        ArrayList<JsonObject> renderingCommands = player.getUpdates();
-        return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
-    }
-
-    /**
-     * Handler for TOGGLEREADY CommandPackages. Toggle the player's ready state and respond
-     * back to the client with the current state.
-     * @param commandPackage CommandPackage received from the client containing a TOGGLEREADY command.
-     * @return RenderingPackage responding with the player's current ready state.
-     */
-    private RenderingPackage toggleReadyState(CommandPackage commandPackage) {
-        // toggle ready can only occur during game startup
-        if(this.state != State.INITIALISE){
-            return new RenderingPackage(this.telepathyGameMetadata(), 
-                Collections.singletonList(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.INVALIDCOMMAND)));
-        }
-        
-        this.players.get(commandPackage.player()).toggleReady();
-        
-        // Check if all players are ready 
-        boolean allReady = true;
-        for (String player : this.players.keySet()) {
-            if (!this.players.get(player).isReady()) {
-                allReady = false;
-                break;
-            }
-        }
-        
-        // Start game if game full and players are ready
-        if (this.players.size() == this.maxPlayers && allReady) { beginGame(); }
-
-        // Make response for client - update their ready button
-        ArrayList<JsonObject> renderingCommands = new ArrayList<>();
-        renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.BUTTONUPDATE,
-                "readyButton",
-                String.valueOf(this.players.get(commandPackage.player()).isReady())));
-
-        return new RenderingPackage(this.telepathyGameMetadata(), renderingCommands);
-    }
-
     /**
      * Decide what happens when a player leaves the game. If the game is running and a player
      * leaves then the game is over.

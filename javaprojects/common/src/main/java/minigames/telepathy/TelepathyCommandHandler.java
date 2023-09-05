@@ -10,8 +10,8 @@ import io.vertx.core.json.JsonObject;
  * A series of methods available to help parse and deal with TelepathyCommands
  */
 public class TelepathyCommandHandler {
-    
 
+    
     /**
      * Get a List of the attributes stored in a JsonObject command.
      * @param jsonCommand: The JSON portion of a network package with attributes

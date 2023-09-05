@@ -395,14 +395,14 @@ public class Telepathy implements GameClient, Tickable{
         JButton question = new JButton("Question");
         question.setPreferredSize(new Dimension(20, 40));
         question.addActionListener(e -> {
-            sendCommand(TelepathyCommands.BUTTONPRESS, xyCoords);
+            sendCommand(TelepathyCommands.ASKQUESTION, xyCoords);
             telepathyNotificationManager.dismissCurrentNotification();
         });
 
         JButton finalGuess = new JButton("Final Guess");
         finalGuess.setPreferredSize(new Dimension(20, 40));
         finalGuess.addActionListener(e -> {
-            sendCommand(TelepathyCommands.BUTTONPRESS, xyCoords);
+            sendCommand(TelepathyCommands.FINALGUESS, xyCoords);
             telepathyNotificationManager.dismissCurrentNotification();
         });
 
