@@ -124,6 +124,7 @@ public class Telepathy implements GameClient, Tickable{
             startGame.setEnabled(true);
             int resetButtonCLicks = 0;
             buttonClicks = resetButtonCLicks;
+            clearButtonBackgrounds();
             enableButtonGrid();
             sendCommand(TelepathyCommands.QUIT);
         });
@@ -245,6 +246,19 @@ public class Telepathy implements GameClient, Tickable{
         }
 
     }
+
+
+    /**
+     * a method that clears all selected buttons
+     */
+    public void clearButtonBackgrounds(){
+        for (int row = 0; row < this.buttonGrid.length; row++) {
+            for (int col = 0; col < this.buttonGrid[row].length; col++) {
+                this.buttonGrid[col][row].setBackground(null);
+            }
+        }
+    }
+    
 
 
     /**
