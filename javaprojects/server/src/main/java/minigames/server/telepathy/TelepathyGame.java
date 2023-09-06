@@ -1,52 +1,47 @@
 package minigames.server.telepathy;
 
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.json.JsonArray;
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.NativeCommands;
-import minigames.rendering.RenderingCommand;
 import minigames.rendering.RenderingPackage;
-import minigames.rendering.NativeCommands.QuitToMenu;
 import minigames.telepathy.TelepathyCommandException;
 import minigames.telepathy.TelepathyCommands;
 import minigames.telepathy.TelepathyCommandHandler;
 
-import java.sql.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 
 /**
- * Represents a game of Telepathy that can be played. Stores and manages the current running state
- * of the game by tracking players, board, etc, and deciding how commands received from clients 
- * need to be handled.
+ * Represents a game of Telepathy that can be played. Stores and manages the current 
+ * running state of the game by tracking players, board, state, etc. TelepathyGame 
+ * is responsible for deciding how commands received from clients need to be handled.
  * 
- * Users can create a new game or connect to an existing game using the minigame network interface.  
+ * Settings to be configured for each game of Telepathy are kept as fields in 
+ * TelepathyGame.
+ * 
+ * Users can create a new game or connect to an existing game using the minigame 
+ * network interface.  
  */
 public class TelepathyGame {
 
-    // Logs output
     private static final Logger logger = LogManager.getLogger(TelepathyGame.class);
 
     private String gameName;
     private int maxPlayers;
     private boolean joinable; 
-
-    // Currently connected players
-    private HashMap<String, Player> players = new HashMap<>();
-    
     private State state;
     private String winner;
 
+    private HashMap<String, Player> players = new HashMap<>();
+    
     /**
-     * Constructs a new game of Telepathy with a given name.
+     * Constructs a new game of Telepathy with the specified name. Initialises 
+     * game settings such as max players, joinable and sets the game state to
+     * INITIALISE to begin accepting game commands from the connected players.
      * 
      * @param name: String with the name to use for this game.
      */
@@ -70,23 +65,28 @@ public class TelepathyGame {
     }
 
     /**
-     * Run commands that are sent by clients connected to this game. During handling of the command
-     * a response is generated and returned in a RenderingPackage.
+     * Run the commands that are sent by clients connected to this game. During 
+     * handling of the command a response is generated and returned in a 
+     * RenderingPackage to inform the client of any changes that need to be reflected
+     * in the game interface.
      * 
-     * This game expects packets to begin with a command field that contains a string representing
-     * a TelepathyCommands enum constant. It can then be followed by a list of attributes if any 
-     * other data is required for the execution of the command. The command string determines what 
-     * method to send the package to. 
+     * Telepathy expects packets to begin with a command field that contains a 
+     * string representing a TelepathyCommands enum constant. The command can then 
+     * be followed by a list of attributes if any other data is required for the 
+     * execution of the command.  
+     * 
+     * The command string determines what method to send the package to and how it
+     * is handled. 
      *  
-     * @param commandPackage: The CommmandPackage object to be run. It contains data in a JSON format 
-     *      that the client has sent to this game.
-     * @return A RenderingPackage object containing a response for the client. This response is 
-     *      constructed by the method that handles the CommandPackage. 
+     * @param commandPackage: The CommmandPackage containing commands to be run. 
+     *      It contains data in a JSON format that the client has sent to this game.
+     * @return A RenderingPackage object containing a response for the client. 
+     *      This response is constructed by the method that handles the CommandPackage. 
      */
     public RenderingPackage runCommands(CommandPackage commandPackage) {
         logger.info("Received command package {}", commandPackage);
 
-        // List of reponse commands generated
+        // List of reponse commands to be generated
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         for(JsonObject commandObject : commandPackage.commands()){
             // The TelepathyCommand used to specify how to handle the package
@@ -117,9 +117,10 @@ public class TelepathyGame {
     }
 
     /**
-     * Adds a player to the game and makes up a RenderPackage with instructions for the client.
-     * Before being able to join the name of the player is validated to ensure no problems occur.
-     * Duplicate names or names containing invalid characters are not allowed.
+     * Adds a player to the game and makes up a RenderPackage with instructions 
+     * for the client. Before being able to join the name of the player is validated 
+     * to ensure no problems occur. Duplicate names or names containing invalid characters 
+     * are not allowed.
      * 
      * @param playerName: Name of the player wanting to join.
      * @return RenderingPackage with instructions for the client.
@@ -145,12 +146,15 @@ public class TelepathyGame {
             
             // Extra commands to initialise the client window
             
-            // Initialise ready button colour
-            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.BUTTONUPDATE, "readyButton", String.valueOf(this.players.get(playerName).isReady())));
+            // Initialise ready button state
+            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
+                    TelepathyCommands.BUTTONUPDATE,
+                    "readyButton",
+                    String.valueOf(this.players.get(playerName).isReady())));
 
-            // TODO: Send initial board state - assign Symbols/Colours that are transparent and disabled?
+            // TODO: Send initial board state - assign Symbols/Colours and buttons are disabled?
 
-            // Inform other players
+            // Inform other players a player has joined the game
             for(String p : this.players.keySet()){
                 if (!p.equals(this.gameName)) {this.players.get(p).addUpdate(
                     TelepathyCommandHandler.makeJsonCommand(
@@ -176,14 +180,10 @@ public class TelepathyGame {
      * @param playerName: Name of the player asking the question.
      * @return ArrayList of the commands to be sent back to the client with the response.
      */
-    private ArrayList<JsonObject> takeQuestion(JsonObject commandObject, String playerName){
-        ArrayList<JsonObject> renderingCommands = new ArrayList<>();
-        if(this.state != State.RUNNING){
-            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
-                TelepathyCommands.INVALIDCOMMAND,
-                "Cannot take question. Game not in RUNNING state"));
-            return renderingCommands;
-        }
+    private ArrayList<JsonObject> takeQuestion(JsonObject commandObject, String playerName) {
+        // Check in correct running state to execute command
+        ArrayList<JsonObject> renderingCommands = commandStateCheck(State.RUNNING, "Cannot take question. Game not in RUNNING state");
+        if (renderingCommands.size() > 0) {return renderingCommands;}
 
         TelepathyCommands commandValue = TelepathyCommands.valueOf(commandObject.getString("command"));
         if(commandValue == TelepathyCommands.ASKQUESTION){
@@ -207,13 +207,10 @@ public class TelepathyGame {
      * @param playerName: Name of the player that is selecting their tile.
      * @return RenderingCommands indicating any changes the client needs to render.
      */
-    private ArrayList<JsonObject> chooseTile(JsonObject commandObject, String playerName){
-        ArrayList<JsonObject> renderingCommands = new ArrayList<>();
-        if(this.state != State.TILESELECTION){
-            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
-                TelepathyCommands.INVALIDCOMMAND, 
-                "ERROR: Attempting to choose Tile while in " + State.TILESELECTION + " state."));
-        }
+    private ArrayList<JsonObject> chooseTile(JsonObject commandObject, String playerName) {
+        // Check in correct running state to execute command
+        ArrayList<JsonObject> renderingCommands = commandStateCheck(State.TILESELECTION, "ERROR: Attempting to choose Tile while in " + State.TILESELECTION + " state.");
+        if(renderingCommands.size() > 0){ return renderingCommands; }
         
         // Tile coordinates
         int x = Integer.parseInt(TelepathyCommandHandler.getAttributes(commandObject).get(0));
@@ -241,8 +238,8 @@ public class TelepathyGame {
     }
 
     /**
-     * Called when a player wants to leave the game. The response tells the client to go
-     * to the menu screen.
+     * Called when a player wants to leave the game. The response tells the client 
+     * to go to the menu screen.
      * 
      * @param leavingPlayer: String containing the name of the player leaving the game.
      * @return renderingCommand response to send with a QuitToMenu NativeCommand.
@@ -257,10 +254,11 @@ public class TelepathyGame {
     }
 
     /**
-     * Called when the window of a client is closed while connected to the game. This method
-     * removes the player from the game and then sends back a QUIT command. Sending back QUIT
-     * instead of the QuitToMenu command prevents the client from hanging in gradlew if the 
-     * game window is closed but still correctly removes the player from the game.
+     * Called when the window of a client is closed while connected to the game. 
+     * This method removes the player from the game and then sends back a QUIT 
+     * command. Sending back QUIT instead of the QuitToMenu command prevents the 
+     * client from hanging in gradlew if the game window is closed but still 
+     * correctly removes the player from the game.
      * 
      * @param leavingPlayer: String containing the name of the player leaving the game.
      * @return RenderingPackage response to send with a QUIT command.
@@ -379,7 +377,11 @@ public class TelepathyGame {
      */
     private void transitionToGameOver(){
         // Check for game over conditions
-        // If player leaves while game is running
+        // If player leaves while game is running - check fails then return without going to GAMEOVER
+        if (!(this.state != State.INITIALISE && this.players.size() < this.maxPlayers)) {
+            return;
+        }
+
         // If player gets correct final guess
         // If player gets incorrect final guess
 
@@ -394,13 +396,33 @@ public class TelepathyGame {
     }
 
     /* *********************************
-     * Private helper methods
+     * Helper methods
      * *********************************/
+
+     /**
+      * Perform a check on the current state of the game. Looks to see if TelepathyGame
+      * State is NOT eqaul to the specified value. This is used for checking state
+      * when handling CommandPackages so needs to create a List of JsonObjects to use as
+      * a response.
+      *  
+      * @param state: The state value to check the game state against. 
+      * @param failMessage: Message to add to the INVALIDCOMMAND.
+      * @return A JsonObject that can be used as a Telepathy renderingCommand.
+      */
+     private ArrayList<JsonObject> commandStateCheck(State state, String failMessage) {
+        ArrayList<JsonObject> responseCommands = new ArrayList<>();
+        if (this.state != state) {
+            responseCommands.add(TelepathyCommandHandler.makeJsonCommand(
+                    TelepathyCommands.INVALIDCOMMAND,
+                    failMessage));
+        }
+         return responseCommands;
+    }
 
     /**
      * Used for adding commands to the update queue for all players on the server.
-     * @param renderingCommand The command to add to all players for their next REQUESTUPDATE
-     *      tick.
+     * @param renderingCommand The command to add to all players for their next 
+     *      REQUESTUPDATE tick.
      */
     private void updateAllPlayers(JsonObject renderingCommand){
         for(String player: this.players.keySet()){
@@ -409,19 +431,18 @@ public class TelepathyGame {
     }
     
     /**
-     * Decide what happens when a player leaves the game. If the game is running and a player
-     * leaves then the game is over.
+     * Decide what happens when a player leaves the game. If the game is running 
+     * and a player leaves then the game is over.
      * @param name Name of the player leaving the game.
      */
     private void playerLeaveGame(String name){
         this.players.remove(name);
 
+        // Inform other players of player leaving
         updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.MODIFYPLAYER, name, "leaving"));
 
         // End the game if a player leaves while game is RUNNING
-        if(this.state != State.INITIALISE){
-            transitionToGameOver();
-        }
+        transitionToGameOver();
     }
 
     /**
