@@ -369,7 +369,7 @@ public class NotificationManager implements Tickable {
         }
         // Set font
         Font f = component.getFont();
-        component.setFont(new Font(fontName, f.getStyle(), f.getSize()));
+        if (f != null) component.setFont(new Font(fontName, f.getStyle(), f.getSize()));
         // Recurse
         if (component instanceof Container container) {
             for (Component c : container.getComponents()) {
