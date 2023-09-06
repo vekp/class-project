@@ -262,6 +262,10 @@ public class MazeControl {
             // NB - array[row=y][col=x]
             mazeArray[exitLocation.y][exitLocation.x] ='U';
         }
+        else 
+        {
+            exitUnlocked = false;
+        }
     }
 
 
@@ -290,8 +294,10 @@ public class MazeControl {
         // Pause Timer
         mazeTimer.pauseTimer();
 
-        // increment current level
+        // Increment current level
         currentLevel++;
+        // Set number of keys to unlock exit (level num)
+        numKeysToUnlock = currentLevel;
         // Create new Maze, dependent on current level
         this.mazeArray = createNewMaze(currentLevel);
 
@@ -301,6 +307,13 @@ public class MazeControl {
         bombLocationsList.clear();
         bonusPointsLocationsList.clear();
         keyLocationsList.clear();
+        keyStatus.clear();
+
+        // Reset player's number of keys to zero
+        mazePlayer.resetKeys();
+        int mazePlayerNumKeys = mazePlayer.checkNumberOfKeys();
+        System.out.println("Called resetKeys(), player numKeys = " + mazePlayerNumKeys);
+        logger.info("PlayerKeys reset attempt! numKeys = " + mazePlayer.checkNumberOfKeys()); 
 
         // Set start, key... locations
         set_locations();
@@ -314,24 +327,15 @@ public class MazeControl {
         // Current time taken to update score
         timeTaken = mazeTimer.getSubTotalTime();
 
-        // Re-position player's start location -- this will be problematic for >1 players
-        // Select random location from startLocationsList and calls playerEntersMaze
-        //Random rand = new Random();
-        //int randomStartIndex = rand.nextInt(startLocationsList.size());
-        //playerLocation = startLocationsList.get(randomStartIndex);
+        // Re-position player's start location 
         playerLocation = startLocation;
         playerEntersMaze(playerLocation);
-        // Reset player's number of keys to zero
-
-        mazePlayer.resetKeys();
-        int mazePlayerNumKeys = mazePlayer.checkNumberOfKeys();
-        System.out.println("Called resetKeys(), player numKeys = " + mazePlayerNumKeys);
-        //logger.info("PlayerKeys reset attempt! numKeys = " + mazePlayer.checkNumberOfKeys()); 
         
-
-        } else if (currentLevel == maxLevel) {
+        } 
+        else if (currentLevel == maxLevel) {
             callGameOver();
-        } else {
+        } 
+        else {
             logger.info("New Level conditions were not met!");
         }
     }
