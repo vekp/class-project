@@ -90,6 +90,7 @@ public class AchievementCarousel implements Tickable {
 
         // Update currently displayed achievement
         nextAchievement = apRegistry.achievements.get(index).largeAchievementPanel();
+        apRegistry.dialogManager.applyStyling(nextAchievement);
         animator.requestTick(this);
 
         // Update current position label
@@ -99,16 +100,12 @@ public class AchievementCarousel implements Tickable {
         for (ActionListener al : leftButton.getActionListeners()) leftButton.removeActionListener(al);
         leftButton.addActionListener(e -> {
             direction = Direction.RIGHT;
-            nextAchievement = apRegistry.achievements.get(index - 1).largeAchievementPanel();
-            position = index - 1;
-            updateCarousel(position);
+            updateCarousel(position - 1);
         });
         for (ActionListener al : rightButton.getActionListeners()) rightButton.removeActionListener(al);
         rightButton.addActionListener(e -> {
             direction = Direction.LEFT;
-            nextAchievement = apRegistry.achievements.get(index + 1).largeAchievementPanel();
-            position = index + 1;
-            updateCarousel(position);
+            updateCarousel(position + 1);
         });
 
         // Enable/disable buttons at either end of carousel

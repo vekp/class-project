@@ -86,8 +86,8 @@ public class NotificationManager implements Tickable {
             return this;
         }
         status = Status.MOVING_DOWN;
-        // apply the set border if component does not already have one, or is a JInternalFrame
-        if (component instanceof JInternalFrame || component instanceof JComponent jc && jc.getBorder() != null) {
+        // apply the set border if component does not already have one.
+        if (component instanceof JComponent jc && jc.getBorder() != null) {
             notification = component;
         } else {
             JPanel panel = new JPanel();
@@ -171,8 +171,6 @@ public class NotificationManager implements Tickable {
         al.requestTick(this);
     }
 
-
-
         /**
          * Reset settings to their default values. Default values are: <br>
          * alignmentX       :   Component.RIGHT_ALIGNMENT (1.0f) <br>
@@ -197,7 +195,11 @@ public class NotificationManager implements Tickable {
         setBorder(BorderFactory.createEtchedBorder());
         setApplyColourAndFontStyling(false);
         this.layeredPane = frame.getLayeredPane();
-        if (notification != null && notification.getParent() != layeredPane) layeredPane.add(notification);
+        if (notification != null && notification.getParent() != layeredPane) {
+            layeredPane.add(notification);
+            applyStyling(notification);
+            applyBorder(notification);
+        }
         return this;
     }
 
@@ -219,7 +221,11 @@ public class NotificationManager implements Tickable {
         parent.add(pane, index);
         parent.revalidate();
         this.layeredPane = pane;
-        if (notification != null) pane.add(notification);
+        if (notification != null) {
+            pane.add(notification);
+            applyStyling(notification);
+            applyBorder(notification);
+        }
         return this;
     }
 
@@ -344,13 +350,12 @@ public class NotificationManager implements Tickable {
      * Apply font, foreground and background colours to a Component.
      * If Container, recurse through its children.
      */
-    private void applyStyling(Component component) {
+    public NotificationManager applyStyling(Component component) {
         // Set colours
         component.setForeground(foregroundColor);
         component.setBackground(backgroundColor);
-        if (component instanceof JComponent jc) {
-            jc.setOpaque(true);
-        }
+        if (component instanceof JComponent jc) jc.setOpaque(true);
+        if (component instanceof JButton jb) jb.setBorder(border);
         // Set font
         Font f = component.getFont();
         component.setFont(new Font(fontName, f.getStyle(), f.getSize()));
@@ -360,6 +365,14 @@ public class NotificationManager implements Tickable {
                 applyStyling(c);
             }
         }
+        return this;
+    }
+
+    /**
+     * Apply border to a Component
+     */
+    private void applyBorder(Component component) {
+        if (component instanceof JComponent jc && !(jc instanceof JInternalFrame)) jc.setBorder(border);
     }
 
 }

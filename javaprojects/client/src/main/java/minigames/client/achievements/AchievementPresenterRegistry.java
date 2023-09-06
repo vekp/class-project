@@ -21,6 +21,7 @@ import java.util.List;
 public class AchievementPresenterRegistry {
     final List<AchievementPresenter> achievements = new ArrayList<>();
     private final String gameID;
+    DialogManager dialogManager;
     AchievementCarousel achievementCarousel;
 
     /**
@@ -38,6 +39,7 @@ public class AchievementPresenterRegistry {
      * Create a panel containing a list of achievements
      */
     public JPanel achievementListPanel(DialogManager dialogManager) {
+        this.dialogManager = dialogManager;
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         for (int i = 0; i < achievements.size(); i++) {
@@ -47,7 +49,7 @@ public class AchievementPresenterRegistry {
             achievementPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
             // If achievement is unlocked, add mouse click listener to view it in carousel
             if (ap.isUnlocked) {
-                makeClickable(achievementPanel, i, dialogManager);
+                makeClickable(achievementPanel, i);
             }
             panel.add(achievementPanel);
         }
@@ -59,7 +61,7 @@ public class AchievementPresenterRegistry {
      * @param panel the achievement panel
      * @param index the position in the carousel
      */
-    private void makeClickable(JPanel panel, int index, DialogManager dialogManager) {
+    private void makeClickable(JPanel panel, int index) {
         Border smallEmptyBorder = BorderFactory.createEmptyBorder(4, 4, 4, 4);
         Border mouseOverBorder = BorderFactory.createCompoundBorder(BorderFactory.createCompoundBorder(smallEmptyBorder,
                 BorderFactory.createBevelBorder(BevelBorder.RAISED)), smallEmptyBorder);

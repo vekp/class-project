@@ -106,10 +106,18 @@ public class MuddleText implements GameClient {
 
         // Notification Manager settings
         mnClient.getNotificationManager()
-                .setNotificationArea(textArea)
                 .setColours(Color.GREEN, Color.DARK_GRAY)
                 .setFont("Monospaced")
-                .setBorder(new LineBorder(new Color(0, 127, 0)));
+                .setBorder(new LineBorder(new Color(0, 127, 0)))
+                .setNotificationArea(textArea);
+        mnClient.getDialogManager()
+                .setColours(Color.GREEN, Color.DARK_GRAY)
+                .setFont("Monospaced")
+                .setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(0, 127, 0)),
+                        BorderFactory.createEmptyBorder(5, 15, 5, 15)
+                        )
+                );
 
         // Don't forget to call pack - it triggers the window to resize and repaint itself
         mnClient.getMainWindow().pack();

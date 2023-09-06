@@ -46,7 +46,7 @@ public class DialogManager extends NotificationManager{
     /**
      * Display a message dialog with the given title and Component. Includes an OK button for dismissal.
      */
-    public NotificationManager showMessageDialog(String title, JComponent component, boolean okButtonRequired) {
+    public DialogManager showMessageDialog(String title, JComponent component, boolean okButtonRequired) {
   // Make internal frame with OK button
         JInternalFrame dialog = new JInternalFrame(title, false, true);
         dialog.setLayout(new GridBagLayout());
@@ -86,7 +86,7 @@ public class DialogManager extends NotificationManager{
     /**
      * Call showMessageDialog using given title and component, and default value of true for okButtonRequired.
      */
-    public NotificationManager showMessageDialog(String title, JComponent component) {
+    public DialogManager showMessageDialog(String title, JComponent component) {
         return showMessageDialog(title, component, true);
     }
 
