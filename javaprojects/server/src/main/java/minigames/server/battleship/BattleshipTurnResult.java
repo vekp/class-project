@@ -6,6 +6,7 @@ import java.util.Random;
  * A data structure returned by a battleship player when processing their turn
  *
  * @param successful      whether the turn was successful (e.g. the input was valid)
+ * @param shipHit         whether the input coordinates hit an enemy ship
  * @param playerMessage   the message to display to the player who took this turn
  * @param opponentMessage the message to display in the opponent's log about this result
  */
@@ -20,8 +21,13 @@ public record BattleshipTurnResult(
                 doubleBreak + "To fire at the enemy, enter grid coordinates: (eg, " + "A4)" + inputPending, "");
     }
 
-    public static BattleshipTurnResult invalidInput() {
-        return new BattleshipTurnResult(false, false, "Invalid coordinate. Enter coordinate in the form 'A7'", "");
+    public static BattleshipTurnResult invalidInput(String input) {
+        String message = input.isBlank() ?
+                "\nInput cannot be blank, please enter a coordinate in the form 'A7'" :
+                "\n" + input + " is an invalid entry. Please enter a coordinate in the form 'A7'";
+
+        return new BattleshipTurnResult(false, false,
+                message, "");
     }
 
     //result when the current player hits their target. The player gets a hit success message, the opponent gets a
@@ -90,6 +96,7 @@ public record BattleshipTurnResult(
 
     /**
      * TODO: Finish
+     *
      * @param hitOrMiss
      * @param inputCoordinates
      * @return

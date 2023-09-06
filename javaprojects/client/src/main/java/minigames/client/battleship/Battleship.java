@@ -197,6 +197,7 @@ public class Battleship implements GameClient, Tickable {
         userCommand.setCaretColor(Color.WHITE);
         userCommand.getCaret().setBlinkRate(300);
         userCommand.getCaret().setVisible(true);
+
         userCommand.addActionListener((evt) -> {
             sendCommand(userCommand.getText());  // Send input to server
             userCommand.setText("");             // Clear input field
@@ -429,6 +430,7 @@ public class Battleship implements GameClient, Tickable {
                 .setFont(fonts.get(0).getFontName())
                 .setBorder(buttonBorder);
 
+        userCommand.requestFocus();
         // Don't forget to call pack - it triggers the window to resize and repaint itself
         mnClient.getMainWindow().pack();
     }
@@ -447,7 +449,7 @@ public class Battleship implements GameClient, Tickable {
         // Note that this uses the -> version of case statements, not the : version
         // (which means we don't nead to say "break;" at the end of our cases)
         switch (command.getString("command")) {
-            case "inputAllowable" -> userCommand.setEditable(Boolean.parseBoolean(command.getString("allowed")));
+          //  case "inputAllowable" -> userCommand.setEditable(Boolean.parseBoolean(command.getString("allowed")));
             case "clearText" -> {
                 nauticalText.setText("");
                 targetText.setText("");
@@ -470,6 +472,21 @@ public class Battleship implements GameClient, Tickable {
                 //we only set this messaging on the first instance that we are told our turn is ready
                 waiting = false;
                 userCommand.setEditable(true);
+                userCommand.requestFocus();
+
+                //add a welcome/intro message for the first turn of the game - turn count won't always be sent with
+                //the prepare command
+                if(command.containsKey("turnCount")) {
+                    try {
+                        int turnCount = Integer.parseInt(command.getString("turnCount"));
+                        if (turnCount == 1) {
+                            messages.append("\nWelcome, commander! Type a coordinate to fire at your enemy!");
+                        }
+                    } catch (NumberFormatException e) {
+                        //we won't exit the game if the turn count is wrong, just continue on
+                        System.out.println("Error: Turn count sent was not a number");
+                    }
+                }
 
             }
             case "updateTurnCount" -> {
