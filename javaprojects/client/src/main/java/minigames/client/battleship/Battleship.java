@@ -53,6 +53,7 @@ public class Battleship implements GameClient, Tickable {
     JButton helpButton;
     JLabel title;
     JLabel currentPlayerName;
+    JLabel currentTurn;
     JPanel maps;
     JPanel nauticalMap;
     JTextArea nauticalText;
@@ -121,6 +122,9 @@ public class Battleship implements GameClient, Tickable {
 
         currentPlayerName = new JLabel("Current Player: ");
         currentPlayerName.setFont(fonts.get(3));
+        currentTurn = new JLabel("Turn: ");
+        currentTurn.setFont(fonts.get(3));
+
         gbc.gridwidth = 3;
         gbc.insets = new Insets(5, 5, 0, 0);
         gbc.anchor = GridBagConstraints.FIRST_LINE_START;
@@ -139,6 +143,10 @@ public class Battleship implements GameClient, Tickable {
         gbc.gridx = 1;
         gbc.gridy = 1;
         heading.add(currentPlayerName, gbc);
+        gbc.gridx = 2;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.LINE_END;
+        heading.add(currentTurn, gbc);
         gbc.insets = new Insets(5, 0, 0, 5);
         gbc.anchor = GridBagConstraints.LINE_END;
         gbc.weightx = 0;
@@ -185,7 +193,7 @@ public class Battleship implements GameClient, Tickable {
         terminal.add(commandTerminal, BorderLayout.NORTH);
 
         userCommand = new JTextField();  // User input
-        userCommand.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(Color.decode(bgColourHover),Color.decode(bgColourHover)), "  "));
+        userCommand.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(Color.decode(bgColourHover), Color.decode(bgColourHover)), "  "));
         userCommand.setCaretColor(Color.WHITE);
         userCommand.getCaret().setBlinkRate(300);
         userCommand.getCaret().setVisible(true);
@@ -204,7 +212,8 @@ public class Battleship implements GameClient, Tickable {
         mainPanel.add(terminal);
 
         // Set colours for all components
-        for (Component c : new Component[]{mainPanel, heading, title, currentPlayerName, nauticalMap, nauticalText,
+        for (Component c : new Component[]{mainPanel, heading, title, currentPlayerName, currentTurn, nauticalMap,
+                nauticalText,
                 targetMap, targetText, maps, messages, commandTerminal, userCommand, menuButton, achievementButton,
                 helpButton}) {
             c.setForeground(Color.decode(fgColour));
@@ -231,7 +240,7 @@ public class Battleship implements GameClient, Tickable {
 
         JTextArea description = new JTextArea("""
                 -----------------------------------------------------------
-                
+                                
                    Grid Characters:
                      Ocean             ---   ~
                      Ship Hull Parts   ---   < > ^ v 0
@@ -244,14 +253,14 @@ public class Battleship implements GameClient, Tickable {
                      Input to the terminal -> "A7"
                      
                 -----------------------------------------------------------
-                
+                                
                    Move Ships:
                      Ships can only be moved before starting a game by
                      pressing 'tab' to cycle selected vessel, 'space' to
                      rotate, and arrow keys to move the selected vessel.
-                
+                                
                 -----------------------------------------------------------
-                
+                                
                    Ship Classes:
                      
                      Class:  "Carrier"
@@ -274,9 +283,9 @@ public class Battleship implements GameClient, Tickable {
                      Size: 3
                      Schematic:  < 0 >
                      
-                
+                                
                 -----------------------------------------------------------
-                
+                                
                    How to Play?
                    
                      Battleship is a 2 person game where each player has
@@ -297,7 +306,7 @@ public class Battleship implements GameClient, Tickable {
                           
                      Be the first to destroy all the enemy's ships to
                      claim victory!
-                
+                                
                 -----------------------------------------------------------
                   
                    Think you know it all? Get strategising and become the
@@ -318,7 +327,6 @@ public class Battleship implements GameClient, Tickable {
         content.setPreferredSize(new Dimension(650, 400));
         content.setWheelScrollingEnabled(true);
         content.setBorder(null);
-
 
 
         panel.add(title, gbc);
@@ -464,9 +472,17 @@ public class Battleship implements GameClient, Tickable {
                 userCommand.setEditable(true);
 
             }
+            case "updateTurnCount" -> {
+                String turnCount = command.getString("turnCount");
+                //add some leading zeroes, so we have 3 digit turn counts - keeps alignment nice during the whole game
+                String leadingZeroes = turnCount.length() == 2 ? "0" : turnCount.length() == 1 ? "00" : "";
+                currentTurn.setText("Turn: " + leadingZeroes + turnCount + " ");
+            }
+            case "turnCountGameStart" -> currentTurn.setText("Turn: " + command.getString("turnCount") + " ");
             case "updatePlayerName" -> currentPlayerName.setText("Current Player: " + command.getString("player"));
             case "placePlayer1Board" -> nauticalText.setText(nauticalText.getText() + command.getString("text"));
             case "placePlayer2Board" -> targetText.setText(targetText.getText() + command.getString("text"));
+
         }
     }
 
@@ -486,8 +502,9 @@ public class Battleship implements GameClient, Tickable {
      * This client will constantly tick at some interval. If we're in the waiting state (e.g waiting for another
      * player to take their turn), we will ask the server for updates in order to get any messages or info about the
      * players turn, and also to be notified when it is now our turn.
-     * @param al the animator
-     * @param now current time
+     *
+     * @param al    the animator
+     * @param now   current time
      * @param delta delta time (time since last tick)
      */
     @Override
@@ -496,7 +513,7 @@ public class Battleship implements GameClient, Tickable {
         tickTimer++;
         if (tickTimer > tickInterval) {
             tickTimer = 0;
-            if(waiting) {
+            if (waiting) {
                 sendCommand("refresh");
             }
         }

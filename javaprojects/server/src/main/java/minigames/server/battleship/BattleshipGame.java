@@ -1,5 +1,6 @@
 package minigames.server.battleship;
 
+import java.security.PublicKey;
 import java.util.*;
 
 import minigames.server.achievements.AchievementHandler;
@@ -32,7 +33,8 @@ public class BattleshipGame {
     LinkedHashMap<String, BattleshipPlayer> bPlayers = new LinkedHashMap<>();
     String activePlayer;    //the player whose turn it currently is
     String opponentPlayer; //the opponent player (not their turn yet)
-    int gameTurn = 0;
+    int gameTurn = 1; //game starts at turn 1, and increments every time 2 players have both taken their turns
+    int turnSwitchCounter = 0; //counter to help increment the game turn every 2nd player switch
     static final String player = "Nautical Map";
     static final String enemy = "Target Map";
     static String welcomeMessage = """
@@ -272,6 +274,9 @@ public class BattleshipGame {
         renderingCommands.add(new JsonObject()
                 .put("command", "placePlayer2Board")
                 .put("text", Board.showEnemyBoard(enemy, opponent.getBoard().getGrid())));
+        renderingCommands.add(new JsonObject()
+                .put("command", "updateTurnCount")
+                .put("turnCount", gameTurn));
         return renderingCommands;
     }
 
@@ -279,6 +284,10 @@ public class BattleshipGame {
      * Helper function to swap turns to the other player
      */
     void SwapTurns() {
+        //every 2nd swap, we will have completed 2 player turns, so increment the game turn number
+        gameTurn += turnSwitchCounter % 2;
+        turnSwitchCounter++;
+
         String temp = activePlayer;
         activePlayer = opponentPlayer;
         opponentPlayer = temp;
@@ -298,7 +307,8 @@ public class BattleshipGame {
         renderingCommands.add(new LoadClient("Battleship", "Battleship", gameName, playerName).toJson());
         renderingCommands.add(new JsonObject().put("command", "clearText"));
         renderingCommands.add(new JsonObject().put("command", "updateHistory").put("history", welcomeMessage));
-        renderingCommands.add(new JsonObject().put("command", "updatePlayerName").put("player", "- Place Ships -"));
+        renderingCommands.add(new JsonObject().put("command", "updatePlayerName").put("player", playerName));
+        renderingCommands.add(new JsonObject().put("command", "turnCountGameStart").put("turnCount", "- Place Ships -"));
 
         // Don't allow a player to join if the player's name is already taken
         if (bPlayers.containsKey(playerName)) {
