@@ -11,6 +11,7 @@ import minigames.achievements.GameAchievementState;
 import minigames.achievements.PlayerAchievementRecord;
 import minigames.client.achievements.AchievementPresenterRegistry;
 import minigames.client.achievements.AchievementUI;
+import minigames.client.notifications.DialogManager;
 import minigames.client.notifications.NotificationManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -61,8 +62,8 @@ public class MinigameNetworkClient {
     Animator animator;
 
     Optional<GameClient> gameClient;
-    NotificationManager systemNotificationManager;
-    NotificationManager dialogNotificationManager;
+    NotificationManager notificationManager;
+    DialogManager dialogManager;
 
     public MinigameNetworkClient(Vertx vertx) {
         this.vertx = vertx;
@@ -73,8 +74,8 @@ public class MinigameNetworkClient {
         vertx.setPeriodic(16, (id) -> animator.tick());
 
         mainWindow = new MinigameNetworkClientWindow(this);
-        systemNotificationManager = new NotificationManager(this);
-        dialogNotificationManager = new NotificationManager(this);
+        notificationManager = new NotificationManager(this);
+        dialogManager = new DialogManager(this);
         mainWindow.show();
     }
 
@@ -100,14 +101,17 @@ public class MinigameNetworkClient {
     }
 
     /**
-     * Get a reference to the notification manager
+     * Getter for system NotificationManager. Intended for system notifications in the top right corner of the frame.
      */
-    public NotificationManager getSystemNotificationManager() {
-        return this.systemNotificationManager;
+    public NotificationManager getNotificationManager() {
+        return this.notificationManager;
     }
 
-    public NotificationManager getDialogNotificationManager() {
-        return this.dialogNotificationManager;
+    /**
+     * Getter for dialog NotificationManager. Intended for dialogs in the centre of the frame.
+     */
+    public DialogManager getDialogManager() {
+        return this.dialogManager;
     }
 
     /**
@@ -194,7 +198,7 @@ public class MinigameNetworkClient {
                     //display it in a message dialog in a background thread
                     vertx.executeBlocking(getGameAchievements -> {
                         AchievementPresenterRegistry ac = new AchievementPresenterRegistry(GameAchievementState.fromJSON(resp.bodyAsString()), getAnimator());
-                        ac.showGameAchievements(dialogNotificationManager);
+                        ac.showGameAchievements(dialogManager);
                         getGameAchievements.complete();
                     });
                     logger.info(resp.bodyAsString());
@@ -324,11 +328,9 @@ public class MinigameNetworkClient {
      * the server to get a list of available games.
      */
     public void runMainMenuSequence() {
-        systemNotificationManager.resetToDefaultSettings();
-        dialogNotificationManager.dismissCurrentNotification()
-                .resetToDefaultSettings()
-                .setAlignmentX(Component.CENTER_ALIGNMENT)
-                .setAlignmentY(Component.CENTER_ALIGNMENT);
+        notificationManager.resetToDefaultSettings();
+        dialogManager.dismissCurrentNotification()
+                .resetToDefaultSettings();
         mainWindow.showStarfieldMessage("Minigame Network");
 
         ping().flatMap((s) -> getGameServers()).map((list) -> {

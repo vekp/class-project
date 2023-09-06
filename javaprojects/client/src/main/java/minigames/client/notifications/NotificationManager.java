@@ -69,7 +69,7 @@ public class NotificationManager implements Tickable {
      * of the frame, pauses, and slides back up off the frame.
      * @param component the Component to display
      */
-    public NotificationManager showNotification (Component component) {
+    public NotificationManager showNotification(Component component) {
         return showNotification(component, true);
     }
 
@@ -106,8 +106,7 @@ public class NotificationManager implements Tickable {
                 }
             });
         }
-        // get panel dimensions
-        // Notification panel dimensions
+        // Notification dimensions
         int notificationWidth = (int) notification.getPreferredSize().getWidth();
         notificationHeight = (int) notification.getPreferredSize().getHeight();
         // calculate start position
@@ -172,65 +171,7 @@ public class NotificationManager implements Tickable {
         al.requestTick(this);
     }
 
-    /**
-     * Display a message dialog with the given title and Component,
-     * after clearing notification queue and current notification.
-     * Includes an OK button for dismissal.
-     * Recommended only to use with your own instance of NotificationManager.
-     */
-    public NotificationManager showMessageDialog(String title, JComponent component, boolean okButtonRequired) {
-        clearNotificationQueue();
-        dismissCurrentNotification();
-        // Store current settings, store function to dismiss notification and restore settings
-        int prevDisplayTime = displayTime;
-        Runnable closeOperation = () -> {
-            dismissCurrentNotification();
-            setDisplayTime(prevDisplayTime);
-        };
-        // Make internal frame with OK button
-        JInternalFrame dialog = new JInternalFrame(title, false, true);
-        dialog.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.insets = new Insets(10, 20, 10, 20);
-        gbc.gridy = GridBagConstraints.RELATIVE;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        dialog.add(component, gbc);
-        // OK button to dismiss the panel and restore previous settings
-        JButton okButton = null;
-        if (okButtonRequired) {
-            okButton = new JButton("OK");
-            gbc.anchor = GridBagConstraints.EAST;
-            gbc.fill = GridBagConstraints.NONE;
-            gbc.insets = new Insets(0, 20, 10, 20);
-            dialog.add(okButton, gbc);
-            okButton.addActionListener(e -> closeOperation.run());
-        }
-        // Set close operation
-        dialog.setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
-        dialog.addInternalFrameListener(new InternalFrameAdapter() {
-            @Override
-            public void internalFrameClosing(InternalFrameEvent e) {
-                closeOperation.run();
-            }
-        });
-        // Disable repositioning
-        for (MouseMotionListener mml : dialog.getMouseMotionListeners()) dialog.removeMouseMotionListener(mml);
-        // Disable auto dismissal
-        setDisplayTime(0);
-        // Show the panel
-        dialog.setVisible(true);
-        showNotification(dialog, false);
-        if (okButtonRequired) okButton.requestFocusInWindow();
-        return this;
-    }
 
-    /**
-     * Call showMessageDialog using given title and component, and default value of true for okButtonRequired.
-     */
-    public NotificationManager showMessageDialog(String title, JComponent component) {
-        return showMessageDialog(title, component, true);
-    }
 
         /**
          * Reset settings to their default values. Default values are: <br>

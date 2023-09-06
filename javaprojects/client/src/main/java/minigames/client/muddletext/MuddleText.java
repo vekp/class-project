@@ -105,7 +105,7 @@ public class MuddleText implements GameClient {
         textArea.append("Starting...");
 
         // Notification Manager settings
-        mnClient.getSystemNotificationManager()
+        mnClient.getNotificationManager()
                 .setNotificationArea(textArea)
                 .setColours(Color.GREEN, Color.DARK_GRAY)
                 .setFont("Monospaced")

@@ -3,6 +3,7 @@ package minigames.client.achievements;
 import minigames.achievements.Achievement;
 import minigames.achievements.GameAchievementState;
 import minigames.client.Animator;
+import minigames.client.notifications.DialogManager;
 import minigames.client.notifications.NotificationManager;
 
 import javax.swing.*;
@@ -36,7 +37,7 @@ public class AchievementPresenterRegistry {
     /**
      * Create a panel containing a list of achievements
      */
-    public JPanel achievementListPanel(NotificationManager notificationManager) {
+    public JPanel achievementListPanel(DialogManager dialogManager) {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         for (int i = 0; i < achievements.size(); i++) {
@@ -46,7 +47,7 @@ public class AchievementPresenterRegistry {
             achievementPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
             // If achievement is unlocked, add mouse click listener to view it in carousel
             if (ap.isUnlocked) {
-                makeClickable(achievementPanel, i, notificationManager);
+                makeClickable(achievementPanel, i, dialogManager);
             }
             panel.add(achievementPanel);
         }
@@ -58,7 +59,7 @@ public class AchievementPresenterRegistry {
      * @param panel the achievement panel
      * @param index the position in the carousel
      */
-    private void makeClickable(JPanel panel, int index, NotificationManager notificationManager) {
+    private void makeClickable(JPanel panel, int index, DialogManager dialogManager) {
         Border smallEmptyBorder = BorderFactory.createEmptyBorder(4, 4, 4, 4);
         Border mouseOverBorder = BorderFactory.createCompoundBorder(BorderFactory.createCompoundBorder(smallEmptyBorder,
                 BorderFactory.createBevelBorder(BevelBorder.RAISED)), smallEmptyBorder);
@@ -67,8 +68,8 @@ public class AchievementPresenterRegistry {
         panel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (notificationManager != null) {
-                    notificationManager.showMessageDialog(gameID + " achievements", achievementCarousel.achievementCarouselPanel(index));
+                if (dialogManager != null) {
+                    dialogManager.showMessageDialog(gameID + " achievements", achievementCarousel.achievementCarouselPanel(index));
                 } else {
                     JOptionPane.showMessageDialog(panel.getTopLevelAncestor(),achievementCarousel.achievementCarouselPanel(index),
                             gameID + " achievements", JOptionPane.PLAIN_MESSAGE);
@@ -95,8 +96,8 @@ public class AchievementPresenterRegistry {
      * Display the player's achievements for the current game in a scroll pane message dialog using the
      * given NotificationManager
      */
-    public void showGameAchievements(NotificationManager notificationManager) {
-        JScrollPane scrollPane = AchievementUI.generateScrollPane(achievementListPanel(notificationManager));
+    public void showGameAchievements(DialogManager dialogManager) {
+        JScrollPane scrollPane = AchievementUI.generateScrollPane(achievementListPanel(dialogManager));
         // Set pane size to fit inside frame
         scrollPane.setPreferredSize(new Dimension(
             Math.min(700, scrollPane.getPreferredSize().width + 20), // add some padding on the right
@@ -105,6 +106,6 @@ public class AchievementPresenterRegistry {
         );
         scrollPane.getVerticalScrollBar().setUnitIncrement(5);
         scrollPane.setBorder(null);
-        notificationManager.showMessageDialog(gameID + " achievements", scrollPane);
+        dialogManager.showMessageDialog(gameID + " achievements", scrollPane);
     }
 }
