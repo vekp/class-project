@@ -98,7 +98,8 @@ public class SpaceMazeGame {
                         playerLives = player.getLives();
                         if (playerLives > 0) {
                             renderingCommands.add(new JsonObject().put("command", "playerLives")
-                                    .put("lives", playerLives));
+                                    .put("lives", playerLives)
+                                    .put("interactiveResponse", InteractiveResponses.BOTS_COLLISION.toString()));
                         } else {
                             String playerScoreString = String.valueOf(player.getPlayerScore());
                             int time = mazeControl.timeTaken;
@@ -127,7 +128,8 @@ public class SpaceMazeGame {
                             .put("command", "firstLevel")
                             .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()))
                             .put("botStartLocations", mazeControl.getBotStartLocations())
-                            .put("playerLives", player.getLives());
+                            .put("playerLives", player.getLives())
+                            .put("interactiveResponse", InteractiveResponses.GAME_STARTED.toString());
                     renderingCommands.add(serializedMazeArray);
                 }
                 case "onExit" -> {
@@ -140,7 +142,8 @@ public class SpaceMazeGame {
                                 .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()))
                                 .put("botStartLocations", mazeControl.getBotStartLocations())
                                 .put("totalScore", playerScoreString)
-                                .put("level", Integer.toString(mazeControl.getCurrentLevel()));
+                                .put("level", Integer.toString(mazeControl.getCurrentLevel()))
+                                .put("interactiveResponse", InteractiveResponses.NEW_LEVEL.toString());
                         renderingCommands.add(serializedMazeArray);
                     } else {
                         int time = mazeControl.timeTaken;

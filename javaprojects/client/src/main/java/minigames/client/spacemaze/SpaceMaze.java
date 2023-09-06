@@ -397,6 +397,7 @@ public class SpaceMaze implements GameClient {
             case "startGame" -> sendCommand("requestGame");
             case "firstLevel" -> {
                 stopTimer();
+                String interactiveResponse = command.getString("interactiveResponse");
                 JsonArray serialisedArray = command.getJsonArray("mazeArray");
                 // Get bot start locations
                 JsonArray botStartLocations = command.getJsonArray("botStartLocations");
@@ -405,11 +406,13 @@ public class SpaceMaze implements GameClient {
                     // Only call this once, or we get multiple timer tasks running
                     loadMaze(serialisedArray, botStartLocations);
                     statusBar.updatePlayerLives(playerLives);
+                    statusBar.setInteractiveText(interactiveResponse);
                 }
 
             }
             case "nextLevel" -> {
                 JsonArray serialisedArray = command.getJsonArray("mazeArray");
+                String interactiveResponse = command.getString("interactiveResponse");
                 JsonArray botStartLocations = command.getJsonArray("botStartLocations");
                 if (!serialisedArray.isEmpty()) {
                     List<String> mazeList = serialisedArray.getList();
@@ -422,6 +425,7 @@ public class SpaceMaze implements GameClient {
                 statusBar.updateScore(totalScore);
                 String levelNumber = command.getString("level");
                 statusBar.updateLevel(levelNumber);
+                statusBar.setInteractiveText(interactiveResponse);
             }
             case "updateMaze" -> {
                 JsonArray serialisedArray = command.getJsonArray("mazeArray");
@@ -452,13 +456,14 @@ public class SpaceMaze implements GameClient {
                 maze.stopTimer();
                 displayGameOver(totalScore, totalTime);
             }
-            // TODO: Niraj updated player lives to be sent to statusBar
             // Up to you if you want to take the String or the Int
             case "playerLives" -> {
                 String playerLives = command.getString("lives");
+                String interactiveResponse = command.getString("interactiveResponse");
                 try {
                     int livesRemaining = Integer.parseInt(playerLives);
                     statusBar.updatePlayerLives(livesRemaining);
+                    statusBar.setInteractiveText(interactiveResponse);
                     logger.info("Player lives remaining: " + livesRemaining);
                 } catch (NumberFormatException e) {
                     logger.error("Cannot convert playerLives to Integer");
