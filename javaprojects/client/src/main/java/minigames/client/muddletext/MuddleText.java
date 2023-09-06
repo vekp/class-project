@@ -105,13 +105,14 @@ public class MuddleText implements GameClient {
         textArea.append("Starting...");
 
         // Notification Manager settings
+        Color bgColor = new Color(32, 32, 32);
         mnClient.getNotificationManager()
-                .setColours(Color.GREEN, Color.DARK_GRAY)
+                .setColours(Color.GREEN, bgColor, Color.DARK_GRAY)
                 .setFont("Monospaced")
                 .setBorder(new LineBorder(new Color(0, 127, 0)))
                 .setNotificationArea(textArea);
         mnClient.getDialogManager()
-                .setColours(Color.GREEN, Color.DARK_GRAY)
+                .setColours(Color.GREEN, bgColor, Color.DARK_GRAY)
                 .setFont("Monospaced")
                 .setBorder(BorderFactory.createCompoundBorder(
                         BorderFactory.createLineBorder(new Color(0, 127, 0)),

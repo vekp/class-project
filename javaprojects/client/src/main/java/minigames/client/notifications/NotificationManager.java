@@ -6,12 +6,9 @@ import minigames.client.Tickable;
 
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
@@ -41,8 +38,7 @@ public class NotificationManager implements Tickable {
     // Timer starts when notification is fully displayed
     private long startTime;
     private boolean applyColourAndFontStyling;
-    private Color backgroundColor;
-    private Color foregroundColor;
+    private Color backgroundColour, foregroundColour, hoverColour;
     private String fontName;
     private Border border;
 
@@ -190,7 +186,7 @@ public class NotificationManager implements Tickable {
         setMargins(new Insets(5, 5, 5, 5));
         // Dummy panel for getting system default colours and font
         JPanel defaultPanel = new JPanel();
-        setColours(defaultPanel.getForeground(), defaultPanel.getBackground());
+        setColours(defaultPanel.getForeground(), defaultPanel.getBackground(), null);
         setFont(defaultPanel.getFont().getFontName());
         setBorder(BorderFactory.createEtchedBorder());
         setApplyColourAndFontStyling(false);
@@ -312,9 +308,10 @@ public class NotificationManager implements Tickable {
     /**
      * Set the colours to be applied to notifications
      */
-    public NotificationManager setColours(Color foregroundColour, Color backgroundColour) {
-        this.foregroundColor = foregroundColour;
-        this.backgroundColor = backgroundColour;
+    public NotificationManager setColours(Color foregroundColour, Color backgroundColour, Color hoverColour) {
+        this.foregroundColour = foregroundColour;
+        this.backgroundColour = backgroundColour;
+        this.hoverColour = hoverColour;
         setApplyColourAndFontStyling(true);
         return this;
     }
@@ -340,7 +337,8 @@ public class NotificationManager implements Tickable {
      * Set styling for foreground/background colours, font and border based on a component.
      */
     public NotificationManager setStyling(Component component) {
-        setColours(component.getForeground(), component.getBackground());
+        this.foregroundColour = component.getForeground();
+        this.backgroundColour = component.getBackground();
         setFont(component.getFont().getFontName());
         if (component instanceof JComponent jc) setBorder(jc.getBorder());
         return this;
@@ -352,10 +350,23 @@ public class NotificationManager implements Tickable {
      */
     public NotificationManager applyStyling(Component component) {
         // Set colours
-        component.setForeground(foregroundColor);
-        component.setBackground(backgroundColor);
-        if (component instanceof JComponent jc) jc.setOpaque(true);
-        if (component instanceof JButton jb) jb.setBorder(border);
+        component.setForeground(foregroundColour);
+        component.setBackground(backgroundColour);
+        // Set border for buttons
+        if (component instanceof JButton jb) {
+            jb.setOpaque(true);
+            jb.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    jb.setBackground(backgroundColour);
+                }
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    jb.setBackground(hoverColour);
+                }
+            });
+            jb.setBorder(border);
+        }
         // Set font
         Font f = component.getFont();
         component.setFont(new Font(fontName, f.getStyle(), f.getSize()));
