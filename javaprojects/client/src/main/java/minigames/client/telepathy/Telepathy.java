@@ -140,10 +140,10 @@ public class Telepathy implements GameClient, Tickable{
         // Button to start game
        startGame = new JButton("Start a Game!");
        startGame.setPreferredSize(new Dimension(20, 40));
-        startGame.addActionListener(e -> {
-            activateWelcomeMessage();
-            startGame.setEnabled(false);
-        });
+        //startGame.addActionListener(e -> {
+            //activateWelcomeMessage();
+          //  startGame.setEnabled(false);
+        //});
    
         // panel to display buttons
         JPanel buttonPanel = new JPanel();
@@ -626,10 +626,31 @@ public class Telepathy implements GameClient, Tickable{
         // Handle TelepathyCommands
         switch(command){
             case QUIT -> closeGame();
+            case POPUP -> handlePopupCommand(jsonCommand);
             case GAMEOVER -> sendCommand(TelepathyCommands.QUIT);
             case BUTTONUPDATE -> updateButton(jsonCommand);
             default -> logger.info("{} not handled", jsonCommand);
         }
+    }
+
+    /**
+     * Take POPUP renderingCommands from the server and trigger the correct popup
+     * based on attribute values.
+     * @param commandPackage: The POPUP command with a popup attribute to be triggered.
+     */
+    private void handlePopupCommand(JsonObject commandPackage){
+        ArrayList<String> popups = TelepathyCommandHandler.getAttributes(commandPackage);
+
+        // First attribute is the identifier for popup
+        if (popups.get(0).equals("welcomeMessage")) {
+            activateWelcomeMessage();
+        }
+        
+        if (popups.get(0).equals("tileSelect")) {
+            // Use welcome message as a placeholder for future popups
+            activateWelcomeMessage();
+        }
+        
     }
 
     /**

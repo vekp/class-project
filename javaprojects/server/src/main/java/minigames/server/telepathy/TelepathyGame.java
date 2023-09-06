@@ -144,13 +144,16 @@ public class TelepathyGame {
             renderingCommands
                     .add(new NativeCommands.LoadClient("Telepathy", "Telepathy", this.gameName, playerName).toJson());
             
-            // Extra commands to initialise the client window
-            
-            // Initialise ready button state
+
+            // Initialise the client
             renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
                     TelepathyCommands.BUTTONUPDATE,
                     "readyButton",
                     String.valueOf(this.players.get(playerName).isReady())));
+
+            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
+                    TelepathyCommands.POPUP,
+                    "welcomeMessage"));
 
             // TODO: Send initial board state - assign Symbols/Colours and buttons are disabled?
 
@@ -335,10 +338,10 @@ public class TelepathyGame {
         this.state = State.TILESELECTION;
         this.joinable = false;
 
-        // Send game start message
+        // Trigger 
         updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(
             TelepathyCommands.POPUP,
-            "Game is starting! Choose your tile..."));
+            "tileSelect"));
         
         // TODO: enable the game board
     }
@@ -363,7 +366,7 @@ public class TelepathyGame {
 
         this.state = State.RUNNING;
         updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(
-            TelepathyCommands.POPUP, "Tiles are selected. It is not player 1's turn"));
+            TelepathyCommands.POPUP, "gameRunning"));
     }
 
     /**
@@ -388,6 +391,8 @@ public class TelepathyGame {
         logger.info("\n\n*******Game has ended!*********\n");
 
         this.state = State.GAMEOVER;
+
+        // 
         for(String p : this.players.keySet()){
             this.players.get(p).addUpdate(TelepathyCommandHandler.makeJsonCommand(
                 TelepathyCommands.GAMEOVER, 

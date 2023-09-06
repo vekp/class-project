@@ -59,6 +59,7 @@ public enum TelepathyCommands {
             case BUTTONUPDATE -> "BUTTONUPDATE";
             case REQUESTUPDATE -> "REQUESTUPDATE";
             case NOUPDATE -> "NOUPDATE";
+            case GAMESTART -> "GAMESTART";
             case GAMEOVER -> "GAMEOVER";
             case QUIT -> "QUIT";
             case SYSTEMQUIT -> "SYSTEMQUIT";
