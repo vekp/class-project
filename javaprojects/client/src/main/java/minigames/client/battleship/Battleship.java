@@ -23,7 +23,7 @@ public class Battleship implements GameClient, Tickable {
 
     // Needed for sending commands to the server
     MinigameNetworkClient mnClient;
-    int tickInterval = 60;
+    int tickInterval = 180;
     int tickTimer = 0;
 
     GameMetadata gm;
@@ -240,6 +240,9 @@ public class Battleship implements GameClient, Tickable {
      */
     public void sendCommand(String command) {
         if (isQuitting) return;
+        //reset the tick timer here so that there is a delay before the client sends new commands (mostly the
+        //refresh command - allows players to read and process the newly rendered window before anything else happens)
+        tickTimer = 0;
         JsonObject json = new JsonObject().put("command", command);
 
         // Collections.singletonList() is a quick way of getting a "list of one item"
@@ -318,7 +321,6 @@ public class Battleship implements GameClient, Tickable {
             case "prepareTurn" -> {
                 //we only set this messaging on the first instance that we are told our turn is ready
                 waiting = false;
-              //  messages.append("\nIt is now your turn! Type in a coordinate");
                 userCommand.setEditable(true);
 
             }

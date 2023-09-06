@@ -82,6 +82,7 @@ public record BattleshipTurnResult(
         String message = getRandomMessage(hitOrMiss ? playerHitMessages : playerMissMessages);
         return lineBreak
                 + message
+                + " "
                 + incoming;
     }
 

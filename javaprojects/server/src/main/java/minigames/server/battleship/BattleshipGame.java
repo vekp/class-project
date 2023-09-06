@@ -169,26 +169,33 @@ public class BattleshipGame {
                 BattleshipPlayer current = bPlayers.get(activePlayer);
                 BattleshipPlayer opponent = bPlayers.get(opponentPlayer);
 
-                //No gameplay is progressed unless it is this players turn.
-                if (!Objects.equals(current.getName(), cp.player())) {
-                    return new RenderingPackage(gameMetadata(), commands);
-                }
 
-                //the refresh command is only sent by currently waiting clients
-                if (userInput.equals("refresh")) {
-                    //if we got past the above check, it is now this player's turn, inform them to switch to a
-                    //prepare turn state
-                    //todo need to implement the global turn counter. If this is turn 1 or 2, it will be the first
-                    // turn for this player - so we should add the FirstInstruction() turn result message to the
-                    // player's history here
-
-                    //if (turn <=2) current.updateHistory(BattleShipTurnResult.firstInstruction().playerMessage());
-                    commands.addAll(getGameRender(current, opponent));
-                    commands.add(new JsonObject().put("command", "prepareTurn"));
+                if (Objects.equals(current.getName(), cp.player())) {
+                    //On this users turn, we process any non-refresh commands as an input coordinate
+                    if (!userInput.equals("refresh")) {
+                        commands = runGameCommand(current, opponent, userInput);
+                    } else {
+                        //if this was a refresh command, we tell the player it is now their turn and they can
+                        //send coordinates over
+                        commands.addAll(getGameRender(current, opponent));
+                        commands.add(new JsonObject().put("command", "prepareTurn"));
+                    }
                 } else {
-                    //if this was not a refresh request, we assume it's an input, so we can process the player's turn
-                    commands = runGameCommand(current, opponent, userInput);
+                    //if it is not this player's turn, but the opponent is an AI, we do the opponents turn and
+                    //send the result
+                    if (current.isAIControlled()) {
+                        BattleshipTurnResult AIResult = current.processAITurn(opponent.getBoard());
+                        opponent.updateHistory(AIResult.opponentMessage());
+                        SwapTurns();
+                        //current and opponent need to be swapped here, because 'opponent' is actually our player
+                        //during the AI's turn
+                        commands.addAll(getGameRender(opponent, current));
+                        //since it is now the player's turn, they can immediately prepare to take input
+                        commands.add(new JsonObject().put("command", "prepareTurn"));
+                    }
+                    //no other commands run here, player will continue waiting until their turn
                 }
+
                 return new RenderingPackage(gameMetadata(), commands);
             }
             case GAME_OVER -> {
@@ -203,8 +210,8 @@ public class BattleshipGame {
      * Function called during gameplay for the current turn's player. Processes the player's input and
      * returns a shot result
      *
-     * @param currentPlayer         the current player whose turn we wish to process
-     * @param userInput the user input that client entered (should be a shot coordinate)
+     * @param currentPlayer the current player whose turn we wish to process
+     * @param userInput     the user input that client entered (should be a shot coordinate)
      * @return a list of commands to put in a rendering package
      */
     public ArrayList<JsonObject> runGameCommand(BattleshipPlayer currentPlayer, BattleshipPlayer opponent, String userInput) {
@@ -225,16 +232,14 @@ public class BattleshipGame {
 
             //if the opponent is ai, do their turn immediately. No turn changing required as the player can
             //just take their next turn right away, otherwise, switch the active and opponent players around
-            if (opponent.isAIControlled()) {
-                BattleshipTurnResult opponentResult = opponent.processAITurn(currentPlayer.getBoard());
-                // System.out.println(opponentResult.message());
-                currentPlayer.updateHistory(opponentResult.opponentMessage());
-            } else {
-                //swapping player turns
-                String temp = activePlayer;
-                activePlayer = opponentPlayer;
-                opponentPlayer = temp;
-            }
+//            if (opponent.isAIControlled()) {
+//                BattleshipTurnResult opponentResult = opponent.processAITurn(currentPlayer.getBoard());
+//                // System.out.println(opponentResult.message());
+//                currentPlayer.updateHistory(opponentResult.opponentMessage());
+//            } else {
+            //swapping player turns
+            SwapTurns();
+//            }
         }
 
         ArrayList<JsonObject> renderingCommands = new ArrayList<>(getGameRender(currentPlayer, opponent));
@@ -263,6 +268,15 @@ public class BattleshipGame {
         renderingCommands.add(new JsonObject().put("command", "placePlayer2Board")
                 .put("text", Board.showEnemyBoard(enemy, opponent.getBoard().getGrid())));
         return renderingCommands;
+    }
+
+    /**
+     * Helper function to swap turns to the other player
+     */
+    void SwapTurns() {
+        String temp = activePlayer;
+        activePlayer = opponentPlayer;
+        opponentPlayer = temp;
     }
 
     /**
