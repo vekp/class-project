@@ -231,19 +231,77 @@ public class Battleship implements GameClient, Tickable {
 
         JTextArea description = new JTextArea("""
                 -----------------------------------------------------------
+                
                    Grid Characters:
                      Ocean             ---   ~
                      Ship Hull Parts   ---   < > ^ v 0
                      Coordinate Hit    ---   X
                      Coordinate Miss   ---   .
+                     
+                -----------------------------------------------------------
                   
                    Enter a Coordinate:
                      Input to the terminal -> "A7"
-                  
+                     
+                -----------------------------------------------------------
+                
                    Move Ships:
                      Ships can only be moved before starting a game by
                      pressing 'tab' to cycle selected vessel, 'space' to
                      rotate, and arrow keys to move the selected vessel.
+                
+                -----------------------------------------------------------
+                
+                   Ship Classes:
+                     
+                     Class:  "Carrier"
+                     Size:  6
+                     Schematic:  < 0 0 0 0 >
+                       
+                     Class:  "Battleship"
+                     Size:  5
+                     Schematic:  < 0 0 0 >
+                       
+                     Class: "Destroyer"
+                     Size: 4
+                     Schematic:  < 0 0 >
+                     
+                     Class: "Submarine"
+                     Size: 4
+                     Schematic:  < 0 0 >
+                     
+                     Class: "Patrol Boat"
+                     Size: 3
+                     Schematic:  < 0 >
+                     
+                
+                -----------------------------------------------------------
+                
+                   How to Play?
+                   
+                     Battleship is a 2 person game where each player has
+                     a grid with their ships marked on it, and a grid with
+                     the other player's ship locations hidden. Players
+                     take turns guessing the location of the enemy ships
+                     until one player destroys the opposing player's fleet.
+                     
+                   Game Structure:
+                     Upon loading into a game you can wait for another
+                     player to join or simply start playing against an AI.
+                     
+                     Follow the prompts and enter coordinates for the
+                     "Target Grid" to try hit enemy ships.
+                     
+                     TIP: Once you get a hit, guess a coordinate vertical
+                          or horizontal from that location.
+                          
+                     Be the first to destroy all the enemy's ships to
+                     claim victory!
+                
+                -----------------------------------------------------------
+                  
+                   Think you know it all? Get strategising and become the
+                           most respected captain of the seas!
                  
                              Enter "Ready" to start the game!
                 """);
@@ -252,13 +310,21 @@ public class Battleship implements GameClient, Tickable {
         description.setFont(fonts.get(3));
         Color c = panel.getBackground();
         description.setBackground(c);
+        description.setSize(300, 300);
 
         JScrollPane content = new JScrollPane(description);
+        content.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        content.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        content.setPreferredSize(new Dimension(650, 400));
+        content.setWheelScrollingEnabled(true);
+        content.setBorder(null);
+
+
 
         panel.add(title, gbc);
         gbc.gridx = 0;
         gbc.gridy = 1;
-        panel.add(description, gbc);
+        panel.add(content, gbc);
 
         return panel;
     }
@@ -266,7 +332,7 @@ public class Battleship implements GameClient, Tickable {
     /**
      * Function to create an appropriate font list based on operating system
      *
-     * @return Arraylist of fint objects
+     * @return Arraylist of font objects
      */
     public ArrayList<Font> determineFont() {
         // System.out.println(System.getProperty("os.name"));
@@ -343,17 +409,17 @@ public class Battleship implements GameClient, Tickable {
 
         messages.append("Starting...");
 
-        // Apply settings to notifications
-        mnClient.getNotificationManager()
-                .setColours(Color.decode(fgColour), Color.decode(bgColour), Color.decode(bgColourHover))
-                .setFont(fonts.get(0).getFontName())
-                .setBorder(buttonBorder)
-                .setNotificationArea(mainPanel);
-
-        mnClient.getDialogManager()
-                .setColours(Color.decode(fgColour), Color.decode(bgColour), Color.decode(bgColourHover))
-                .setFont(fonts.get(0).getFontName())
-                .setBorder(buttonBorder);
+//        // Apply settings to notifications
+//        mnClient.getNotificationManager()
+//                .setColours(Color.decode(fgColour), Color.decode(bgColour), Color.decode(bgColourHover))
+//                .setFont(fonts.get(0).getFontName())
+//                .setBorder(buttonBorder)
+//                .setNotificationArea(mainPanel);
+//
+//        mnClient.getDialogManager()
+//                .setColours(Color.decode(fgColour), Color.decode(bgColour), Color.decode(bgColourHover))
+//                .setFont(fonts.get(0).getFontName())
+//                .setBorder(buttonBorder);
 
         // Don't forget to call pack - it triggers the window to resize and repaint itself
         mnClient.getMainWindow().pack();
