@@ -1,7 +1,5 @@
 package minigames.server.battleship;
 
-import org.apache.derby.catalog.Statistics;
-
 import java.util.Random;
 
 /**
@@ -19,7 +17,11 @@ public record BattleshipTurnResult(
 ) {
     public static BattleshipTurnResult firstInstruction() {
         return new BattleshipTurnResult(true, false,
-                lineBreak + "To fire at the enemy, enter grid coordinates: (eg, " + "A4)" + inputPending, "");
+                doubleBreak + "To fire at the enemy, enter grid coordinates: (eg, " + "A4)" + inputPending, "");
+    }
+
+    public static BattleshipTurnResult invalidInput() {
+        return new BattleshipTurnResult(false, false, "Invalid coordinate. Enter coordinate in the form 'A7'", "");
     }
 
     //result when the current player hits their target. The player gets a hit success message, the opponent gets a
@@ -39,12 +41,13 @@ public record BattleshipTurnResult(
     //called when a player shoots a cell they already hit. They lose their turn and the enemy gets told to ready
     // their turn
     public static BattleshipTurnResult alreadyHitCell(String inputCoords) {
-        return new BattleshipTurnResult(true, false, lineBreak + "You already hit this cell! " + incoming,
+        return new BattleshipTurnResult(true, false, doubleBreak + "You already hit this cell! " + incoming,
                 beginTurnPrompt(false, inputCoords));
     }
 
     // Response strings
-    static String lineBreak = "\n\n";
+    static String lineBreak = "\n";
+    static String doubleBreak = "\n\n";
     static String inputPending = "\n...";
     static String enterCoords = "It is your turn! Enter grid coordinates: ";
     static String incoming = "Prepare for incoming fire!";
@@ -67,20 +70,33 @@ public record BattleshipTurnResult(
         return messages[rng.nextInt(0, messages.length)];
     }
 
+    /**
+     * Method to return a message to the player TODO: Finish
+     *
+     * @param hitOrMiss
+     * @param inputCoordinates
+     * @return
+     */
     static String beginTurnPrompt(boolean hitOrMiss, String inputCoordinates) {
         String message = getRandomMessage(hitOrMiss ? enemyHitMessages : enemyMissMessages);
-        return lineBreak
+        return doubleBreak
                 + message
                 + " Enemy fired at coordinates: [" + inputCoordinates + "]"
-                + lineBreak
+                + doubleBreak
                 + coordTag + " "
                 + enterCoords
                 + inputPending;
     }
 
+    /**
+     * TODO: Finish
+     * @param hitOrMiss
+     * @param inputCoordinates
+     * @return
+     */
     static String endTurnPrompt(boolean hitOrMiss, String inputCoordinates) {
         String message = getRandomMessage(hitOrMiss ? playerHitMessages : playerMissMessages);
-        return lineBreak
+        return doubleBreak
                 + message
                 + " "
                 + incoming;

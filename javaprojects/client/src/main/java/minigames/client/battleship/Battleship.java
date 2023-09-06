@@ -46,9 +46,11 @@ public class Battleship implements GameClient, Tickable {
     );
 
     JPanel mainPanel;
+    JPanel helpPanel;
     JPanel heading;
     JButton menuButton;
     JButton achievementButton;
+    JButton helpButton;
     JLabel title;
     JLabel currentPlayerName;
     JPanel maps;
@@ -72,6 +74,9 @@ public class Battleship implements GameClient, Tickable {
      */
     public Battleship() {
 
+        // Generate help panel
+        helpPanel = generateHelpPanel();
+
         // Heading
         heading = new JPanel(new GridBagLayout());  // Game title, Current player and Menu button
         GridBagConstraints gbc = new GridBagConstraints();
@@ -88,7 +93,13 @@ public class Battleship implements GameClient, Tickable {
         achievementButton.addActionListener(e -> mnClient.getGameAchievements(player, gm.gameServer()));
         achievementButton.setFont(fonts.get(1));
 
-        for (JButton b : new JButton[]{menuButton, achievementButton}) {
+        // Help button
+        helpButton = new JButton("Help");
+        helpButton.addActionListener(e -> mnClient.getDialogManager().showMessageDialog("Help Menu", helpPanel));
+        helpButton.setFont(fonts.get(1));
+
+        // Style buttons
+        for (JButton b : new JButton[]{menuButton, achievementButton, helpButton}) {
             b.setOpaque(true);
             b.setBorder(buttonBorder);
             b.setFocusable(false);
@@ -128,7 +139,12 @@ public class Battleship implements GameClient, Tickable {
         gbc.gridx = 1;
         gbc.gridy = 1;
         heading.add(currentPlayerName, gbc);
-
+        gbc.insets = new Insets(5, 0, 0, 5);
+        gbc.anchor = GridBagConstraints.LINE_END;
+        gbc.weightx = 0;
+        gbc.gridx = 2;
+        gbc.gridy = 0;
+        heading.add(helpButton, gbc);
 
         // Maps
         maps = new JPanel();
@@ -169,7 +185,8 @@ public class Battleship implements GameClient, Tickable {
         terminal.add(commandTerminal, BorderLayout.NORTH);
 
         userCommand = new JTextField();  // User input
-        userCommand.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), " "));
+        userCommand.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(Color.decode(bgColourHover),Color.decode(bgColourHover)), "  "));
+        userCommand.setCaretColor(Color.WHITE);
         userCommand.getCaret().setBlinkRate(300);
         userCommand.getCaret().setVisible(true);
         userCommand.addActionListener((evt) -> {
@@ -186,12 +203,64 @@ public class Battleship implements GameClient, Tickable {
         mainPanel.add(maps);
         mainPanel.add(terminal);
 
-        // Set colours for all panels
+        // Set colours for all components
         for (Component c : new Component[]{mainPanel, heading, title, currentPlayerName, nauticalMap, nauticalText,
-                targetMap, targetText, maps, messages, commandTerminal, userCommand, menuButton, achievementButton}) {
+                targetMap, targetText, maps, messages, commandTerminal, userCommand, menuButton, achievementButton,
+                helpButton}) {
             c.setForeground(Color.decode(fgColour));
             c.setBackground(Color.decode(bgColour));
         }
+    }
+
+    public JPanel generateHelpPanel() {
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        panel.setSize(new Dimension(200, 200));
+
+        gbc.gridwidth = 1;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+
+        JLabel title = new JLabel("Help Menu");
+        title.setFont(fonts.get(0));
+
+
+        JTextArea description = new JTextArea("""
+                -----------------------------------------------------------
+                   Grid Characters:
+                     Ocean             ---   ~
+                     Ship Hull Parts   ---   < > ^ v 0
+                     Coordinate Hit    ---   X
+                     Coordinate Miss   ---   .
+                  
+                   Enter a Coordinate:
+                     Input to the terminal -> "A7"
+                  
+                   Move Ships:
+                     Ships can only be moved before starting a game by
+                     pressing 'tab' to cycle selected vessel, 'space' to
+                     rotate, and arrow keys to move the selected vessel.
+                 
+                             Enter "Ready" to start the game!
+                """);
+        description.setEditable(false);
+        description.setHighlighter(null);
+        description.setFont(fonts.get(3));
+        Color c = panel.getBackground();
+        description.setBackground(c);
+
+        JScrollPane content = new JScrollPane(description);
+
+        panel.add(title, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        panel.add(description, gbc);
+
+        return panel;
     }
 
     /**
