@@ -22,13 +22,13 @@ public class TelepathyBoardTests{
         
         for (int row = 0; row < testBoardLength; row++){
             for (int col = 0; col < testBoardLength; col++) {
-                Tile testTile = testTelepathyBoard.getBoard()[row][col];
+                Tile testTile = testTelepathyBoard.getBoard()[col][row];
 
                 int horizontal = testTile.getHorizontalPos();
                 int vertical = testTile.getVerticalPos();
                 
-                assertTrue(horizontal == row);
-                assertTrue(vertical == col);
+                assertTrue(horizontal == col);
+                assertTrue(vertical == row);
                 checkLength.add(testTile);
                 
             }
@@ -67,7 +67,7 @@ public class TelepathyBoardTests{
     @Test
     public void testGetTile(){
         Board testTelepathyBoard = new Board();
-        Tile testTile = testTelepathyBoard.getTile(0, 0, testTelepathyBoard);
+        Tile testTile = testTelepathyBoard.getTile(0, 0);
         int horizontal = testTile.getHorizontalPos();
         int vertical = testTile.getVerticalPos();
     
