@@ -59,7 +59,22 @@ public class MemoryGame {
     // Players
     HashMap<String, MemoryPlayer> players = new HashMap<>();
 
+
+    /**
+     * This method will check if the player has created a pair or not
+     * @param cardIndex the index of the PlayingCard inside the playingCards[] array
+     * If a card has been flipped already, check that array index against the array index of the newly flipped card.
+     * If they match increment playerScore and set the previousFlipped card back to -1
+     * If they don't match tell the user they don't match and set the previous flipped card to -1
+     * If no card has been flipped previously set previousCardIndex to the index of the newly flipped card.
+     * Originally I stored a copy of the card that had been flipped, but this allowed a card to match with itself. 
+     * Now we can only match on card objects that are equal but also at different array indexes. 
+     */
     public void check(int cardIndex) {
+        if(previousCardIndex == cardIndex){
+            System.out.println("Please flip a new card!");
+            return;
+        }
         if (previousCardIndex != -1) {
             if (playingCards[previousCardIndex].equals(playingCards[cardIndex])) {
                 playerScore++;
