@@ -6,9 +6,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import io.vertx.core.json.JsonObject;
+import minigames.achievements.Achievement;
 import minigames.commands.CommandPackage;
 import minigames.rendering.*;
 import minigames.rendering.NativeCommands.LoadClient;
+import minigames.server.achievements.AchievementHandler;
+import static minigames.server.spacemaze.achievements.*;
+
 import java.awt.Point;
 
 import minigames.server.achievements.AchievementHandler;
@@ -156,6 +160,7 @@ public class SpaceMazeGame {
                                 .put("level", Integer.toString(mazeControl.getCurrentLevel()))
                                 .put("interactiveResponse", InteractiveResponses.NEW_LEVEL.toString());
                         renderingCommands.add(serializedMazeArray);
+                        // Set level achievements
                     } else {
                         int time = mazeControl.timeTaken;
                         int minutes = time / 60;
@@ -164,6 +169,24 @@ public class SpaceMazeGame {
                         renderingCommands.add(new JsonObject().put("command", "gameOver")
                                 .put("totalScore", playerScoreString)
                                 .put("timeTaken", timeTaken));
+                        // Set endgame achievements
+                        Boolean isPlayerATimeLord = mazeControl.getAllKeysStatus();
+                        Boolean isPlayerAKeyKeeper = mazeControl.getAllKeysStatus();
+                        if (isPlayerATimeLord)
+                        {
+                            AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
+                            handler.unlockAchievement(getPlayerNames()[0],TIME_LORD.toString());
+                        }
+                        else if (isPlayerAKeyKeeper)
+                        {
+                            AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
+                            handler.unlockAchievement(getPlayerNames()[0],KEEPER_OF_THE_KEYS.toString());
+                        }
+                        else if (isPlayerAKeyKeeper && isPlayerATimeLord)
+                        {
+                            AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
+                            handler.unlockAchievement(getPlayerNames()[0],THE_COLLECTORS_COLLECTION.toString());
+                        }
                     }
                 }
             }

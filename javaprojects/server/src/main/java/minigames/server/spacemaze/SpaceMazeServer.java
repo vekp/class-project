@@ -26,7 +26,8 @@ import java.util.Random;
  * @author Nik Olins
  */
 enum achievements {
-    DETERMINED_COLLECTOR, SEASONED_MAZE_RUNNER, FAST_AS_LIGHTNING;
+    DETERMINED_COLLECTOR, SEASONED_MAZE_RUNNER, FAST_AS_LIGHTNING, KEEPER_OF_THE_KEYS, TIME_LORD,
+    THE_COLLECTORS_COLLECTION;
 
     @Override
     public String toString() {
@@ -37,6 +38,12 @@ enum achievements {
                 return "Seasoned Maze Runner";
             case FAST_AS_LIGHTNING:
                 return "Fast As Lightning";
+            case KEEPER_OF_THE_KEYS:
+                return "Keeper of the Keys";
+            case TIME_LORD:
+                return "Time Lord";
+            case THE_COLLECTORS_COLLECTION:
+                return "The Collector's Collection";
             default:
                 return "Unknown Achievement";
         }
@@ -62,7 +69,14 @@ public class SpaceMazeServer implements GameServer {
         achievementHandler.registerAchievement(new Achievement(achievements.FAST_AS_LIGHTNING.toString(), 
             "Collecting a chest to reset the elapsed time back to zero.", 500, "", false));
 
-            
+        achievementHandler.registerAchievement(new Achievement(achievements.KEEPER_OF_THE_KEYS.toString(), 
+            "Collecting all the keys from all the levels.", 1000, "", false));
+        
+        achievementHandler.registerAchievement(new Achievement(achievements.TIME_LORD.toString(), 
+            "Opening all the chests in every level.", 1000, "", false));
+        
+        achievementHandler.registerAchievement(new Achievement(achievements.THE_COLLECTORS_COLLECTION.toString(), 
+            "Collect all the keys AND all the chests.", 1000, "", false));
     }
 
 

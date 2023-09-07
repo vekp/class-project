@@ -149,10 +149,11 @@ public class SpaceMazeGameTests {
     
     /*
      * Test MazeControl - 
+     * @author Natasha Hay
      *                   
      */
-    //Point startLocation1 = new Point(1,0);
-    private SpacePlayer player1 = new SpacePlayer(startLocation, 5);
+    Point startLocation1 = new Point(1,0);
+    private SpacePlayer player1 = new SpacePlayer(startLocation1, 5);
     private MazeControl maze1 = new MazeControl(player1);      
 
          
@@ -205,7 +206,6 @@ public class SpaceMazeGameTests {
     public void testUpdateKeyStatus() {
         // assert key status' are false upon initalisation 
         // keyLocs = [new Point(17, 5), new Point(7, 17)];
-        
         assertFalse(maze1.getKeyStatus().get(new Point(17, 5)));
         assertFalse(maze1.getKeyStatus().get(new Point(7, 17)));
         int playerCurrentKeys = player1.checkNumberOfKeys();
@@ -220,6 +220,34 @@ public class SpaceMazeGameTests {
     }
 
     
+    @DisplayName("Check allKeyStatus")
+    @Test
+    public void testAllKeysStatus()
+    {
+        // assert allKeysStatus was initalised with false
+        assertFalse(maze1.getAllKeysStatus());
+        // update allKeysStatus for level 1 
+        // keylocs newPoint(1, 7)
+        System.out.println("current keyStatus = " + maze1.getKeyStatus());
+        //keyStatus = {java.awt.Point[x=7,y=17]=false, java.awt.Point[x=1,y=7]=false, java.awt.Point[x=17,y=5]=false}
+        // update keyStatus and check
+        maze1.updateKeyStatus(player1, new Point(7, 17));
+        maze1.updateKeyStatus(player1, new Point(1, 7));
+        maze1.updateKeyStatus(player1, new Point(17, 5));
+        System.out.println("current keyStatus = " + maze1.getKeyStatus());
+        maze1.updateAllKeysStatus(1, maze1.getKeyStatus());
+        System.out.println("current allKeyStatus = " + maze1.allKeysPerLevel);
+        assertFalse(maze1.getAllKeysStatus());
+        // Bypass to add all keys collected
+        maze1.bypassSetAllKeysCollected();
+        assertTrue(maze1.getAllKeysStatus());
+
+
+    }
+
+    // The same logic applies for AllBonusStatus, if AllKeys test pass, assume AllBonus will too?
+    
+    
     @DisplayName("Check unlockExit")
     @Test
     public void testUnlockExit() {
@@ -232,21 +260,26 @@ public class SpaceMazeGameTests {
         assertTrue(maze1.getExitUnLockedStatus());
     }
 
-    @Disabled
+    
     @DisplayName("Check updatePlayerLocationMaze and getPlayerLocationInMaze")
     @Test
     public void testUpdatePlayerLocationMaze() {
         // getPlayerLocationInMaze of player1
-        System.out.println("player1 Location: " + player1.getLocation());
-        
         // check player1 location is registered in mazeArray
-
+        maze1.playerEntersMaze(startLocation1);
+        Point playerFirstLoc = new Point(maze1.getPlayerLocationInMaze(player1));
+        Point playerFirstPoint = new Point(player1.getLocation());
+        System.out.println("player1 first Location: " + player1.getLocation());
+        System.out.println("mazeplayer1 first Location: " + maze1.getPlayerLocationInMaze(player1));
+        
         // Move player1
-
+        maze1.updatePlayerLocationMaze(player1, new Point(5,1));
+        Point playerSecondLocation = new Point(maze1.getPlayerLocationInMaze(player1));
         // getPlayerLocationInMaze of player1
-
+        System.out.println("player1 second Location: " + player1.getLocation());
+        System.out.println("mazeplayer1 second Location: " + maze1.getPlayerLocationInMaze(player1));
         // check player1 new location in mazeArray
-
+        assertNotEquals(playerFirstLoc, playerSecondLocation);
     }
 
     
@@ -271,9 +304,11 @@ public class SpaceMazeGameTests {
         // check gameFinished value
     }
 
-    /*
-     * Test MazeInit class
-     */
+    @Disabled
+    @DisplayName("Check newLevel")
+    @Test
+    public void testNewLevel() {}
+
 
     
     

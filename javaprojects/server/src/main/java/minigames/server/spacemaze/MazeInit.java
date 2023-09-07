@@ -19,25 +19,25 @@ public class MazeInit {
     //private int mazeWidth = 25;                  // maze dimension: width (hard coded for now)
     //private int mazeHeight = 25;                 // maze dimension: height (hard coded for now)
     //private Point exitLocation;                // location of maze exit
-    private int numStartLocs;                    // number of start locations
+    //private int numStartLocs;                    // number of start locations
     //private List<Point> startLocations = new ArrayList<Point>();    // locations of maze entrances
-    private int numKeyLocs;                      // number of key locations
+    //private int numKeyLocs;                      // number of key locations
     //private List<Point> keyLocations = new ArrayList<Point>();      // locations of keys
-    private int numPickUpLocs;                   // number of pickUp locations
+    //private int numPickUpLocs;                   // number of pickUp locations
     //private List<Point> pickUpLocations = new ArrayList<Point>();   // locations of pickups (traps etc)
     
-    private int numBotsLocs;                    // locations of bots
-    private int numTrapHoles;                   // locations of traps
-    private int numBonusPointsLocs;             // locations of bonus points chests
-    private int numBombLocs;                    // 
+    //private int numBotsLocs;                    // locations of bots
+    //private int numTrapHoles;                   // locations of traps
+    //private int numBonusPointsLocs;             // locations of bonus points chests
+    //private int numBombLocs;                    // 
 
 
 
     // Maze legend
     private HashMap<String, Character> mazeLegend;
 
-    private char[][] mazeArray;                                     // array of maze
-    // private char[][] newMaze;                                    // array with all locations/traps included
+    private char[][] mazeArray;                                     // array of maze with all locations included
+   
 
     // Constructor - Select maze and read in from resources 
     /*
@@ -89,6 +89,7 @@ public class MazeInit {
     /*
      * mazeRules - make rules depending on level
      */
+    /*
     public void mazeRules(int level)
     {
         // Keys required = same as level number
@@ -128,7 +129,7 @@ public class MazeInit {
                 throw new IllegalArgumentException(("Level " + level + " does not exist"));
         }
     }
-
+    */
 
 
     /*
@@ -156,10 +157,6 @@ public class MazeInit {
         
     }
 
-
-    // getRandomValidLocation function - to use to randomly set keys/bots/pickups
-    // Function not created yet - bots etc hardcoded atm
-    
 
     /*
      * validPlacement function - checks Point(x, y) location is not a wall and is 
@@ -245,7 +242,7 @@ public class MazeInit {
         {'W','.','.','W','W','W','W','W','W','W','.','.','W','.','.','W','.','.','W','.','.','W','.','W','W'},
         {'W','.','.','.','.','.','.','.','$','W','.','.','.','.','.','W','.','.','W','.','.','.','.','.','W'},
         {'W','W','W','W','.','.','W','W','W','W','.','.','W','W','W','W','W','.','W','W','W','W','.','W','W'},
-        {'W','B','.','.','.','.','W','.','.','.','.','.','.','.','.','.','.','.','W','$','.','W','.','.','W'},
+        {'W','B','.','.','.','.','W','K','.','.','.','.','.','.','.','.','.','.','W','$','.','W','.','.','W'},
         {'W','.','.','W','.','.','W','W','M','W','W','W','W','W','W','W','W','.','W','W','.','.','.','W','W'},
         {'W','.','.','W','.','.','.','.','.','.','.','.','.','.','.','K','W','.','.','.','.','W','.','.','W'},
         {'W','.','.','W','W','W','W','H','.','W','.','.','W','W','W','W','W','W','W','W','W','W','.','.','W'},
@@ -265,7 +262,7 @@ public class MazeInit {
         {'W','.','W','.','W','W','.','W','W','W','W','W','W','W','W','W','W','.','H','W','.','.','W','.','W'},
         {'W','.','W','.','.','W','.','.','.','.','.','.','.','.','W','M','.','.','.','.','.','.','.','.','W'},
         {'W','.','W','.','.','W','.','W','.','.','W','W','W','.','W','W','W','W','W','W','.','.','W','.','W'},
-        {'W','.','W','.','K','W','M','W','.','.','.','.','W','.','.','.','.','.','.','W','.','.','W','.','W'},
+        {'W','.','W','.','K','W','M','W','.','.','.','K','W','.','.','.','.','.','M','W','K','.','W','.','W'},
         {'W','.','W','W','W','W','W','W','W','W','W','W','W','W','W','.','W','W','W','W','W','W','W','.','W'},
         {'W','B','.','.','.','.','.','W','.','.','.','.','W','.','.','.','.','.','.','.','.','.','.','.','W'},
         {'W','W','W','W','W','W','.','W','.','.','W','.','W','.','W','.','W','W','W','W','.','.','W','.','W'},
@@ -279,7 +276,7 @@ public class MazeInit {
         {'W','.','W','.','.','W','.','W','W','W','W','.','W','W','W','.','W','.','.','W','W','W','W','.','W'},
         {'W','.','W','.','.','.','.','W','.','.','.','.','W','$','W','.','W','.','.','.','.','.','.','.','W'},
         {'W','.','W','.','.','W','W','W','.','.','W','.','W','.','W','.','W','.','.','W','W','W','W','.','W'},
-        {'W','.','.','.','.','.','.','W','.','.','W','.','.','.','W','.','W','.','.','.','K','.','W','.','W'},
+        {'W','.','.','.','.','.','.','W','$','.','W','.','.','.','W','.','W','.','.','.','K','.','W','.','W'},
         {'W','.','W','W','W','W','W','W','W','W','W','.','W','W','W','.','W','W','W','W','.','.','W','.','W'},
         {'W','.','.','.','K','W','.','.','.','.','.','.','.','.','W','.','W','H','.','.','.','.','.','.','W'},
         {'W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','E','W'}
