@@ -4,6 +4,8 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
+import java.util.Collections;
+import java.util.logging.Level;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -19,6 +21,7 @@ import javax.swing.SwingUtilities;
 
 import io.vertx.core.json.JsonObject;
 import minigames.client.Main;
+import minigames.commands.CommandPackage;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -282,17 +285,6 @@ public class GameShowUI {
                 startGame.setContentAreaFilled(false);
                 startGame.setFocusPainted(false);
                 startGame.setBorderPainted(false);
-
-                wordScramble = new JButton("Word Scramble");
-                wordScramble.setAlignmentX(Component.CENTER_ALIGNMENT);
-                wordScramble.addActionListener((evt) -> WordScramble.welcome(this));
-                miniMiniGame.add(wordScramble);
-
-                imageGuesserStart = new JButton("Image Guesser");
-                imageGuesserStart.setAlignmentX(Component.CENTER_ALIGNMENT);
-                imageGuesserStart.addActionListener(
-                                (evt) -> sendCommand(new JsonObject().put("command", "imageGuesser")));
-                miniMiniGame.add(imageGuesserStart);
 
                 miniMiniGame.add(startGame, BorderLayout.PAGE_END);
 
