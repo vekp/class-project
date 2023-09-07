@@ -1,12 +1,14 @@
 package minigames.server.spacemaze;
 
 import io.vertx.core.Future;
+import minigames.achievements.Achievement;
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.GameServerDetails;
 import minigames.rendering.RenderingPackage;
 import minigames.server.ClientType;
 import minigames.server.GameServer;
+import minigames.server.achievements.AchievementHandler;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -17,9 +19,52 @@ import java.util.Random;
  *
  * @author Andrew McKenzie
  */
+
+
+/**
+ * Achievements API Implementation
+ * @author Nik Olins
+ */
+enum achievements {
+    DETERMINED_COLLECTOR, SEASONED_MAZE_RUNNER, FAST_AS_LIGHTNING;
+
+    @Override
+    public String toString() {
+        switch(this) {
+            case DETERMINED_COLLECTOR:
+                return "Determined Collector";
+            case SEASONED_MAZE_RUNNER:
+                return "Seasoned Maze Runner";
+            case FAST_AS_LIGHTNING:
+                return "Fast As Lightning";
+            default:
+                return "Unknown Achievement";
+        }
+    }
+}
+
+
 public class SpaceMazeServer implements GameServer {
 
     static final String chars = "abcdefghijklmopqrstuvwxyz";
+
+    // Achievements API integration
+    AchievementHandler achievementHandler;
+    public SpaceMazeServer() {
+        achievementHandler = new AchievementHandler(SpaceMazeServer.class);
+
+        achievementHandler.registerAchievement(new Achievement(achievements.DETERMINED_COLLECTOR.toString(), 
+            "Clearing a single level of all items.", 500, "", true));
+
+        achievementHandler.registerAchievement(new Achievement(achievements.SEASONED_MAZE_RUNNER.toString(), 
+            "Finishing all levels without losing a single life.", 1000, "", false));
+
+        achievementHandler.registerAchievement(new Achievement(achievements.FAST_AS_LIGHTNING.toString(), 
+            "Collecting a chest to reset the elapsed time back to zero.", 500, "", false));
+
+            
+    }
+
 
     /** A random name. We could do with something more memorable, like Docker has */
     static String randomName() {
