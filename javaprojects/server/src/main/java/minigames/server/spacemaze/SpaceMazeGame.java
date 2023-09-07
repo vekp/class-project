@@ -11,6 +11,9 @@ import minigames.rendering.*;
 import minigames.rendering.NativeCommands.LoadClient;
 import java.awt.Point;
 
+import minigames.server.achievements.AchievementHandler;
+import static minigames.server.spacemaze.achievements.*;
+
 /**
  * Represents an actual Space Maze game in progress
  *
@@ -92,6 +95,14 @@ public class SpaceMazeGame {
                     // I'll look into this repition, the issue is the bots can move
                     // too fast and trigger this call more times than allowed before
                     // the server sends the playerDead message back.
+                    // For testing triggering of achievements.
+                    /*
+                    String playerName = getPlayerNames()[0];
+                    *AchievementHandler thisHandler = new AchievementHandler(SpaceMazeServer.class);
+                    thisHandler.unlockAchievement(playerName, DETERMINED_COLLECTOR.toString());
+                     * 
+                     */
+
                     int playerLives = player.getLives();
                     if (playerLives > 0) {
                         player.removeLife(1);
