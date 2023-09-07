@@ -1,6 +1,8 @@
 package minigames.client.gameshow;
 
 import minigames.client.gameshow.GridPanel;
+import minigames.client.gameshow.ImageGuesser;
+
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -75,14 +77,16 @@ public class GameShow implements GameClient {
     JPanel gameSelect;
     JLabel gameSelectInstructions;
     JPanel guessContainer;
+    // ImageGuesser imageGuesser;
     JPanel inputPanel;
     JPanel outcomeContainer;
 
     JButton wordScramble;
-    JButton imageGuesser;
+    JButton imageGuesserStart;
     JButton memoryGame;
     JButton guessingGame;
 
+    int gameId;
     JPanel gamePanel;
 
     public GameShow() {
@@ -124,10 +128,10 @@ public class GameShow implements GameClient {
         wordScramble.addActionListener((evt) -> WordScramble.welcome(this));
         gameArea.add(wordScramble);
 
-        imageGuesser = new JButton("Image Guesser");
-        imageGuesser.setAlignmentX(Component.CENTER_ALIGNMENT);
-        imageGuesser.addActionListener((evt) -> sendCommand(new JsonObject().put("command", "imageGuesser")));
-        gameArea.add(imageGuesser);
+        imageGuesserStart = new JButton("Image Guesser");
+        imageGuesserStart.setAlignmentX(Component.CENTER_ALIGNMENT);
+        imageGuesserStart.addActionListener((evt) -> sendCommand(new JsonObject().put("command", "imageGuesser")));
+        gameArea.add(imageGuesserStart);
 
         memoryGame = new JButton("Memory Game");
         memoryGame.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -144,7 +148,20 @@ public class GameShow implements GameClient {
     }
 
 
-
+    public void wordScrambleGuess(boolean correct) {
+        if (!correct) {
+            JLabel tryAgain = new JLabel("That's not quite right :( Try again!",
+                    SwingConstants.CENTER);
+            guessContainer.add(tryAgain, BorderLayout.NORTH);
+        } else {
+            guessContainer.removeAll();
+            guessContainer.validate();
+            guessContainer.repaint();
+            JLabel congrats = new JLabel("Congratulations! You Win :)",
+                    SwingConstants.CENTER);
+            guessContainer.add(congrats, BorderLayout.CENTER);
+        }
+    }
     public void startImageGuesser(String imageFileName, int gameId) {
         gameContainer.removeAll();
         gameContainer.validate();
@@ -220,6 +237,8 @@ public class GameShow implements GameClient {
         logger.log(Level.INFO, "GameShow instance created");
 
 
+        guessContainer.validate();
+        guessContainer.repaint();
         inputPanel.validate();
         inputPanel.repaint();
     }
@@ -286,12 +305,10 @@ public class GameShow implements GameClient {
                 }
             }
             case "startImageGuesser" -> {
-                this.startImageGuesser(
-                        command.getString("imageFilePath"),
-                        (int) command.getInteger("gameId"));
+                ImageGuesser.startImageGuesser(this, command.getString("imageFilePath"), (int) command.getInteger("gameId"));
             }
             case "guessImageOutcome" -> {
-                imageGuesserGuess(command.getBoolean("outcome"));
+                ImageGuesser.guess(this, command.getBoolean("outcome"));
             }
         }
     }
