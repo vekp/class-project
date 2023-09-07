@@ -60,7 +60,19 @@ public class MemoryGame {
     HashMap<String, MemoryPlayer> players = new HashMap<>();
 
 
+   /** 
+    * This will check if the game is in a terminal state.
+    * @author Lyam Talbot
+    * If the player's current score is equal to the number of pairs the game is over.
+    * This will need to be used in conjunction with a method that shows a score screen/resets the game, etc.
+    */
+    public boolean isTerminal(){
+        return playerScore == playingCards.length / 2;
+    }
+
+
     /**
+     * @author Lyam Talbot
      * This method will check if the player has created a pair or not
      * @param cardIndex the index of the PlayingCard inside the playingCards[] array
      * If a card has been flipped already, check that array index against the array index of the newly flipped card.
