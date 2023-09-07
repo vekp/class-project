@@ -17,7 +17,7 @@ public class ImagePanel extends JPanel {
     }
 
     /**
-     * The loadImages function loads the images for the snowman and snow background.
+     * The loadImages function loads the images for the hangman.
      *
      */
     void loadImages() {
@@ -61,8 +61,8 @@ public class ImagePanel extends JPanel {
                     hangman[hangmanIndex].getHeight() / 1,
                     null);
         }
-        g.setFont(new Font("Verdana", Font.BOLD, 18));
+        g.setFont(new Font("Monospaced", Font.BOLD, 18));
         g.setColor(Color.BLACK);
-        g.drawString("Guesses Remaining: " + (8 - errors), 340, 30);
+        g.drawString("Lives Remaining: " + (8 - errors), 340, 30);
     }
 }

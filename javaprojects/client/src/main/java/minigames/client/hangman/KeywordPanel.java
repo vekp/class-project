@@ -61,14 +61,11 @@ public class KeywordPanel extends JPanel {
 
     /**
      * The updatePanel function updates the panel by changing the font size and position of each
-     * letter label. It does this by calling getWidth() and getHeight() to find out how big the
-     * panel is, then uses that information to calculate where each letter should be positioned. The
-     * function also changes the color of letters that have been guessed correctly so they are no
-     * longer greyed out.
+     * letter label. 
      */
     void updatePanel() {
         int fontSize = getWidth() / 8;
-        Font letterFont = new Font("Verdana", Font.PLAIN, fontSize);
+        Font letterFont = new Font("Monospaced", Font.PLAIN, fontSize);
 
         // Print black or greyed out letters in their positions
         for (int i = 0; i < 26; i++) {

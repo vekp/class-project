@@ -5,8 +5,6 @@ import org.apache.logging.log4j.Logger;
 import java.awt.*;
 import java.util.Collections;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
@@ -34,10 +32,6 @@ public class HangmanClient implements GameClient {
     JButton start, score, help, back, back1, exit, newGameButton, stopGameButton, exitButton;
     JLabel headerText, footerText, helpText, helpText1, helpText2, controlText, highScore, playerName, scoreText, playerNumber;
     JPanel headerPanel, footerPanel, mainMenuPanel, buttonPanel, helpPanel, scorePanel;
-    private JLabel[] pointInses;
-	private JLabel[] pointLabels;
-
-    private static final String[] snakePlayerStrs = { "Player Name:" };
 
     Dimension buttonDimension;    //Maximum and preferred dimension of button
 

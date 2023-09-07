@@ -56,7 +56,7 @@ public class HangmanPanel extends JPanel {
                 });
         // Initialise or reset game
         reset(getRandomWord());
-        setPreferredSize(new Dimension(800, 800));
+        setPreferredSize(new Dimension(200, 300));
 
         imagePanel.setBorder(BorderFactory.createMatteBorder(10, 10, 10, 10, borderColour));
 
@@ -66,13 +66,11 @@ public class HangmanPanel extends JPanel {
 
     /**
      * The setupLayout function sets up the layout of the puzzle. It sets up a GridBagLayout for
-     * this JPanel, and adds three the snow, letter and puzzle components to it.
-     *
-     * @author Robert Grzazek
+     * this JPanel
      */
     void setupLayout() {
         setLayout((new GridBagLayout()));
-        setPreferredSize(new Dimension(1000, 1000));
+        setPreferredSize(new Dimension(800, 900));
 
         GridBagConstraints hangmanConstraints = new GridBagConstraints();
         hangmanConstraints.fill = GridBagConstraints.BOTH;
@@ -86,7 +84,7 @@ public class HangmanPanel extends JPanel {
         GridBagConstraints keyboardConstraints = new GridBagConstraints();
         keyboardConstraints.fill = GridBagConstraints.BOTH;
         keyboardConstraints.weightx = 0.2;
-        keyboardConstraints.weighty = 0.8;
+        keyboardConstraints.weighty = 0.2;
         keyboardConstraints.gridx = 1;
         keyboardConstraints.gridy = 0;
         keyboardConstraints.gridwidth = 1;
@@ -126,10 +124,7 @@ public class HangmanPanel extends JPanel {
     }
 
     /**
-     * The censorSolution function takes a String as an argument and returns a String. The function
-     * will replace all letters in the solution with underscores, unless those letters have already
-     * been guessed by the user. If all the letters in the solution have been guessed, then it will
-     * return an empty string (&quot;&quot;).
+     * The censorSolution function takes a String as an argument and returns a String. .
      *
      * @return A string containing the censored version of the solution
      */
@@ -152,8 +147,7 @@ public class HangmanPanel extends JPanel {
 
     /**
      * Take a letter and update the game state. Mark that letter as being guessed, and add an error
-     * to the tally if it's not there. Register a lost game if there are enough errors. Don't
-     * respond if the game is over or the letter was already guessed.
+     * to the tally if it's not there. 
      *
      * @param letter letter that was guessed. It must already be converted to upper case
      */
@@ -190,22 +184,11 @@ public class HangmanPanel extends JPanel {
             userSubmitScore("Hangman", score);
             JOptionPane.showMessageDialog(
                     playAgainFrame,
-                    "Congratulations! The word was "
-                            + solution
-                            + ".\nWould you like to play again?");
+                    "Congratulations! The word was "+ solution+ ".\nWould you like to play again?");
         }
     }
 
-    /**
-     * The userSubmitScore function is used to submit a new score to the leaderboard. It takes in
-     * two parameters, gameId and highScore. The gameId is the id of the game that was played, and
-     * highScore is an integer representing how many points were scored by the user during this play
-     * session.
-     *
-     * @param gameId Identify the game
-     * @param highScore The score to submit
-     * need to refine it
-     */
+    
     void userSubmitScore(String gameId, int highScore) {
         logger.info("Score submitted");
     }
