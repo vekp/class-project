@@ -25,6 +25,8 @@ public class SurveyDatabaseHandler {
         feedbackObject.put("ui_rating", jsonData.getString("ui_rating"));
         feedbackObject.put("enjoyment_rating", jsonData.getString("enjoyment_rating"));
         feedbackObject.put("functionality_rating", jsonData.getString("functionality_rating"));
+        feedbackObject.put("difficulty_rating", jsonData.getString("difficulty_rating"));
+        feedbackObject.put("overall_rating", jsonData.getString("overall_rating"));
 
         // Read existing JSON data from the file 
         readExistingFeedbackData();
