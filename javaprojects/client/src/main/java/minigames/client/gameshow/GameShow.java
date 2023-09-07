@@ -1,13 +1,14 @@
 package minigames.client.gameshow;
 
 import java.awt.BorderLayout;
-
+import java.awt.FlowLayout;
 import java.util.Collections;
-
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
@@ -49,7 +50,7 @@ public class GameShow implements GameClient {
 
     JPanel homeScreen;
 
-    JPanel gameContainer;
+    JPanel gameContainer = GameShowUI.gameContainer;
     JPanel gameArea;
     JPanel gameSelect;
     JLabel gameSelectInstructions;

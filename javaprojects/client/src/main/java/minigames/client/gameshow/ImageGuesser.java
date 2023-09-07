@@ -94,6 +94,7 @@ public class ImageGuesser {
         if (!correct) {
             JLabel tryAgain = new JLabel("That's not quite right :( Try again!",
                     SwingConstants.CENTER);
+            Font pixelFont = GameShowUI.pixelFont;
             tryAgain.setFont(pixelFont.deriveFont(15f));// size may need changing
 
             gs.outcomeContainer.add(tryAgain, BorderLayout.CENTER);
