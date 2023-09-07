@@ -199,23 +199,15 @@ public class MinigameNetworkClientWindow {
         // Create a button for the Achievement UI.
         JButton achievementsButton = new JButton("Achievements");
         achievementsButton.addActionListener(e -> {
-            clearAll();
-            JPanel achievements = new AchievementUI(networkClient);
-            frame.setTitle(AchievementUI.TITLE);
-            center.add(achievements);
-            pack();
+            AchievementUI achievements = new AchievementUI(networkClient);
+            achievements.load();
         });
         south.add(achievementsButton);
-
-        // Added action listener back in for back btn in Survey
-        ActionListener returnAction = (a) -> {
-            showGameServers(servers);
-        }; 
 
         JButton surveyButton = new JButton("Survey");
         surveyButton.addActionListener(e -> {
             clearAll();
-            JPanel survey = new Survey(returnAction);
+            JPanel survey = new Survey(networkClient);
             frame.setTitle(Survey.FRAME_TITLE);
             center.add(survey);
             pack();
