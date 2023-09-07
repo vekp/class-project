@@ -1,4 +1,4 @@
-package minigames.server.telepathy;
+package minigames.telepathy;
 
 /**
  * Defines constant values describing the current state of the Telepathy game.

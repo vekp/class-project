@@ -18,11 +18,14 @@ import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
 import minigames.client.Tickable;
 import minigames.rendering.GameMetadata;
+
+import minigames.commands.CommandPackage;
+import minigames.client.notifications.NotificationManager;
+
 import minigames.telepathy.TelepathyCommandException;
 import minigames.telepathy.TelepathyCommandHandler;
 import minigames.telepathy.TelepathyCommands;
-import minigames.commands.CommandPackage;
-import minigames.client.notifications.NotificationManager;
+import minigames.telepathy.State;
 
 import java.awt.*; 
 import javax.swing.*; 
@@ -69,7 +72,7 @@ public class Telepathy implements GameClient, Tickable{
 
     
     JButton startGame; // Button to initialise game
-    int buttonClicks = 0; // an int to track button clicks
+    //int buttonClicks = 0; // an int to track button clicks
 
     int ROWS = 9; // adjustable variable for grid size
     int COLS = 9; // adjustable variable for grid size
@@ -80,9 +83,11 @@ public class Telepathy implements GameClient, Tickable{
     JButton[][] buttonGrid; // 2D button array
 
     // Tick information
-    private boolean ticking = true;
-    private long last = System.nanoTime();
+    private boolean ticking;
+    private long last;
 
+    // Server information
+    private State serverState;
     private HashMap<String, JComponent> componentList; // Maintains references to swing elements that need to be modified 
     
 
@@ -91,9 +96,14 @@ public class Telepathy implements GameClient, Tickable{
      * border.
      */
     public Telepathy(){
+        this.ticking = true;
+        this.last = System.nanoTime();
+        this.serverState = null;
+
         this.componentList = new HashMap<>();
         this.buttonGrid = new JButton[COLS][ROWS];
         
+
         telepathyBoard = new JPanel();
         telepathyBoard.setLayout(new BorderLayout());
 
@@ -122,8 +132,8 @@ public class Telepathy implements GameClient, Tickable{
             //TODO: Make own method
             telepathyNotificationManager.dismissCurrentNotification();
             startGame.setEnabled(true);
-            int resetButtonCLicks = 0;
-            buttonClicks = resetButtonCLicks;
+            //int resetButtonCLicks = 0;
+            //buttonClicks = resetButtonCLicks;
             clearButtonBackgrounds();
             enableButtonGrid();
             sendCommand(TelepathyCommands.QUIT);
@@ -165,10 +175,10 @@ public class Telepathy implements GameClient, Tickable{
             JButton selectedBtn = (JButton) evt.getSource();
             for (int row = 0; row < this.buttonGrid.length; row++) {
                 for (int col = 0; col < this.buttonGrid[row].length; col++) {
-                    if (this.buttonGrid[col][row] == selectedBtn && buttonClicks == 1) {
+                    if (this.buttonGrid[col][row] == selectedBtn && this.serverState == State.TILESELECTION) {
                         disableButtonGrid();
                         selectTargetTile(col, row); 
-                    }else if (this.buttonGrid[col][row] == selectedBtn && buttonClicks >= 2){
+                    }else if (this.buttonGrid[col][row] == selectedBtn && this.serverState == State.RUNNING){
                         disableButtonGrid();
                         activateQuestOrGuessMessage(col, row); 
                     }
@@ -298,7 +308,6 @@ public class Telepathy implements GameClient, Tickable{
         gotIt.setPreferredSize(new Dimension(20, 40));
         gotIt.setAlignmentX(Component.CENTER_ALIGNMENT);
         gotIt.addActionListener(e -> {
-            int updateButtonClicks = buttonClicks++; 
             telepathyNotificationManager.dismissCurrentNotification();
         });
 
@@ -383,15 +392,12 @@ public class Telepathy implements GameClient, Tickable{
         yes.addActionListener(e -> {
             sendCommand(TelepathyCommands.CHOOSETILE, Integer.toString(x), Integer.toString(y));
             setButtonBorder(this.buttonGrid[x][y], Color.BLUE);
-            int updateButtonClicks = buttonClicks++;
             telepathyNotificationManager.dismissCurrentNotification();
-            enableButtonGrid();
         });
 
         JButton no = new JButton("No");
         no.addActionListener(e -> {
             telepathyNotificationManager.dismissCurrentNotification();
-            enableButtonGrid();
         });
 
         buttonPanel.add(yes);
@@ -440,7 +446,6 @@ public class Telepathy implements GameClient, Tickable{
         question.addActionListener(e -> {
             sendCommand(TelepathyCommands.ASKQUESTION, xyCoords);
             telepathyNotificationManager.dismissCurrentNotification();
-            enableButtonGrid();
         });
 
         JButton finalGuess = new JButton("Final Guess");
@@ -641,16 +646,31 @@ public class Telepathy implements GameClient, Tickable{
     private void handlePopupCommand(JsonObject commandPackage){
         ArrayList<String> popups = TelepathyCommandHandler.getAttributes(commandPackage);
 
+        // TODO: Replace all placeholder popups with specific message to use
+
         // First attribute is the identifier for popup
         if (popups.get(0).equals("welcomeMessage")) {
             activateWelcomeMessage();
+            this.serverState = State.INITIALISE;
         }
         
         if (popups.get(0).equals("tileSelect")) {
             // Use welcome message as a placeholder for future popups
             activateWelcomeMessage();
+            this.serverState = State.TILESELECTION;
         }
         
+        if(popups.get(0).equals("gameRunning")){
+            // Use welcome message as a placeholder
+            activateWelcomeMessage();
+            this.serverState = State.RUNNING;
+        }
+
+        if(popups.get(0).equals("gameOver")){
+            // Use welcome message as a placeholder
+            activateWelcomeMessage();
+            this.serverState = State.GAMEOVER;
+        }
     }
 
     /**
@@ -728,6 +748,14 @@ public class Telepathy implements GameClient, Tickable{
                     this.componentList.get("readyButton").setBackground(Color.BLUE);
                 }else {
                     this.componentList.get("readyButton").setBackground(Color.RED);
+                }
+            }
+            case "board" -> {
+                // Alter all tiles on board
+                if(attributes.get(1).equals("disableAll")){
+                    disableButtonGrid();
+                } else if(attributes.get(1).equals("enableAll")){
+                    enableButtonGrid();
                 }
             }
         }

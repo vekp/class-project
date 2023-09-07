@@ -11,9 +11,11 @@ import minigames.rendering.RenderingPackage;
 import minigames.telepathy.TelepathyCommandException;
 import minigames.telepathy.TelepathyCommands;
 import minigames.telepathy.TelepathyCommandHandler;
+import minigames.telepathy.State;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Represents a game of Telepathy that can be played. Stores and manages the current 
@@ -34,7 +36,9 @@ public class TelepathyGame {
     private int maxPlayers;
     private boolean joinable; 
     private State state;
+    private String currentPlayerTurn;
     private String winner;
+    private boolean finalGuessMade;
 
     private HashMap<String, Player> players = new HashMap<>();
     
@@ -49,6 +53,7 @@ public class TelepathyGame {
         this.gameName = name;
         this.maxPlayers = 2;
         this.winner = " ";
+        this.finalGuessMade = false;
         
         this.joinable = true;
         this.state = State.INITIALISE;
@@ -150,7 +155,10 @@ public class TelepathyGame {
                     TelepathyCommands.BUTTONUPDATE,
                     "readyButton",
                     String.valueOf(this.players.get(playerName).isReady())));
-
+            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
+                TelepathyCommands.BUTTONUPDATE, 
+                "board",
+                "disableAll"));
             renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
                     TelepathyCommands.POPUP,
                     "welcomeMessage"));
@@ -188,6 +196,15 @@ public class TelepathyGame {
         ArrayList<JsonObject> renderingCommands = commandStateCheck(State.RUNNING, "Cannot take question. Game not in RUNNING state");
         if (renderingCommands.size() > 0) {return renderingCommands;}
 
+        // Can only take the question if it is their turn
+        if(!(this.currentPlayerTurn.equals(playerName))){
+            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
+                TelepathyCommands.INVALIDCOMMAND,
+                "Not your turn"
+            ));
+            return renderingCommands;
+        }
+
         TelepathyCommands commandValue = TelepathyCommands.valueOf(commandObject.getString("command"));
         if(commandValue == TelepathyCommands.ASKQUESTION){
             // TODO: Tile comparison
@@ -195,10 +212,26 @@ public class TelepathyGame {
 
             // Check for partial match
         } else if(commandValue == TelepathyCommands.FINALGUESS){
+            this.finalGuessMade = true;
             // TODO Make full comparison between guess and chosenTile
             
             // Check for exact match
+
+            // Going to GAMEOVER then skip rest of this method
+            transitionToGameOver();
+            return renderingCommands;
         }
+        this.players.get(playerName).incrementTurns();
+
+        // Player has taken their turn - disable their board
+        renderingCommands.add(
+            TelepathyCommandHandler.makeJsonCommand(
+                TelepathyCommands.BUTTONUPDATE,
+                "board",
+                "disableAll")
+        );
+        
+        nextTurn();
 
         return renderingCommands;
     }
@@ -229,6 +262,10 @@ public class TelepathyGame {
             renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
                 TelepathyCommands.POPUP,
                 "Selected tile set!"));
+            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
+                TelepathyCommands.BUTTONUPDATE,
+                "board",
+                "disableAll"));
         } else{
             renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
                 TelepathyCommands.INVALIDCOMMAND, 
@@ -343,6 +380,11 @@ public class TelepathyGame {
             TelepathyCommands.POPUP,
             "tileSelect"));
         
+        updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(
+            TelepathyCommands.BUTTONUPDATE, 
+            "board",
+            "enableAll"));
+        
         // TODO: enable the game board
     }
 
@@ -365,8 +407,19 @@ public class TelepathyGame {
         }
 
         this.state = State.RUNNING;
+
         updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(
             TelepathyCommands.POPUP, "gameRunning"));
+        updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(
+            TelepathyCommands.BUTTONUPDATE, 
+            "board",
+            "disableAll"));
+
+        // Pick a random player to start taking a turn
+        int rNum = ThreadLocalRandom.current().nextInt(0, this.maxPlayers);
+        this.currentPlayerTurn = (String)(this.players.keySet().toArray()[rNum]);
+        
+        nextTurn();
     }
 
     /**
@@ -380,10 +433,7 @@ public class TelepathyGame {
      */
     private void transitionToGameOver(){
         // Check for game over conditions
-        // If player leaves while game is running - check fails then return without going to GAMEOVER
-        if (!(this.state != State.INITIALISE && this.players.size() < this.maxPlayers)) {
-            return;
-        }
+        if(!checkGameOverCondition()){ return; }
 
         // If player gets correct final guess
         // If player gets incorrect final guess
@@ -392,17 +442,73 @@ public class TelepathyGame {
 
         this.state = State.GAMEOVER;
 
+        updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(
+            TelepathyCommands.POPUP,
+            "gameOver"));
+        updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(
+            TelepathyCommands.BUTTONUPDATE,
+            "board",
+            "disableAll"));
         // 
-        for(String p : this.players.keySet()){
-            this.players.get(p).addUpdate(TelepathyCommandHandler.makeJsonCommand(
-                TelepathyCommands.GAMEOVER, 
-                this.winner));
-        }
+        //for(String p : this.players.keySet()){
+          //  this.players.get(p).addUpdate(TelepathyCommandHandler.makeJsonCommand(
+            //    TelepathyCommands.GAMEOVER, 
+              //  this.winner));
+        //}
     }
 
     /* *********************************
      * Helper methods
      * *********************************/
+
+    /**
+     * Inform a player that it is their turn, update their client to allow 
+     * them to take their turn.
+     */
+    private void nextTurn(){
+        // Find the player who's turn it is next - algorithm only works for two players!
+        for(String p : this.players.keySet()){
+            logger.info("Turn check: '{}' with '{}", p, this.currentPlayerTurn);
+            if(!(p.equals(this.currentPlayerTurn))){
+                this.currentPlayerTurn = p;
+                break;
+            }
+        }
+        
+        
+        logger.info("It is now {}'s turn.", this.currentPlayerTurn);
+        this.players.get(this.currentPlayerTurn).addUpdate(
+            TelepathyCommandHandler.makeJsonCommand(
+                TelepathyCommands.BUTTONUPDATE,
+                "board",
+                "enableAll"
+            )
+        );
+    } 
+
+    /**
+     * Check the current game state to see if the server can transition 
+     * to the GAMEOVER state.
+     * @return boolean value with the result of the check.
+     */
+    private boolean checkGameOverCondition(){
+        // Don't go into GAMEOVER again
+        if(this.state == State.GAMEOVER){
+            return false;
+        }
+
+        // Player has left the game while game is running
+        if (this.state != State.INITIALISE && this.players.size() < this.maxPlayers) {
+            return true;
+        }
+
+        // A player has made their final guess
+        if(this.finalGuessMade){
+            return true;
+        }
+
+        return false;
+    }
 
      /**
       * Perform a check on the current state of the game. Looks to see if TelepathyGame
