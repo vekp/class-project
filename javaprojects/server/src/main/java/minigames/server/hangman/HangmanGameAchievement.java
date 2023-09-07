@@ -1,11 +1,11 @@
-package minigames.server.wordGame;
+package minigames.server.hangman;
 
 import minigames.achievements.Achievement;
 
 /**
  * An enum to store details of each achievement in Muddle
  */
-enum WordGameAchievement {
+enum HangmanGameAchievement {
     MUDDLER (
             "You opened Hangman Game for the first time!",
             false
@@ -24,7 +24,7 @@ enum WordGameAchievement {
     );
     final Achievement achievement;
 
-    WordGameAchievement(String description, boolean hidden) {
+    HangmanGameAchievement(String description, boolean hidden) {
         this.achievement = new Achievement(
                 this.toString(),
                 description, 25,

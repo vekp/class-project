@@ -1,4 +1,4 @@
-package minigames.client.wordGuessClient;
+package minigames.client.hangman;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,8 +17,8 @@ import minigames.commands.CommandPackage;
  * A very simple interface for a snake game.
  * 
  */
-public class WordGameClient implements GameClient {
-    private static final Logger logger = LogManager.getLogger(WordGameClient.class);
+public class HangmanClient implements GameClient {
+    private static final Logger logger = LogManager.getLogger(HangmanClient.class);
 
     MinigameNetworkClient mnClient;
 
@@ -27,6 +27,8 @@ public class WordGameClient implements GameClient {
 
     /** Player name */
     String player;
+
+
 
     /**Buttons, JLabels and JPanels */
     JButton start, score, help, back, back1, exit, newGameButton, stopGameButton, exitButton;
@@ -40,7 +42,9 @@ public class WordGameClient implements GameClient {
     Dimension buttonDimension;    //Maximum and preferred dimension of button
 
     Font customBigFont, customSmallFont ; //font
-    public WordGameClient() {
+    Color borderColour = new Color(50, 50, 50);
+
+    public HangmanClient() {
 
         //Button Dimension
         buttonDimension = new Dimension(150, 50);
@@ -57,7 +61,7 @@ public class WordGameClient implements GameClient {
         GridBagConstraints g = new GridBagConstraints();
         
         //Header Text
-        headerText = new JLabel("Word Game");
+        headerText = new JLabel("Hangman Game");
         headerText.setForeground(Color.WHITE);
         headerText.setFont(customBigFont);
         headerPanel.add(headerText, g);
@@ -176,7 +180,7 @@ public class WordGameClient implements GameClient {
         g.gridy = 1;
         helpPanel.add(helpText, g);
 
-        helpText1 = new JLabel("- Collect chances for better game play");
+        helpText1 = new JLabel("- Collect lives for better game play");
         helpText1.setFont(customSmallFont);
         helpText1.setForeground(Color.white);
 
@@ -284,7 +288,7 @@ public class WordGameClient implements GameClient {
             case "viewHighScore" -> displayHighScore();
             case "howToPlay" -> displayHelpPanel();
             case "backToMenu" -> displayMainMenu();
-            case "game" -> displaySnakeGame();
+            case "game" -> displayHangmanGame();
             case "exit" -> closeGame();
 
         }
@@ -325,88 +329,105 @@ public class WordGameClient implements GameClient {
         mnClient.getMainWindow().pack();
     }
 
-    public void displaySnakeGame(){
+    public void displayHangmanGame(){
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(displayGame());
         mnClient.getMainWindow().addNorth(headerPanel);
+        mnClient.getMainWindow().addSouth(footerPanel);
         mnClient.getMainWindow().pack();
     }
- 
+
     public JPanel displayGame(){
-        mnClient.getMainWindow().clearAll(); 
+        mnClient.getMainWindow().clearAll();
 
-        JPanel mainPanel = new JPanel();
-        mainPanel.setPreferredSize(new Dimension(800, 700));
-        mainPanel.setBackground(Color.BLACK);
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
+        JPanel gameArea = new HangmanPanel();
+        gameArea.setPreferredSize(new Dimension(800, 570));
+        gameArea.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, borderColour));
 
+        newGameButton = new JButton("Play!");
+
+        return gameArea;
         
 
-        JPanel gamePanel = new JPanel();
-        gamePanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-		gamePanel.setLayout(new BoxLayout(gamePanel, BoxLayout.Y_AXIS));
-        gamePanel.setPreferredSize(new Dimension(200, 650));
-        gamePanel.setBackground(Color.GRAY);
-        gamePanel.setAlignmentY(Component.LEFT_ALIGNMENT);
-
-        mainPanel.add(gamePanel);
-
         
-
-        playerNumber = new JLabel("Start your game.");
-        playerNumber.setBorder(new EmptyBorder(10, 10, 10, 10));
-		playerNumber.setFont(new Font("TimesRoman", Font.PLAIN, 16));
-		playerNumber.setForeground(Color.BLUE);
-		gamePanel.add(playerNumber);
-
-        playerNumber.add(Box.createVerticalGlue());
-
-        JLabel pointIns = new JLabel("Point of snakes:");
-		pointIns.setFont(new Font("TimesRoman", Font.BOLD, 16));
-		playerNumber.add(pointIns);
-
-        Font fontPlain = new Font("TimesRoman", Font.PLAIN, 14);
-		Font fontBold = new Font("TimesRoman", Font.BOLD, 14);
-		pointInses = new JLabel[1];
-		pointLabels = new JLabel[1];
-        for (int i = 0; i < 1; i++) {
-			pointIns = new JLabel(snakePlayerStrs[i] + " "+ player);
-			pointIns.setFont(fontPlain);
-            pointIns.setForeground(Color.BLACK);
-			pointInses[i] = pointIns;
-
-			JLabel point = new JLabel("0");
-            point.setBorder(new EmptyBorder(5, 5, 5, 5));
-			point.setFont(fontBold);
-            point.setForeground(Color.BLACK);
-			pointLabels[i] = point;
-
-			gamePanel.add(pointIns);
-			gamePanel.add(point);
-		}
-
-        gamePanel.add(Box.createVerticalGlue());
-
-        Font btnFont = new Font("TimesRoman", Font.PLAIN, 14);
-		newGameButton = new JButton("New game");
-		newGameButton.setFont(btnFont);
-        newGameButton.addActionListener((evt) -> sendCommand("NEW"));
-		gamePanel.add(newGameButton);
-		gamePanel.add(Box.createVerticalGlue());
-
-        stopGameButton = new JButton("Stop game");
-		stopGameButton.setFont(btnFont);
-		stopGameButton.addActionListener((evt) -> sendCommand("STOP"));
-		gamePanel.add(stopGameButton);
-		gamePanel.add(Box.createVerticalGlue());
-
-        exitButton = new JButton("Exit");
-		exitButton.setFont(btnFont);
-		exitButton.addActionListener((evt) -> sendCommand("EXIT"));
-		gamePanel.add(exitButton);
-		gamePanel.add(Box.createVerticalGlue());
-
-		return mainPanel; 
-
+        
     }
+ 
+    // public JPanel displayGame(){
+    //     mnClient.getMainWindow().clearAll(); 
+
+    //     JPanel mainPanel = new JPanel();
+    //     mainPanel.setPreferredSize(new Dimension(800, 700));
+    //     mainPanel.setBackground(Color.BLACK);
+    //     mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
+
+        
+
+    //     JPanel gamePanel = new JPanel();
+    //     gamePanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+	// 	gamePanel.setLayout(new BoxLayout(gamePanel, BoxLayout.Y_AXIS));
+    //     gamePanel.setPreferredSize(new Dimension(200, 650));
+    //     gamePanel.setBackground(Color.GRAY);
+    //     gamePanel.setAlignmentY(Component.LEFT_ALIGNMENT);
+
+    //     mainPanel.add(gamePanel);
+
+        
+
+    //     playerNumber = new JLabel("Start your game.");
+    //     playerNumber.setBorder(new EmptyBorder(10, 10, 10, 10));
+	// 	playerNumber.setFont(new Font("TimesRoman", Font.PLAIN, 16));
+	// 	playerNumber.setForeground(Color.BLUE);
+	// 	gamePanel.add(playerNumber);
+
+    //     playerNumber.add(Box.createVerticalGlue());
+
+    //     JLabel pointIns = new JLabel("Point of snakes:");
+	// 	pointIns.setFont(new Font("TimesRoman", Font.BOLD, 16));
+	// 	playerNumber.add(pointIns);
+
+    //     Font fontPlain = new Font("TimesRoman", Font.PLAIN, 14);
+	// 	Font fontBold = new Font("TimesRoman", Font.BOLD, 14);
+	// 	pointInses = new JLabel[1];
+	// 	pointLabels = new JLabel[1];
+    //     for (int i = 0; i < 1; i++) {
+	// 		pointIns = new JLabel(snakePlayerStrs[i] + " "+ player);
+	// 		pointIns.setFont(fontPlain);
+    //         pointIns.setForeground(Color.BLACK);
+	// 		pointInses[i] = pointIns;
+
+	// 		JLabel point = new JLabel("0");
+    //         point.setBorder(new EmptyBorder(5, 5, 5, 5));
+	// 		point.setFont(fontBold);
+    //         point.setForeground(Color.BLACK);
+	// 		pointLabels[i] = point;
+
+	// 		gamePanel.add(pointIns);
+	// 		gamePanel.add(point);
+	// 	}
+
+    //     gamePanel.add(Box.createVerticalGlue());
+
+    //     Font btnFont = new Font("TimesRoman", Font.PLAIN, 14);
+	// 	newGameButton = new JButton("New game");
+	// 	newGameButton.setFont(btnFont);
+    //     newGameButton.addActionListener((evt) -> sendCommand("NEW"));
+	// 	gamePanel.add(newGameButton);
+	// 	gamePanel.add(Box.createVerticalGlue());
+
+    //     stopGameButton = new JButton("Stop game");
+	// 	stopGameButton.setFont(btnFont);
+	// 	stopGameButton.addActionListener((evt) -> sendCommand("STOP"));
+	// 	gamePanel.add(stopGameButton);
+	// 	gamePanel.add(Box.createVerticalGlue());
+
+    //     exitButton = new JButton("Exit");
+	// 	exitButton.setFont(btnFont);
+	// 	exitButton.addActionListener((evt) -> sendCommand("EXIT"));
+	// 	gamePanel.add(exitButton);
+	// 	gamePanel.add(Box.createVerticalGlue());
+
+	// 	return mainPanel; 
+
+    // }
 }

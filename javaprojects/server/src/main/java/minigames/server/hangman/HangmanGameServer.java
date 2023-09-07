@@ -1,4 +1,4 @@
-package minigames.server.wordGame;
+package minigames.server.hangman;
 
 import io.vertx.core.Future;
 import minigames.commands.CommandPackage;
@@ -16,7 +16,7 @@ import java.util.Random;
  * Our MuddleServer holds MuddleGames. 
  * When it receives a CommandPackage, it finds the MuddleGame and calls it.
  */
-public class WordGameServer implements GameServer {
+public class HangmanGameServer implements GameServer {
 
     static final String chars = "abcdefghijklmopqrstuvwxyz";
     AchievementHandler achievementHandler;
@@ -32,18 +32,18 @@ public class WordGameServer implements GameServer {
     }
 
     /** Holds the games in progress in memory (no db) */
-    HashMap<String, WordGame> games = new HashMap<>();
+    HashMap<String, HangmanGame> games = new HashMap<>();
 
-    public WordGameServer() {
-        achievementHandler = new AchievementHandler(WordGameServer.class);
+    public HangmanGameServer() {
+        achievementHandler = new AchievementHandler(HangmanGameServer.class);
         // Register all achievements with handler
-        for (WordGameAchievement a : WordGameAchievement.values()) {
+        for (HangmanGameAchievement a : HangmanGameAchievement.values()) {
             achievementHandler.registerAchievement(a.achievement);
         }
     }
     @Override
     public GameServerDetails getDetails() {
-        return new GameServerDetails("WordGame", "It would be a WG, but it's not really written yet");
+        return new GameServerDetails("Hangman", "It would be a HGM, but it's not really written yet");
     }
 
     @Override
@@ -60,20 +60,20 @@ public class WordGameServer implements GameServer {
 
     @Override
     public Future<RenderingPackage> newGame(String playerName) {
-        WordGame g = new WordGame(randomName(), playerName);
+        HangmanGame g = new HangmanGame(randomName(), playerName);
         games.put(g.name, g);
         return Future.succeededFuture(g.joinGame(playerName));
     }
 
     @Override
     public Future<RenderingPackage> joinGame(String game, String playerName) {
-        WordGame g = games.get(game);
+        HangmanGame g = games.get(game);
         return Future.succeededFuture(g.joinGame(playerName));
     }
 
     @Override
     public Future<RenderingPackage> callGame(CommandPackage cp) {
-        WordGame g = games.get(cp.gameId());
+        HangmanGame g = games.get(cp.gameId());
         return Future.succeededFuture(g.runCommands(cp));
     }
 

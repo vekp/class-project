@@ -1,6 +1,6 @@
-package minigames.server.wordGame;
+package minigames.server.hangman;
 
-import static minigames.server.wordGame.WordGameAchievement.*;
+import static minigames.server.hangman.HangmanGameAchievement.*;
 
 import java.util.*;
 
@@ -16,10 +16,10 @@ import minigames.rendering.NativeCommands.LoadClient;
 /**
  * Represents an actual Muddle game in progress
  */
-public class WordGame {
+public class HangmanGame {
 
     /** A logger for logging output */
-    private static final Logger logger = LogManager.getLogger(WordGame.class);
+    private static final Logger logger = LogManager.getLogger(HangmanGame.class);
 
     static int WIDTH = 2;
     static int HEIGHT = 2;
@@ -36,10 +36,10 @@ public class WordGame {
     AchievementHandler achievementHandler;
     String playerName;
 
-    public WordGame(String name, String playerName) {
+    public HangmanGame(String name, String playerName) {
         this.name = name;
         this.playerName = playerName;
-        this.achievementHandler = new AchievementHandler(WordGameServer.class);
+        this.achievementHandler = new AchievementHandler(HangmanGameServer.class);
 
         // Unlock Muddler achievement for starting a new game
         achievementHandler.unlockAchievement(playerName, MUDDLER.toString());
@@ -47,11 +47,7 @@ public class WordGame {
 
     String[][] rooms = new String[][] {
         {
-           "Welcome to Word Game"
-        },
-        {
-            "You are standing in an open field west of a white house, with a boarded front door. There is a small mailbox here.",
-            "You wake up. The room is very gently spinning around your head. Or at least it would be if you could see it which you can't. It is pitch black."
+           "Welcome to Hangman"
         }
     };
 
@@ -64,7 +60,7 @@ public class WordGame {
 
     /** Metadata for this game */
     public GameMetadata gameMetadata() {
-        return new GameMetadata("WordGame", name, getPlayerNames(), true);
+        return new GameMetadata("Hangman", name, getPlayerNames(), true);
     }
 
     /** Describes the state of a player */
@@ -102,6 +98,7 @@ public class WordGame {
             case "HELP" -> renderingCommands.add(new JsonObject().put("command", "howToPlay"));
             case "BACK" -> renderingCommands.add(new JsonObject().put("command", "backToMenu"));
             case "GAME" -> renderingCommands.add(new JsonObject().put("command", "game"));
+            case "NEW" -> renderingCommands.add(new JsonObject().put("command", "new"));
             case "EXIT" -> {
                 
                 }
