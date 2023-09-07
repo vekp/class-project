@@ -358,9 +358,9 @@ public class Battleship implements GameClient, Tickable {
             // System.out.println("Mac fonts");
             return new ArrayList<>(
                     Arrays.asList(
-                            new Font("Andale Mono", Font.BOLD, 30),
+                            new Font("Andale Mono", Font.PLAIN, 30),
                             new Font("Andale Mono", Font.PLAIN, 20),
-                            new Font("Andale Mono", Font.BOLD, 18),
+                            new Font("Andale Mono", Font.PLAIN, 18),
                             new Font("Andale Mono", Font.PLAIN, 16)
                     ));
         } else {
