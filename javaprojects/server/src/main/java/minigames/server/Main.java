@@ -3,6 +3,7 @@ package minigames.server;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import minigames.server.battleship.BattleshipServer;
+import minigames.server.hangman.HangmanServer;
 import minigames.server.highscore.*;
 import minigames.server.muddle.MuddleServer;
 import minigames.server.spacemaze.SpaceMazeServer;
@@ -70,6 +71,7 @@ public class Main extends AbstractVerticle {
         gameRegistry.registerGameServer("SpaceMaze", new SpaceMazeServer());
         gameRegistry.registerGameServer("Battleship", new BattleshipServer());
         gameRegistry.registerGameServer("Telepathy", new TelepathyServer());
+        gameRegistry.registerGameServer("Hangman", new HangmanServer());
 
         // Initialize the HighScoreAPI
         HighScoreStorage highScoreStorage = new StubHighScoreStorage();
