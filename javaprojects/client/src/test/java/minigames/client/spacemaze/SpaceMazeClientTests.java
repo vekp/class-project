@@ -28,17 +28,27 @@ public class SpaceMazeClientTests {
         SpaceMaze spaceMaze = new SpaceMaze();
         ArrayList<SpaceBot> bots = new ArrayList<>();
         char [][] mazeMap = {
-                {'S','.', 'U'},
-                {'K', 'B','?'},
-                {'M', '$', 'T'},
-                {'H', 'E', 'W'},
-                {'P', '.', '.'},
+                {'S','.', 'U', '.'},
+                {'K', 'B','?', '.'},
+                {'M', '$', 'T', '.'},
+                {'H', 'E', '.', '.'},
+                {'P', '.', 'W', '.'},
+                {'W', '.', '.', '.'},
+                {'W', 'W', '.', 'W'},
+                {'.', 'W', '.', 'W'},
+                {'.', '.', '.', 'W'},
         };
         maze = new MazeDisplay(mazeMap, spaceMaze, bots);
     }
 
-    Point startLocation = new Point(1,1);
-    // Bot class tests
+    //-------------------Bot class tests------------------------//
+
+    /**
+     * Test to check the bot constructor
+     * @author Nik Olins
+     */
+    Point startLocation = new Point(1,8);
+
     private SpaceBot bot = new SpaceBot(startLocation);
     @DisplayName("Check the bot constructor")
     @Test
@@ -47,84 +57,138 @@ public class SpaceMazeClientTests {
         
         assertEquals(startLocation.x, cLoc.x);
         assertEquals(startLocation.y, cLoc.y);
-        //assertEquals('.', bot.getTile());
+        assertNotNull(bot.testingGetMovesList(), "bot move ArrayList is not null");
+        assertTrue(bot.testingIsSeeking(), "bot is seeking");
 
     }
-
+    /**
+     * Test to check an up move
+     * @author Nik Olins
+     */
     @DisplayName("Check the bot movement up")
     @Test
     public void testBotMoveUp() {
         Point cLoc = bot.getLocation(); 
-        Point moveUp = bot.getMoveAttempt(0);
+        Point moveUp = bot.testingGetMoveAttempt(0);
         
         assertEquals(cLoc.x, moveUp.x);
         assertEquals((cLoc.y-1), moveUp.y);
         
     }
-
+    /**
+     * Test to check a right move
+     * @author Nik Olins
+     */
     @DisplayName("Check the bot movement right")
     @Test
     public void testBotMoveRight() {
         Point cLoc = bot.getLocation();
-        Point moveRight = bot.getMoveAttempt(1);
+        Point moveRight = bot.testingGetMoveAttempt(1);
        
         assertEquals((cLoc.x+1), moveRight.x);
         assertEquals(cLoc.y, moveRight.y);
 
     }
-
+    /**
+     * Test to check a down move
+     * @author Nik Olins
+     */
     @DisplayName("Check the bot movement down")
     @Test
     public void testBotMoveDown() {
         Point cLoc = bot.getLocation();
-        Point moveDown = bot.getMoveAttempt(2);
+        Point moveDown = bot.testingGetMoveAttempt(2);
        
         assertEquals(cLoc.x, moveDown.x);
         assertEquals((cLoc.y+1), moveDown.y);
 
     }
-
+    /**
+     * Test to check a left move
+     * @author Nik Olins
+     */
     @DisplayName("Check the bot movement left")
     @Test
     public void testBotMoveLeft() {
         Point cLoc = bot.getLocation();
-        Point moveLeft = bot.getMoveAttempt(3);
+        Point moveLeft = bot.testingGetMoveAttempt(3);
        
         assertEquals((cLoc.x-1), moveLeft.x);
         assertEquals(cLoc.y, moveLeft.y);
 
     }
-
+    /**
+     * Test to check all legal move commands are accepted. 0 : Up, 1 : Right, 2 : Down, 3 : Left
+     * @author Nik Olins
+     */
     @DisplayName("Check for legal move commands")
     @Test
     public void testBotMoveCommand() {
 
         // up, right, down, left
-        assertDoesNotThrow(() -> { bot.getMoveAttempt(0); });
-        assertDoesNotThrow(() -> { bot.getMoveAttempt(1); });
-        assertDoesNotThrow(() -> { bot.getMoveAttempt(2); });
-        assertDoesNotThrow(() -> { bot.getMoveAttempt(3); });
+        assertDoesNotThrow(() -> { bot.testingGetMoveAttempt(0); });
+        assertDoesNotThrow(() -> { bot.testingGetMoveAttempt(1); });
+        assertDoesNotThrow(() -> { bot.testingGetMoveAttempt(2); });
+        assertDoesNotThrow(() -> { bot.testingGetMoveAttempt(3); });
 
     }
-
+    /**
+     * Test to check for an illegal move command <0 or >3
+     * @author Nik Olins
+     */
     @DisplayName("Check for illegal move commands")
     @Test
     public void testIllegalBotMoveCommand() {
 
        // a command not between 0 - 3 inclusive
-       assertThrows(RuntimeException.class, () -> { bot.getMoveAttempt(4); });
+       assertThrows(RuntimeException.class, () -> { bot.testingGetMoveAttempt(4); });
     }
-    /*
-    @DisplayName("Check setting of occupied tile")
+    /**
+     * Test to check the seeking movement chooses the move to close the distance to the player.
+     * @author Nik Olins
+     */
+    @DisplayName("Testing seeking move selection behaviour.")
     @Test
-    public void testBotUpdateTile() {
-        char testChar = 'K';
-       // a command not between 0 - 3 inclusive
-       char currChar = bot.getTile();
-       bot.updateTile(testChar);
-       assertEquals(bot.getTile(), testChar);
+    public void testDistanceCloser() {
+        // Map for reference
+        /*
+         char [][] mazeMap = {
+                {'S','.', 'U', '.'},
+                {'K', 'B','?', '.'},
+                {'M', '$', 'T', '.'},
+                {'H', 'E', '.', '.'},
+                {'P', '.', 'W', '.'},
+                {'W', '.', '.', '.'},
+                {'W', 'W', '.', 'W'},
+                {'.', 'W', '.', 'W'},
+                {'W', 'W', '.', 'W'},
+         */
+        // Test when two moves valid moves have the same closure distance.
+        Point playerPosOne = new Point(2,3);
+        bot.updateLocation(new Point(2,5));
+        ArrayList<Point> validMovesOne = new ArrayList<Point>();
+        Point posOneInvalidMove = new Point(3,5);
+        validMovesOne.add(posOneInvalidMove);
+        validMovesOne.add(new Point(2,6));
+        Point posOneValidMove = new Point(1,5);
+        validMovesOne.add(posOneValidMove);
+        Point seekingMoveDecisionOne = bot.testingDistanceCloser(playerPosOne, validMovesOne);
+         // test 3, 2, 1, 0 preference order
+        assertTrue(posOneValidMove.equals(seekingMoveDecisionOne), "should have selected move 3");
+        // Test invalid move choice (0, 1, 2, 3) counter preference
+        assertFalse(posOneInvalidMove.equals(seekingMoveDecisionOne), "move 1 should have been invalid");
+
+        // Test when there are no valid moves to get to the player, returns Point(-1,-1)
+        Point playerPosTwo = new Point(2,7);
+        bot.updateLocation(new Point(0,7));
+        ArrayList<Point> validMovesTwo = new ArrayList<Point>();
+
+        Point seekingMoveDecisionTwo = bot.testingDistanceCloser(playerPosTwo, validMovesTwo);
+        Point expectedResult = new Point(-1,-1);
+
+        assertTrue(expectedResult.equals(seekingMoveDecisionTwo), "expected Point(-1,-1)");
+
     }
-    */
 
     /**
      * Test to check if moving on to a locked exit or wall is
@@ -138,12 +202,12 @@ public class SpaceMazeClientTests {
         // Locked Exit
         assertFalse(maze.isMoveValid(new Point(1, 3)));
         // Wall
-        assertFalse(maze.isMoveValid(new Point(2, 3)));
+        assertFalse(maze.isMoveValid(new Point(2, 4)));
         // Out of bounds in all four directions
         assertFalse(maze.isMoveValid(new Point(0, -1)));
         assertFalse(maze.isMoveValid(new Point(-1, 0)));
-        assertFalse(maze.isMoveValid(new Point(1, 5)));
-        assertFalse(maze.isMoveValid(new Point(3, 0)));
+        assertFalse(maze.isMoveValid(new Point(1, 9)));
+        assertFalse(maze.isMoveValid(new Point(4, 0)));
     }
 
     /**
