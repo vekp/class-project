@@ -7,6 +7,10 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.*;
 import minigames.rendering.NativeCommands.LoadClient;
 
+import minigames.server.memory.DeckOfCards;
+import minigames.server.memory.DeckOfCards.PlayingCard;
+import minigames.server.shufflingsystem.ShufflingFramework;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,6 +33,7 @@ public class MemoryGame {
     String playerName;
     AchievementHandler achievementHandler;
     String cardToShow = "_2_of_Clubs.png";
+    PlayingCard[] playingCards;
 
     public MemoryGame(String name, String playerName) {
         this.name = name;
@@ -37,6 +42,9 @@ public class MemoryGame {
 
         // Unlock TEST_THAT_MEMORY achievement for starting a new game
         achievementHandler.unlockAchievement(playerName, TEST_THAT_MEMORY.toString());
+
+        this.playingCards = new DeckOfCards(18, true).getCards();
+        ShufflingFramework.shuffle(playingCards);
     }
 
     /** Achievement handler for this game */
@@ -50,6 +58,8 @@ public class MemoryGame {
     public String[] getPlayerNames() {
         return players.keySet().toArray(String[]::new);
     }
+
+    /** The deck of cards in use for the current game */
 
     /** Metadata for this game */
     public GameMetadata gameMetadata() {
@@ -69,57 +79,76 @@ public class MemoryGame {
             }
             case "Flip_Card_1" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_1"));
+                System.out.println(playingCards[0].getValue() + " of " + playingCards[0].getSuit());
             }
             case "Flip_Card_2" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_2"));
+                System.out.println(playingCards[1].getValue() + " of " + playingCards[1].getSuit());
+
             }
             case "Flip_Card_3" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_3"));
+                System.out.println(playingCards[2].getValue() + " of " + playingCards[2].getSuit());
             }
             case "Flip_Card_4" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_4"));
+                System.out.println(playingCards[3].getValue() + " of " + playingCards[3].getSuit());
             }
             case "Flip_Card_5" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_5"));
+                System.out.println(playingCards[4].getValue() + " of " + playingCards[4].getSuit());
             }
             case "Flip_Card_6" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_6"));
+                System.out.println(playingCards[5].getValue() + " of " + playingCards[5].getSuit());
             }
             case "Flip_Card_7" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_7"));
+                System.out.println(playingCards[6].getValue() + " of " + playingCards[6].getSuit());
             }
             case "Flip_Card_8" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_8"));
+                System.out.println(playingCards[7].getValue() + " of " + playingCards[7].getSuit());
             }
             case "Flip_Card_9" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_9"));
+                System.out.println(playingCards[8].getValue() + " of " + playingCards[8].getSuit());
             }
             case "Flip_Card_10" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_10"));
+                System.out.println(playingCards[9].getValue() + " of " + playingCards[9].getSuit());
             }
             case "Flip_Card_11" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_11"));
+                System.out.println(playingCards[10].getValue() + " of " + playingCards[10].getSuit());
             }
             case "Flip_Card_12" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_12"));
+                System.out.println(playingCards[11].getValue() + " of " + playingCards[11].getSuit());
             }
             case "Flip_Card_13" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_13"));
+                System.out.println(playingCards[12].getValue() + " of " + playingCards[12].getSuit());
             }
             case "Flip_Card_14" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_14"));
+                System.out.println(playingCards[13].getValue() + " of " + playingCards[13].getSuit());
             }
             case "Flip_Card_15" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_15"));
+                System.out.println(playingCards[14].getValue() + " of " + playingCards[14].getSuit());
             }
             case "Flip_Card_16" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_16"));
+                System.out.println(playingCards[15].getValue() + " of " + playingCards[15].getSuit());
             }
             case "Flip_Card_17" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_17"));
+                System.out.println(playingCards[16].getValue() + " of " + playingCards[16].getSuit());
             }
             case "Flip_Card_18" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_18"));
+                System.out.println(playingCards[17].getValue() + " of " + playingCards[17].getSuit());
             }
 
 

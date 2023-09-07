@@ -3,7 +3,7 @@ package minigames.server.shufflingsystem;
 import java.util.Random;
 import java.util.ArrayList;
 
-public class ShufflingFramework<T> {
+public class ShufflingFramework {
 
     static Random random = new Random();
 
@@ -80,5 +80,4 @@ public class ShufflingFramework<T> {
 
     //More work would be required to get this to work on shuffling a queue or stack
     //Doesn't seem like a huge priority, will come back to it if I have time or if other groups request it
-
 }
