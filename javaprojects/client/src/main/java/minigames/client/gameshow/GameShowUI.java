@@ -17,6 +17,7 @@ import javax.swing.JTextField;
 import javax.swing.OverlayLayout;
 import javax.swing.SwingUtilities;
 
+import io.vertx.core.json.JsonObject;
 import minigames.client.Main;
 
 import java.awt.event.ActionEvent;
@@ -51,6 +52,9 @@ public class GameShowUI {
         public static JPanel consistantPanel = null;
         public static Font pixelFont;
         public JPanel homeScreenPanel;
+
+        static JButton wordScramble;
+        static JButton imageGuesserStart;
 
         private int alpha = 255;
         private int increment = -5;
@@ -278,6 +282,17 @@ public class GameShowUI {
                 startGame.setContentAreaFilled(false);
                 startGame.setFocusPainted(false);
                 startGame.setBorderPainted(false);
+
+                wordScramble = new JButton("Word Scramble");
+                wordScramble.setAlignmentX(Component.CENTER_ALIGNMENT);
+                wordScramble.addActionListener((evt) -> WordScramble.welcome(this));
+                miniMiniGame.add(wordScramble);
+
+                imageGuesserStart = new JButton("Image Guesser");
+                imageGuesserStart.setAlignmentX(Component.CENTER_ALIGNMENT);
+                imageGuesserStart.addActionListener(
+                                (evt) -> sendCommand(new JsonObject().put("command", "imageGuesser")));
+                miniMiniGame.add(imageGuesserStart);
 
                 miniMiniGame.add(startGame, BorderLayout.PAGE_END);
 
