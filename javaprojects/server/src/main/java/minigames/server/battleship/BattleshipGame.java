@@ -227,14 +227,8 @@ public class BattleshipGame {
         //fail and they will be prompted to provide another input
         BattleshipTurnResult result = currentPlayer.processTurn(userInput, opponent.getBoard());
 
-        // Update current player's message history with the result
+        // Update current player's message history with the result - including invalid results
         currentPlayer.updateHistory(result.playerMessage());
-        // Determine response to other player based on their result
-        if (result.shipHit()) {
-            opponent.updateHistory(result.opponentMessage());
-        } else {
-            opponent.updateHistory(result.opponentMessage());
-        }
 
         //the commands to be sent back to the player
         ArrayList<JsonObject> renderingCommands = new ArrayList<>(getGameRender(currentPlayer, opponent));
@@ -242,6 +236,8 @@ public class BattleshipGame {
         //only swap turns if the turn was successful. If not, it means the input was invalid
         //and we want the player to try again
         if (result.successful()) {
+            //opponent should now get feedback about the player's turn
+            opponent.updateHistory(result.opponentMessage());
             SwapTurns();
             renderingCommands.add(new JsonObject().put("command", "wait"));
         }
