@@ -1,4 +1,4 @@
-package minigames.client.hangmanClient;
+package minigames.client.wordGuessClient;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,8 +17,8 @@ import minigames.commands.CommandPackage;
  * A very simple interface for a snake game.
  * 
  */
-public class HangmanGameClient implements GameClient {
-    private static final Logger logger = LogManager.getLogger(HangmanGameClient.class);
+public class WordGameClient implements GameClient {
+    private static final Logger logger = LogManager.getLogger(WordGameClient.class);
 
     MinigameNetworkClient mnClient;
 
@@ -40,7 +40,7 @@ public class HangmanGameClient implements GameClient {
     Dimension buttonDimension;    //Maximum and preferred dimension of button
 
     Font customBigFont, customSmallFont ; //font
-    public HangmanGameClient() {
+    public WordGameClient() {
 
         //Button Dimension
         buttonDimension = new Dimension(150, 50);
@@ -57,7 +57,7 @@ public class HangmanGameClient implements GameClient {
         GridBagConstraints g = new GridBagConstraints();
         
         //Header Text
-        headerText = new JLabel("Hangman Game");
+        headerText = new JLabel("Word Game");
         headerText.setForeground(Color.WHITE);
         headerText.setFont(customBigFont);
         headerPanel.add(headerText, g);
@@ -176,7 +176,7 @@ public class HangmanGameClient implements GameClient {
         g.gridy = 1;
         helpPanel.add(helpText, g);
 
-        helpText1 = new JLabel("- Collect lives for better game play");
+        helpText1 = new JLabel("- Collect chances for better game play");
         helpText1.setFont(customSmallFont);
         helpText1.setForeground(Color.white);
 

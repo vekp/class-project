@@ -1,4 +1,6 @@
-package minigames.server.hangman;
+package minigames.server.wordGame;
+
+import static minigames.server.wordGame.WordGameAchievement.*;
 
 import java.util.*;
 
@@ -10,16 +12,14 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.*;
 import minigames.rendering.NativeCommands.LoadClient;
 
-import static minigames.server.hangman.HangmanAchievement.*;
-
 
 /**
  * Represents an actual Muddle game in progress
  */
-public class HangmanGame {
+public class WordGame {
 
     /** A logger for logging output */
-    private static final Logger logger = LogManager.getLogger(HangmanGame.class);
+    private static final Logger logger = LogManager.getLogger(WordGame.class);
 
     static int WIDTH = 2;
     static int HEIGHT = 2;
@@ -36,10 +36,10 @@ public class HangmanGame {
     AchievementHandler achievementHandler;
     String playerName;
 
-    public HangmanGame(String name, String playerName) {
+    public WordGame(String name, String playerName) {
         this.name = name;
         this.playerName = playerName;
-        this.achievementHandler = new AchievementHandler(HangmanServer.class);
+        this.achievementHandler = new AchievementHandler(WordGameServer.class);
 
         // Unlock Muddler achievement for starting a new game
         achievementHandler.unlockAchievement(playerName, MUDDLER.toString());
@@ -47,7 +47,7 @@ public class HangmanGame {
 
     String[][] rooms = new String[][] {
         {
-           "Welcome to Hangman Game"
+           "Welcome to Word Game"
         },
         {
             "You are standing in an open field west of a white house, with a boarded front door. There is a small mailbox here.",
@@ -64,7 +64,7 @@ public class HangmanGame {
 
     /** Metadata for this game */
     public GameMetadata gameMetadata() {
-        return new GameMetadata("Hangman", name, getPlayerNames(), true);
+        return new GameMetadata("WordGame", name, getPlayerNames(), true);
     }
 
     /** Describes the state of a player */
