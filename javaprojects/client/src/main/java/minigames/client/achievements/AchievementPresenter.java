@@ -67,7 +67,7 @@ public class AchievementPresenter {
      * @param targetHeight int of desired height to scale image to
      * @return ImageIcon after it has been scaled.
      */
-    private ImageIcon scaledImage(String filepath, int targetHeight) {
+    public static ImageIcon scaledImage(String filepath, int targetHeight) {
         ImageIcon imageIcon = new ImageIcon(filepath);
         float aspectRatio = (float) imageIcon.getIconWidth() / imageIcon.getIconHeight();
         int targetWidth;
