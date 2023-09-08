@@ -6,6 +6,7 @@ import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseMotionListener;
 
 public class DialogManager extends NotificationManager{
@@ -46,7 +47,7 @@ public class DialogManager extends NotificationManager{
     /**
      * Display a message dialog with the given title and Component. Includes an OK button for dismissal.
      */
-    public DialogManager showMessageDialog(String title, JComponent component, boolean okButtonRequired) {
+    public DialogManager showMessageDialog(String title, JComponent component, boolean okButtonRequired, ActionListener okButtonActionListener) {
   // Make internal frame with OK button
         JInternalFrame dialog = new JInternalFrame(title, false, true);
         dialog.setLayout(new GridBagLayout());
@@ -65,6 +66,7 @@ public class DialogManager extends NotificationManager{
             gbc.insets = new Insets(0, 20, 10, 20);
             dialog.add(okButton, gbc);
             okButton.addActionListener(e -> dismissCurrentNotification());
+            if (okButtonActionListener != null) okButton.addActionListener(okButtonActionListener);
         }
         // Set close operation
         dialog.setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
@@ -88,6 +90,10 @@ public class DialogManager extends NotificationManager{
      */
     public DialogManager showMessageDialog(String title, JComponent component) {
         return showMessageDialog(title, component, true);
+    }
+
+    public DialogManager showMessageDialog(String title, JComponent component, boolean okButtonRequired) {
+        return showMessageDialog(title, component, okButtonRequired, null);
     }
 
 }
