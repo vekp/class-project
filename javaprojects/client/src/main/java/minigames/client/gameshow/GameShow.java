@@ -50,7 +50,7 @@ public class GameShow implements GameClient {
 
     JPanel homeScreen;
 
-    JPanel gameContainer = GameShowUI.gameContainer;
+    // JPanel gameContainer;
     JPanel gameArea;
     JPanel gameSelect;
     JLabel gameSelectInstructions;
@@ -67,8 +67,10 @@ public class GameShow implements GameClient {
     int gameId;
     JPanel gamePanel;
 
-    public GameShow() {
+    public static GameShow Main;
 
+    public GameShow() {
+        Main = this;
     }
 
     public void wordScrambleGuess(boolean correct) {
@@ -87,9 +89,9 @@ public class GameShow implements GameClient {
     }
 
     public void startImageGuesser(String imageFileName, int gameId) {
-        gameContainer.removeAll();
-        gameContainer.validate();
-        gameContainer.repaint();
+        GameShowUI.gameContainer.removeAll();
+        GameShowUI.gameContainer.validate();
+        GameShowUI.gameContainer.repaint();
 
         String imageFolderLocation = "src/main/resources/images/memory_game_pics/" + imageFileName;
         ImageIcon imageIcon = new ImageIcon(imageFolderLocation);
@@ -135,11 +137,11 @@ public class GameShow implements GameClient {
         inputPanel.add(inputComponents, BorderLayout.CENTER); // Add the container with fixed-size components
         inputPanel.add(outcomeContainer, BorderLayout.SOUTH);
         // Add the grid panel to the center of the container
-        gameContainer.add(gridPanel, BorderLayout.CENTER);
-        gameContainer.add(inputPanel, BorderLayout.SOUTH);
+        GameShowUI.gameContainer.add(gridPanel, BorderLayout.CENTER);
+        GameShowUI.gameContainer.add(inputPanel, BorderLayout.SOUTH);
 
-        gameContainer.validate();
-        gameContainer.repaint();
+        GameShowUI.gameContainer.validate();
+        GameShowUI.gameContainer.repaint();
     }
 
     public void imageGuesserGuess(boolean correct) {
@@ -189,7 +191,7 @@ public class GameShow implements GameClient {
 
         // Add our components to the north, south, east, west, or centre of the main
         // window's BorderLayout
-        homeScreen = GameShowUI.generateIntroPanel();
+        homeScreen = GameShowUI.generateIntroPanel(this);
         mnClient.getMainWindow().addCenter(homeScreen);
         mnClient.getMainWindow().pack();
 

@@ -130,13 +130,13 @@ public class GameShowUI {
                 }).start();
         }
 
-        public static JPanel generateIntroPanel() {
+        public static JPanel generateIntroPanel(GameShow gameShow) {
                 pixelFont();
                 JPanel introPanel = new JPanel();
                 introPanel.setLayout(new OverlayLayout(introPanel));
 
                 JPanel topPanel = generateHomeScreen();
-                JPanel bottomPanel = generateConsistentPanel();
+                JPanel bottomPanel = generateConsistentPanel(gameShow);
 
                 introPanel.add(topPanel);
                 introPanel.add(bottomPanel);
@@ -252,10 +252,9 @@ public class GameShowUI {
 
         }
 
-        public static JPanel generateGameContainer() {
+        public static JPanel generateGameContainer(GameShow gameShow) {
 
-                JPanel gameContainer;
-                JPanel lobbyPanel = generateLobbyPanel();
+                JPanel lobbyPanel = generateLobbyPanel(gameShow);
 
                 gameContainer = new JPanel(new BorderLayout());
 
@@ -265,7 +264,7 @@ public class GameShowUI {
                 return gameContainer;
         }
 
-        public static JPanel generateLobbyPanel() {
+        public static JPanel generateLobbyPanel(GameShow gameShow) {
 
                 JPanel lobbyPanel = new JPanel();
 
@@ -286,6 +285,17 @@ public class GameShowUI {
                 startGame.setFocusPainted(false);
                 startGame.setBorderPainted(false);
 
+                wordScramble = new JButton("Word Scramble");
+                // wordScramble.setAlignmentX(Component.CENTER_ALIGNMENT);
+                wordScramble.addActionListener((evt) -> WordScramble.welcome(GameShow.Main));
+                miniMiniGame.add(wordScramble, BorderLayout.PAGE_START);
+
+                imageGuesserStart = new JButton("Image Guesser");
+                // imageGuesserStart.setAlignmentX(Component.CENTER_ALIGNMENT);
+                imageGuesserStart.addActionListener(
+                                (evt) -> gameShow.sendCommand(new JsonObject().put("command", "imageGuesser")));
+                miniMiniGame.add(imageGuesserStart, BorderLayout.CENTER);
+
                 miniMiniGame.add(startGame, BorderLayout.PAGE_END);
 
                 players = new JTextArea("Players in lobby: " + "", 20, 30);// TODO: get names of players
@@ -300,10 +310,10 @@ public class GameShowUI {
                 return lobbyPanel;
         }
 
-        public static JPanel generateConsistentPanel() {
+        public static JPanel generateConsistentPanel(GameShow gameShow) {
 
                 JPanel consistentPanel = new JPanel();
-                JPanel gameContainer = generateGameContainer();
+                JPanel gameContainer = generateGameContainer(gameShow);
 
                 JPanel scoreHeadingsHolder;
                 JPanel scoreHolder;

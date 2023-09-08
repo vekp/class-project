@@ -32,9 +32,9 @@ import java.awt.event.ActionListener;
 public class ImageGuesser {
 
     public static void startImageGuesser(GameShow gs, String imageFileName, int gameId) {
-        gs.gameContainer.removeAll();
-        gs.gameContainer.validate();
-        gs.gameContainer.repaint();
+        GameShowUI.gameContainer.removeAll();
+        GameShowUI.gameContainer.validate();
+        GameShowUI.gameContainer.repaint();
 
         String imageFolderLocation = "src/main/resources/images/memory_game_pics/" + imageFileName;
         ImageIcon imageIcon = new ImageIcon(imageFolderLocation);
@@ -80,11 +80,11 @@ public class ImageGuesser {
         gs.inputPanel.add(inputComponents, BorderLayout.CENTER); // Add the container with fixed-size components
         gs.inputPanel.add(gs.outcomeContainer, BorderLayout.SOUTH);
         // Add the grid panel to the center of the container
-        gs.gameContainer.add(gridPanel, BorderLayout.CENTER);
-        gs.gameContainer.add(gs.inputPanel, BorderLayout.SOUTH);
+        GameShowUI.gameContainer.add(gridPanel, BorderLayout.CENTER);
+        GameShowUI.gameContainer.add(gs.inputPanel, BorderLayout.SOUTH);
 
-        gs.gameContainer.validate();
-        gs.gameContainer.repaint();
+        GameShowUI.gameContainer.validate();
+        GameShowUI.gameContainer.repaint();
     }
 
     public static void guess(GameShow gs, boolean correct) {

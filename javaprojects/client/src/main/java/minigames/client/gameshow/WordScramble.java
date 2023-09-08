@@ -11,7 +11,7 @@ public class WordScramble {
      */
     public static void welcome(GameShow gs) {
         // Clear the current game container
-        gs.gameContainer.removeAll();
+        GameShowUI.gameContainer.removeAll();
 
         // The base panel for the screen
         JPanel welcomeScreen = new JPanel(new GridBagLayout());
@@ -108,16 +108,16 @@ public class WordScramble {
         welcomeScreen.add(difficultyPanel, gbc);
 
         // Add the welcome screen to the game container and update the window
-        gs.gameContainer.add(welcomeScreen);
-        gs.gameContainer.validate();
-        gs.gameContainer.repaint();
+        GameShowUI.gameContainer.add(welcomeScreen);
+        GameShowUI.gameContainer.validate();
+        GameShowUI.gameContainer.repaint();
     }
 
     /**
      * Starts a game
      */
     public static void startGame(GameShow gs, String letters, int gameId) {
-        gs.gameContainer.removeAll();
+        GameShowUI.gameContainer.removeAll();
 
         // The base panel for the screen
         gs.gamePanel = new JPanel(new GridBagLayout());
@@ -161,9 +161,9 @@ public class WordScramble {
         gbc.gridy = 1;
         gs.gamePanel.add(guessPanel, gbc);
 
-        gs.gameContainer.add(gs.gamePanel);
-        gs.gameContainer.validate();
-        gs.gameContainer.repaint();
+        GameShowUI.gameContainer.add(gs.gamePanel);
+        GameShowUI.gameContainer.validate();
+        GameShowUI.gameContainer.repaint();
     }
 
     /**
