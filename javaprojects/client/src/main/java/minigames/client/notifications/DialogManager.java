@@ -89,11 +89,15 @@ public class DialogManager extends NotificationManager{
      * Call showMessageDialog using given title and component, and default value of true for okButtonRequired.
      */
     public DialogManager showMessageDialog(String title, JComponent component) {
-        return showMessageDialog(title, component, true);
+        return showMessageDialog(title, component, true, null);
     }
 
     public DialogManager showMessageDialog(String title, JComponent component, boolean okButtonRequired) {
         return showMessageDialog(title, component, okButtonRequired, null);
+    }
+
+    public DialogManager showMessageDialog(String title, JComponent component, ActionListener actionListener) {
+        return showMessageDialog(title, component, true, actionListener);
     }
 
 }

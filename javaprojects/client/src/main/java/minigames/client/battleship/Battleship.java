@@ -96,7 +96,13 @@ public class Battleship implements GameClient, Tickable {
 
         // Help button
         helpButton = new JButton("Help");
-        helpButton.addActionListener(e -> mnClient.getDialogManager().showMessageDialog("Help Menu", helpPanel));
+        helpButton.addActionListener(e -> mnClient.getDialogManager().showMessageDialog(
+                "Help Menu",
+                helpPanel,
+                e1 -> {
+                    userCommand.requestFocus();
+                }
+                ));
         helpButton.setFont(fonts.get(1));
 
         // Style buttons
