@@ -13,7 +13,14 @@ public class KrumSound {
 
     static HashMap<String, Clip> sounds;
 
+    static int clientIndex;
+
+    public static void setClientIndex(int i) {
+        clientIndex = i;
+    }
+
     public static void initializeSounds(){
+
         ArrayList<String> names = new ArrayList<>(Arrays.asList(soundNames));
 
         sounds = new HashMap<String, Clip>();
@@ -33,8 +40,18 @@ public class KrumSound {
     }
 
     public static void playSound(String soundName) {
+        // for the sake of our ears while testing, suppress sounds on the second client
+        if (clientIndex == 1) return;
+
+        System.out.println("playing sound " + soundName + "\n");
+        
+        // stop the sound if it's currently playing
         sounds.get(soundName).stop();
+
+        // rewind to beginning
         sounds.get(soundName).setFramePosition(0);
+
+        // play
         sounds.get(soundName).start();
     }
 }

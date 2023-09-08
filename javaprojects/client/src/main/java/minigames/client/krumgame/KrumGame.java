@@ -822,6 +822,7 @@ public class KrumGame implements GameClient {
 
     public void setPlayerIndexAndBegin(int index) {
         this.myPlayerIndex = index;
+        KrumSound.setClientIndex(index);
         Thread gameThread = new Thread() {
             public void run(){
                 startGame();                
