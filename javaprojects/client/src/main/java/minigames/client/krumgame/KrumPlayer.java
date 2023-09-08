@@ -1319,7 +1319,7 @@ public class KrumPlayer {
         airborne = true;
         firstJumpFrame = true;
         deferredLanding = false;
-        KrumSound.playSound("jump");
+        KrumSound.playSound("boing2");
     }
 
     void shootRope() {
@@ -1334,11 +1334,13 @@ public class KrumPlayer {
         walking = false;
         ropeLength = 0;
         ropeAngleRadians = ropeAimAngle;
+        KrumSound.playSound("rope2");
     }
 
     void detachRope() {
         onRope = false;
         airborne = true;
+        KrumSound.playSound("rope");
     }
 
     void fireRope() {
@@ -1372,6 +1374,7 @@ public class KrumPlayer {
         ammo[JOEY]--;
         firedThisTurn[JOEY]++;
         joey.spawn(playerCentre().x - joey.sprite.getWidth() / 2,playerCentre().y - joey.sprite.getHeight() / 2,xvel + 1 * (facingRight ? 1 : -1), yvel - 1, tick, facingRight);
+        KrumSound.playSound("joeygiggle");
     }
 
     void startGrenadeFire(MouseEvent e) {
@@ -1399,6 +1402,7 @@ public class KrumPlayer {
         firedThisTurn[NADE]++;
         power /= 100000000; 
         grenade = new KrumGrenade((int)(xpos + sprite.getWidth()/2 + Math.cos(grenadeAimAngle) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(grenadeAimAngle) * KrumC.psd), Math.cos(grenadeAimAngle) * power + xvel, Math.sin(grenadeAimAngle) * power * -1 + yvel, grenadeSeconds, grenadeSprite, levelRaster, tick);
+        KrumSound.playSound("grenadethrow");
     }
 
     /**
@@ -1438,6 +1442,7 @@ public class KrumPlayer {
         ammo[ZOOK]--;
         power /= 100000000;   
         projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(shootAimAngle) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(shootAimAngle) * KrumC.psd), Math.cos(shootAimAngle) * power + xvel, Math.sin(shootAimAngle) * power * -1 + yvel, projectileSprite, levelRaster);
+        KrumSound.playSound("bazooka");
     }
 
     void updateBlowtorch(){
@@ -1626,6 +1631,7 @@ public class KrumPlayer {
         punchFrame = 0;
         punchHit = false;
         punchNextFrame = false;
+        KrumSound.playSound("punch");
     }
 
 
@@ -1673,5 +1679,6 @@ public class KrumPlayer {
 
     void fallDamage(double vel) {
         damage(Math.min((int)((vel - FALL_DAMAGE_VELOCITY_THRESHOLD) * 10), FALL_DAMAGE_MAX));
+        KrumSound.playSound("fall");
     }
 }

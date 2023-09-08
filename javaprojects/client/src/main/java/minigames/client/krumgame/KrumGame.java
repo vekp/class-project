@@ -202,7 +202,7 @@ public class KrumGame implements GameClient {
         recordingTurn = true;
         turnOver = false;
         players[playerTurn].jumping = false;
-        KrumSound.playSound("sound2");
+        KrumSound.playSound("transition");
         for (int i = 0; i < KrumPlayer.shotsPerTurn.length; i++) {
             players[playerTurn].firedThisTurn[i] = 0;
         }

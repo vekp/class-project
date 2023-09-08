@@ -3,6 +3,7 @@ package minigames.client.krumgame;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
+import javax.sound.sampled.*;
 
 /**
  * A projectile that bounces off the level, and explodes after its timer runs 
@@ -77,6 +78,7 @@ public class KrumGrenade extends KrumProjectile {
             double bounceAngle = KrumHelpers.angleBetween(xav, yav, (int)x, (int)y);
             double velMag = Math.sqrt(xvel * xvel + yvel * yvel) * KrumC.GRENADE_BOUNCE_FACTOR;
             bounceAngle += (bounceAngle - revVelAngle);
+            KrumSound.playSound("metal");
             x -= xvel / inc;
             y -= yvel / inc;
             xvel = Math.cos(bounceAngle) * velMag;
@@ -89,6 +91,7 @@ public class KrumGrenade extends KrumProjectile {
      * @return      True if it's time to explode
      */
     boolean timerCheck(long tick) {
+        //KrumSound.playSound("explode2");
         return tick >= explosionTick;
     }
 }

@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.Graphics2D;
+import javax.sound.sampled.*;
 
 /*
  * Joey bounces along, changing direction when it hits a wall. After a brief
@@ -401,6 +402,7 @@ public class KrumJoey extends KrumProjectile {
         yvel -= p * Math.sin(facingRight ? 3 * Math.PI / 8 : Math.PI - 3 * Math.PI / 8);
         firstJumpFrame = true;
         deferredLanding = false;
+        KrumSound.playSound("jump");
     }
     boolean timerCheck(long tick) {
         return tick >= explosionTick;
