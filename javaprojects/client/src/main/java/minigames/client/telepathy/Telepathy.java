@@ -21,14 +21,15 @@ import minigames.rendering.GameMetadata;
 
 import minigames.commands.CommandPackage;
 import minigames.client.notifications.NotificationManager;
+import minigames.client.notifications.DialogManager;
 
 import minigames.telepathy.TelepathyCommandException;
 import minigames.telepathy.TelepathyCommandHandler;
 import minigames.telepathy.TelepathyCommands;
 import minigames.telepathy.State;
 
-import java.awt.*; 
-import javax.swing.*; 
+import java.awt.*;
+import javax.swing.*;
 import javax.swing.border.*;
 import java.lang.String;
 import java.util.HashMap;
@@ -50,7 +51,7 @@ public class Telepathy implements GameClient, Tickable{
     /** We hold on to this because we'll need it when sending commands to the server */
     GameMetadata gm;
 
-    NotificationManager telepathyNotificationManager;
+    DialogManager telepathyNotificationManager;
 
     /** Your name */    
     String player;
@@ -325,10 +326,11 @@ public class Telepathy implements GameClient, Tickable{
      */
     public void activateWelcomeMessage(){
         welcomeMessage = popupWelcomeMessage();
-        telepathyNotificationManager.setAnimationSpeed(8);
-        telepathyNotificationManager.setAlignment(0.65f);
-        telepathyNotificationManager.setDisplayTime(0);
-        telepathyNotificationManager.showNotification(welcomeMessage, false);
+//        telepathyNotificationManager.setAnimationSpeed(8);
+//        telepathyNotificationManager.setAlignment(0.65f);
+//        telepathyNotificationManager.setDisplayTime(0);
+//        telepathyNotificationManager.showNotification(welcomeMessage, false);
+        telepathyNotificationManager.showMessageDialog("Telepathy", welcomeMessage);
     }
 
     /**
@@ -339,9 +341,9 @@ public class Telepathy implements GameClient, Tickable{
 
     public void activateQuestOrGuessMessage(int x, int y){
         questionOrFinalGuess = questionOrGuess(x, y);
-        telepathyNotificationManager.setAnimationSpeed(8);
-        telepathyNotificationManager.setAlignment(0.65f);
-        telepathyNotificationManager.setDisplayTime(0);
+//        telepathyNotificationManager.setAnimationSpeed(8);
+//        telepathyNotificationManager.setAlignment(0.65f);
+//        telepathyNotificationManager.setDisplayTime(0);
         telepathyNotificationManager.showNotification(questionOrFinalGuess, false); 
     }
 
@@ -353,9 +355,9 @@ public class Telepathy implements GameClient, Tickable{
      */
     public void selectTargetTile(int x, int y){
         confirmTargetTile = confirmTargetTile(x, y);
-        telepathyNotificationManager.setAnimationSpeed(8);
-        telepathyNotificationManager.setAlignment(0.65f);
-        telepathyNotificationManager.setDisplayTime(0);
+//        telepathyNotificationManager.setAnimationSpeed(8);
+//        telepathyNotificationManager.setAlignment(0.65f);
+//        telepathyNotificationManager.setDisplayTime(0);
         telepathyNotificationManager.showNotification(confirmTargetTile, false); 
     }
 
@@ -385,7 +387,7 @@ public class Telepathy implements GameClient, Tickable{
        
 
         JPanel buttonPanel = new JPanel();
-        
+
         String xyTargetTile = (Integer.toString(x) + ", " + Integer.toString(y));
 
         JButton yes = new JButton("Yes");
@@ -587,7 +589,7 @@ public class Telepathy implements GameClient, Tickable{
         this.player = player;
         this.ticking = true;
 
-        telepathyNotificationManager = new NotificationManager(mnClient);
+        telepathyNotificationManager = mnClient.getDialogManager();
 
         // Add our components to the north, south, east, west, or centre of the main window's BorderLayout
         mnClient.getMainWindow().addCenter(telepathyBoard);
