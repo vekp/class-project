@@ -151,7 +151,7 @@ public class SpaceMazeGame {
                     mazeControl.newLevel();
                     player.calculateScore(mazeControl.timeTaken, 8000);
                     String playerScoreString = String.valueOf(player.getPlayerScore());
-                    if (!mazeControl.gameFinished) {
+                    if (!mazeControl.isGameFinished()) {
                         JsonObject serializedMazeArray = new JsonObject()
                                 .put("command", "nextLevel")
                                 .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()))

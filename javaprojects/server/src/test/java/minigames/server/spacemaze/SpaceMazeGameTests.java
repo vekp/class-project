@@ -208,15 +208,17 @@ public class SpaceMazeGameTests {
     public void testUpdateKeyStatus() 
     {
         // assert key status' are false upon initalisation 
-        // keyLocs = [new Point(17, 5), new Point(7, 17)];
-        assertFalse(maze1.getKeyStatus().get(new Point(17, 5)));
-        assertFalse(maze1.getKeyStatus().get(new Point(7, 17)));
+        HashMap<Point, Boolean> keyStat = maze1.getKeyStatus();
+        System.out.println("keyStat: " + keyStat);
+        // Level 1 keyLocs = (12, 12), (8, 3), (2, 21), (22, 3), (18,19)
+        // Check that for each point, collected status == false
+        keyStat.forEach((k, v) -> assertFalse(maze1.getKeyStatus().get(k)));
+        // Check that a player collecting a key updates player's number of keys
         int playerCurrentKeys = player1.checkNumberOfKeys();
         System.out.println("playerCurrentKeys: " + playerCurrentKeys);
-        //System.out.print("playerCurrentKeys: " + playerCurrentKeys);
         // update keyStatus and check
-        maze1.updateKeyStatus(player1, new Point(17, 5));
-        assertTrue(maze1.getKeyStatus().get(new Point(17, 5)));
+        maze1.updateKeyStatus(player1, new Point(12, 12));
+        assertTrue(maze1.getKeyStatus().get(new Point(12, 12)));
         int playerUpdatedKeys = player1.checkNumberOfKeys();
         System.out.println("playerUpdatedKeys: " + playerUpdatedKeys);
         assertEquals((playerCurrentKeys+1), playerUpdatedKeys);
@@ -230,22 +232,21 @@ public class SpaceMazeGameTests {
         // assert allKeysStatus was initalised with false
         assertFalse(maze1.getAllKeysStatus());
         // update allKeysStatus for level 1 
-        // keylocs newPoint(1, 7)
         System.out.println("current keyStatus = " + maze1.getKeyStatus());
-        //keyStatus = {java.awt.Point[x=7,y=17]=false, java.awt.Point[x=1,y=7]=false, java.awt.Point[x=17,y=5]=false}
-        // update keyStatus and check
-        maze1.updateKeyStatus(player1, new Point(7, 17));
-        maze1.updateKeyStatus(player1, new Point(1, 7));
-        maze1.updateKeyStatus(player1, new Point(17, 5));
-        System.out.println("current keyStatus = " + maze1.getKeyStatus());
+        //keyStatus =  {java.awt.Point[x=12,y=12]=false, java.awt.Point[x=8,y=3]=false, java.awt.Point[x=2,y=21]=false, java.awt.Point[x=22,y=3]=false, java.awt.Point[x=18,y=19]=false}
+        // update keyStatus for level 1 and check
+        maze1.updateKeyStatus(player1, new Point(12, 12));
+        maze1.updateKeyStatus(player1, new Point(8, 3));
+        maze1.updateKeyStatus(player1, new Point(2, 21));
+        maze1.updateKeyStatus(player1, new Point(22, 3));
+        maze1.updateKeyStatus(player1, new Point(18, 19));
+        System.out.println("collected current keyStatus = " + maze1.getKeyStatus());
         maze1.updateAllKeysStatus(1, maze1.getKeyStatus());
-        System.out.println("current allKeyStatus = " + maze1.allKeysPerLevel);
+        System.out.println("current allKeyStatus (all levels) = " + maze1.getAllKeysStatus());
         assertFalse(maze1.getAllKeysStatus());
         // Bypass to add all keys collected
         maze1.bypassSetAllKeysCollected();
         assertTrue(maze1.getAllKeysStatus());
-
-
     }
 
     
@@ -297,18 +298,6 @@ public class SpaceMazeGameTests {
         System.out.println("random Location: " + randomPoint);
     }
 
-    @Disabled
-    @DisplayName("CheckGameOver/gameFinished") 
-    @Test
-    public void testCheckGameOver() 
-    {
-        // check gameFinished value
-
-        // update player1 to have key/unlocked exit/location to exit
-
-        // check gameFinished value
-    }
-
     
     @DisplayName("Check newLevel")
     @Test
@@ -329,6 +318,19 @@ public class SpaceMazeGameTests {
         assertNotEquals(prevCurrentlevel, newCurrentLevel);
         // confirm previous maze != new maze
         assertFalse(Arrays.equals(prevMazeArray, newMazeArray));
+    }
+
+    @Disabled
+    @DisplayName("CheckGameOver/gameFinished") 
+    @Test
+    public void testCheckGameOver() 
+    {
+        // check gameFinished value
+        
+
+        // update player1 to have key/unlocked exit/location to exit
+
+        // check gameFinished value
     }
 
 

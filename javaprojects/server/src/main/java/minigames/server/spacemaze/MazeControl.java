@@ -24,7 +24,7 @@ public class MazeControl {
     private int mazeHeight = 25;
     private int mazeSize = 25;
     private int currentLevel;               // level of current maze
-    private int maxLevel = 3;               // maximum number of levels
+    private int maxLevel = 5;               // maximum number of levels
     //private char[][] mazeArray = new char[mazeWidth][mazeHeight];  
     private char[][] mazeArray;
 
@@ -52,7 +52,7 @@ public class MazeControl {
     private HashMap<Point, Boolean> keyStatus = new HashMap<Point, Boolean>();
     
     // PickUps info - locations of Pickups in maze
-    private List<Point> pickUpLocationsList = new ArrayList<Point>(); 
+    //private List<Point> pickUpLocationsList = new ArrayList<Point>(); 
     //private Point[] pickUpLocations;
 
     // Traps info
@@ -67,13 +67,13 @@ public class MazeControl {
     
 
     // Level Achievement info
-    public boolean thisLevelAllKeysBonus;
+    private boolean thisLevelAllKeysBonus;
     // Change allKeysPerLevel to private - public for testing
-    public HashMap<Integer, Boolean> allKeysPerLevel = new HashMap<Integer, Boolean>();
+    private HashMap<Integer, Boolean> allKeysPerLevel = new HashMap<Integer, Boolean>();
     private HashMap<Integer, Boolean> allBonusPerLevel = new HashMap<Integer, Boolean>();
 
     // Gameover info
-    public Boolean gameFinished = false;
+    private Boolean gameFinished = false;
     
 
     // INITALISE MAZE
@@ -540,63 +540,66 @@ public class MazeControl {
      */
     public void newLevel()
     {
-        if ((currentLevel < maxLevel)) {
-        logger.info("Moving to next level");
-        // Pause Timer
-        mazeTimer.pauseTimer();
+        if ((currentLevel < maxLevel)) 
+        {
+            logger.info("Moving to next level");
+            // Pause Timer
+            mazeTimer.pauseTimer();
 
-        // Increment current level
-        currentLevel++;
-        // Set number of keys to unlock exit (level num)
-        numKeysToUnlock = currentLevel;
-        // Create new Maze, dependent on current level
-        this.mazeArray = createNewMaze(currentLevel);
+            // Increment current level
+            currentLevel++;
+            // Set number of keys to unlock exit (level num)
+            numKeysToUnlock = currentLevel;
+            // Create new Maze, dependent on current level
+            this.mazeArray = createNewMaze(currentLevel);
 
-        // Update allBonusStatus for this level
-        updateAllBonusStatus(currentLevel, bonusStatus);
+            // Update allBonusStatus for this level
+            updateAllBonusStatus(currentLevel, bonusStatus);
 
-         // Update allKeysStatus for this level
-        updateAllKeysStatus(currentLevel, keyStatus);
+            // Update allKeysStatus for this level
+            updateAllKeysStatus(currentLevel, keyStatus);
 
-        // Update thisLevelAllKeysBonus for this level
-        updateLevelAllKeyBonusStatus();
+            // Update thisLevelAllKeysBonus for this level
+            updateLevelAllKeyBonusStatus();
 
-        // Removing the previous locations
-        botsLocationsList.clear();
-        wormholeLocationsList.clear();
-        bombLocationsList.clear();
-        bonusPointsLocationsList.clear();
-        keyLocationsList.clear();
-        keyStatus.clear();
-        bonusStatus.clear();
+            // Removing the previous locations
+            botsLocationsList.clear();
+            wormholeLocationsList.clear();
+            bombLocationsList.clear();
+            bonusPointsLocationsList.clear();
+            keyLocationsList.clear();
+            keyStatus.clear();
+            bonusStatus.clear();
 
-        // Reset player's number of keys to zero
-        mazePlayer.resetKeys();
-        //int mazePlayerNumKeys = mazePlayer.checkNumberOfKeys();
-        //System.out.println("Called resetKeys(), player numKeys = " + mazePlayerNumKeys);
-        //logger.info("PlayerKeys reset attempt! numKeys = " + mazePlayer.checkNumberOfKeys()); 
+            // Reset player's number of keys to zero
+            mazePlayer.resetKeys();
+            //int mazePlayerNumKeys = mazePlayer.checkNumberOfKeys();
+            //System.out.println("Called resetKeys(), player numKeys = " + mazePlayerNumKeys);
+            //logger.info("PlayerKeys reset attempt! numKeys = " + mazePlayer.checkNumberOfKeys()); 
 
-        // Set start, key... locations
-        set_locations();
+            // Set start, key... locations
+            set_locations();
 
-        // Exit location
-        this.exitLocation = getExitLocation();
+            // Exit location
+            this.exitLocation = getExitLocation();
 
-        // Initalise keyStatus with collected = false
-        setKeyStatus(keyLocationsList);
+            // Initalise keyStatus with collected = false
+            setKeyStatus(keyLocationsList);
 
-        // Current time taken to update score
-        timeTaken = mazeTimer.getSubTotalTime();
+            // Current time taken to update score
+            timeTaken = mazeTimer.getSubTotalTime();
 
-        // Re-position player's start location 
-        playerLocation = startLocation;
-        playerEntersMaze(playerLocation);
-        
+            // Re-position player's start location 
+            playerLocation = startLocation;
+            playerEntersMaze(playerLocation);
+            
         } 
-        else if (currentLevel == maxLevel) {
+        else if (currentLevel == maxLevel) 
+        {
             callGameOver();
         } 
-        else {
+        else 
+        {
             logger.info("New Level conditions were not met!");
         }
     }
@@ -654,6 +657,14 @@ public class MazeControl {
     public Boolean getExitUnLockedStatus()
     {
         return exitUnlocked;
+    }
+
+    /*
+     * 
+     */
+    public boolean isGameFinished()
+    {
+        return gameFinished;
     }
 
     /*
@@ -718,9 +729,6 @@ public class MazeControl {
         // Return true if all bonuses were collected
         return !allKeysPerLevel.containsValue(false);
     }
-
-
-    
 
     
     /*
