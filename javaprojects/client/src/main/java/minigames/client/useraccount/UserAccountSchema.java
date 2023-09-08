@@ -18,7 +18,7 @@ public class UserAccountSchema {
     public UserAccountSchema() {
         //Username - Regex Source: GeeksforGeeks
         //Web: https://www.geeksforgeeks.org/how-to-validate-a-username-using-regular-expressions-in-java/
-        setSchema("username", "^[A-Za-z]\\w{5,29}$");
+        setSchema("username", "^[A-Za-z]\\w{4,29}$");
         //Password - Regex Source: GeeksforGeeks
         //Web: https://www.geeksforgeeks.org/how-to-validate-a-password-using-regular-expressions-in-java/
         setSchema("password", "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&-+=()])(?=\\S+$).{8,20}$");
@@ -83,29 +83,37 @@ public class UserAccountSchema {
     }
     //Allows for validation of specific field given a key-value pairing
     public boolean isValid(String field, String value) {
-        //Convert field to lower case
+        // Convert field to lower case
         String fieldLower = field.toLowerCase();
-        //Print an error message to the console where field is not an existing schema
+        
+        // Check if the field exists in the schema
         if (!getSchema().containsKey(fieldLower)) {
             System.out.println("Error: field not a valid UserAccountSchema key");
             System.out.println(
                     "\tCallback: UserAccountSchema.isValid(field = "
-                    +field
-                    +", value = "
-                    +value
-                    +")"
+                    + field
+                    + ", value = "
+                    + value
+                    + ")"
             );
             return false;
         }
-        //Iterate over schema, testing for whether value matches the schema pattern
+        
+        // Check if the value is null
+        if (value == null) {
+            return false;
+        }
+        
+        // Iterate over schema, testing whether value matches the schema pattern
         for (String expression : getSchema(fieldLower)) {
             Pattern pattern = Pattern.compile(expression);
             Matcher matcher = pattern.matcher(value);
             if (!matcher.matches()) { return false; }
         }
-        //Return true where value has not failed any previous test (i.e. is valid)
+        
+        // Return true where value has not failed any previous test (i.e., is valid)
         return true;
-    }
+    } 
 
-    //Private Functions
+    
 }
