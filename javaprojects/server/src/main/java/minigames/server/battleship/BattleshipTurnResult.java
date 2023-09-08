@@ -55,7 +55,7 @@ public record BattleshipTurnResult(
     static String lineBreak = "\n";
     static String doubleBreak = "\n\n";
     static String inputPending = "\n...";
-    static String enterCoords = "It is your turn! Enter grid coordinates: ";
+    static String enterCoords = "Enter grid coordinates: ";
     static String incoming = "Prepare for incoming fire!";
     static String coordTag = "Return fire!";
 
@@ -85,7 +85,7 @@ public record BattleshipTurnResult(
      */
     static String beginTurnPrompt(boolean hitOrMiss, String inputCoordinates) {
         String message = getRandomMessage(hitOrMiss ? enemyHitMessages : enemyMissMessages);
-        return doubleBreak
+        return lineBreak
                 + message
                 + " Enemy fired at coordinates: [" + inputCoordinates + "]"
                 + doubleBreak

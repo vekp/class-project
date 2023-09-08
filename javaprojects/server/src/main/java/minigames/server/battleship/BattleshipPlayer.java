@@ -71,7 +71,10 @@ public class BattleshipPlayer {
         } catch (NumberFormatException e) {
             return BattleshipTurnResult.invalidInput(input);
         }
+
+        // Add input to the message history
         updateHistory(formatInput(input));
+
         return shotOutcome(opponent, col, row);
     }
 

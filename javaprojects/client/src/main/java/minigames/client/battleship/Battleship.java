@@ -240,27 +240,58 @@ public class Battleship implements GameClient, Tickable {
 
 
         JTextArea description = new JTextArea("""
-                -----------------------------------------------------------
+                ------------------------------------------------------------
+                
+                   How to Play?
+                   
+                     Battleship is a 2 person game where each player has
+                     a grid with their ships marked on it, and a grid
+                     with the other player's ship locations hidden.
+                     Players take turns guessing the location of the
+                     enemy ships until one player destroys the opposing
+                     player's fleet.
+                     
+                   Game Structure:
+                   
+                     Upon loading into a game you can wait for another
+                     player to join or simply start playing against an AI.
+                     
+                     Follow the prompts and enter coordinates for the
+                     "Target Grid" to try hit enemy ships.
+                     
+                     TIP: Once you get a hit, guess a coordinate vertical
+                          or horizontal from that location.
+                          
+                     TIP: Scroll the command terminal to see your previous
+                          inputs and results.
+                          
+                     Be the first to destroy all the enemy's ships to
+                                      claim victory!
+                     
+                ------------------------------------------------------------
+                  
+                   Enter a Coordinate:
+                   
+                     Input to the terminal -> "A7"
+                     
+                ------------------------------------------------------------
                                 
                    Grid Characters:
+                   
                      Ocean             ---   ~
                      Ship Hull Parts   ---   < > ^ v 0
                      Coordinate Hit    ---   X
                      Coordinate Miss   ---   .
                      
-                -----------------------------------------------------------
-                  
-                   Enter a Coordinate:
-                     Input to the terminal -> "A7"
-                     
-                -----------------------------------------------------------
-                                
+                ------------------------------------------------------------
+                      
                    Move Ships:
+                   
                      Ships can only be moved before starting a game by
                      pressing 'tab' to cycle selected vessel, 'space' to
                      rotate, and arrow keys to move the selected vessel.
                                 
-                -----------------------------------------------------------
+                ------------------------------------------------------------
                                 
                    Ship Classes:
                      
@@ -284,42 +315,24 @@ public class Battleship implements GameClient, Tickable {
                      Size: 3
                      Schematic:  < 0 >
                      
-                                
-                -----------------------------------------------------------
-                                
-                   How to Play?
-                   
-                     Battleship is a 2 person game where each player has
-                     a grid with their ships marked on it, and a grid with
-                     the other player's ship locations hidden. Players
-                     take turns guessing the location of the enemy ships
-                     until one player destroys the opposing player's fleet.
-                     
-                   Game Structure:
-                     Upon loading into a game you can wait for another
-                     player to join or simply start playing against an AI.
-                     
-                     Follow the prompts and enter coordinates for the
-                     "Target Grid" to try hit enemy ships.
-                     
-                     TIP: Once you get a hit, guess a coordinate vertical
-                          or horizontal from that location.
-                          
-                     Be the first to destroy all the enemy's ships to
-                     claim victory!
-                                
-                -----------------------------------------------------------
+                     TIP: Remember to keep track of which ships you have
+                          destroyed when choosing a coordinate.
+                                              
+                ------------------------------------------------------------
                   
                    Think you know it all? Get strategising and become the
-                           most respected captain of the seas!
-                 
-                             Enter "Ready" to start the game!
+                          most respected captain of the high seas!
+                           
+                                 --------------------------
+               
+                              Enter "Ready" to start the game!
                 """);
+
         description.setEditable(false);
         description.setHighlighter(null);
         description.setFont(fonts.get(3));
-        Color c = panel.getBackground();
-        description.setBackground(c);
+//        Color c = panel.getBackground();
+//        description.setBackground(c);
         description.setSize(300, 300);
 
         JScrollPane content = new JScrollPane(description);
@@ -427,10 +440,12 @@ public class Battleship implements GameClient, Tickable {
 
         mnClient.getDialogManager()
                 .setColours(Color.decode(fgColour), Color.decode(bgColourHover), Color.decode(bgColour))
-                .setFont(fonts.get(0).getFontName())
+                .setFont(fonts.get(3).getFontName())
                 .setBorder(buttonBorder);
 
-        userCommand.requestFocus();
+        // Open help menu on launching the game - on closing it will focus the command terminal
+        helpButton.doClick();
+
         // Don't forget to call pack - it triggers the window to resize and repaint itself
         mnClient.getMainWindow().pack();
     }
@@ -474,19 +489,21 @@ public class Battleship implements GameClient, Tickable {
                 userCommand.setEditable(true);
                 userCommand.requestFocus();
 
+
+                // TODO: this cannot be done here as the instructional message should be added to the message history
                 //add a welcome/intro message for the first turn of the game - turn count won't always be sent with
                 //the prepare command
-                if(command.containsKey("turnCount")) {
-                    try {
-                        int turnCount = Integer.parseInt(command.getString("turnCount"));
-                        if (turnCount == 1) {
-                            messages.append("\nWelcome, commander! Type a coordinate to fire at your enemy!");
-                        }
-                    } catch (NumberFormatException e) {
-                        //we won't exit the game if the turn count is wrong, just continue on
-                        System.out.println("Error: Turn count sent was not a number");
-                    }
-                }
+//                if(command.containsKey("turnCount")) {
+//                    try {
+//                        int turnCount = Integer.parseInt(command.getString("turnCount"));
+//                        if (turnCount == 1) {
+//                            messages.append("\n\nTo fire at the enemy, enter grid coordinates: (eg, A4)\n...");
+//                        }
+//                    } catch (NumberFormatException e) {
+//                        //we won't exit the game if the turn count is wrong, just continue on
+//                        System.out.println("Error: Turn count sent was not a number");
+//                    }
+//                }
 
             }
             case "updateTurnCount" -> {
