@@ -41,7 +41,7 @@ public class AchievementTests {
         assertDoesNotThrow(()->handler.registerAchievement(c));
     }
 
-    /** Checks that an achievement will error if we try to unlock a nonexistant achievement */
+    /** Checks that an achievement will error if we try to unlock a nonexistent achievement */
     @Test
     public void handlerNonexistentAchievementUnlock(){
         Achievement b = new Achievement("Test 2", "A different description", 0, "blah", true);

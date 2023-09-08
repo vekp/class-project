@@ -23,7 +23,7 @@ public class Battleship implements GameClient, Tickable {
 
     // Needed for sending commands to the server
     MinigameNetworkClient mnClient;
-    int tickInterval = 60;
+    int tickInterval = 180;
     int tickTimer = 0;
 
     GameMetadata gm;
@@ -46,11 +46,14 @@ public class Battleship implements GameClient, Tickable {
     );
 
     JPanel mainPanel;
+    JPanel helpPanel;
     JPanel heading;
     JButton menuButton;
     JButton achievementButton;
+    JButton helpButton;
     JLabel title;
     JLabel currentPlayerName;
+    JLabel currentTurn;
     JPanel maps;
     JPanel nauticalMap;
     JTextArea nauticalText;
@@ -72,6 +75,9 @@ public class Battleship implements GameClient, Tickable {
      */
     public Battleship() {
 
+        // Generate help panel
+        helpPanel = generateHelpPanel();
+
         // Heading
         heading = new JPanel(new GridBagLayout());  // Game title, Current player and Menu button
         GridBagConstraints gbc = new GridBagConstraints();
@@ -88,7 +94,13 @@ public class Battleship implements GameClient, Tickable {
         achievementButton.addActionListener(e -> mnClient.getGameAchievements(player, gm.gameServer()));
         achievementButton.setFont(fonts.get(1));
 
-        for (JButton b : new JButton[]{menuButton, achievementButton}) {
+        // Help button
+        helpButton = new JButton("Help");
+        helpButton.addActionListener(e -> mnClient.getDialogManager().showMessageDialog("Help Menu", helpPanel));
+        helpButton.setFont(fonts.get(1));
+
+        // Style buttons
+        for (JButton b : new JButton[]{menuButton, achievementButton, helpButton}) {
             b.setOpaque(true);
             b.setBorder(buttonBorder);
             b.setFocusable(false);
@@ -110,6 +122,9 @@ public class Battleship implements GameClient, Tickable {
 
         currentPlayerName = new JLabel("Current Player: ");
         currentPlayerName.setFont(fonts.get(3));
+        currentTurn = new JLabel("Turn: ");
+        currentTurn.setFont(fonts.get(3));
+
         gbc.gridwidth = 3;
         gbc.insets = new Insets(5, 5, 0, 0);
         gbc.anchor = GridBagConstraints.FIRST_LINE_START;
@@ -128,7 +143,16 @@ public class Battleship implements GameClient, Tickable {
         gbc.gridx = 1;
         gbc.gridy = 1;
         heading.add(currentPlayerName, gbc);
-
+        gbc.gridx = 2;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.LINE_END;
+        heading.add(currentTurn, gbc);
+        gbc.insets = new Insets(5, 0, 0, 5);
+        gbc.anchor = GridBagConstraints.LINE_END;
+        gbc.weightx = 0;
+        gbc.gridx = 2;
+        gbc.gridy = 0;
+        heading.add(helpButton, gbc);
 
         // Maps
         maps = new JPanel();
@@ -169,7 +193,11 @@ public class Battleship implements GameClient, Tickable {
         terminal.add(commandTerminal, BorderLayout.NORTH);
 
         userCommand = new JTextField();  // User input
-        userCommand.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), " "));
+        userCommand.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(Color.decode(bgColourHover), Color.decode(bgColourHover)), "  "));
+        userCommand.setCaretColor(Color.WHITE);
+        userCommand.getCaret().setBlinkRate(300);
+        userCommand.getCaret().setVisible(true);
+
         userCommand.addActionListener((evt) -> {
             sendCommand(userCommand.getText());  // Send input to server
             userCommand.setText("");             // Clear input field
@@ -184,18 +212,136 @@ public class Battleship implements GameClient, Tickable {
         mainPanel.add(maps);
         mainPanel.add(terminal);
 
-        // Set colours for all panels
-        for (Component c : new Component[]{mainPanel, heading, title, currentPlayerName, nauticalMap, nauticalText,
-                targetMap, targetText, maps, messages, commandTerminal, userCommand, menuButton, achievementButton}) {
+        // Set colours for all components
+        for (Component c : new Component[]{mainPanel, heading, title, currentPlayerName, currentTurn, nauticalMap,
+                nauticalText,
+                targetMap, targetText, maps, messages, commandTerminal, userCommand, menuButton, achievementButton,
+                helpButton}) {
             c.setForeground(Color.decode(fgColour));
             c.setBackground(Color.decode(bgColour));
         }
     }
 
+    public JPanel generateHelpPanel() {
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        panel.setSize(new Dimension(200, 200));
+
+        gbc.gridwidth = 1;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+
+        JLabel title = new JLabel("Help Menu");
+        title.setFont(fonts.get(0));
+
+
+        JTextArea description = new JTextArea("""
+                -----------------------------------------------------------
+                                
+                   Grid Characters:
+                     Ocean             ---   ~
+                     Ship Hull Parts   ---   < > ^ v 0
+                     Coordinate Hit    ---   X
+                     Coordinate Miss   ---   .
+                     
+                -----------------------------------------------------------
+                  
+                   Enter a Coordinate:
+                     Input to the terminal -> "A7"
+                     
+                -----------------------------------------------------------
+                                
+                   Move Ships:
+                     Ships can only be moved before starting a game by
+                     pressing 'tab' to cycle selected vessel, 'space' to
+                     rotate, and arrow keys to move the selected vessel.
+                                
+                -----------------------------------------------------------
+                                
+                   Ship Classes:
+                     
+                     Class:  "Carrier"
+                     Size:  6
+                     Schematic:  < 0 0 0 0 >
+                       
+                     Class:  "Battleship"
+                     Size:  5
+                     Schematic:  < 0 0 0 >
+                       
+                     Class: "Destroyer"
+                     Size: 4
+                     Schematic:  < 0 0 >
+                     
+                     Class: "Submarine"
+                     Size: 4
+                     Schematic:  < 0 0 >
+                     
+                     Class: "Patrol Boat"
+                     Size: 3
+                     Schematic:  < 0 >
+                     
+                                
+                -----------------------------------------------------------
+                                
+                   How to Play?
+                   
+                     Battleship is a 2 person game where each player has
+                     a grid with their ships marked on it, and a grid with
+                     the other player's ship locations hidden. Players
+                     take turns guessing the location of the enemy ships
+                     until one player destroys the opposing player's fleet.
+                     
+                   Game Structure:
+                     Upon loading into a game you can wait for another
+                     player to join or simply start playing against an AI.
+                     
+                     Follow the prompts and enter coordinates for the
+                     "Target Grid" to try hit enemy ships.
+                     
+                     TIP: Once you get a hit, guess a coordinate vertical
+                          or horizontal from that location.
+                          
+                     Be the first to destroy all the enemy's ships to
+                     claim victory!
+                                
+                -----------------------------------------------------------
+                  
+                   Think you know it all? Get strategising and become the
+                           most respected captain of the seas!
+                 
+                             Enter "Ready" to start the game!
+                """);
+        description.setEditable(false);
+        description.setHighlighter(null);
+        description.setFont(fonts.get(3));
+        Color c = panel.getBackground();
+        description.setBackground(c);
+        description.setSize(300, 300);
+
+        JScrollPane content = new JScrollPane(description);
+        content.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        content.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        content.setPreferredSize(new Dimension(650, 400));
+        content.setWheelScrollingEnabled(true);
+        content.setBorder(null);
+
+
+        panel.add(title, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        panel.add(content, gbc);
+
+        return panel;
+    }
+
     /**
      * Function to create an appropriate font list based on operating system
      *
-     * @return Arraylist of fint objects
+     * @return Arraylist of font objects
      */
     public ArrayList<Font> determineFont() {
         // System.out.println(System.getProperty("os.name"));
@@ -212,9 +358,9 @@ public class Battleship implements GameClient, Tickable {
             // System.out.println("Mac fonts");
             return new ArrayList<>(
                     Arrays.asList(
-                            new Font("Andale Mono", Font.BOLD, 30),
+                            new Font("Andale Mono", Font.PLAIN, 30),
                             new Font("Andale Mono", Font.PLAIN, 20),
-                            new Font("Andale Mono", Font.BOLD, 18),
+                            new Font("Andale Mono", Font.PLAIN, 18),
                             new Font("Andale Mono", Font.PLAIN, 16)
                     ));
         } else {
@@ -238,6 +384,9 @@ public class Battleship implements GameClient, Tickable {
      */
     public void sendCommand(String command) {
         if (isQuitting) return;
+        //reset the tick timer here so that there is a delay before the client sends new commands (mostly the
+        //refresh command - allows players to read and process the newly rendered window before anything else happens)
+        tickTimer = 0;
         JsonObject json = new JsonObject().put("command", command);
 
         // Collections.singletonList() is a quick way of getting a "list of one item"
@@ -259,6 +408,7 @@ public class Battleship implements GameClient, Tickable {
     public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {
         this.mnClient = mnClient;
         mnClient.getAnimator().requestTick(this);
+        isQuitting = false;
         waiting = true; //this ensures we get at least 1 refresh to start
         this.gm = game;
         this.player = player;
@@ -268,17 +418,21 @@ public class Battleship implements GameClient, Tickable {
 
         messages.append("Starting...");
 
+        // Apply styling to notifications and dialogs
+        mnClient.getNotificationManager()
+                .setColours(Color.decode(fgColour), Color.decode(bgColourHover), Color.decode(bgColour))
+                .setFont(fonts.get(0).getFontName())
+                .setBorder(buttonBorder)
+                .setNotificationArea(mainPanel);
+
+        mnClient.getDialogManager()
+                .setColours(Color.decode(fgColour), Color.decode(bgColourHover), Color.decode(bgColour))
+                .setFont(fonts.get(0).getFontName())
+                .setBorder(buttonBorder);
+
+        userCommand.requestFocus();
         // Don't forget to call pack - it triggers the window to resize and repaint itself
         mnClient.getMainWindow().pack();
-
-        // Apply settings to notifications
-        mnClient.getNotificationManager().setMargins(20, 15, 15);
-        mnClient.getNotificationManager().setStyling(
-                Color.decode(fgColour),
-                Color.decode(bgColourHover),
-                fonts.get(0).getFontName(),
-                buttonBorder);
-
     }
 
     /**
@@ -295,7 +449,7 @@ public class Battleship implements GameClient, Tickable {
         // Note that this uses the -> version of case statements, not the : version
         // (which means we don't nead to say "break;" at the end of our cases)
         switch (command.getString("command")) {
-            case "inputAllowable" -> userCommand.setEditable(Boolean.parseBoolean(command.getString("allowed")));
+          //  case "inputAllowable" -> userCommand.setEditable(Boolean.parseBoolean(command.getString("allowed")));
             case "clearText" -> {
                 nauticalText.setText("");
                 targetText.setText("");
@@ -317,13 +471,35 @@ public class Battleship implements GameClient, Tickable {
             case "prepareTurn" -> {
                 //we only set this messaging on the first instance that we are told our turn is ready
                 waiting = false;
-                messages.append("\nIt is now your turn! Type in a coordinate");
                 userCommand.setEditable(true);
+                userCommand.requestFocus();
+
+                //add a welcome/intro message for the first turn of the game - turn count won't always be sent with
+                //the prepare command
+                if(command.containsKey("turnCount")) {
+                    try {
+                        int turnCount = Integer.parseInt(command.getString("turnCount"));
+                        if (turnCount == 1) {
+                            messages.append("\nWelcome, commander! Type a coordinate to fire at your enemy!");
+                        }
+                    } catch (NumberFormatException e) {
+                        //we won't exit the game if the turn count is wrong, just continue on
+                        System.out.println("Error: Turn count sent was not a number");
+                    }
+                }
 
             }
+            case "updateTurnCount" -> {
+                String turnCount = command.getString("turnCount");
+                //add some leading zeroes, so we have 3 digit turn counts - keeps alignment nice during the whole game
+                String leadingZeroes = turnCount.length() == 2 ? "0" : turnCount.length() == 1 ? "00" : "";
+                currentTurn.setText("Turn: " + leadingZeroes + turnCount + " ");
+            }
+            case "turnCountGameStart" -> currentTurn.setText("Turn: " + command.getString("turnCount") + " ");
             case "updatePlayerName" -> currentPlayerName.setText("Current Player: " + command.getString("player"));
             case "placePlayer1Board" -> nauticalText.setText(nauticalText.getText() + command.getString("text"));
             case "placePlayer2Board" -> targetText.setText(targetText.getText() + command.getString("text"));
+
         }
     }
 
@@ -343,8 +519,9 @@ public class Battleship implements GameClient, Tickable {
      * This client will constantly tick at some interval. If we're in the waiting state (e.g waiting for another
      * player to take their turn), we will ask the server for updates in order to get any messages or info about the
      * players turn, and also to be notified when it is now our turn.
-     * @param al the animator
-     * @param now current time
+     *
+     * @param al    the animator
+     * @param now   current time
      * @param delta delta time (time since last tick)
      */
     @Override
@@ -353,7 +530,7 @@ public class Battleship implements GameClient, Tickable {
         tickTimer++;
         if (tickTimer > tickInterval) {
             tickTimer = 0;
-            if(waiting) {
+            if (waiting) {
                 sendCommand("refresh");
             }
         }

@@ -118,8 +118,8 @@ public class AchievementUI extends JPanel {
             gameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
             gameLabel.setBorder(new EmptyBorder(10, 10, 10, 10));
             achievementPanel.add(gameLabel);
-            AchievementPresenterRegistry gameAchievements = new AchievementPresenterRegistry(state);
-            achievementPanel.add(gameAchievements.achievementListPanel());
+            AchievementPresenterRegistry gameAchievements = new AchievementPresenterRegistry(state, mnClient.getAnimator());
+            achievementPanel.add(gameAchievements.achievementListPanel(mnClient.getDialogManager()));
         }
         achievementScrollPane.setViewportView(achievementPanel);
     }

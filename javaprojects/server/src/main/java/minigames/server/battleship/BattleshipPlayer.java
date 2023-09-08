@@ -56,13 +56,9 @@ public class BattleshipPlayer {
      * @return BattleshipTurnResult containing a boolean for successful input, whether a ship was hit, and a message
      */
     public BattleshipTurnResult processTurn(String input, Board opponent) {
-        // System.out.println(input);
-        //todo fix this so it actually tells user the input was invalid and prompt for a new input - move to the
-        // battleShipTurnResult class
-        BattleshipTurnResult invalidResult = new BattleshipTurnResult(false, false, "", "");
         // Check input entered is a coordinate
         if (!validateInput(input)) {
-            return invalidResult;
+            return BattleshipTurnResult.invalidInput(input);
         }
         // Get formatted input and spit it to be passed into shotOutcome()
         String[] validatedInput = formatInput(input).split(",");
@@ -73,7 +69,7 @@ public class BattleshipPlayer {
         try {
             row = Integer.parseInt(validatedInput[1]);
         } catch (NumberFormatException e) {
-            return invalidResult;
+            return BattleshipTurnResult.invalidInput(input);
         }
         updateHistory(formatInput(input));
         return shotOutcome(opponent, col, row);

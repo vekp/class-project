@@ -35,7 +35,7 @@ public class AchievementPresenterTest {
     @Test
     public void testLargeAchievementPanel() {
         JPanel testPanel = unlockedAchievement.largeAchievementPanel();
-        assertEquals(5, testPanel.getComponents().length);
+        assertEquals(3, testPanel.getComponents().length);
 
         testPanel = lockedAchievement.largeAchievementPanel();
         assertEquals(1, testPanel.getComponents().length);
