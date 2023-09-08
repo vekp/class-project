@@ -50,9 +50,7 @@ public class MazeControl {
     private int numKeysToUnlock;
     private List<Point> keyLocationsList = new ArrayList<Point>();
     private HashMap<Point, Boolean> keyStatus = new HashMap<Point, Boolean>();
-    // Change allKeysPerLevel to private - public for testing
-    public HashMap<Integer, Boolean> allKeysPerLevel = new HashMap<Integer, Boolean>();
-
+    
     // PickUps info - locations of Pickups in maze
     private List<Point> pickUpLocationsList = new ArrayList<Point>(); 
     //private Point[] pickUpLocations;
@@ -66,6 +64,12 @@ public class MazeControl {
     // Bonus Points (chests) info
     private List<Point> bonusPointsLocationsList = new ArrayList<Point>();
     private HashMap<Point, Boolean> bonusStatus = new HashMap<Point, Boolean>();
+    
+
+    // Level Achievement info
+    public boolean thisLevelAllKeysBonus;
+    // Change allKeysPerLevel to private - public for testing
+    public HashMap<Integer, Boolean> allKeysPerLevel = new HashMap<Integer, Boolean>();
     private HashMap<Integer, Boolean> allBonusPerLevel = new HashMap<Integer, Boolean>();
 
     // Gameover info
@@ -88,24 +92,19 @@ public class MazeControl {
 
         // Set start, key... locations
         set_locations();
-
         // Exit location
         this.exitLocation = getExitLocation();
 
         // Initalise keyStatus with collected = false
         setKeyStatus(keyLocationsList);
-
-        // Initalise allBonusPoinsPerLevel = false
-        setAllKeysStatus();
-
         // Initalise bonusStatus with collected = false
         setBonusStatus(bonusPointsLocationsList);
-
+        // Intialise thisLevelAllKeysBonus = false
+        this.thisLevelAllKeysBonus = false;
+        // Initalise allBonusPoinsPerLevel = false
+        setAllKeysStatus();
         // Initalise allBonusPoinsPerLevel = false
         setAllBonusStatus();
-
-        
-        
     }
 
     /*
@@ -499,6 +498,17 @@ public class MazeControl {
     }
 
     /*
+     * updateLevelAllKeyBonusStatus function checks if all keys and bonuses for a level
+     * @return boolean - true if all keys/bonuses have been collected
+     */
+    public void updateLevelAllKeyBonusStatus()
+    {
+        boolean allKeysThisLevel = !keyStatus.containsValue(false);
+        boolean allBonusThisLevel = !bonusStatus.containsValue(false);
+        thisLevelAllKeysBonus = (allKeysThisLevel && allBonusThisLevel);
+    }
+
+    /*
     * unlockExit function - unlocks exit if player has correct number of keys 
     * @param player - SpacePlayer to unlock exit
     * 
@@ -547,6 +557,9 @@ public class MazeControl {
 
          // Update allKeysStatus for this level
         updateAllKeysStatus(currentLevel, keyStatus);
+
+        // Update thisLevelAllKeysBonus for this level
+        updateLevelAllKeyBonusStatus();
 
         // Removing the previous locations
         botsLocationsList.clear();
@@ -669,6 +682,15 @@ public class MazeControl {
     }
 
     /*
+     * getBonusStatus fucntion - checks bonusStatus
+     * @return bonusStatus - returns a hash map of the levels bonus locations and if collected
+     */
+    public HashMap<Point, Boolean> getBonusStatus()
+    {
+        return bonusStatus;
+    }
+
+    /*
      * getAllBonusStatus - returns a boolean if all chests for each level were collected
      * @return bool
      */
@@ -698,6 +720,19 @@ public class MazeControl {
     }
 
 
+    
+
+    
+    /*
+     * getLevelAllKeyBonusStatus function returns true if all keys and bonuses for the previous level
+     * have been collected 
+     * @return bool - thisLevelAllKeysBonus
+     */
+    public boolean getLevelAllKeyBonusStatus()
+    {
+        return thisLevelAllKeysBonus;
+    }
+
     // BYPASS FUNCTIONS FOR TESTING
 
     // bypassUnlockExit function - dev tool to check validMove - delete after tests
@@ -705,10 +740,28 @@ public class MazeControl {
         exitUnlocked = status;
     }
 
-    // bypassAllKeysCollected function - dev tool
+    // bypassAllKeysCollected function - dev tool to mimic all keys have been collected by player
     public void bypassSetAllKeysCollected()
     {
         allKeysPerLevel.forEach((k, v) -> allKeysPerLevel.put(k, true));
+    }
+
+    // bypassAllBonusesCollected function - dev tool to mimic all bonuses have been collected by player
+    public void bypassAllBonusesCollected()
+    {
+        allBonusPerLevel.forEach((k, v) -> allBonusPerLevel.put(k, true));
+    }
+
+    //bypassAllKeysStatusToTrue - dev tool
+    public void bypassAllKeysStatusToTrue()
+    {
+        keyStatus.forEach((k, v) -> keyStatus.put(k, true));
+    }
+
+    // bypassAllBonusStatusToTrue - dev tool
+    public void bypassAllBonusStatusToTrue()
+    {
+        bonusStatus.forEach((k, v) -> bonusStatus.put(k, true));
     }
 
 }
