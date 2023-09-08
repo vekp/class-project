@@ -301,21 +301,14 @@ public class Telepathy implements GameClient, Tickable{
         headings.add(subHeading);
 
         JTextPane description = new JTextPane();
-        description.setText("\n\n\n     To start a game, choose your target tile!\n\n\n     Once your target tile is selected, start asking questions by clicking another tile...");
+        description.setText("\n\n\n     To start a game, choose your target tile!\n\n\n       Once your target tile is selected, start\n    asking questions by clicking another tile...");
         description.setEditable(false);
         description.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JButton gotIt = new JButton("Got it!");
-        gotIt.setPreferredSize(new Dimension(20, 40));
-        gotIt.setAlignmentX(Component.CENTER_ALIGNMENT);
-        gotIt.addActionListener(e -> {
-            telepathyNotificationManager.dismissCurrentNotification();
-        });
 
         popupWelcome.add(headings);
         popupWelcome.add(subHeading);
         popupWelcome.add(description);
-        popupWelcome.add(gotIt);
+
 
         return popupWelcome;
     }
@@ -326,10 +319,6 @@ public class Telepathy implements GameClient, Tickable{
      */
     public void activateWelcomeMessage(){
         welcomeMessage = popupWelcomeMessage();
-//        telepathyNotificationManager.setAnimationSpeed(8);
-//        telepathyNotificationManager.setAlignment(0.65f);
-//        telepathyNotificationManager.setDisplayTime(0);
-//        telepathyNotificationManager.showNotification(welcomeMessage, false);
         telepathyNotificationManager.showMessageDialog("Telepathy", welcomeMessage);
     }
 
@@ -341,9 +330,6 @@ public class Telepathy implements GameClient, Tickable{
 
     public void activateQuestOrGuessMessage(int x, int y){
         questionOrFinalGuess = questionOrGuess(x, y);
-//        telepathyNotificationManager.setAnimationSpeed(8);
-//        telepathyNotificationManager.setAlignment(0.65f);
-//        telepathyNotificationManager.setDisplayTime(0);
         telepathyNotificationManager.showNotification(questionOrFinalGuess, false); 
     }
 
@@ -355,9 +341,6 @@ public class Telepathy implements GameClient, Tickable{
      */
     public void selectTargetTile(int x, int y){
         confirmTargetTile = confirmTargetTile(x, y);
-//        telepathyNotificationManager.setAnimationSpeed(8);
-//        telepathyNotificationManager.setAlignment(0.65f);
-//        telepathyNotificationManager.setDisplayTime(0);
         telepathyNotificationManager.showNotification(confirmTargetTile, false); 
     }
 
@@ -561,7 +544,7 @@ public class Telepathy implements GameClient, Tickable{
         button.setBorderPainted(true);
         button.setFocusPainted(false);
     }
- 
+
 
     /**
      * Sends a command to the Telepathy game running on the server.
