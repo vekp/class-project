@@ -201,6 +201,7 @@ public class MazeDisplay extends JPanel {
 
         if (playerPos.equals(exitPoint)) {
             logger.info("playerPos == exit");
+            SpaceMazeSound.play("newlevel");
             spaceMaze.sendCommand("onExit");
             this.stopTimer();
         }
@@ -274,6 +275,7 @@ public class MazeDisplay extends JPanel {
             // This command currently only tells the server where the player is moving
             spaceMaze.sendCommand("playerMoved" + direction);
             if ((mazeMap[moveTo.y][moveTo.x] != '.') && (mazeMap[moveTo.y][moveTo.x] != 'U')){
+                playSound();
                 spaceMaze.sendCommand("collision");
             } else {
                 // Moves the player image
@@ -409,6 +411,28 @@ public class MazeDisplay extends JPanel {
     }
 
     /**
+     * Method to play a sound based on collision character
+     */
+    private void playSound() {
+        switch (mazeMap[moveTo.y][moveTo.x]) {
+            case 'K':
+                SpaceMazeSound.play("key");
+                break;
+            case '$':
+                SpaceMazeSound.play("chest");
+                break;
+            case 'H':
+                SpaceMazeSound.play("wormhole");
+                break;
+            case 'M':
+                SpaceMazeSound.play("bomb");
+                break;
+            default:
+                // do nothing
+        }
+    }
+
+    /**
      * Method to check whether a move is valid
      * Used to save time by not sending invalid moves to the server
      * @param moveTo point to move to
@@ -440,6 +464,7 @@ public class MazeDisplay extends JPanel {
 
                 if(playerPos.equals(botPosition)) {
                     logger.info("Collision detected");
+                    SpaceMazeSound.play("lifedown");
                     spaceMaze.sendCommand("botCollision");
                     bot.reset();
                 }

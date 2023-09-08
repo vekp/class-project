@@ -72,6 +72,9 @@ public class SpaceMaze implements GameClient {
     //Class to hold all images for client side use
     Images images;
 
+    //Class to hold all sounds for client side use
+    SpaceMazeSound sound;
+
     //Header Section
     JPanel headerPanel;
     JLabel headerText;
@@ -396,6 +399,8 @@ public class SpaceMaze implements GameClient {
 
             case "startGame" -> sendCommand("requestGame");
             case "firstLevel" -> {
+                sound = new SpaceMazeSound();
+                sound.loadSounds();
                 stopTimer();
                 String interactiveResponse = command.getString("interactiveResponse");
                 JsonArray serialisedArray = command.getJsonArray("mazeArray");
@@ -450,6 +455,7 @@ public class SpaceMaze implements GameClient {
             }
             // TODO: Niraj add call to playerDead - game over screen
             case "playerDead" -> {
+                SpaceMazeSound.play("gameover");
                 String totalScore = command.getString("totalScore");
                 String totalTime = command.getString("timeTaken");
                 statusBar.stopTimer();
@@ -525,6 +531,9 @@ public class SpaceMaze implements GameClient {
     }
 
     public void displayGameOver(String totalScore, String totalTime){
+
+        // Releasing sounds for garbage collection
+        SpaceMazeSound.closeSounds();
 
         String timeTaken = totalTime;
         

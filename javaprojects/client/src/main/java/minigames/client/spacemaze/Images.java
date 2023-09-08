@@ -81,7 +81,6 @@ public class Images {
     private static HashMap<Integer, BufferedImage> keyImages;
     private static HashMap<Integer, BufferedImage> titleImages;
 
-
     /**
      * Constructor - private to restrict the object creation
      * to this class itself.
