@@ -7,6 +7,8 @@ import minigames.server.ClientType;
 import minigames.server.GameServer;
 import minigames.server.MinigameNetworkServer;
 
+import minigames.server.krumgame.database.TableManager;
+
 import java.util.HashMap;
 import java.util.Random;
 
@@ -20,9 +22,15 @@ import org.apache.logging.log4j.Level;
 public class KrumGameServer implements GameServer{
 
     HashMap<String, KrumGame> games = new HashMap<>();
+    private KrumDatabase db = new KrumDatabase();
+    private TableManager tableManager;
 
     public KrumGameServer(){
         Configurator.setLevel(LogManager.getLogger(MinigameNetworkServer.class), Level.WARN);
+
+        // Start the database
+        db.startDatabase();
+        tableManager = db.getTableManager();
     }
 
     @Override
@@ -46,7 +54,7 @@ public class KrumGameServer implements GameServer{
     public Future<RenderingPackage> newGame(String playerName){
         String gameName = NameGenerator.generateName(games.keySet());
         
-        KrumGame game = new KrumGame(gameName);
+        KrumGame game = new KrumGame(gameName, tableManager);
 
         games.put(gameName, game);
 

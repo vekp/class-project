@@ -4,6 +4,8 @@ import java.util.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import io.vertx.core.json.JsonObject;
+import java.sql.SQLException;
 
 import io.vertx.core.json.JsonObject;
 import minigames.commands.CommandPackage;
@@ -15,6 +17,9 @@ import minigames.krumgame.KrumInputFrame;
 
 import java.util.Queue;
 import java.util.LinkedList;
+
+import minigames.server.krumgame.database.*;
+
 
 
 
@@ -44,7 +49,12 @@ public class KrumGame{
     private int[] ready;
     private int levelIndex;
 
-    public KrumGame(String name){
+    private TableManager tableManager;
+    private PlayerService playerService;
+    private AchievementsService achievementsService;
+    private ColorsService colorsService;
+
+    public KrumGame(String name, TableManager tableManager){
         this.name = name;
         this.playerTurn = 0;
         this.frameIndex = 0;
@@ -55,8 +65,35 @@ public class KrumGame{
         this.seed = System.nanoTime();
         this.ready = new int[] {-1, -1};
         this.levelIndex = 0;
-
+        this.tableManager = tableManager;
+        this.playerService = tableManager.getPlayerService();
+        this.achievementsService = tableManager.getAchievementsService();
+        this.colorsService = tableManager.getColorsService();
+        // TODO: Remove this is after testing database
+        testDatabase();
     }
+
+    // TODO: Remove this is after testing database
+    public void testDatabase() {
+        try {
+            // Test getPlayerInfo
+            JsonObject playerInfo = playerService.getPlayerInfo("test");
+            System.out.println("Player info: " + playerInfo.encodePrettily());
+
+            // Test getAchievements
+            JsonObject achievements = achievementsService.getAchievements("test");
+            System.out.println("Achievements: " + achievements.encodePrettily());
+
+            // Test getColors
+            JsonObject colors = colorsService.getColors("test");
+            System.out.println("Colors: " + colors.encodePrettily());
+
+        } catch (SQLException e) {
+            System.out.println("Error getting data from database");
+            e.printStackTrace();
+        }
+    }
+
 
     public String[] getPlayerNames(){
         return players.keySet().toArray(String[]::new);
