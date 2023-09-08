@@ -161,6 +161,12 @@ public class SpaceMazeGame {
                                 .put("interactiveResponse", InteractiveResponses.NEW_LEVEL.toString());
                         renderingCommands.add(serializedMazeArray);
                         // Set level achievements
+                        Boolean isPlayerADeterminedCollector = mazeControl.getLevelAllKeyBonusStatus();
+                        if (isPlayerADeterminedCollector)
+                        {
+                            AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
+                            handler.unlockAchievement(getPlayerNames()[0],DETERMINED_COLLECTOR.toString());
+                        }
                     } else {
                         int time = mazeControl.timeTaken;
                         int minutes = time / 60;
