@@ -23,6 +23,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
@@ -118,6 +119,8 @@ public class KrumGame implements GameClient {
 
     final int MIN_PLAYBACK_BUFFER = 0;
 
+
+
     long seed; // seed for Random() -- needs to be the same for all clients clients
 
     public KrumGame() {  
@@ -136,7 +139,8 @@ public class KrumGame implements GameClient {
         //alphaRaster = backgroundComponent.getAlphaRaster();
         initializePanel();
         initializeLevels();
-        setActiveLevel(0);                           
+        setActiveLevel(0);    
+        KrumSound.initializeSounds();                    
         //initializePlayers();
         //initializeWind();     
         windString = "";        
@@ -198,8 +202,7 @@ public class KrumGame implements GameClient {
         recordingTurn = true;
         turnOver = false;
         players[playerTurn].jumping = false;
-        //Below is playSound that should link to KrumSoundPlayer - commented out until it works
-        //playSound("/SoundEffects/sound4.wav");
+        KrumSound.playSound("sound2");
         for (int i = 0; i < KrumPlayer.shotsPerTurn.length; i++) {
             players[playerTurn].firedThisTurn[i] = 0;
         }

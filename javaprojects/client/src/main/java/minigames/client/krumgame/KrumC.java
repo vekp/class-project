@@ -6,6 +6,7 @@ package minigames.client.krumgame;
  */
 public class KrumC {
     static final String imgDir = "krumgame/";
+    static final String soundDir = "krumgame/sounds/";
 
     static final int TARGET_FRAMERATE = 60;
     static final long TARGET_FRAMETIME = 1000000000 / TARGET_FRAMERATE; // nanoseconds

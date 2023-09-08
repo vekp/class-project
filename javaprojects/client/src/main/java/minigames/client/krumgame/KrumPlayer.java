@@ -1319,6 +1319,7 @@ public class KrumPlayer {
         airborne = true;
         firstJumpFrame = true;
         deferredLanding = false;
+        KrumSound.playSound("jump");
     }
 
     void shootRope() {
