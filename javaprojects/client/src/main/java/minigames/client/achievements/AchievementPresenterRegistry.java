@@ -15,6 +15,8 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import static minigames.utilities.MinigameUtils.generateScrollPane;
+
 /**
  * A class for presenting a group of achievements for a particular game
  */
@@ -99,7 +101,7 @@ public class AchievementPresenterRegistry {
      * given NotificationManager
      */
     public void showGameAchievements(DialogManager dialogManager) {
-        JScrollPane scrollPane = AchievementUI.generateScrollPane(achievementListPanel(dialogManager));
+        JScrollPane scrollPane = generateScrollPane(achievementListPanel(dialogManager));
         // Set pane size to fit inside frame
         scrollPane.setPreferredSize(new Dimension(
             Math.min(700, scrollPane.getPreferredSize().width + 20), // add some padding on the right

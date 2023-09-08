@@ -1,6 +1,7 @@
 package minigames.client.achievements;
 
 import minigames.achievements.Achievement;
+import minigames.utilities.MinigameUtils;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -34,10 +35,10 @@ public class AchievementPresenter {
 
     /**
      * Create image of achievement of given height
-     * @param targetHeight the desired height of image
+     * @param targetSize the desired size of image
      * @return an ImageIcon
      */
-    private ImageIcon achievementImage(int targetHeight) {
+    private ImageIcon achievementImage(int targetSize) {
 
         // Set path of image
         String path;
@@ -54,32 +55,11 @@ public class AchievementPresenter {
             }
         }
 
-        ImageIcon scaledImage =  scaledImage(path, targetHeight);
+        ImageIcon scaledImage =  MinigameUtils.scaledImage(path, targetSize);
         if (isUnlocked) return scaledImage;
         // Apply grey filter to locked items
         Image grayedImage = GrayFilter.createDisabledImage(scaledImage.getImage());
         return new ImageIcon(grayedImage);
-    }
-
-    /**
-     * Makes a scaled image of desired height and proportional width.
-     * @param filepath String with filepath of the source image
-     * @param targetHeight int of desired height to scale image to
-     * @return ImageIcon after it has been scaled.
-     */
-    public static ImageIcon scaledImage(String filepath, int targetHeight) {
-        ImageIcon imageIcon = new ImageIcon(filepath);
-        float aspectRatio = (float) imageIcon.getIconWidth() / imageIcon.getIconHeight();
-        int targetWidth;
-        if (aspectRatio > 1) {
-            targetWidth = targetHeight;
-            targetHeight = (int) (targetHeight / aspectRatio);
-        } else {
-            targetWidth = (int) (targetHeight * aspectRatio);
-        }
-        Image scaledImage = imageIcon.getImage().getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
-        imageIcon.setImage(scaledImage);
-        return imageIcon;
     }
 
     /**
