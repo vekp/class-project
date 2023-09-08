@@ -14,7 +14,7 @@ import minigames.rendering.GameMetadata;
 import minigames.rendering.RenderingPackage;
 import minigames.server.telepathy.TelepathyGame;
 import minigames.server.telepathy.Player;
-import minigames.server.telepathy.State;
+import minigames.telepathy.State;
 import minigames.telepathy.TelepathyCommandException;
 import minigames.telepathy.TelepathyCommandHandler;
 import minigames.telepathy.TelepathyCommands;
