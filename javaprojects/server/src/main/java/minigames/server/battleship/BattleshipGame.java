@@ -135,10 +135,11 @@ public class BattleshipGame {
                     BattleshipPlayer currentClient = bPlayers.get(cp.player());
                     currentClient.setReady(true);
                     currentClient.updateHistory("Ready");
+                    currentClient.updateHistory(BattleshipTurnResult.firstInstruction().playerMessage());
 
-                    //if the other player is also ready or are AI, we are good to start the game
-                    //the gamestate assumes all players are ready. On checking this loop, if we find any players that are
-                    //not yet ready, set the state back to placement/waiting
+                    // If the other player is also ready or are AI, we are good to start the game
+                    // the gamestate assumes all players are ready. On checking this loop, if we find any players that are
+                    // not yet ready, set the state back to placement/waiting
                     gameState = GameState.IN_PROGRESS;
                     for (BattleshipPlayer player : bPlayers.values()) {
                         if (!(player.isReady() || player.isAIControlled())) {
@@ -171,7 +172,6 @@ public class BattleshipGame {
             case IN_PROGRESS -> {
                 BattleshipPlayer current = bPlayers.get(activePlayer);
                 BattleshipPlayer opponent = bPlayers.get(opponentPlayer);
-
 
                 if (Objects.equals(current.getName(), cp.player())) {
                     //On this users turn, we process any non-refresh commands as an input coordinate
@@ -228,13 +228,7 @@ public class BattleshipGame {
         BattleshipTurnResult result = currentPlayer.processTurn(userInput, opponent.getBoard());
 
         // Update current player's message history with the result
-        currentPlayer.updateHistory(result.playerMessage());
-        // Determine response to other player based on their result
-        if (result.shipHit()) {
-            opponent.updateHistory(result.opponentMessage());
-        } else {
-            opponent.updateHistory(result.opponentMessage());
-        }
+        if (result.successful()) currentPlayer.updateHistory(result.playerMessage());
 
         //the commands to be sent back to the player
         ArrayList<JsonObject> renderingCommands = new ArrayList<>(getGameRender(currentPlayer, opponent));
@@ -242,6 +236,8 @@ public class BattleshipGame {
         //only swap turns if the turn was successful. If not, it means the input was invalid
         //and we want the player to try again
         if (result.successful()) {
+            //opponent should now get feedback about the player's turn
+            opponent.updateHistory(result.opponentMessage());
             SwapTurns();
             renderingCommands.add(new JsonObject().put("command", "wait"));
         }
@@ -249,7 +245,7 @@ public class BattleshipGame {
     }
 
     /**
-     * Helper function to get all of the commands related to redrawing the entire game screen, the boards, player names,
+     * Helper function to get all the commands related to redrawing the entire game screen, the boards, player names,
      * messages, etc
      *
      * @param targetPlayer the player who owns the client
