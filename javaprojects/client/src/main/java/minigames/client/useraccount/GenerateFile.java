@@ -10,10 +10,9 @@ public class GenerateFile {
         String fileName = "src/main/java/minigames/client/useraccount/user_accounts.json";
         File file = new File(fileName);
 
-        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file))) {
+        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, true))) {
             // Write the content to the file
-            bufferedWriter.write(content);
-
+            bufferedWriter.write("\n" + content);
             System.out.println("User account information has been written to the file.");
         } catch (IOException e) {
             e.printStackTrace();
