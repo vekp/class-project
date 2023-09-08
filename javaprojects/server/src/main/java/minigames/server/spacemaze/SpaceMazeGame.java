@@ -102,16 +102,12 @@ public class SpaceMazeGame {
                         case '$' -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.TREASURE_CHEST.toString());
                         case 'K' -> {
                             int keysRemaining = mazeControl.getKeysRemaining();
-                            if (keysRemaining < 0){
-                                keysRemaining = 10;
-                            }
                             switch (keysRemaining) {
                                 case 0 -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.ALL_KEY_OBTAINED.toString());
                                 case 1 -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.ONE_KEY_REMAINING.toString());
                                 case 2 -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.TWO_KEY_REMAINING.toString());
                                 case 3 -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.THREE_KEY_REMAINING.toString());
                                 case 4 -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.FOUR_KEY_REMAINING.toString());
-                                case 10 -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.ENOUGH_KEYS.toString());
                             }
                         }
                     }

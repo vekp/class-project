@@ -138,7 +138,7 @@ public class SpaceMaze implements GameClient {
      */
     public SpaceMaze() {
 
-        // Getting the single instance if the Images class
+        // Getting the single instance of the Images class
         images = Images.getInstance();
 
         loadCustomFont();
@@ -153,211 +153,17 @@ public class SpaceMaze implements GameClient {
         GridBagConstraints gbc = new GridBagConstraints();
 
         loadMainMenuHeader();
-        // headerText = new JLabel(headerImage1);
-        // headerText.setForeground(Color.WHITE);
-        // headerText.setFont(customFont);
         headerPanel.add(headerText, gbc);
 
-
-        //Menu Section
-        mainMenuPanel = new JPanel();
-        mainMenuPanel.setLayout(new GridBagLayout());
-        mainMenuPanel.setPreferredSize(new Dimension(600, 600));
-        mainMenuPanel.setBackground(Color.BLACK);
-
         //Help Panel
-        helpPanel = new JPanel();
-        helpPanel.setLayout(new GridBagLayout());
-        helpPanel.setPreferredSize(new Dimension(600, 600));
-        helpPanel.setBackground(Color.YELLOW);
-
-        helpText = new JLabel("INSTRUCTIONS");
-        customFont = customFont.deriveFont(20f);
-        helpText.setFont(customFont);
-        helpText.setForeground(Color.BLACK);
-        
-        gbc.insets = new Insets(-200, 0, 0, 0);
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        helpPanel.add(helpText, gbc);
-
-        customFont = customFont.deriveFont(10f);
-        sampleControls = new JLabel("Control:");
-        sampleControls.setFont(customFont);
-        sampleControls.setForeground(Color.BLACK);
-
-        gbc.insets = new Insets(50, 0, 0, 0);
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        helpPanel.add(sampleControls, gbc);
-
-        sampleHelpText = new JLabel("W, S, A, D / Arrow Keys to control the player");
-        sampleHelpText.setFont(customFont);
-        sampleHelpText.setForeground(Color.BLACK);
-
-        gbc.insets = new Insets(20, 0, 0, 0);
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        helpPanel.add(sampleHelpText, gbc);
-
-        sampleHelpText1 = new JLabel("- Collect Keys to Unlock Door");
-        sampleHelpText1.setFont(customFont);
-        sampleHelpText1.setForeground(Color.BLACK);
-
-        gbc.insets = new Insets(20, 0, 0, 0);
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        helpPanel.add(sampleHelpText1, gbc);
-
-        sampleHelpText2 = new JLabel("- Avoid Aliens and Traps ");
-        sampleHelpText2.setFont(customFont);
-        sampleHelpText2.setForeground(Color.BLACK);
-
-        gbc.insets = new Insets(20, 0, 0, 0);
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        helpPanel.add(sampleHelpText2, gbc);
-
-        backFromHelpButton = new JButton("Back");
-        backFromHelpButton.addActionListener((evt) -> sendCommand("backToMenu"));
-
-        gbc.insets = new Insets(20, 0, 0, 0);
-        gbc.gridx = 0;
-        gbc.gridy = 5;
-        helpPanel.add(backFromHelpButton, gbc);
+        loadHelpPanel();
 
         //HighScore Section
-        highScorePanel = new JPanel();
-        highScorePanel.setLayout(new GridBagLayout());
-        highScorePanel.setPreferredSize(new Dimension(600, 600));
-        highScorePanel.setBackground(Color.YELLOW);
+        loadHighScorePanel();
 
-        highScoreLabel = new JLabel("High Score:", SwingConstants.CENTER);
-        highScoreLabel.setPreferredSize(new Dimension(600, 200));
-        highScoreLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        customFont = customFont.deriveFont(20f);
-        highScoreLabel.setFont(customFont);
-        highScoreLabel.setForeground(Color.BLACK);
-        
-        gbc.insets = new Insets(-200, 20, 0, 0);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        highScorePanel.add(highScoreLabel, gbc);
-        
-        playerColumn = new JLabel("Player Name");
-        customFont = customFont.deriveFont(10f);
-        playerColumn.setFont(customFont);
-        playerColumn.setForeground(Color.BLACK);
+        //Main Menu
+        loadMainMenu();
 
-        gbc.insets = new Insets(20, 20, 0, 0);
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        highScorePanel.add(playerColumn, gbc);
-
-        scoreColumn= new JLabel("Score");
-        customFont = customFont.deriveFont(10f);
-        scoreColumn.setFont(customFont);
-        scoreColumn.setForeground(Color.BLACK);
-
-        gbc.insets = new Insets(20, 20, 0, 0);
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        highScorePanel.add(scoreColumn, gbc);
-
-        backFromHighScoreButton = new JButton("Back");
-        gbc.insets = new Insets(70, 20, 0, 0);
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        highScorePanel.add(backFromHighScoreButton, gbc);
-        backFromHighScoreButton.addActionListener((evt) -> sendCommand("backToMenu"));
-
-        //Buttons panel inside menu section
-        buttonsPanel = new JPanel();
-        buttonsPanel.setBackground(Color.BLACK);
-        buttonsPanel.setPreferredSize(new Dimension(300,250));
-        buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS)); //Box layout with items arranged vertically.
-
-        startGameButton = new JButton("START GAME");
-        startGameButton.addActionListener((evt) -> sendCommand("START"));
-
-        highScoreButton = new JButton("HIGH SCORE");
-        highScoreButton.addActionListener((evt) -> sendCommand("SCORE"));
-
-        helpButton = new JButton("HOW TO PLAY");
-        helpButton.addActionListener((evt) -> sendCommand("HELP"));
-
-        mainMenuButton = new JButton("MAIN MENU");
-        mainMenuButton.addActionListener((evt) -> sendCommand("MENU"));
-
-        //Button visual settings
-        for (Component c : new Component[] { startGameButton, highScoreButton, helpButton, mainMenuButton }) {
-            if (c == startGameButton){
-                customFont = customFont.deriveFont(24f);
-            } else {
-                customFont = customFont.deriveFont(14f);
-            }
-            c.setPreferredSize(buttonDimension);
-            c.setMaximumSize(buttonDimension);
-            c.setFont(customFont);
-            ((AbstractButton) c).setAlignmentX(Component.CENTER_ALIGNMENT);
-            c.setForeground(Color.WHITE);
-            ((AbstractButton) c).setContentAreaFilled(false);
-            ((AbstractButton) c).setOpaque(false);
-            ((AbstractButton) c).setBorderPainted(false);
-            ((AbstractButton) c).setFocusPainted(false);
-        }
-
-        //Hover effect for button - Start Game button
-        startGameButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e){
-                customFont = customFont.deriveFont(25f);
-                startGameButton.setFont(customFont);
-                startGameButton.setForeground(Color.YELLOW);
-            }
-            @Override
-            public void mouseExited(MouseEvent e){
-                customFont = customFont.deriveFont(24f);
-                startGameButton.setFont(customFont);
-                startGameButton.setForeground(Color.WHITE);
-            }
-        });
-
-        //Hover effect for buttons - High Score Button, Help Button, Main Menu Button, Exit Button
-        for (Component c : new Component[] { highScoreButton, helpButton, mainMenuButton }) {
-            c.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseEntered(MouseEvent e){
-                    customFont = customFont.deriveFont(16f);
-                    c.setFont(customFont);
-                    c.setForeground(Color.YELLOW);
-                }
-                @Override
-                public void mouseExited(MouseEvent e){
-                    customFont = customFont.deriveFont(14f);
-                    c.setFont(customFont);
-                    c.setForeground(Color.WHITE);
-                }
-            });
-        }
-
-        //Adding buttons to the buttons panel
-        for (Component c : new Component[] { startGameButton, highScoreButton, helpButton, mainMenuButton }) {
-            buttonsPanel.add(c);
-            buttonsPanel.add(Box.createRigidArea(new Dimension(5,5)));
-
-        }
-
-        //Using GridBagLayout to position buttons panel inside menu section
-        gbc.gridx = 0;
-        gbc.gridy = 0; 
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.insets = new Insets(-200, 0, 0, 0);
-        mainMenuPanel.add(buttonsPanel, gbc);
-
-        //Credit Section
-        developerCredits = new JLabel("Developed by: Andy, Nik, Natasha, Niraj");
     }
 
     /** 
@@ -516,6 +322,7 @@ public class SpaceMaze implements GameClient {
     }
 
     public void displayMainMenu(){
+        loadMainMenu();
         startTimer();
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(mainMenuPanel);
@@ -727,6 +534,213 @@ public class SpaceMaze implements GameClient {
         if (timer != null){
             timer.start();
         }
+    }
+
+    public void loadHelpPanel(){
+        helpPanel = new JPanel();
+        helpPanel.setLayout(new GridBagLayout());
+        helpPanel.setPreferredSize(new Dimension(600, 600));
+        helpPanel.setBackground(Color.YELLOW);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        helpText = new JLabel("INSTRUCTIONS");
+        customFont = customFont.deriveFont(20f);
+        helpText.setFont(customFont);
+        helpText.setForeground(Color.BLACK);
+        
+        gbc.insets = new Insets(-200, 0, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        helpPanel.add(helpText, gbc);
+
+        customFont = customFont.deriveFont(10f);
+        sampleControls = new JLabel("Control:");
+        sampleControls.setFont(customFont);
+        sampleControls.setForeground(Color.BLACK);
+
+        gbc.insets = new Insets(50, 0, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        helpPanel.add(sampleControls, gbc);
+
+        sampleHelpText = new JLabel("W, S, A, D / Arrow Keys to control the player");
+        sampleHelpText.setFont(customFont);
+        sampleHelpText.setForeground(Color.BLACK);
+
+        gbc.insets = new Insets(20, 0, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        helpPanel.add(sampleHelpText, gbc);
+
+        sampleHelpText1 = new JLabel("- Collect Keys to Unlock Door");
+        sampleHelpText1.setFont(customFont);
+        sampleHelpText1.setForeground(Color.BLACK);
+
+        gbc.insets = new Insets(20, 0, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        helpPanel.add(sampleHelpText1, gbc);
+
+        sampleHelpText2 = new JLabel("- Avoid Aliens and Traps ");
+        sampleHelpText2.setFont(customFont);
+        sampleHelpText2.setForeground(Color.BLACK);
+
+        gbc.insets = new Insets(20, 0, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        helpPanel.add(sampleHelpText2, gbc);
+
+        backFromHelpButton = new JButton("Back");
+        backFromHelpButton.addActionListener((evt) -> sendCommand("backToMenu"));
+
+        gbc.insets = new Insets(20, 0, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        helpPanel.add(backFromHelpButton, gbc);
+    }
+
+    public void loadHighScorePanel(){
+        GridBagConstraints gbc = new GridBagConstraints();
+        highScorePanel = new JPanel();
+        highScorePanel.setLayout(new GridBagLayout());
+        highScorePanel.setPreferredSize(new Dimension(600, 600));
+        highScorePanel.setBackground(Color.YELLOW);
+
+        highScoreLabel = new JLabel("High Score:", SwingConstants.CENTER);
+        highScoreLabel.setPreferredSize(new Dimension(600, 200));
+        highScoreLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        customFont = customFont.deriveFont(20f);
+        highScoreLabel.setFont(customFont);
+        highScoreLabel.setForeground(Color.BLACK);
+        
+        gbc.insets = new Insets(-200, 20, 0, 0);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        highScorePanel.add(highScoreLabel, gbc);
+        
+        playerColumn = new JLabel("Player Name");
+        customFont = customFont.deriveFont(10f);
+        playerColumn.setFont(customFont);
+        playerColumn.setForeground(Color.BLACK);
+
+        gbc.insets = new Insets(20, 20, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        highScorePanel.add(playerColumn, gbc);
+
+        scoreColumn= new JLabel("Score");
+        customFont = customFont.deriveFont(10f);
+        scoreColumn.setFont(customFont);
+        scoreColumn.setForeground(Color.BLACK);
+
+        gbc.insets = new Insets(20, 20, 0, 0);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        highScorePanel.add(scoreColumn, gbc);
+
+        backFromHighScoreButton = new JButton("Back");
+        gbc.insets = new Insets(70, 20, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        highScorePanel.add(backFromHighScoreButton, gbc);
+        backFromHighScoreButton.addActionListener((evt) -> sendCommand("backToMenu"));
+    }
+
+    public void loadMainMenu(){
+        GridBagConstraints gbc = new GridBagConstraints();
+        //Menu Section
+        mainMenuPanel = new JPanel();
+        mainMenuPanel.setLayout(new GridBagLayout());
+        mainMenuPanel.setPreferredSize(new Dimension(600, 600));
+        mainMenuPanel.setBackground(Color.BLACK);
+
+        //Buttons panel inside menu section
+        buttonsPanel = new JPanel();
+        buttonsPanel.setBackground(Color.BLACK);
+        buttonsPanel.setPreferredSize(new Dimension(300,250));
+        buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS)); //Box layout with items arranged vertically.
+
+        startGameButton = new JButton("START GAME");
+        startGameButton.addActionListener((evt) -> sendCommand("START"));
+
+        highScoreButton = new JButton("HIGH SCORE");
+        highScoreButton.addActionListener((evt) -> sendCommand("SCORE"));
+
+        helpButton = new JButton("HOW TO PLAY");
+        helpButton.addActionListener((evt) -> sendCommand("HELP"));
+
+        mainMenuButton = new JButton("MAIN MENU");
+        mainMenuButton.addActionListener((evt) -> sendCommand("MENU"));
+
+        //Button visual settings
+        for (Component c : new Component[] { startGameButton, highScoreButton, helpButton, mainMenuButton }) {
+            if (c == startGameButton){
+                customFont = customFont.deriveFont(24f);
+            } else {
+                customFont = customFont.deriveFont(14f);
+            }
+            c.setPreferredSize(buttonDimension);
+            c.setMaximumSize(buttonDimension);
+            c.setFont(customFont);
+            ((AbstractButton) c).setAlignmentX(Component.CENTER_ALIGNMENT);
+            c.setForeground(Color.WHITE);
+            ((AbstractButton) c).setContentAreaFilled(false);
+            ((AbstractButton) c).setOpaque(false);
+            ((AbstractButton) c).setBorderPainted(false);
+            ((AbstractButton) c).setFocusPainted(false);
+        }
+
+        //Hover effect for button - Start Game button
+        startGameButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e){
+                customFont = customFont.deriveFont(25f);
+                startGameButton.setFont(customFont);
+                startGameButton.setForeground(Color.YELLOW);
+            }
+            @Override
+            public void mouseExited(MouseEvent e){
+                customFont = customFont.deriveFont(24f);
+                startGameButton.setFont(customFont);
+                startGameButton.setForeground(Color.WHITE);
+            }
+        });
+
+        //Hover effect for buttons - High Score Button, Help Button, Main Menu Button, Exit Button
+        for (Component c : new Component[] { highScoreButton, helpButton, mainMenuButton }) {
+            c.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e){
+                    customFont = customFont.deriveFont(16f);
+                    c.setFont(customFont);
+                    c.setForeground(Color.YELLOW);
+                }
+                @Override
+                public void mouseExited(MouseEvent e){
+                    customFont = customFont.deriveFont(14f);
+                    c.setFont(customFont);
+                    c.setForeground(Color.WHITE);
+                }
+            });
+        }
+
+        //Adding buttons to the buttons panel
+        for (Component c : new Component[] { startGameButton, highScoreButton, helpButton, mainMenuButton }) {
+            buttonsPanel.add(c);
+            buttonsPanel.add(Box.createRigidArea(new Dimension(5,5)));
+
+        }
+
+        //Using GridBagLayout to position buttons panel inside menu section
+        gbc.gridx = 0;
+        gbc.gridy = 0; 
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(-200, 0, 0, 0);
+        mainMenuPanel.add(buttonsPanel, gbc);
+
+        //Credit Section
+        developerCredits = new JLabel("Developed by: Andy, Nik, Natasha, Niraj");
     }
 }
 
