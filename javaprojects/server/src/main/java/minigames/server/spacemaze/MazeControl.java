@@ -118,7 +118,6 @@ public class MazeControl {
         MazeInit newMaze = new MazeInit(currentLevel);
         return newMaze.getMazeInitArray();
     }
-
  
     /*
      * playerEntersMaze function - populates maze with player and starts timer
@@ -149,6 +148,9 @@ public class MazeControl {
         mazeTimer.startTimer();
 
     }
+
+
+
     
     // SET MAZE ELEMENTS
 
@@ -178,7 +180,6 @@ public class MazeControl {
                 {
                     keyLocationsList.add(new Point(x, y));
                 }
-                
                 // Add bot locations
                 else if (mazeArray[y][x] == 'B')
                 {
@@ -206,11 +207,9 @@ public class MazeControl {
                 {
                     bonusPointsLocationsList.add(new Point(x, y));
                 }
-
             }
         }    
     }
-
 
     /* 
     * setKeysStatus function - inputs keyLocations into a map and defaults collected bool value to false
@@ -224,7 +223,6 @@ public class MazeControl {
             keyStatus.put(keyLocationsList.get(i), false);
         }
     }
-
 
     /*
      * setAllKeysStatus function - maps all keys collected per level to false
@@ -263,6 +261,8 @@ public class MazeControl {
             allBonusPerLevel.put(i, false);
         }
     }
+
+
 
 
     // MAZE LOGIC: 
@@ -344,6 +344,7 @@ public class MazeControl {
 
 
 
+
     // UPDATE PLAYER/MAZE ELEMENTS AND UNLOCK EXIT
 
     /*
@@ -399,7 +400,6 @@ public class MazeControl {
         {
             // Remove all walls (replace with path - '.') within one tile
             blowUpWalls();
-
         }
     }
 
@@ -534,23 +534,6 @@ public class MazeControl {
         }
     }
 
-    /*
-    * getNextTile function - For the server to identify the collision type
-    *
-    * @return char of tile player is moving onto
-     */
-    public char getNextTile() {
-        return nextTile;
-    }
-
-    /*
-    * getKeysRemaining function
-    *
-    * @return number of keys remaining to unlock exit
-     */
-    public int getKeysRemaining() {
-        return numKeysToUnlock - mazePlayer.checkNumberOfKeys();
-    }
     
 
 
@@ -634,7 +617,6 @@ public class MazeControl {
         gameFinished = true;
         callGameOver();
     }
-
 
     /* 
     * gameOver function - checks if player is at exit - called in updatePlayerLocationMaze
@@ -751,7 +733,6 @@ public class MazeControl {
         // Return true if all bonuses were collected
         return !allKeysPerLevel.containsValue(false);
     }
-
     
     /*
      * getLevelAllKeyBonusStatus function returns true if all keys and bonuses for the previous level
@@ -762,6 +743,27 @@ public class MazeControl {
     {
         return thisLevelAllKeysBonus;
     }
+
+    /*
+    * getNextTile function - For the server to identify the collision type
+    *
+    * @return char of tile player is moving onto
+     */
+    public char getNextTile() {
+        return nextTile;
+    }
+
+    /*
+    * getKeysRemaining function
+    *
+    * @return number of keys remaining to unlock exit
+     */
+    public int getKeysRemaining() {
+        return numKeysToUnlock - mazePlayer.checkNumberOfKeys();
+    }
+    
+
+
 
     // BYPASS FUNCTIONS FOR TESTING
 
