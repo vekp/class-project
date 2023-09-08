@@ -6,7 +6,6 @@ import minigames.server.battleship.BattleshipServer;
 import minigames.server.highscore.*;
 import minigames.server.memory.MemoryServer;
 import minigames.server.muddle.MuddleServer;
-import minigames.server.survey.SurveyServer;
 import minigames.server.spacemaze.SpaceMazeServer;
 import minigames.server.telepathy.TelepathyServer;
 import io.vertx.core.Launcher;
@@ -72,7 +71,6 @@ public class Main extends AbstractVerticle {
         gameRegistry.registerGameServer("SpaceMaze", new SpaceMazeServer());
         gameRegistry.registerGameServer("Battleship", new BattleshipServer());
         gameRegistry.registerGameServer("Memory", new MemoryServer());
-        gameRegistry.registerGameServer("Survey", new SurveyServer());
         gameRegistry.registerGameServer("Telepathy", new TelepathyServer());
 
         // Initialize the HighScoreAPI

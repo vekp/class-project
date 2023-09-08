@@ -12,16 +12,7 @@ import minigames.client.Animator;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.io.File;
 import java.util.*;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Iterator;
-
-
-
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -46,7 +37,7 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
     String player;
 
     /** Swing components */
-    private JPanel mainPanel, gameMenuPanel, commandPanel, headingPanel, playerPanel, gameOptionsPanel, cardGridPanel;
+    private JPanel mainPanel, gameMenuPanel, headingPanel, playerPanel, gameOptionsPanel, cardGridPanel;
     private JLabel title, playerName, matches, stopwatch, difficulty;
     private JButton newGameButton, restartLevelButton, exitButton, achievementsButton;
     private Border margin;
@@ -57,17 +48,11 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
     int btnContainerWidth;
     int btnContainerHeight;
 
-    
-
     ImageIcon cardBackImage = new ImageIcon(getClass().getResource("/memory/images/playing_cards/back/card_back_black.png"));
     // Path to card images directory (card front images only)
     String cardImagesDirectory = getClass().getResource("/memory/images/playing_cards/front/").getPath();
-
     // this needs to be changed again so that the image matches the relevant card suit/rank 
     ImageIcon cardFrontImage = new ImageIcon(getClass().getResource("/memory/images/playing_cards/front/_2_of_clubs.png"));
-
-
-    JTextArea textArea;
 
     // Game variable
     boolean gameStarted = false;
@@ -75,7 +60,6 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
     int [] timeElapsed = {1, 0}; // {mins, seconds}
     Timer timer;
     
-
     //May use this later to keep track of the flipped/unflipped cards, but i dont think we need it anymore...
     //boolean [] cardState = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
     
@@ -91,7 +75,6 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         MemoryWindow.add(GUI);
     }
 
-
     public void MemoryGUI() {
         margin = BorderFactory.createEmptyBorder(10, 10, 10, 10);
         
@@ -103,7 +86,6 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         GUI.add(mainPanel, BorderLayout.CENTER);
     }
 
-   
     private void setMainPanelDisplay(){
         // Set up the main layout
         mainPanel = new JPanel();
@@ -112,9 +94,7 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         mainPanel.add(buttonPanel, BorderLayout.CENTER);
     }
 
-
     private void setGameMenuPanelDisplay(){
-
         // Create the heading panel
         headingPanel = new JPanel();
         headingPanel.setLayout(new GridLayout(1, 1));
@@ -130,7 +110,6 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         gameMenuPanel.add(headingPanel); // Add heading panel to the game menu panel
         gameMenuPanel.add(playerPanel); // Add playerPanel to gameMenuPanel
         gameMenuPanel.add(gameOptionsPanel); // Add gameOptionsPanel to gameMenuPanel
-
     }
 
     private void setPlayerPanelDisplay() {
@@ -162,8 +141,6 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         playerPanel.add(matches);
         playerPanel.add(stopwatch);
 
-
-
         /*
         // ADDED BACK IN FOR POSSIBLE USE LATER
         
@@ -189,9 +166,7 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
                 }
             }
         */
-
     }
-
 
     private void setGameOptionsPanelDisplay() {
         // Create the game options panel which hosts new game, restart level, and exit buttons
@@ -206,7 +181,7 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
 
         exitButton = new JButton("Exit");
         exitButton.setFont(new Font("Arial", Font.BOLD, 16));
-        exitButton.addActionListener(e -> mnClient.runMainMenuSequence());
+        //exitButton.addActionListener(e -> mnClient.runMainMenuSequence());
 
         // Create a JComboBox to select difficulty level. This updates the cardGridPanel.
         //JComboBox<String> difficultyComboBox = new JComboBox<>(new String[]{"Easy", "Medium", "Hard"});
@@ -226,16 +201,7 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         gameOptionsPanel.add(exitButton);
     }
 
-    public void updatePlayerName(String player) {
-        playerName.setText("Player: " + player);
-    }
-
-    public JButton exitButton() {
-        return exitButton;
-    }
-
-
-    private void setButtonPanelDisplay(){
+    private void setButtonPanelDisplay() {
         btnContainerWidth = 500;
         btnContainerHeight = 465;
 
@@ -302,9 +268,7 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         buttonPanel.add(btn16);
         buttonPanel.add(btn17);
         buttonPanel.add(btn18);
-
     }
-
 
     /**
      * a method to resize the ImageIcon's image and return the resized ImageIcon
@@ -321,17 +285,10 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
     }
 
 
- 
     @Override
     public void actionPerformed(ActionEvent e) {
         JButton button = (JButton) e.getSource();
-
     }
-
-
-
-
-
 
 
  // THIS METHOD CURRENTLY NOT IN USE - MAY NEED IT LATER FOR THE TIMER OR MULTIPLAYER??....
@@ -346,6 +303,7 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
 
         al.requestTick(this);
     }
+
 
 // FIX - How to revert back to original (e.g. 1 minute) once Game Over message pops up and player clicks "OK"?
     // TimerListener implementing ActionListener - Define timer countdown & call method to update stopwatch
@@ -394,7 +352,6 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
     }
 
 
-
     /** 
      * Sends a command to the game at the server.
      * This being a text adventure, all our commands are just plain text strings our gameserver will interpret.
@@ -425,12 +382,10 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         this.gm = game;
         this.player = player;
 
-        playerName.setText("Player: " + player);
-        
         // Update Player Name
-        updatePlayerName(player);
+        playerName.setText("Player: " + player);
         // Exit button to return to main game menu - Working
-        exitButton().addActionListener(e -> mnClient.runMainMenuSequence());
+        exitButton.addActionListener(e -> mnClient.runMainMenuSequence());
 
         // Add our components to the north, south, east, west, or centre of the main window's BorderLayout
         mnClient.getMainWindow().addCenter(GUI);
@@ -448,8 +403,7 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
             timer = new Timer(1000, new TimerListener());
             timer.start();
         }
-*/
-        //textArea.append("Starting...");
+        */
 
         // Don't forget to call pack - it triggers the window to resize and repaint itself
         mnClient.getMainWindow().pack();
@@ -518,12 +472,8 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
             case "Flip_Card_18" -> {
                 btn18.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
             }
-
-           // case "clearText" -> textArea.setText("");
-           // case "appendText" -> textArea.setText(textArea.getText() + command.getString("text"));
         }
     }
- 
 
     /**
      * Invoked when an action occurs.
@@ -553,6 +503,7 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
 
     }
 */
+
     /**
      * Invoked when the mouse button has been clicked (pressed
      * and released) on a component.
@@ -623,5 +574,3 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
     }
 
 }
-
-
