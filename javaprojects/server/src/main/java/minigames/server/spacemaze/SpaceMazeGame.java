@@ -191,7 +191,7 @@ public class SpaceMazeGame {
                         //api.recordScore(p, "SpaceMaze", player.getPlayerScore());
 
                         // Set endgame achievements
-                        Boolean isPlayerATimeLord = mazeControl.getAllKeysStatus();
+                        Boolean isPlayerATimeLord = mazeControl.getAllBonusStatus();
                         Boolean isPlayerAKeyKeeper = mazeControl.getAllKeysStatus();
                         if (isPlayerATimeLord) {
                             AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
