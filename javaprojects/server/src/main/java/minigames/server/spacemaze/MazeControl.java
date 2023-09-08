@@ -36,6 +36,7 @@ public class MazeControl {
     SpacePlayer mazePlayer;
     private Point playerLocation;
     private List<Point> playerPrevLocationList = new ArrayList<Point>();
+    private char nextTile;
 
     // Start info - locations of maze entrances
     //private List<Point> startLocationsList = new ArrayList<Point>();  
@@ -129,6 +130,9 @@ public class MazeControl {
         // Place player in maze - start location
         // Sets players location
         playerLocation = new Point(playerLoc);
+
+        this.nextTile = '.';
+
         // checks players location is in startLocations List
         if (startLocation.equals(playerLocation))
         {
@@ -358,6 +362,7 @@ public class MazeControl {
 
         // Update playerLocation in mazeArray to newMove
         playerLocation = new Point(newMove);
+        nextTile = mazeArray[newMove.y][newMove.x];
         mazePlayer.updateLocation(newMove);
 
         // Reducing ellapsed time for chest collection
@@ -529,6 +534,23 @@ public class MazeControl {
         }
     }
 
+    /*
+    * getNextTile function - For the server to identify the collision type
+    *
+    * @return char of tile player is moving onto
+     */
+    public char getNextTile() {
+        return nextTile;
+    }
+
+    /*
+    * getKeysRemaining function
+    *
+    * @return number of keys remaining to unlock exit
+     */
+    public int getKeysRemaining() {
+        return numKeysToUnlock - mazePlayer.checkNumberOfKeys();
+    }
     
 
 

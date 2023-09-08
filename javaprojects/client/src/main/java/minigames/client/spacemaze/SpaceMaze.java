@@ -434,10 +434,12 @@ public class SpaceMaze implements GameClient {
             }
             case "updateMaze" -> {
                 JsonArray serialisedArray = command.getJsonArray("mazeArray");
+                String interactiveResponse = command.getString("interactiveResponse");
                 if (!serialisedArray.isEmpty()) {
                     // Json array of strings to Java array of strings
                     List<String> mazeList = serialisedArray.getList();
                     char[][] mazeMap = deserialiseJsonMaze(mazeList);
+                    statusBar.setInteractiveText(interactiveResponse);
                     maze.updateMaze(mazeMap);
                 }
             }

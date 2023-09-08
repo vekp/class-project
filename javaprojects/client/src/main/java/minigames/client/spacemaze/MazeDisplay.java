@@ -32,7 +32,7 @@ public class MazeDisplay extends JPanel {
     private static final Logger logger = LogManager.getLogger(MazeDisplay.class);
 
     // The client side controller for sending commands to server
-    SpaceMaze spaceMaze;
+    private SpaceMaze spaceMaze;
 
     // The maze map for the static valid move method
     public static char[][] mazeMap;
@@ -49,10 +49,10 @@ public class MazeDisplay extends JPanel {
     private int botDelay = 300;
 
     // Game window and tile dimensions
-    int jPanelWidth = 800;
-    int jPanelHeight = 600;
-    int tileWidth;
-    int tileHeight;
+    private int jPanelWidth = 800;
+    private int jPanelHeight = 600;
+    private int tileWidth;
+    private int tileHeight;
 
     // Direction of the player, used for selecting player image
     private String playerDirection;
@@ -210,7 +210,7 @@ public class MazeDisplay extends JPanel {
     /**
      * Moves the player image in the array
      */
-    public void movePlayerImage() {
+    private void movePlayerImage() {
         if (playerPos.equals(startPos)) {
             mazeMap[playerPos.y][playerPos.x] = 'S';
             mazeMap[moveTo.y][moveTo.x] = 'P';
@@ -269,7 +269,7 @@ public class MazeDisplay extends JPanel {
      * @param direction Direction the player is moving
      * @param nextPoint Next point the player is moving to
      */
-    public void handleDirection(String info, String direction, Point nextPoint){
+    private void handleDirection(String info, String direction, Point nextPoint){
         logger.info(info);
         if (isMoveValid(nextPoint)){
             // This command currently only tells the server where the player is moving
@@ -318,7 +318,7 @@ public class MazeDisplay extends JPanel {
      * @param r row number
      * @param c column number
      */
-    public void charToImage(Graphics g, int r, int c){
+    private void charToImage(Graphics g, int r, int c){
         switch (mazeMap[r][c]) {
             case 'W':
                 g.drawImage(Images.getImage("wallImages", (r+c) % 4), c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
@@ -364,7 +364,7 @@ public class MazeDisplay extends JPanel {
      * @param letter the char to find
      * @return a new point of the chars position
      */
-    public Point findCharOnMap(char[][] mazeMap, char letter) {
+    private Point findCharOnMap(char[][] mazeMap, char letter) {
         for (int r = 0; r < mazeMap.length; r++) {
             for (int c = 0; c < mazeMap[r].length; c++) {
                 if (mazeMap[r][c] == letter) {
@@ -388,7 +388,7 @@ public class MazeDisplay extends JPanel {
      * @param direction String of the direction the object is moving
      * @return new Point
      */
-    public Point moveTo(String direction) {
+    private Point moveTo(String direction) {
         switch (direction) {
             case "up":
                 moveTo.y = playerPos.y - 1;

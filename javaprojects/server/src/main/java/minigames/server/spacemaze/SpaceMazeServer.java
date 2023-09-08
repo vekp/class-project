@@ -19,38 +19,6 @@ import java.util.Random;
  *
  * @author Andrew McKenzie
  */
-
-
-/**
- * Achievements API Implementation
- * @author Nik Olins
- */
-enum achievements {
-    DETERMINED_COLLECTOR, SEASONED_MAZE_RUNNER, FAST_AS_LIGHTNING, KEEPER_OF_THE_KEYS, TIME_LORD,
-    THE_COLLECTORS_COLLECTION;
-
-    @Override
-    public String toString() {
-        switch(this) {
-            case DETERMINED_COLLECTOR:
-                return "Determined Collector";
-            case SEASONED_MAZE_RUNNER:
-                return "Seasoned Maze Runner";
-            case FAST_AS_LIGHTNING:
-                return "Fast As Lightning";
-            case KEEPER_OF_THE_KEYS:
-                return "Keeper of the Keys";
-            case TIME_LORD:
-                return "Time Lord";
-            case THE_COLLECTORS_COLLECTION:
-                return "The Collector's Collection";
-            default:
-                return "Unknown Achievement";
-        }
-    }
-}
-
-
 public class SpaceMazeServer implements GameServer {
 
     static final String chars = "abcdefghijklmopqrstuvwxyz";
@@ -129,5 +97,33 @@ public class SpaceMazeServer implements GameServer {
         SpaceMazeGame g = games.get(cp.gameId());
         return Future.succeededFuture(g.runCommands(cp));
     }
+}
 
+/**
+ * Achievements API Implementation
+ * @author Nik Olins
+ */
+enum achievements {
+    DETERMINED_COLLECTOR, SEASONED_MAZE_RUNNER, FAST_AS_LIGHTNING, KEEPER_OF_THE_KEYS, TIME_LORD,
+    THE_COLLECTORS_COLLECTION;
+
+    @Override
+    public String toString() {
+        switch(this) {
+            case DETERMINED_COLLECTOR:
+                return "Determined Collector";
+            case SEASONED_MAZE_RUNNER:
+                return "Seasoned Maze Runner";
+            case FAST_AS_LIGHTNING:
+                return "Fast As Lightning";
+            case KEEPER_OF_THE_KEYS:
+                return "Keeper of the Keys";
+            case TIME_LORD:
+                return "Time Lord";
+            case THE_COLLECTORS_COLLECTION:
+                return "The Collector's Collection";
+            default:
+                return "Unknown Achievement";
+        }
+    }
 }

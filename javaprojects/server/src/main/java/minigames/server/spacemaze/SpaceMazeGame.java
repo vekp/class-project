@@ -36,6 +36,10 @@ public class SpaceMazeGame {
     // The instance of MazeControl for this individual game
     MazeControl mazeControl;
 
+    //HighScoreAPI api = new HighScoreAPI(new DerbyDatabase());
+
+    //List<ScoreRecord> topScores;
+
     /**
      * Constructor
      * @param name to identify the individual game
@@ -92,13 +96,23 @@ public class SpaceMazeGame {
                     JsonObject serializedMazeArray = new JsonObject()
                             .put("command", "updateMaze")
                             .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()));
+                    switch (mazeControl.getNextTile()) {
+                        case 'M' -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.DYNAMITE.toString());
+                        case 'H' -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.WORM_HOLE.toString());
+                        case 'K' -> {
+                            int keysRemaining = mazeControl.getKeysRemaining();
+                            switch (keysRemaining) {
+                                case 0 -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.ALL_KEY_OBTAINED.toString());
+                                case 1 -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.ONE_KEY_REMAINING.toString());
+                                case 2 -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.TWO_KEY_REMAINING.toString());
+                                case 3 -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.TWO_KEY_REMAINING.toString());
+                                case 4 -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.TWO_KEY_REMAINING.toString());
+                            }
+                        }
+                    }
                     renderingCommands.add(serializedMazeArray);
                 }
                 case "botCollision" -> {
-                    logger.info("bot collision detected on server from client");
-                    // I'll look into this repition, the issue is the bots can move
-                    // too fast and trigger this call more times than allowed before
-                    // the server sends the playerDead message back.
                     // For testing triggering of achievements.
                     /*
                     String playerName = getPlayerNames()[0];
@@ -123,8 +137,8 @@ public class SpaceMazeGame {
                             String timeTaken = String.format("%d:%02d", minutes, seconds);
                             mazeControl.playerDead();
                             renderingCommands.add(new JsonObject().put("command", "playerDead")
-                            .put("totalScore", playerScoreString)
-                            .put("timeTaken", timeTaken)
+                                .put("totalScore", playerScoreString)
+                                .put("timeTaken", timeTaken)
                             );
                         }
                     }
@@ -162,8 +176,7 @@ public class SpaceMazeGame {
                         renderingCommands.add(serializedMazeArray);
                         // Set level achievements
                         Boolean isPlayerADeterminedCollector = mazeControl.getLevelAllKeyBonusStatus();
-                        if (isPlayerADeterminedCollector)
-                        {
+                        if (isPlayerADeterminedCollector) {
                             AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
                             handler.unlockAchievement(getPlayerNames()[0],DETERMINED_COLLECTOR.toString());
                         }
@@ -175,21 +188,20 @@ public class SpaceMazeGame {
                         renderingCommands.add(new JsonObject().put("command", "gameOver")
                                 .put("totalScore", playerScoreString)
                                 .put("timeTaken", timeTaken));
+                        //api.recordScore(p, "SpaceMaze", player.getPlayerScore());
+
                         // Set endgame achievements
                         Boolean isPlayerATimeLord = mazeControl.getAllKeysStatus();
                         Boolean isPlayerAKeyKeeper = mazeControl.getAllKeysStatus();
-                        if (isPlayerATimeLord)
-                        {
+                        if (isPlayerATimeLord) {
                             AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
                             handler.unlockAchievement(getPlayerNames()[0],TIME_LORD.toString());
                         }
-                        else if (isPlayerAKeyKeeper)
-                        {
+                        else if (isPlayerAKeyKeeper) {
                             AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
                             handler.unlockAchievement(getPlayerNames()[0],KEEPER_OF_THE_KEYS.toString());
                         }
-                        else if (isPlayerAKeyKeeper && isPlayerATimeLord)
-                        {
+                        else if (isPlayerAKeyKeeper && isPlayerATimeLord) {
                             AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
                             handler.unlockAchievement(getPlayerNames()[0],THE_COLLECTORS_COLLECTION.toString());
                         }
