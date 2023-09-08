@@ -98,15 +98,16 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         // Create the heading panel
         headingPanel = new JPanel();
         headingPanel.setLayout(new GridLayout(1, 1));
+        headingPanel.setBorder(new EmptyBorder(0,0,1,0));
         title = new JLabel("Pair Up - A Memory Card Game");
-        title.setFont(new Font("Comic Sans MS", Font.BOLD, 25));
+        title.setFont(new Font("Comic Sans MS", Font.BOLD, 24));
         title.setHorizontalAlignment(JLabel.CENTER);
         headingPanel.add(title);
 
         // Create the game menu panel
         gameMenuPanel = new JPanel();
         gameMenuPanel.setLayout(new GridLayout(3, 0));
-        gameMenuPanel.setBorder((new EmptyBorder(0,0,15,0)));
+        gameMenuPanel.setBorder((new EmptyBorder(10,10,5,10)));
         gameMenuPanel.add(headingPanel); // Add heading panel to the game menu panel
         gameMenuPanel.add(playerPanel); // Add playerPanel to gameMenuPanel
         gameMenuPanel.add(gameOptionsPanel); // Add gameOptionsPanel to gameMenuPanel
@@ -119,20 +120,20 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         playerPanel.setPreferredSize(new Dimension(800, 30));
 
         playerName = new JLabel("Player: " + player); //player); // Placeholder text for player name
-        playerName.setFont(new Font("Arial", Font.BOLD, 12));
+        playerName.setFont(new Font("Arial", Font.BOLD, 14));
         playerName.setHorizontalAlignment(JLabel.CENTER);
 
         difficulty = new JLabel("Difficulty: NEED TO FIX");
-        difficulty.setFont(new Font("Arial", Font.BOLD, 12));
+        difficulty.setFont(new Font("Arial", Font.BOLD, 14));
         difficulty.setHorizontalAlignment(JLabel.CENTER);
 
-        matches = new JLabel("Pairs matched: " + "NEED TO FIX"); // + matchesCounter + "/8"); // Placeholder text for matched pairs
-        matches.setFont(new Font("Arial", Font.BOLD, 12));
+        matches = new JLabel("Pairs Matched: " + "NEED TO FIX"); // + matchesCounter + "/8"); // Placeholder text for matched pairs
+        matches.setFont(new Font("Arial", Font.BOLD, 14));
         matches.setHorizontalAlignment(JLabel.CENTER);
 
         //stopwatch = new JLabel(String.format("Time elapsed: %02d:%02d", timeElapsed[0], timeElapsed[1])); // Placeholder text for Timer
-        stopwatch = new JLabel("Time elapsed: NEED TO FIX");
-        stopwatch.setFont(new Font("Arial", Font.BOLD, 12));
+        stopwatch = new JLabel("Time: NEED TO FIX");
+        stopwatch.setFont(new Font("Arial", Font.BOLD, 14));
         stopwatch.setHorizontalAlignment(JLabel.CENTER);
 
         // Add the player information to the player panel
@@ -202,8 +203,8 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
     }
 
     private void setButtonPanelDisplay() {
-        btnContainerWidth = 500;
-        btnContainerHeight = 465;
+        btnContainerWidth = 470;
+        btnContainerHeight = 435;
 
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridLayout(rows, columns, 0, 0));
