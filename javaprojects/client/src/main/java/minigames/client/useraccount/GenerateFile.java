@@ -1,13 +1,16 @@
+package minigames.client.useraccount;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.File;
 
 public class GenerateFile {
-    public static void generateFile(String content) {
-        // Specify the file path
-        String filePath = "user_accounts.json";
+    public void generateFile(String content) {
+        String fileName = "src/main/java/minigames/client/useraccount/user_accounts.json";
+        File file = new File(fileName);
 
-        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(filePath))) {
+        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file))) {
             // Write the content to the file
             bufferedWriter.write(content);
 

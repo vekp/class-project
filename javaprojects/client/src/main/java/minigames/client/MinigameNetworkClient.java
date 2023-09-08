@@ -13,6 +13,7 @@ import minigames.client.achievementui.AchievementUI;
 import minigames.client.notifications.NotificationManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import minigames.client.useraccount.*;
 
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -28,7 +29,7 @@ import minigames.rendering.NativeCommands.QuitToMenu;
 import minigames.rendering.NativeCommands.ShowMenuError;
 import minigames.rendering.RenderingPackage;
 
-import useraccount.*;
+
 
 /**
  * The central cub of the client.

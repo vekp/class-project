@@ -1,15 +1,16 @@
-package useraccount;
+package minigames.client.useraccount;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-
+import java.util.*;
+import minigames.client.useraccount.GenerateFile.*;
 
 
 public class UserAccountFrame extends JFrame implements ActionListener {
 
         private JTextField emailField;
-        //private JPasswordField passwordField = new JPasswordField();
+        private JPasswordField pinField;
         private JButton enterButton;
         private JButton skipButton;
         
@@ -18,22 +19,29 @@ public class UserAccountFrame extends JFrame implements ActionListener {
                 setTitle("Login");
                 setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 setSize(300,150);
+                setResizable(false);
                 setLocationRelativeTo(null);
 
                 //initialise components required for the window
-                JLabel emailLabel = new JLabel("Email");
-                //JLabel passwordLabel = new JLabel("Password");
+                JLabel emailLabel = new JLabel("Email: ");
+                JLabel pinLabel = new JLabel("Pin: ");
                 emailField = new JTextField(20);
-                enterButton = new JButton("Enter"); // labelling as enter as there's no "password" required so not really a log in.
+                pinField = new JPasswordField(4);
+                enterButton = new JButton("Enter");
                 skipButton = new JButton("Skip"); // allows the user to skip without logging in.
 
                 // initialise panel that contains all componenets
                 JPanel panel = new JPanel();
-                panel.add(emailLabel);
-                panel.add(emailField);
-                panel.add(new JLabel()); // spaces out elements
-                panel.add(skipButton);
-                panel.add(enterButton);
+                JPanel labels = new JPanel(new GridLayout(0,1));
+                JPanel input = new JPanel(new GridLayout(0,1));
+                panel.add(labels, BorderLayout.WEST);
+                panel.add(input, BorderLayout.CENTER);
+                labels.add(emailLabel);
+                input.add(emailField);
+                labels.add(pinLabel);
+                input.add(pinField);
+                panel.add(skipButton,BorderLayout.SOUTH);
+                panel.add(enterButton, BorderLayout.SOUTH);
 
                 // add panel to the frame.
                 add(panel);
@@ -45,11 +53,10 @@ public class UserAccountFrame extends JFrame implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e){
                 String emailInput = emailField.getText();
-                // FileGenerator user = new FileGenerator("emailInput");
-                        // user.generateFile();
-
+                GenerateFile user = new GenerateFile();
                 if (emailInput.contains("@myune.edu.au")) {
-                        System.out.println("Welcome, " + emailInput + ", enjoy your session!");                        
+                        System.out.println("Welcome, " + emailInput + ", enjoy your session!");      
+                        user.generateFile(emailInput);                  
                         this.dispose();
                 } else {
                         System.out.println("Please enter a valid email address.");
