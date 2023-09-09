@@ -3,11 +3,11 @@ package minigames.server.memory;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import minigames.common.memory.DeckOfCards;
+import minigames.common.memory.DeckOfCards.PlayingCard;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import minigames.server.memory.DeckOfCards;
-import minigames.server.memory.DeckOfCards.PlayingCard;
 
 public class DeckOfCardsTest {
 
@@ -22,7 +22,7 @@ public class DeckOfCardsTest {
     @Test
     @DisplayName("Testing deck constructor")
     public void testDeckConstructor(){
-        PlayingCard[] cardDeck = new DeckOfCards().getCards();
+        minigames.common.memory.DeckOfCards.PlayingCard[] cardDeck = new DeckOfCards().getCards();
         int counter = 0;
         for(int i = 0; i < suits.length; i++){
             for(int j = 0; j < values.length; j++ ){

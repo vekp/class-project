@@ -1,14 +1,15 @@
 package minigames.server.shufflingsystem;
 
 import org.junit.jupiter.api.*;
+
+import minigames.common.memory.DeckOfCards;
+import minigames.common.memory.DeckOfCards.PlayingCard;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import minigames.server.memory.DeckOfCards;
-import minigames.server.memory.DeckOfCards.PlayingCard;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

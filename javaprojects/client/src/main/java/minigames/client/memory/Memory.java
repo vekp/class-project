@@ -1,5 +1,7 @@
 package minigames.client.memory;
 
+import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import minigames.client.GameClient;
@@ -8,6 +10,8 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 import minigames.client.Tickable;
 import minigames.client.Animator;
+
+import minigames.common.memory.DeckOfCards.*;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -35,6 +39,9 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
 
     // Player
     String player;
+
+    PlayingCard[] deck;
+ 
 
     /** Swing components */
     private JPanel mainPanel, gameMenuPanel, headingPanel, playerPanel, gameOptionsPanel, cardGridPanel;
@@ -410,6 +417,15 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         mnClient.getMainWindow().pack();
     }
 
+
+    public void printArray(PlayingCard[] cards){
+        for(int i = 0; i < cards.length; i++){
+            System.out.println(cards[i].getValue() + " of " + cards[i].getSuit() + "\n");
+        }
+    }
+
+
+
     @Override
     public void execute(GameMetadata game, JsonObject command) {
         this.gm = game;
@@ -417,8 +433,21 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         // We should only be receiving messages that our game understands
         // Note that this uses the -> version of case statements, not the : version
         // (which means we don't need to say "break;" at the end of our cases)
+
+
         switch (command.getString("command")) {
 
+            case "deckOfCards" ->{
+                // Get the data about what cards exist on the server and use that to populate our card images.
+                // Not sure what to do with this data yet, maybe just an array of strings with the suit and value info
+                // and we use that to get the image for each button. idk
+                // deck = (PlayingCard[]) command.getValue("cards");
+                JsonArray cardsArray = command.getJsonArray("cards");
+                // System.out.println("This is a test, woo woo print those cards" + command.getValue("cards"));
+                for(int i = 0; i < cardsArray.size(); i++){
+                    System.out.println(cardsArray.getString(i));
+                }
+            }
             case "Flip_Card_1" -> {
                 btn1.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
             }

@@ -6,9 +6,9 @@ import java.util.*;
 import minigames.commands.CommandPackage;
 import minigames.rendering.*;
 import minigames.rendering.NativeCommands.LoadClient;
+import minigames.common.memory.DeckOfCards;
+import minigames.common.memory.DeckOfCards.PlayingCard;
 
-import minigames.server.memory.DeckOfCards.*;
-//import minigames.server.memory.DeckOfCards.PlayingCard;
 import minigames.server.shufflingsystem.ShufflingFramework;
 
 import org.apache.logging.log4j.LogManager;
@@ -126,6 +126,10 @@ public class MemoryGame {
                 players.remove(cp.player());
                 renderingCommands.add(new JsonObject().put("command", "showGames"));
             }
+            // case "updateCards" ->{
+            //     renderingCommands.add(new JsonObject().put("comand", "updateCards").put("deck", playingCards));
+            // }
+
             case "Flip_Card_1" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_1"));
                 System.out.println(playingCards[0].getValue() + " of " + playingCards[0].getSuit());
@@ -237,6 +241,8 @@ public class MemoryGame {
             ArrayList<JsonObject> renderingCommands = new ArrayList<>();
             renderingCommands.add(new LoadClient("Memory", "Memory", name, playerName).toJson());
             renderingCommands.add(new JsonObject().put("command", "clearText"));
+            // renderingCommands.add(new JsonObject().put("command", "deckOfCards").put("cards", playingCards));
+            renderingCommands.add(new JsonObject().put("command", "deckOfCards").put("cards", playingCards));
 
             return new RenderingPackage(gameMetadata(), renderingCommands);
         }
