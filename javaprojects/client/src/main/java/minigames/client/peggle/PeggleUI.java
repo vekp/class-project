@@ -32,6 +32,7 @@ public class PeggleUI implements GameClient {
         this.gm = game;
         this.player = player;
         mnClient.getMainWindow().addCenter(generateMainMenu(mnClient));
+        mnClient.getMainWindow().getFrame().setPreferredSize(new Dimension(1920,1080));
         mnClient.getMainWindow().pack();
 
     }
@@ -64,7 +65,7 @@ public class PeggleUI implements GameClient {
         background.setLayout(new GridBagLayout());
         JPanel buttonsPanel = generateMainButtonsPanel(mnClient);
         addPanelToBackground(background, buttonsPanel, GridBagConstraints.CENTER);
-        JPanel topCenterButtonsPanel = generateTopCenterButtonsPanel();
+        JPanel topCenterButtonsPanel = generateTopCenterButtonsPanel(mnClient);
         addPanelToBackground(background, topCenterButtonsPanel, GridBagConstraints.NORTH);
         return titleScreen;
     }
@@ -93,13 +94,13 @@ public class PeggleUI implements GameClient {
     }
 
 
-    private static JPanel generateTopCenterButtonsPanel() {
+    private static JPanel generateTopCenterButtonsPanel(MinigameNetworkClient mnClient) {
         JPanel topRightButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         topRightButtonsPanel.setOpaque(false);
-        topRightButtonsPanel.add(createImageButton(achievementsButtonFilePath, e -> checkAchievements(), 0.3));
-        topRightButtonsPanel.add(createImageButton(leaderboardButtonFilePath, e -> checkLeaderboard(), 0.3));
-        topRightButtonsPanel.add(createImageButton(instructionsButtonFilePath, e -> checkInstructions(), 0.3));
-        topRightButtonsPanel.add(createImageButton(settingsButtonFilePath, e -> checkSettings(), 0.3));
+        topRightButtonsPanel.add(createImageButton(achievementsButtonFilePath, e -> checkAchievements(mnClient), 0.3));
+        topRightButtonsPanel.add(createImageButton(leaderboardButtonFilePath, e -> checkLeaderboard(mnClient), 0.3));
+        topRightButtonsPanel.add(createImageButton(instructionsButtonFilePath, e -> checkInstructions(mnClient), 0.3));
+        topRightButtonsPanel.add(createImageButton(settingsButtonFilePath, e -> checkSettings(mnClient), 0.3));
         return topRightButtonsPanel;
     }
 
@@ -119,41 +120,44 @@ public class PeggleUI implements GameClient {
         return button;
     }
 
-//    public static void showMainMenu() {
-//        JPanel titleScreen = generateMainMenu();
-//        mainWindow.setContentPane(titleScreen);
-//        mainWindow.setPreferredSize(new Dimension(1000, 750));
-//        mainWindow.pack();
-//        mainWindow.revalidate();
-//    }
-
-    private static void startGame(MinigameNetworkClient client) {
-        InGameUI gameSession = new InGameUI();
+    public static void showMainMenu(MinigameNetworkClient client) {
 
         JFrame mainWindow = client.getMainWindow().getFrame();
-        mainWindow.setContentPane(gameSession);
-        mainWindow.setPreferredSize(new Dimension(1000, 750));
+        JPanel titleScreen = generateMainMenu(client);
+        mainWindow.setContentPane(titleScreen);
+        mainWindow.setPreferredSize(new Dimension(1920, 1080));
         mainWindow.pack();
         mainWindow.revalidate();
     }
 
-    private static void checkInstructions() {
-        InstructionsUI instructionsUI = new InstructionsUI();
-//        mainWindow.setContentPane(instructionsUI);
-//        mainWindow.setPreferredSize(new Dimension(1000, 750));
-//        mainWindow.pack();
-//        mainWindow.revalidate();
+    private static void startGame(MinigameNetworkClient client) {
+        InGameUI gameSession = new InGameUI(client);
+
+        JFrame mainWindow = client.getMainWindow().getFrame();
+        mainWindow.setContentPane(gameSession);
+        mainWindow.setPreferredSize(new Dimension(1920, 1080));
+        mainWindow.pack();
+        mainWindow.revalidate();
     }
 
-    private static void checkAchievements() {
+    private static void checkInstructions(MinigameNetworkClient client) {
+        InstructionsUI instructionsUI = new InstructionsUI(client);
+        JFrame mainWindow = client.getMainWindow().getFrame();
+        mainWindow.setContentPane(instructionsUI);
+        mainWindow.setPreferredSize(new Dimension(1920, 1080));
+        mainWindow.pack();
+        mainWindow.revalidate();
+    }
+
+    private static void checkAchievements(MinigameNetworkClient client) {
         System.out.println("Checking Achievements");
     }
 
-    private static void checkLeaderboard() {
+    private static void checkLeaderboard(MinigameNetworkClient client) {
         System.out.println("Checking Leaderboard");
     }
 
-    private static void checkSettings() {
+    private static void checkSettings(MinigameNetworkClient client) {
         System.out.println("Checking Settings");
     }
 

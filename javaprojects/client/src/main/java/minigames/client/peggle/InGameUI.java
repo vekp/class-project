@@ -1,5 +1,7 @@
 package minigames.client.peggle;
 
+import minigames.client.MinigameNetworkClient;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -15,7 +17,7 @@ public class InGameUI extends JPanel {
     private final boolean[][] grid = new boolean[rows][columns];
     private final Cannon cannon;
     private Timer gameLoopTimer;
-    private int delay = 16; // approx 60 FPS (1000 / 60 = 16.67 milliseconds per frame, delay shown in milliseconds)
+    private int delay = 8; // approx 120 FPS (1000 / 60 = 8.3 milliseconds per frame, delay shown in milliseconds)
 
     // Constants for ball parameters
     private ArrayList<Ball> balls = new ArrayList<>();
@@ -24,18 +26,19 @@ public class InGameUI extends JPanel {
 
     //MM added - Create a list of bricks
     ArrayList<Brick> bricks = new ArrayList<>();
+    private MinigameNetworkClient mnClient;
 
-    InGameUI() {
+    InGameUI(MinigameNetworkClient mnClient) {
+        this.mnClient = mnClient;
 
         gameLoopTimer = new Timer(delay, e -> gameLoop());
         gameLoopTimer.start();
 
-
         setBackground(background);
 
         JButton returnButton = new JButton("Return to Main Menu");
-//        ActionListener returnActionListener = e -> PeggleUI.showMainMenu();
-//        returnButton.addActionListener(returnActionListener);
+        ActionListener returnActionListener = e -> PeggleUI.showMainMenu(mnClient);
+        returnButton.addActionListener(returnActionListener);
         add(returnButton, BorderLayout.NORTH);
 
         // Creates the cannon at position (0, 0)
