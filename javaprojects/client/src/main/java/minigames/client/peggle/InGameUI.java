@@ -27,9 +27,11 @@ public class InGameUI extends JPanel {
     //MM added - Create a list of bricks
     ArrayList<Brick> bricks = new ArrayList<>();
     private MinigameNetworkClient mnClient;
+    private PeggleUI peggleUI;
 
-    InGameUI(MinigameNetworkClient mnClient) {
+    InGameUI(MinigameNetworkClient mnClient, PeggleUI peggleUI) {
         this.mnClient = mnClient;
+        this.peggleUI = peggleUI;
 
         gameLoopTimer = new Timer(delay, e -> gameLoop());
         gameLoopTimer.start();
@@ -37,7 +39,7 @@ public class InGameUI extends JPanel {
         setBackground(background);
 
         JButton returnButton = new JButton("Return to Main Menu");
-        ActionListener returnActionListener = e -> PeggleUI.showMainMenu(mnClient);
+        ActionListener returnActionListener = e -> peggleUI.showMainMenu(mnClient);
         returnButton.addActionListener(returnActionListener);
         add(returnButton, BorderLayout.NORTH);
 
