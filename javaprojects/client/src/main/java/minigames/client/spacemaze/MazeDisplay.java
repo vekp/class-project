@@ -32,7 +32,7 @@ public class MazeDisplay extends JPanel {
     private static final Logger logger = LogManager.getLogger(MazeDisplay.class);
 
     // The client side controller for sending commands to server
-    private SpaceMaze spaceMaze;
+    SpaceMaze spaceMaze;
 
     // The maze map for the static valid move method
     public static char[][] mazeMap;
@@ -210,7 +210,7 @@ public class MazeDisplay extends JPanel {
     /**
      * Moves the player image in the array
      */
-    private void movePlayerImage() {
+    public void movePlayerImage() {
         if (playerPos.equals(startPos)) {
             mazeMap[playerPos.y][playerPos.x] = 'S';
             mazeMap[moveTo.y][moveTo.x] = 'P';
@@ -269,7 +269,7 @@ public class MazeDisplay extends JPanel {
      * @param direction Direction the player is moving
      * @param nextPoint Next point the player is moving to
      */
-    private void handleDirection(String info, String direction, Point nextPoint){
+    public void handleDirection(String info, String direction, Point nextPoint){
         logger.info(info);
         if (isMoveValid(nextPoint)){
             // This command currently only tells the server where the player is moving
@@ -318,7 +318,7 @@ public class MazeDisplay extends JPanel {
      * @param r row number
      * @param c column number
      */
-    private void charToImage(Graphics g, int r, int c){
+    public void charToImage(Graphics g, int r, int c){
         switch (mazeMap[r][c]) {
             case 'W':
                 g.drawImage(Images.getImage("wallImages", (r+c) % 4), c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
@@ -364,7 +364,7 @@ public class MazeDisplay extends JPanel {
      * @param letter the char to find
      * @return a new point of the chars position
      */
-    private Point findCharOnMap(char[][] mazeMap, char letter) {
+    public Point findCharOnMap(char[][] mazeMap, char letter) {
         for (int r = 0; r < mazeMap.length; r++) {
             for (int c = 0; c < mazeMap[r].length; c++) {
                 if (mazeMap[r][c] == letter) {
@@ -388,7 +388,7 @@ public class MazeDisplay extends JPanel {
      * @param direction String of the direction the object is moving
      * @return new Point
      */
-    private Point moveTo(String direction) {
+    public Point moveTo(String direction) {
         switch (direction) {
             case "up":
                 moveTo.y = playerPos.y - 1;

@@ -146,11 +146,11 @@ public class Images {
      * @param hashMap name of the HashMap
      * @return Int of the size of the HashMap
      */
-    public static int getSize(String hashMap) {
+    public static int getSize(String hashMapName) {
 
         int size = 0;
 
-        switch(hashMap) {
+        switch(hashMapName) {
             case "unlockedImages" -> size = unlockedImages.size();
             case "lockedImages" -> size = lockedImages.size();
             case "keyImages" -> size = keyImages.size();
