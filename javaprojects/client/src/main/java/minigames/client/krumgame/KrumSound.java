@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 public class KrumSound {
 
-    static String[] soundNames = {"bazookaexplode","explode2","metal", "fall","punch","bazooka", "grenadethrow","rope", "transition", "boing2", "rope2", "jump", "joeygiggle"};
+    static String[] soundNames = {"intro","gunclick", "grenadeclick2","laser1","ow","bazookaexplode","explode2","metal", "fall","punch","bazooka", "grenadethrow","rope", "transition", "boing2", "rope2", "jump", "joeygiggle"};
 
     static HashMap<String, Clip> sounds;
 

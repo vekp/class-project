@@ -78,7 +78,7 @@ public class KrumGrenade extends KrumProjectile {
             double bounceAngle = KrumHelpers.angleBetween(xav, yav, (int)x, (int)y);
             double velMag = Math.sqrt(xvel * xvel + yvel * yvel) * KrumC.GRENADE_BOUNCE_FACTOR;
             bounceAngle += (bounceAngle - revVelAngle);
-            KrumSound.playSound("metal");
+            //KrumSound.playSound("metal");
             x -= xvel / inc;
             y -= yvel / inc;
             xvel = Math.cos(bounceAngle) * velMag;

@@ -644,6 +644,7 @@ public class KrumGame implements GameClient {
             }              
         }  
         initializePlayers(currentLevel); 
+        KrumSound.playSound("intro");
         // Starting the Wind Manager
         windManager = new WindManager(seed);
         windX = windManager.getWindX();

@@ -494,6 +494,7 @@ public class KrumPlayer {
         // draw punch
         if (punching) {
             g.drawImage(punchSprite, null, (int)xpos, (int)ypos);
+            KrumSound.playSound("punch");
         }
 
         //draw hp
@@ -1379,7 +1380,7 @@ public class KrumPlayer {
 
     void startGrenadeFire(MouseEvent e) {
         if (ammo[NADE] < 1 || firedThisTurn[NADE] >= shotsPerTurn[NADE]) {
-            //todo: play 'click' sound effect
+            KrumSound.playSound("grenadeclick2");
             return;
         }
         firingGrenade = true;
@@ -1411,7 +1412,7 @@ public class KrumPlayer {
      */
     void startFire(MouseEvent e) {
         if (ammo[ZOOK] < 1 || firedThisTurn[ZOOK] >= shotsPerTurn[ZOOK]) {
-            //todo: play 'click' sound effect
+            KrumSound.playSound("gunclick");
             return;
         }
         firing = true;
@@ -1455,6 +1456,7 @@ public class KrumPlayer {
             blowtorchLengthening = false;
             blowtorchStartX = playerCentre().x;
             blowtorchStartY = playerCentre().y;
+            KrumSound.playSound("laser1");
         }
         else if (blowtorchWidening || blowtorchWide) {
             KrumPlayer otherPlayer = players[1 - playerIndex];
@@ -1658,6 +1660,7 @@ public class KrumPlayer {
     }
 
     public void damage(double damage) {
+        KrumSound.playSound("ow");
         hp -=  damage;
         if (hp <= 0)
             die(); 
