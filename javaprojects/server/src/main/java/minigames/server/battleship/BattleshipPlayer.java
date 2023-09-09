@@ -75,6 +75,8 @@ public class BattleshipPlayer {
         // Add input to the message history
         updateHistory(formatInput(input));
 
+        opponent.setLastShot(row, col);
+
         return shotOutcome(opponent, col, row);
     }
 
