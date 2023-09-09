@@ -264,10 +264,10 @@ public class BattleshipGame {
                 .put("player", targetPlayer.getName()));
         renderingCommands.add(new JsonObject()
                 .put("command", "placePlayer1Board")
-                .put("text", targetPlayer.getBoard().generateBoard(player, targetPlayer.getBoard().getGrid())));
+                .put("text", targetPlayer.getBoard().generateBoard(player, false)));
         renderingCommands.add(new JsonObject()
                 .put("command", "placePlayer2Board")
-                .put("text", opponent.getBoard().showEnemyBoard(enemy, opponent.getBoard().getGrid())));
+                .put("text", opponent.getBoard().generateBoard(enemy, true)));
         renderingCommands.add(new JsonObject()
                 .put("command", "updateTurnCount")
                 .put("turnCount", gameTurn));
@@ -333,10 +333,10 @@ public class BattleshipGame {
                 // For one player, show enemy board of computer
                 renderingCommands.add(new JsonObject()
                         .put("command", "placePlayer1Board")
-                        .put("text", bPlayers.get(playerName).getBoard().generateBoard(player, bPlayers.get(playerName).getBoard().getGrid())));
+                        .put("text", bPlayers.get(playerName).getBoard().generateBoard(player, false)));
                 renderingCommands.add(new JsonObject()
                         .put("command", "placePlayer2Board")
-                        .put("text", bPlayers.get(getPlayerNames()[1]).getBoard().showEnemyBoard(enemy, bPlayers.get(getPlayerNames()[1]).getBoard().getGrid())));
+                        .put("text", bPlayers.get(getPlayerNames()[1]).getBoard().generateBoard(enemy, true)));
             } else {
                 // Second player to join - Simply replaces the computer
                 bPlayers.remove("Computer");
@@ -345,10 +345,10 @@ public class BattleshipGame {
                 // For two players, show enemy board of player 1
                 renderingCommands.add(new JsonObject()
                         .put("command", "placePlayer1Board")
-                        .put("text", bPlayers.get(playerName).getBoard().generateBoard(player, bPlayers.get(playerName).getBoard().getGrid())));
+                        .put("text", bPlayers.get(playerName).getBoard().generateBoard(player, false)));
                 renderingCommands.add(new JsonObject()
                         .put("command", "placePlayer2Board")
-                        .put("text", bPlayers.get(getPlayerNames()[0]).getBoard().showEnemyBoard(enemy, bPlayers.get(getPlayerNames()[0]).getBoard().getGrid())));
+                        .put("text", bPlayers.get(getPlayerNames()[0]).getBoard().generateBoard(enemy, true)));
             }
 
             return new RenderingPackage(gameMetadata(), renderingCommands);
