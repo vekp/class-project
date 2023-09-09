@@ -4,10 +4,8 @@ import minigames.achievements.Achievement;
 import minigames.utilities.MinigameUtils;
 
 import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 
 /**
@@ -89,12 +87,13 @@ public class AchievementPresenter {
      * @return A JPanel
      */
     public JPanel mediumAchievementPanel() {
+        int imageSize = 50;
         JLabel text = new JLabel("<html><h3 style='margin: 0'>" + achievement.name() +
                 "</h3>" + achievement.description() + "</html>");
 
         JPanel panel = new JPanel();
-        JLabel image = new JLabel(achievementImage(50));
-        image.setPreferredSize(new Dimension(50, 50));
+        JLabel image = new JLabel(achievementImage(imageSize));
+        image.setPreferredSize(new Dimension(imageSize, imageSize));
         image.setBorder(new EmptyBorder(4, 4, 4, 4));
 
         panel.add(image);
@@ -141,6 +140,8 @@ public class AchievementPresenter {
         panel.add(image, gbc);
         panel.add(name, gbc);
         panel.add(description, gbc);
+
+        panel.setPreferredSize(new Dimension(AchievementCarousel.carouselPanelWidth, AchievementCarousel.carouselPanelHeight));
 
         return panel;
     }
