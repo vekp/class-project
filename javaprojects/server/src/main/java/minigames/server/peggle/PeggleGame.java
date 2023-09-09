@@ -93,7 +93,7 @@ public class PeggleGame {
 
             ArrayList<JsonObject> renderingCommands = new ArrayList<>();
             renderingCommands.add(new LoadClient("Peggle", "Peggle", name, playerName).toJson());
-            renderingCommands.add(new JsonObject().put("command", "clearText"));
+            renderingCommands.add(new JsonObject().put("command", "startGame"));
             renderingCommands.add(new JsonObject().put("command", "appendText").put("text", describeState(p)));
 
             return new RenderingPackage(gameMetadata(), renderingCommands);

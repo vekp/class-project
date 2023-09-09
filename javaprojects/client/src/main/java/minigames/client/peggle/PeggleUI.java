@@ -21,7 +21,6 @@ public class PeggleUI implements GameClient {
     private static final String achievementsButtonFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/achievementsBTN.png";
     private static final String leaderboardButtonFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/leaderboardBTN.png";
     private static final String settingsButtonFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/settingsBTN.png";
-    private static JPanel mainWindow = null;
     private MinigameNetworkClient mnClient;
     private GameMetadata gm;
     private String player;
@@ -32,7 +31,8 @@ public class PeggleUI implements GameClient {
         this.mnClient = mnClient;
         this.gm = game;
         this.player = player;
-        mnClient.getMainWindow().addCenter(generateMainMenu());
+        mnClient.getMainWindow().addCenter(generateMainMenu(mnClient));
+        mnClient.getMainWindow().pack();
 
     }
 
@@ -41,7 +41,7 @@ public class PeggleUI implements GameClient {
         this.gm = game;
         logger.info("my command: " + command.encode());
         switch(command.getString("command")) {
-            case "startGame" -> sendCommand("requestGame");
+//            case "startGame" -> sendCommand("test");
         }
     }
 
@@ -57,13 +57,12 @@ public class PeggleUI implements GameClient {
 
     }
 
-
-    private static JPanel generateMainMenu() {
+    private static JPanel generateMainMenu(MinigameNetworkClient mnClient) {
         JPanel titleScreen = new JPanel(new BorderLayout());
         JLabel background = new JLabel(new ImageIcon(backgroundFilePath));
         titleScreen.add(background, BorderLayout.CENTER);
         background.setLayout(new GridBagLayout());
-        JPanel buttonsPanel = generateMainButtonsPanel();
+        JPanel buttonsPanel = generateMainButtonsPanel(mnClient);
         addPanelToBackground(background, buttonsPanel, GridBagConstraints.CENTER);
         JPanel topCenterButtonsPanel = generateTopCenterButtonsPanel();
         addPanelToBackground(background, topCenterButtonsPanel, GridBagConstraints.NORTH);
@@ -81,11 +80,11 @@ public class PeggleUI implements GameClient {
     }
 
 
-    private static JPanel generateMainButtonsPanel() {
+    private static JPanel generateMainButtonsPanel(MinigameNetworkClient mnClient) {
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.setOpaque(false);
         buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS)); // Vertical alignment
-        JButton startButton = createImageButton(startButtonFilePath, e -> startGame(), 0.5); //scaling
+        JButton startButton = createImageButton(startButtonFilePath, e -> startGame(mnClient), 0.5); //scaling
         JButton exitButton = createImageButton(exitButtonFilePath, e -> System.exit(0), 0.5); //scaling
         buttonsPanel.add(startButton);
         buttonsPanel.add(Box.createVerticalStrut(75)); // Vertical spacing between buttons
@@ -120,22 +119,22 @@ public class PeggleUI implements GameClient {
         return button;
     }
 
-    public static void showMainMenu() {
-        JPanel titleScreen = generateMainMenu();
+//    public static void showMainMenu() {
+//        JPanel titleScreen = generateMainMenu();
 //        mainWindow.setContentPane(titleScreen);
 //        mainWindow.setPreferredSize(new Dimension(1000, 750));
 //        mainWindow.pack();
 //        mainWindow.revalidate();
-    }
+//    }
 
-    private static void startGame() {
+    private static void startGame(MinigameNetworkClient client) {
         InGameUI gameSession = new InGameUI();
 
-
-//        mainWindow.setContentPane(gameSession);
-//        mainWindow.setPreferredSize(new Dimension(1000, 750));
-//        mainWindow.pack();
-//        mainWindow.revalidate();
+        JFrame mainWindow = client.getMainWindow().getFrame();
+        mainWindow.setContentPane(gameSession);
+        mainWindow.setPreferredSize(new Dimension(1000, 750));
+        mainWindow.pack();
+        mainWindow.revalidate();
     }
 
     private static void checkInstructions() {

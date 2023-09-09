@@ -34,8 +34,8 @@ public class InGameUI extends JPanel {
         setBackground(background);
 
         JButton returnButton = new JButton("Return to Main Menu");
-        ActionListener returnActionListener = e -> PeggleUI.showMainMenu();
-        returnButton.addActionListener(returnActionListener);
+//        ActionListener returnActionListener = e -> PeggleUI.showMainMenu();
+//        returnButton.addActionListener(returnActionListener);
         add(returnButton, BorderLayout.NORTH);
 
         // Creates the cannon at position (0, 0)

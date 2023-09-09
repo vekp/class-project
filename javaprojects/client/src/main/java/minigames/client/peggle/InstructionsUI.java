@@ -107,7 +107,7 @@ public class InstructionsUI extends JPanel{
     private JPanel generateTopOptionsPanel(String backButtonFilePath){
 
         JPanel topOptionsPanel = new JPanel(new BorderLayout());
-        topOptionsPanel.add(createImageButton(backButtonFilePath, e -> PeggleUI.showMainMenu(), 0.3), BorderLayout.WEST);
+//        topOptionsPanel.add(createImageButton(backButtonFilePath, e -> PeggleUI.showMainMenu(), 0.3), BorderLayout.WEST);
 
         return topOptionsPanel;
 
