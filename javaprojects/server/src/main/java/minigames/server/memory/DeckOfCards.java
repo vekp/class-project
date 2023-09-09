@@ -1,6 +1,8 @@
 package minigames.server.memory;
 
 import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class DeckOfCards {
 
@@ -12,6 +14,8 @@ public class DeckOfCards {
      * from true to false and back
      * with the flipCard() method.
      */
+
+
     public class PlayingCard {
         private String suit;
         private String value;
@@ -84,38 +88,73 @@ public class DeckOfCards {
     }
 
     /**
+     * This is the original constructor if you want a non-standard length deck or deck of pairs 
      * This constructor will create slightly modified card decks, with fewer cards, or with pairs of cards for example
      * @param numberOfCards an int representing the number of cards (if you want 8 pairs you would enter 16 here)
      * @param pairs a boolean decribing if you want the cards to be in pairs or not
      */
-    public DeckOfCards(int numberOfCards, boolean pairs) {
-        Random rand = new Random();
+    // public DeckOfCards(int numberOfCards, boolean pairs) {
+    //     Random rand = new Random();
+    //     cardStack = new PlayingCard[numberOfCards];
+    //     if (numberOfCards % 2 == 1 && pairs) {
+    //         throw new IllegalArgumentException("Deck of pairs cannot be constructed", new Throwable("If pairs == true, number of cards % 2 must == 0"));
+    //     }
+    //     if (pairs) {
+    //         for (int i = 0; i < numberOfCards; i+=2) {
+    //             PlayingCard card = null;
+    //             while (card == null) {
+    //                 card = new PlayingCard(suits[rand.nextInt(suits.length)], values[rand.nextInt(values.length)], true);
+    //                 if (!Arrays.asList(cardStack).contains(card)) { // no duplicate cards allowed
+    //                     PlayingCard cardPair = new PlayingCard(card);
+    //                     cardStack[i] = card;
+    //                     cardStack[i+1] = cardPair;
+    //                 }
+    //             }
+    //         }
+    //     } else {
+    //         for (int i = 0; i < numberOfCards; i++) {
+    //             PlayingCard card = null;
+    //             while (card == null) {
+    //                 card = new PlayingCard(suits[rand.nextInt(suits.length)], values[rand.nextInt(values.length)], true);
+    //                 if (!Arrays.asList(cardStack).contains(card)) { // no duplicate cards allowed
+    //                     PlayingCard cardPair = new PlayingCard(card);
+    //                     cardStack[i] = card;
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+
+
+    public DeckOfCards(int numberOfCards, boolean pairs){
+        Random random = new Random(44567);
+        Map<String, LinkedList<String>> combinations = new HashMap<>();
         cardStack = new PlayingCard[numberOfCards];
-        if (numberOfCards % 2 == 1 && pairs) {
-            throw new IllegalArgumentException("Deck of pairs cannot be constructed", new Throwable("If pairs == true, number of cards % 2 must == 0"));
+        int counter = 0;
+
+        //Creating a hash map the keys will be the values of the cards 2-Ace
+        //The value will be a linked list of the suits
+        for(int i = 0; i < values.length; i++){
+            combinations.put(values[i], Arrays.stream(suits).collect(Collectors.toCollection(LinkedList::new)));
         }
-        if (pairs) {
-            for (int i = 0; i < numberOfCards; i+=2) {
-                PlayingCard card = null;
-                while (card == null) {
-                    card = new PlayingCard(suits[rand.nextInt(suits.length)], values[rand.nextInt(values.length)], true);
-                    if (!Arrays.asList(cardStack).contains(card)) { // no duplicate cards allowed
-                        PlayingCard cardPair = new PlayingCard(card);
-                        cardStack[i] = card;
-                        cardStack[i+1] = cardPair;
-                    }
-                }
+        //When a value is selected we check to see if it has any more valid suit combinations
+        //If it does we proceed, if not we continue to roll new values until we get one that has available combinations left
+        for(int i = 0; i < numberOfCards; i++){
+            String value = values[random.nextInt(values.length)];
+            while(combinations.get(value).size() == 0){
+                value = values[random.nextInt(values.length)];
             }
-        } else {
-            for (int i = 0; i < numberOfCards; i++) {
-                PlayingCard card = null;
-                while (card == null) {
-                    card = new PlayingCard(suits[rand.nextInt(suits.length)], values[rand.nextInt(values.length)], true);
-                    if (!Arrays.asList(cardStack).contains(card)) { // no duplicate cards allowed
-                        PlayingCard cardPair = new PlayingCard(card);
-                        cardStack[i] = card;
-                    }
-                }
+            //Now that we've checked there are available suits to make pick one at random
+            int suit = random.nextInt(suits.length);
+            PlayingCard card = new PlayingCard(combinations.get(value).get(suit), value, true);
+            combinations.get(value).remove(suit);
+            cardStack[counter] = card;
+            counter++;
+            if(pairs == true){
+                PlayingCard copy = new PlayingCard(card);
+                cardStack[counter] = copy;
+                counter++;
+                i++;
             }
         }
     }
