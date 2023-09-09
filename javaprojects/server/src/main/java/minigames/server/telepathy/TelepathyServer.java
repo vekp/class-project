@@ -11,6 +11,7 @@ import minigames.server.GameServer;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.ArrayList;
+
 /**
  * The Telepathy Server containing any Telepathy games being run on the
  * server.
