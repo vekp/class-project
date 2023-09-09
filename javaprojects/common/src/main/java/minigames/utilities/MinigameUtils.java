@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * A class to house pure generic static functions to be used anywhere in the project.
+ * A class to store miscellaneous pure static functions to be used anywhere in the project.
  */
 public final class MinigameUtils {
 
@@ -32,7 +32,6 @@ public final class MinigameUtils {
         return imageIcon;
     }
 
-
     /**
      * Create a vertical scroll pane of the given content
      * Author: Vincent Ekpanyaskun
@@ -43,7 +42,4 @@ public final class MinigameUtils {
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         return scrollPane;
     }
-
-
-
 }
