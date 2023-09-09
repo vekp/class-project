@@ -40,7 +40,8 @@ public class MemoryServer implements GameServer {
     static final String chars = "abcdefghijklmopqrstuvwxyz";
     AchievementHandler achievementHandler;
 
-    /*public MemoryServer(){
+    /*
+    public MemoryServer() {
         achievementHandler = new AchievementHandler(MemoryServer.class);
         /* Create the achievements and give them to the handler
         achievementHandler.registerAchievement(new Achievement(achievements.PERFECT_MATCH.toString(),
@@ -50,9 +51,9 @@ public class MemoryServer implements GameServer {
         achievementHandler.registerAchievement(new Achievement(achievements.ACE_MATCHER.toString(),
                 "Earned by matching all of the cards in a single game.", 25, "", false));
         achievementHandler.registerAchievement(new Achievement(achievements.MEMORY_MASTER.toString(),
-                "Earned by earning all of the achievements in the game.", 25, "confused", false));*/
-
-
+                "Earned by earning all of the achievements in the game.", 25, "confused", false));
+    }
+    */
 
 
     /** A random name. We could do with something more memorable, like Docker has. */
@@ -75,7 +76,6 @@ public class MemoryServer implements GameServer {
         }
     }
 
-
     @Override
     public GameServerDetails getDetails() {
         return new GameServerDetails("Memory", "Find the pairs in Pair Up [Memory card game]!");
@@ -89,7 +89,7 @@ public class MemoryServer implements GameServer {
     @Override
     public GameMetadata[] getGamesInProgress() {
         return games.keySet().stream().map((name) -> {
-            return new GameMetadata("Memory", name, games.get(name).getPlayerNames(), true); // true for multiplayer
+            return new GameMetadata("Memory", name, games.get(name).getPlayerNames(), false); // true for multiplayer
         }).toArray(GameMetadata[]::new);
     }
 
@@ -99,7 +99,6 @@ public class MemoryServer implements GameServer {
         games.put(g.name, g);
         return Future.succeededFuture(g.joinGame(playerName));
     }
-
 
     @Override
     public Future<RenderingPackage> joinGame(String game, String playerName) {

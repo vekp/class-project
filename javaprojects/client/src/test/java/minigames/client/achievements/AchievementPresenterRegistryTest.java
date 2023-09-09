@@ -2,6 +2,7 @@ package minigames.client.achievements;
 
 import minigames.achievements.Achievement;
 import minigames.achievements.GameAchievementState;
+import minigames.client.Animator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,7 @@ public class AchievementPresenterRegistryTest {
             else locked.add(a);
         }
         GameAchievementState gaState = new GameAchievementState("Test Game ID", unlocked, locked);
-        apRegistry = new AchievementPresenterRegistry(gaState);
+        apRegistry = new AchievementPresenterRegistry(gaState, new Animator());
 
     }
 
@@ -44,8 +45,8 @@ public class AchievementPresenterRegistryTest {
         JPanel panel = apRegistry.achievementListPanel();
         for (int i = 0; i < panel.getComponents().length; i++) {
             Component component = panel.getComponent(i);
-            // For unlocked, expect 1 MouseListener for hover border effects and 1 for click to show carousel.
-            if (i < 5) assertEquals(2, component.getMouseListeners().length);
+            // For unlocked, expect 1 MouseListener.
+            if (i < 5) assertEquals(1, component.getMouseListeners().length);
             // If locked, no MouseListeners should be present
             else assertEquals(0, component.getMouseListeners().length);
         }
@@ -64,10 +65,6 @@ public class AchievementPresenterRegistryTest {
                 // the position JLabel should contain its index + 1
                 for (Component c : carousel.getComponents())
                     if (c instanceof JLabel label) assert label.getText().contains("achievement " + (i + 1));
-            }
-            // For locked achievements - 3 components
-            else {
-                assertEquals(3, carousel.getComponents().length);
             }
         }
 

@@ -7,8 +7,8 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.*;
 import minigames.rendering.NativeCommands.LoadClient;
 
-import minigames.server.memory.DeckOfCards;
-import minigames.server.memory.DeckOfCards.PlayingCard;
+import minigames.server.memory.DeckOfCards.*;
+//import minigames.server.memory.DeckOfCards.PlayingCard;
 import minigames.server.shufflingsystem.ShufflingFramework;
 
 import org.apache.logging.log4j.LogManager;
@@ -59,7 +59,6 @@ public class MemoryGame {
     // Players
     HashMap<String, MemoryPlayer> players = new HashMap<>();
 
-
    /** 
     * This will check if the game is in a terminal state.
     * @author Lyam Talbot
@@ -69,7 +68,6 @@ public class MemoryGame {
     public boolean isTerminal(){
         return playerScore == playingCards.length / 2;
     }
-
 
     /**
      * @author Lyam Talbot
@@ -218,7 +216,6 @@ public class MemoryGame {
                 System.out.println(playingCards[17].getValue() + " of " + playingCards[17].getSuit());
                 check(17);
             }
-
         }
 
         return new RenderingPackage(this.gameMetadata(), renderingCommands);
