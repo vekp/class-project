@@ -76,3 +76,6 @@ temp/
 *.db
 /server/testDB/
 testDB/
+
+# ignore KrumDatabase
+javaprojects/server/KrumDatabase/
