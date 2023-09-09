@@ -175,7 +175,9 @@ public class Board {
             }
             if (i<10) gridStrings.append("\n");
         }
-        return gridStrings.toString();
+        return "<html><body>"
+                + gridStrings.toString().replace(" ", "&nbsp;").replace("\n", "<br>")
+                + "</body></html>";
     }
 
     public static String showEnemyBoard(String boardTitle, Cell[][] grid) {
@@ -209,7 +211,9 @@ public class Board {
             }
             if (i<10) gridStrings.append("\n");
         }
-        return gridStrings.toString();
+        return "<html><body>"
+                + gridStrings.toString().replace(" ", "&nbsp;").replace("\n", "<br>")
+                + "</body></html>";
     }
 
     /**
