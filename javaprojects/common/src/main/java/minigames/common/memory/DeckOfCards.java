@@ -104,7 +104,7 @@ public class DeckOfCards {
                 PlayingCard card = null;
                 while (card == null) {
                     card = new PlayingCard(suits[rand.nextInt(suits.length)], values[rand.nextInt(values.length)], true);
-                    if (!Arrays.asList(cardStack).contains(card)) { // no duplicate cards allowed
+                    if (!Arrays.asList(cardStack).contains(card) && card != null) { // no duplicate cards allowed
                         PlayingCard cardPair = new PlayingCard(card);
                         cardStack[i] = card;
                         cardStack[i+1] = cardPair;
@@ -116,7 +116,7 @@ public class DeckOfCards {
                 PlayingCard card = null;
                 while (card == null) {
                     card = new PlayingCard(suits[rand.nextInt(suits.length)], values[rand.nextInt(values.length)], true);
-                    if (!Arrays.asList(cardStack).contains(card)) { // no duplicate cards allowed
+                    if (!Arrays.asList(cardStack).contains(card) && card != null) { // no duplicate cards allowed
                         PlayingCard cardPair = new PlayingCard(card);
                         cardStack[i] = card;
                     }
