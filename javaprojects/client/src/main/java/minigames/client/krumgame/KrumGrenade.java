@@ -91,7 +91,6 @@ public class KrumGrenade extends KrumProjectile {
      * @return      True if it's time to explode
      */
     boolean timerCheck(long tick) {
-        //KrumSound.playSound("explode2");
         return tick >= explosionTick;
     }
 }
