@@ -100,7 +100,10 @@ public class AchievementPresenter {
         panel.add(Box.createRigidArea(new Dimension(10, 0)));
         panel.add(text);
 
-        if (!isUnlocked) text.setForeground(achievement.hidden()? hiddenLockedColour : lockedColour);
+        if (!isUnlocked) {
+            text.setForeground(achievement.hidden() ? hiddenLockedColour : lockedColour);
+            text.setName("Locked achievement text"); // Tag the text for applyStyling
+        }
         else if (achievement.hidden()) text.setForeground(hiddenUnlockedColour);
 
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));

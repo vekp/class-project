@@ -351,7 +351,11 @@ public class NotificationManager implements Tickable {
     public NotificationManager applyStyling(Component component) {
         if (!applyColourAndFontStyling) return this;
         // Set colours
-        component.setForeground(foregroundColour);
+        if (component.getName() != null && component.getName().equals("Locked achievement text")) {
+            // Darken text colour if locked achievement
+            Color lockedAchievementColour = new Color(foregroundColour.getRed() / 2, foregroundColour.getGreen() / 2, foregroundColour.getBlue() / 2);
+            component.setForeground(lockedAchievementColour);
+        } else component.setForeground(foregroundColour);
         component.setBackground(backgroundColour);
         // Set border for buttons
         if (component instanceof JButton jb) {
