@@ -202,7 +202,7 @@ public class KrumGame implements GameClient {
         recordingTurn = true;
         turnOver = false;
         players[playerTurn].jumping = false;
-        KrumSound.playSound("transition");
+        //KrumSound.playSound("transition");
         for (int i = 0; i < KrumPlayer.shotsPerTurn.length; i++) {
             players[playerTurn].firedThisTurn[i] = 0;
         }
@@ -238,6 +238,7 @@ public class KrumGame implements GameClient {
         turnOver = true;
         readyToStartTurn = false;
         turnOverFrame = updateCount;
+        KrumSound.playSound("transition");
         int playersAlive = numLivingPlayers();        
         if (playersAlive < 2) {
             if (playersAlive == 0) {
@@ -644,7 +645,7 @@ public class KrumGame implements GameClient {
             }              
         }  
         initializePlayers(currentLevel); 
-        KrumSound.playSound("intro");
+        KrumSound.playSound("intro2");
         // Starting the Wind Manager
         windManager = new WindManager(seed);
         windX = windManager.getWindX();
@@ -733,7 +734,7 @@ public class KrumGame implements GameClient {
         // else if (e.getKeyCode() == KeyEvent.VK_R) {
         //     playBackTurn = true;
         // }
-        else if (e.getKeyCode() == KeyEvent.VK_B) {
+        else if (e.getKeyCode() == KeyEvent.VK_L) {
             players[playerTurn].fireTorchNextFrame();
         }
         else if (e.getKeyCode() == KeyEvent.VK_P) {
