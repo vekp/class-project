@@ -1,3 +1,5 @@
+package minigames.client.peggle;
+
 import java.awt.image.BufferedImage;
 import java.awt.Graphics;
 import java.io.File;

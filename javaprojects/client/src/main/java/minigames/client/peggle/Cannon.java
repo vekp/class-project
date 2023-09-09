@@ -1,3 +1,6 @@
+package minigames.client.peggle;
+
+
 import java.awt.Graphics;
 import java.awt.Color;
 
