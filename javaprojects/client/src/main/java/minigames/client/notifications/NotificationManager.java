@@ -92,7 +92,7 @@ public class NotificationManager implements Tickable {
             notification = panel;
         }
         // apply custom styling of colours and font
-        if (applyColourAndFontStyling) applyStyling(notification);
+        applyStyling(notification);
         // make dismissible
         if (isDismissible) {
             notification.addMouseListener(new MouseAdapter() {
@@ -349,6 +349,7 @@ public class NotificationManager implements Tickable {
      * If Container, recurse through its children.
      */
     public NotificationManager applyStyling(Component component) {
+        if (!applyColourAndFontStyling) return this;
         // Set colours
         component.setForeground(foregroundColour);
         component.setBackground(backgroundColour);
