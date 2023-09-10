@@ -7,12 +7,15 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 import minigames.client.achievementui.AchievementUI;
 import minigames.client.backgrounds.Starfield;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.GameServerDetails;
+
+import minigames.client.krumgame.KrumMenu;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -204,6 +207,11 @@ public class MinigameNetworkClientWindow {
      * @param servers
      */
     public void showGames(String gameServer, List<GameMetadata> inProgress) {
+        if (gameServer.equals("KrumGame")) {
+            showKrumTitle(inProgress);
+            return;
+        } 
+        
         clearAll();
 
         JPanel namePanel = new JPanel();
@@ -250,4 +258,97 @@ public class MinigameNetworkClientWindow {
         return this.frame;
     }
 
+    public void showKrumAchievements(List<GameMetadata> games) {
+        clearAll();
+        KrumMenu menu = new KrumMenu();
+        JLabel screen = new JLabel(new ImageIcon(menu.getScreen("achievements")));
+        JButton instructionsButton = new JButton("");
+        instructionsButton.setLayout(null);
+        instructionsButton.setOpaque(false);
+        instructionsButton.setContentAreaFilled(false);
+        instructionsButton.setBorderPainted(false);
+        instructionsButton.setBounds(50, 60, 192, 102);
+        instructionsButton.addActionListener((evt) -> {
+            showKrumInstructions(games);
+            return;
+        });
+        screen.add(instructionsButton);
+        JButton newGameButton = new JButton();
+        newGameButton.setLayout(null);
+        newGameButton.setOpaque(false);
+        newGameButton.setContentAreaFilled(false);
+        newGameButton.setBorderPainted(false);
+        newGameButton.setBounds(485, 414, 762, 522);
+        newGameButton.addActionListener((evt) -> {
+            networkClient.newGame("KrumGame", nameField.getText());
+            return;
+        });
+        screen.add(newGameButton);
+        center.add(screen);
+        pack();
+        parent.repaint();
+    }
+
+    public void showKrumInstructions(List<GameMetadata> games) {
+        clearAll();
+        KrumMenu menu = new KrumMenu();
+        JLabel screen = new JLabel(new ImageIcon(menu.getScreen("instructions")));
+        JButton achievementsButton = new JButton("");
+        achievementsButton.setLayout(null);
+        achievementsButton.setOpaque(false);
+        achievementsButton.setContentAreaFilled(false);
+        achievementsButton.setBorderPainted(false);
+        achievementsButton.setBounds(200, 59, 400, 102);
+        achievementsButton.addActionListener((evt) -> {
+            showKrumAchievements(games);
+            return;
+        });
+        screen.add(achievementsButton);
+        JButton newGameButton = new JButton();
+        newGameButton.setLayout(null);
+        newGameButton.setOpaque(false);
+        newGameButton.setContentAreaFilled(false);
+        newGameButton.setBorderPainted(false);
+        newGameButton.setBounds(485, 414, 762, 522);
+        newGameButton.addActionListener((evt) -> {
+            networkClient.newGame("KrumGame", nameField.getText());
+            return;
+        });
+        screen.add(newGameButton);
+        center.add(screen);
+        pack();
+        parent.repaint();
+    }
+
+    public void showKrumTitle(List<GameMetadata> games) {
+        clearAll();
+        KrumMenu menu = new KrumMenu();
+        JLabel screen = new JLabel(new ImageIcon(menu.getScreen("title")));
+        JButton optionsButton = new JButton("");
+        optionsButton.setLayout(null);
+        optionsButton.setOpaque(false);
+        optionsButton.setContentAreaFilled(false);
+        optionsButton.setBorderPainted(false);
+        optionsButton.setBounds(400, 416, 693, 539);
+        optionsButton.addActionListener((evt) -> {
+            System.out.println("instructions button pressed");
+            showKrumInstructions(games);
+            return;
+        });
+        screen.add(optionsButton);
+        JButton newGameButton = new JButton();
+        newGameButton.setLayout(null);
+        newGameButton.setOpaque(false);
+        newGameButton.setContentAreaFilled(false);
+        newGameButton.setBorderPainted(false);
+        newGameButton.setBounds(485, 414, 762, 522);
+        newGameButton.addActionListener((evt) -> {
+            networkClient.newGame("KrumGame", nameField.getText());
+            return;
+        });
+        screen.add(newGameButton);
+        center.add(screen);
+        pack();
+        parent.repaint();
+    }
 }
