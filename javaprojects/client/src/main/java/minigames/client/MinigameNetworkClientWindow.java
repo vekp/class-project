@@ -397,18 +397,30 @@ public class MinigameNetworkClientWindow {
             return;
         });
         screen.add(optionsButton);
-        JButton newGameButton = new JButton();
-        newGameButton.setLayout(null);
-        newGameButton.setOpaque(false);
-        newGameButton.setContentAreaFilled(false);
-        newGameButton.setBorderPainted(false);
-        newGameButton.setBounds(485, 414, 277, 108);
-        newGameButton.setFocusable(false);
-        newGameButton.addActionListener((evt) -> {
-            networkClient.newGame("KrumGame", nameField.getText());
+        JButton quickPlayButton = new JButton();
+        quickPlayButton.setLayout(null);
+        quickPlayButton.setOpaque(false);
+        quickPlayButton.setContentAreaFilled(false);
+        quickPlayButton.setBorderPainted(false);
+        quickPlayButton.setBounds(100, 416, 293, 123);
+        quickPlayButton.setFocusable(false);
+        quickPlayButton.addActionListener((evt) -> {
+            // join oldest joinable game
+            String gameToJoin = null;
+            for (GameMetadata gm : games) {
+                if (gm.joinable() && gm.players().length > 0) {
+                    gameToJoin = gm.name();
+                }
+            }
+            if (gameToJoin != null) {
+                networkClient.joinGame("KrumGame", gameToJoin, nameField.getText());
+            }
+            else {
+                networkClient.newGame("KrumGame", nameField.getText());
+            }            
             return;
         });
-        screen.add(newGameButton);
+        screen.add(quickPlayButton);
         center.add(screen);
  
 
