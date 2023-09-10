@@ -475,7 +475,6 @@ public class TelepathyGame {
             }
         }
         
-        
         logger.info("It is now {}'s turn.", this.currentPlayerTurn);
         this.players.get(this.currentPlayerTurn).addUpdate(
             TelepathyCommandHandler.makeJsonCommand(
