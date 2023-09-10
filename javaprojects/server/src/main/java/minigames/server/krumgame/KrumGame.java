@@ -56,7 +56,7 @@ public class KrumGame{
     private AchievementsService achievementsService;
     private ColorsService colorsService;
 
-    private boolean joinable;
+    public boolean joinable;
 
     public KrumGame(String name, TableManager tableManager){
         this.name = name;

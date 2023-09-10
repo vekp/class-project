@@ -5,7 +5,9 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -267,7 +269,8 @@ public class MinigameNetworkClientWindow {
         instructionsButton.setOpaque(false);
         instructionsButton.setContentAreaFilled(false);
         instructionsButton.setBorderPainted(false);
-        instructionsButton.setBounds(50, 60, 192, 102);
+        instructionsButton.setBounds(50, 60, 142, 42);
+        instructionsButton.setFocusable(false);
         instructionsButton.addActionListener((evt) -> {
             showKrumInstructions(games);
             return;
@@ -278,12 +281,39 @@ public class MinigameNetworkClientWindow {
         newGameButton.setOpaque(false);
         newGameButton.setContentAreaFilled(false);
         newGameButton.setBorderPainted(false);
-        newGameButton.setBounds(485, 414, 762, 522);
+        newGameButton.setBounds(485, 414, 277, 108);
+        newGameButton.setFocusable(false);
         newGameButton.addActionListener((evt) -> {
             networkClient.newGame("KrumGame", nameField.getText());
             return;
         });
         screen.add(newGameButton);
+        center.add(screen);
+        pack();
+        parent.repaint();
+        int numListed = 0;
+        int x = 525;
+        int y = 175;
+        int yInc = 75;
+        for (GameMetadata gm : games) {
+            if (gm.joinable() && gm.players().length > 0) {
+                JButton jb = new JButton(gm.players()[0]);
+                jb.setFont(new Font("Courier New", Font.PLAIN, 24));
+                jb.setForeground(Color.RED);
+                jb.setOpaque(false);
+                jb.setContentAreaFilled(false);
+                jb.setBorderPainted(false);
+                jb.setBounds(x, y, 200, 60);
+                jb.addActionListener((evt) -> {
+                    networkClient.joinGame("KrumGame", gm.name(), nameField.getText());
+                    return;
+                });
+                screen.add(jb);
+                y += yInc;
+                numListed++;
+            }
+            if (numListed >= 3) break;
+        }
         center.add(screen);
         pack();
         parent.repaint();
@@ -293,12 +323,14 @@ public class MinigameNetworkClientWindow {
         clearAll();
         KrumMenu menu = new KrumMenu();
         JLabel screen = new JLabel(new ImageIcon(menu.getScreen("instructions")));
+        screen.setLayout(null);
         JButton achievementsButton = new JButton("");
         achievementsButton.setLayout(null);
         achievementsButton.setOpaque(false);
         achievementsButton.setContentAreaFilled(false);
         achievementsButton.setBorderPainted(false);
-        achievementsButton.setBounds(200, 59, 400, 102);
+        achievementsButton.setBounds(200, 59, 200, 43);
+        achievementsButton.setFocusable(false);
         achievementsButton.addActionListener((evt) -> {
             showKrumAchievements(games);
             return;
@@ -309,12 +341,40 @@ public class MinigameNetworkClientWindow {
         newGameButton.setOpaque(false);
         newGameButton.setContentAreaFilled(false);
         newGameButton.setBorderPainted(false);
-        newGameButton.setBounds(485, 414, 762, 522);
+        newGameButton.setBounds(485, 414, 277, 108);
+        newGameButton.setFocusable(false);
         newGameButton.addActionListener((evt) -> {
             networkClient.newGame("KrumGame", nameField.getText());
             return;
         });
-        screen.add(newGameButton);
+        screen.add(newGameButton);     
+        center.add(screen);
+        pack();
+        parent.repaint();
+        int numListed = 0;
+        int x = 525;
+        int y = 175;
+        int yInc = 75;
+        for (GameMetadata gm : games) {
+            if (gm.joinable() && gm.players().length > 0) {
+                JButton jb = new JButton(gm.players()[0]);
+                jb.setFont(new Font("Courier New", Font.PLAIN, 24));
+                jb.setForeground(Color.RED);
+                jb.setOpaque(false);
+                jb.setContentAreaFilled(false);
+                jb.setBorderPainted(false);
+                jb.setBounds(x, y, 200, 60);
+                jb.addActionListener((evt) -> {
+                    networkClient.joinGame("KrumGame", gm.name(), nameField.getText());
+                    return;
+                });
+                screen.add(jb);
+                y += yInc;
+                numListed++;
+            }
+            if (numListed >= 3) break;
+        }
+
         center.add(screen);
         pack();
         parent.repaint();
@@ -329,7 +389,8 @@ public class MinigameNetworkClientWindow {
         optionsButton.setOpaque(false);
         optionsButton.setContentAreaFilled(false);
         optionsButton.setBorderPainted(false);
-        optionsButton.setBounds(400, 416, 693, 539);
+        optionsButton.setBounds(400, 416, 293, 123);
+        optionsButton.setFocusable(false);
         optionsButton.addActionListener((evt) -> {
             System.out.println("instructions button pressed");
             showKrumInstructions(games);
@@ -341,13 +402,16 @@ public class MinigameNetworkClientWindow {
         newGameButton.setOpaque(false);
         newGameButton.setContentAreaFilled(false);
         newGameButton.setBorderPainted(false);
-        newGameButton.setBounds(485, 414, 762, 522);
+        newGameButton.setBounds(485, 414, 277, 108);
+        newGameButton.setFocusable(false);
         newGameButton.addActionListener((evt) -> {
             networkClient.newGame("KrumGame", nameField.getText());
             return;
         });
         screen.add(newGameButton);
         center.add(screen);
+ 
+
         pack();
         parent.repaint();
     }

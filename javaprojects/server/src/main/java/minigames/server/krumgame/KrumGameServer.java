@@ -46,7 +46,7 @@ public class KrumGameServer implements GameServer{
     @Override
     public GameMetadata[] getGamesInProgress(){
         return games.keySet().stream().map((name)->{
-            return new GameMetadata("KrumGame", name, games.get(name).getPlayerNames(), true);
+            return new GameMetadata("KrumGame", name, games.get(name).getPlayerNames(), games.get(name).joinable);
         }).toArray(GameMetadata[]:: new);
     }
 
