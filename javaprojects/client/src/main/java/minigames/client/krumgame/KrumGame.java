@@ -695,6 +695,7 @@ public class KrumGame implements GameClient {
             players[playerTurn].endGrenadeFire(e);
     }
     void keyDown(KeyEvent e) {
+        if (!panel.gameActive) return;
         // keys that should take effect even if it's not your turn
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             if (choosingLevel) {
