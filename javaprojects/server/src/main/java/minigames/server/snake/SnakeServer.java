@@ -1,4 +1,4 @@
-package minigames.server.snakeGameServer;
+package minigames.server.snake;
 
 import io.vertx.core.Future;
 import minigames.commands.CommandPackage;
@@ -8,42 +8,38 @@ import minigames.rendering.RenderingPackage;
 import minigames.server.ClientType;
 import minigames.server.GameServer;
 import minigames.server.achievements.AchievementHandler;
+import minigames.server.gameNameGenerator.GameNameGenerator;  // Import the GameNameGenerator
 
 import java.util.HashMap;
-import java.util.Random;
 
-/**
- * Our MuddleServer holds MuddleGames. 
- * When it receives a CommandPackage, it finds the MuddleGame and calls it.
- */
 public class SnakeServer implements GameServer {
 
-    static final String chars = "abcdefghijklmopqrstuvwxyz";
+    // Instance variable to handle achievements
     AchievementHandler achievementHandler;
 
-    /** A random name. We could do with something more memorable, like Docker has */
-    static String randomName() {
-        Random r = new Random();
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < 12; i++) {
-            sb.append(chars.charAt(r.nextInt(chars.length())));
-        }
-        return sb.toString();
-    }
-
-    /** Holds the games in progress in memory (no db) */
+    // HashMap to hold the games in progress in memory
     HashMap<String, SnakeGame> games = new HashMap<>();
 
+    // Instance of the GameNameGenerator
+    GameNameGenerator nameGenerator;
+
+    /**
+     * Constructor for SnakeServer
+     */
     public SnakeServer() {
         achievementHandler = new AchievementHandler(SnakeServer.class);
         // Register all achievements with handler
         for (SnakeAchievement a : SnakeAchievement.values()) {
             achievementHandler.registerAchievement(a.achievement);
         }
+
+        // Initialize the GameNameGenerator with "snake" and "space" categories
+        nameGenerator = new GameNameGenerator("snake", "space");
     }
+
     @Override
     public GameServerDetails getDetails() {
-        return new GameServerDetails("Snake", "It would be a SNK, but it's not really written yet");
+        return new GameServerDetails("Snake", "Navigate your snake through the dark depths of space!");
     }
 
     @Override
@@ -60,7 +56,8 @@ public class SnakeServer implements GameServer {
 
     @Override
     public Future<RenderingPackage> newGame(String playerName) {
-        SnakeGame g = new SnakeGame(randomName(), playerName);
+        String randomGameName = nameGenerator.randomName();  // Use the name generator
+        SnakeGame g = new SnakeGame(randomGameName, playerName);
         games.put(g.name, g);
         return Future.succeededFuture(g.joinGame(playerName));
     }
@@ -76,5 +73,4 @@ public class SnakeServer implements GameServer {
         SnakeGame g = games.get(cp.gameId());
         return Future.succeededFuture(g.runCommands(cp));
     }
-
 }
