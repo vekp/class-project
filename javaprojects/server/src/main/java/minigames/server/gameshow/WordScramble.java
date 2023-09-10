@@ -16,8 +16,8 @@ public class WordScramble {
 
     private String chosenWord;
     
-    public WordScramble(String wordFileName) {
-        chooseWord(getWords(wordFileName));
+    public WordScramble(String wordsFileName) {
+        chooseWord(getWords(wordsFileName));
     }
 
     private static final Logger logger = LogManager.getLogger(WordScramble.class);
@@ -29,7 +29,7 @@ public class WordScramble {
         String wordsFileName = fileName;
 
         try {
-            Path path = Paths.get("src/main/java/minigames/server/gameshow/" + wordsFileName);
+            Path path = Paths.get("src/main/java/minigames/server/gameshow/assets/" + wordsFileName);
             wordsList = Files.readAllLines(path, StandardCharsets.UTF_8);
         } catch (IOException e) {
             logger.error("Unable to read words from {}", wordsFileName);
@@ -61,7 +61,7 @@ public class WordScramble {
 
     // Check if a guess is correct
     public boolean guess(String guess) {
-        return guess.toLowerCase().equals(this.chosenWord);
+        return guess.toUpperCase().equals(this.chosenWord);
     }
 
 }

@@ -1,25 +1,19 @@
 package minigames.client.gameshow;
 
-
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.util.Collections;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.JButton;
-import javax.swing.JPanel;
 // import javax.swing.JTextArea;
 // import javax.swing.JTextField;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.FlowLayout; // Import FlowLayout from the java.awt package
-
 
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
@@ -30,19 +24,20 @@ import minigames.commands.CommandPackage;
 import java.awt.AlphaComposite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.util.Random;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-
-
 public class ImageGuesser {
 
-    public static void startImageGuesser(GameShow gs, String imageFileName, int gameId) {
-        gs.gameContainer.removeAll();
-        gs.gameContainer.validate();
-        gs.gameContainer.repaint();
+    private final static String dir = "./src/main/java/minigames/client/gameshow/GameShowImages/";
+    private static final ImageIcon submitButtonButton = new ImageIcon(dir + "submit-button.png");
 
+    public static void startImageGuesser(GameShow gs, String imageFileName, int gameId) {
+        GameShowUI.gameContainer.removeAll();
+        GameShowUI.gameContainer.validate();
+        GameShowUI.gameContainer.repaint();
 
         String imageFolderLocation = "src/main/resources/images/memory_game_pics/" + imageFileName;
         ImageIcon imageIcon = new ImageIcon(imageFolderLocation);
@@ -66,18 +61,24 @@ public class ImageGuesser {
         });
         timer.start();
 
-
-       // Create a panel for the guess input and submit button
+        // Create a panel for the guess input and submit button
         gs.inputPanel = new JPanel(new BorderLayout(10, 0));
-        gs.inputPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+        gs.inputPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         gs.outcomeContainer = new JPanel(new BorderLayout(10, 0));
 
-
         JPanel inputComponents = new JPanel(); // Create a container for fixed-size components
-        inputComponents.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20)); // You can adjust the layout manager as needed
+        inputComponents.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20)); // You can adjust the layout manager as
+                                                                              // needed
 
         JTextField guessField = new JTextField(20);
-        JButton submitButton = new JButton("Submit Guess");
+        Font pixelFont = GameShowUI.pixelFont;
+        guessField.setFont(pixelFont.deriveFont(15f));
+        JButton submitButton;
+        submitButton = new JButton(
+                new ImageIcon(submitButtonButton.getImage().getScaledInstance(150, 40, Image.SCALE_DEFAULT)));
+        submitButton.setContentAreaFilled(false);
+        submitButton.setFocusPainted(false);
+        submitButton.setBorderPainted(false);
         submitButton.addActionListener((evt) -> gs.sendCommand(new JsonObject()
                 .put("command", "guessImage")
                 .put("guess", guessField.getText())
@@ -89,11 +90,13 @@ public class ImageGuesser {
         gs.inputPanel.add(inputComponents, BorderLayout.CENTER); // Add the container with fixed-size components
         gs.inputPanel.add(gs.outcomeContainer, BorderLayout.SOUTH);
         // Add the grid panel to the center of the container
-        gs.gameContainer.add(gridPanel, BorderLayout.CENTER);
-        gs.gameContainer.add(gs.inputPanel, BorderLayout.SOUTH);
+        JPanel revealHeader = GameShowUI.generateRevealHeader();
+        GameShowUI.gameContainer.add(revealHeader, BorderLayout.NORTH);
+        GameShowUI.gameContainer.add(gridPanel, BorderLayout.CENTER);
+        GameShowUI.gameContainer.add(gs.inputPanel, BorderLayout.SOUTH);
 
-        gs.gameContainer.validate();
-        gs.gameContainer.repaint();
+        GameShowUI.gameContainer.validate();
+        GameShowUI.gameContainer.repaint();
     }
 
     public static void guess(GameShow gs, boolean correct) {
@@ -103,31 +106,29 @@ public class ImageGuesser {
         if (!correct) {
             JLabel tryAgain = new JLabel("That's not quite right :( Try again!",
                     SwingConstants.CENTER);
+            Font pixelFont = GameShowUI.pixelFont;
+            tryAgain.setFont(pixelFont.deriveFont(15f));// size may need changing
 
             gs.outcomeContainer.add(tryAgain, BorderLayout.CENTER);
         } else {
             JLabel congrats = new JLabel("Congratulations! You Win :)",
                     SwingConstants.CENTER);
+            Font pixelFont = GameShowUI.pixelFont;
+            congrats.setFont(pixelFont.deriveFont(15f));// size may need changing
             gs.outcomeContainer.add(congrats, BorderLayout.CENTER);
         }
         // logger.log(Level.INFO, "GameShow instance created");
-
 
         gs.inputPanel.validate();
         gs.inputPanel.repaint();
     }
 
-
     private static void sendGuess(GameShow gs, String guess, int gameId) {
         gs.sendCommand(new JsonObject()
-            .put("command", "guess")
-            .put("game", "imageGuesser")
-            .put("guess", guess)
-            .put("gameId", gameId)
-        );
+                .put("command", "guess")
+                .put("game", "imageGuesser")
+                .put("guess", guess)
+                .put("gameId", gameId));
     }
 
 }
-
-
-

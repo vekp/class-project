@@ -28,7 +28,7 @@ public class SurveyDatabaseHandler {
         feedbackObject.put("difficulty_rating", jsonData.getString("difficulty_rating"));
         feedbackObject.put("overall_rating", jsonData.getString("overall_rating"));
 
-        // Read existing JSON data from the file 
+        // Read existing JSON data from the file
         readExistingFeedbackData();
 
         feedbackArray.add(feedbackObject);
@@ -60,7 +60,7 @@ public class SurveyDatabaseHandler {
                 }
             }
         } catch (IOException | ParseException e) {
-            e.printStackTrace(); 
+            e.printStackTrace();
         }
     }
 
