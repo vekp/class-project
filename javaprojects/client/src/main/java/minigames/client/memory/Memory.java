@@ -56,19 +56,14 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
     int btnContainerHeight;
 
     ImageIcon cardBackImage = new ImageIcon(getClass().getResource("/memory/images/playing_cards/back/card_back_black.png"));
-    // Path to card images directory (card front images only)
-    String cardImagesDirectory = getClass().getResource("/memory/images/playing_cards/front/").getPath();
-    // this needs to be changed again so that the image matches the relevant card suit/rank 
-    ImageIcon cardFrontImage = new ImageIcon(getClass().getResource("/memory/images/playing_cards/front/_2_of_clubs.png"));
+    ImageIcon [] cardFrontImages = new ImageIcon [18];
 
     // Game variable
     boolean gameStarted = false;
     int matchesCounter = 0;
     int [] timeElapsed = {1, 0}; // {mins, seconds}
     Timer timer;
-    
-    //May use this later to keep track of the flipped/unflipped cards, but i dont think we need it anymore...
-    //boolean [] cardState = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+
     
     JPanel GUI;
     JFrame MemoryWindow;
@@ -360,6 +355,24 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
     }
 
 
+    public String parseCardString(String cardString){
+
+        StringBuilder cardName = new StringBuilder();
+        String [] card = new String [2];
+        String [] cardAsArray = cardString.replaceAll(" ","").replace("{","").replace("}","").split(",");
+        
+        for (int i=0; i < cardAsArray.length-1; i++){
+            String [] cardElements = cardAsArray[i].split("=");
+            card[i] = cardElements[1];
+        }
+        
+        cardName.append("_").append(card[1]).append("_of_").append(card[0]).append(".png");
+        System.out.println("cardName: " + cardName);
+
+        return cardName.toString();
+    }
+
+
     /** 
      * Sends a command to the game at the server.
      * This being a text adventure, all our commands are just plain text strings our gameserver will interpret.
@@ -441,66 +454,67 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
                 // Get the data about what cards exist on the server and use that to populate our card images.
                 // Not sure what to do with this data yet, maybe just an array of strings with the suit and value info
                 // and we use that to get the image for each button. idk
-                // deck = (PlayingCard[]) command.getValue("cards");
                 JsonArray cardsArray = command.getJsonArray("cards");
-                // System.out.println("This is a test, woo woo print those cards" + command.getValue("cards"));
                 for(int i = 0; i < cardsArray.size(); i++){
-                    System.out.println(cardsArray.getString(i));
+                    StringBuilder imagePath = new StringBuilder();
+                    imagePath.append("/memory/images/playing_cards/front/").append(parseCardString(cardsArray.getString(i)));
+                    System.out.println(i + ": imagePath: " + imagePath);
+                    cardFrontImages[i] = new ImageIcon(getClass().getResource(imagePath.toString()));
                 }
             }
             case "Flip_Card_1" -> {
-                btn1.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+                btn1.setIcon(resizeImageIcon(cardFrontImages[0],-1,btnContainerHeight/rows-5));
             }
             case "Flip_Card_2" -> {
-                btn2.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+                btn2.setIcon(resizeImageIcon(cardFrontImages[1],-1,btnContainerHeight/rows-5));
             }
             case "Flip_Card_3" -> {
-                btn3.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+                btn3.setIcon(resizeImageIcon(cardFrontImages[2],-1,btnContainerHeight/rows-5));
             }
             case "Flip_Card_4" -> {
-                btn4.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+                btn4.setIcon(resizeImageIcon(cardFrontImages[3],-1,btnContainerHeight/rows-5));
             }
             case "Flip_Card_5" -> {
-                btn5.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+                btn5.setIcon(resizeImageIcon(cardFrontImages[4],-1,btnContainerHeight/rows-5));
             }
             case "Flip_Card_6" -> {
-                btn6.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+                btn6.setIcon(resizeImageIcon(cardFrontImages[5],-1,btnContainerHeight/rows-5));
             }
             case "Flip_Card_7" -> {
-                btn7.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+                btn7.setIcon(resizeImageIcon(cardFrontImages[6],-1,btnContainerHeight/rows-5));
             }
             case "Flip_Card_8" -> {
-                btn8.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+                btn8.setIcon(resizeImageIcon(cardFrontImages[7],-1,btnContainerHeight/rows-5));
             }
             case "Flip_Card_9" -> {
-                btn9.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+                btn9.setIcon(resizeImageIcon(cardFrontImages[8],-1,btnContainerHeight/rows-5));
             }
             case "Flip_Card_10" -> {
-                btn10.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+                btn10.setIcon(resizeImageIcon(cardFrontImages[9],-1,btnContainerHeight/rows-5));
             }
             case "Flip_Card_11" -> {
-                btn11.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+                btn11.setIcon(resizeImageIcon(cardFrontImages[10],-1,btnContainerHeight/rows-5));
             }
             case "Flip_Card_12" -> {
-                btn12.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+                btn12.setIcon(resizeImageIcon(cardFrontImages[11],-1,btnContainerHeight/rows-5));
             }
             case "Flip_Card_13" -> {
-                btn13.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+                btn13.setIcon(resizeImageIcon(cardFrontImages[12],-1,btnContainerHeight/rows-5));
             }
             case "Flip_Card_14" -> {
-                btn14.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+                btn14.setIcon(resizeImageIcon(cardFrontImages[13],-1,btnContainerHeight/rows-5));
             }
             case "Flip_Card_15" -> {
-                btn15.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+                btn15.setIcon(resizeImageIcon(cardFrontImages[14],-1,btnContainerHeight/rows-5));
             }
             case "Flip_Card_16" -> {
-                btn16.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+                btn16.setIcon(resizeImageIcon(cardFrontImages[15],-1,btnContainerHeight/rows-5));
             }
             case "Flip_Card_17" -> {
-                btn17.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+                btn17.setIcon(resizeImageIcon(cardFrontImages[16],-1,btnContainerHeight/rows-5));
             }
             case "Flip_Card_18" -> {
-                btn18.setIcon(resizeImageIcon(cardFrontImage,-1,btnContainerHeight/rows-5));
+                btn18.setIcon(resizeImageIcon(cardFrontImages[17],-1,btnContainerHeight/rows-5));
             }
         }
     }

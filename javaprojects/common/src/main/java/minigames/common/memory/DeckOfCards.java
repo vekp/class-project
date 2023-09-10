@@ -71,7 +71,7 @@ public class DeckOfCards {
 
     private PlayingCard[] cardStack;
     private String[] suits = new String[] { "Clubs", "Diamonds", "Hearts", "Spades" };
-    private String[] values = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
+    private String[] values = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "JACK", "QUEEN", "KING", "ACE" };
 
 
     //Default constructor if you just want a standard deck of playing cards
