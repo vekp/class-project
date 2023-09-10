@@ -121,7 +121,7 @@ public class KrumGame implements GameClient {
 
 
 
-    long seed; // seed for Random() -- needs to be the same for all clients clients
+    long seed; // seed for Random() -- needs to be the same for all clients
 
     public KrumGame() {  
         initialized = false;
@@ -129,22 +129,16 @@ public class KrumGame implements GameClient {
         ready = false;
         choosingLevel = true;
         receivedFrames = new ArrayList<KrumInputFrame>();
-        //rand = new Random(); 
         firstRun = true;
         updateCount = 0;
         waterLevel = KrumC.RES_Y - 1;
-        // Initializing the background image
-        //backgroundComponent = new Background("chameleon.png");
-        //background = backgroundComponent.getImage();
-        //alphaRaster = backgroundComponent.getAlphaRaster();
         initializePanel();
         initializeLevels();
         setActiveLevel(0);    
-        KrumSound.initializeSounds();                    
-        //initializePlayers();
-        //initializeWind();     
+        KrumSound.initializeSounds();                   
         windString = "";        
         initialized = true;
+        System.out.println("KrumGame instance created on client");
     }
 
     private void initializeLevels() {
@@ -711,6 +705,9 @@ public class KrumGame implements GameClient {
         else if(e.getKeyCode() == KeyEvent.VK_S || e.getKeyCode() == KeyEvent.VK_M){
             KrumSound.toggleMuted();
         }
+        else if(e.getKeyCode() == KeyEvent.VK_Q || e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            sendQuitCommand();
+        }
 
         if (myPlayerIndex != playerTurn) return;
 
@@ -874,6 +871,11 @@ public class KrumGame implements GameClient {
 
     public void checkReady() {
         JsonObject j = new JsonObject().put("readyCheck", 0);
+        mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(j)));
+    }
+
+    public void sendQuitCommand() {
+        JsonObject j = new JsonObject().put("quit", myPlayerIndex);
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(j)));
     }
 

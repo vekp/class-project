@@ -20,6 +20,8 @@ import java.util.LinkedList;
 
 import minigames.server.krumgame.database.*;
 
+import minigames.rendering.NativeCommands.QuitToMenu;
+
 
 
 
@@ -211,6 +213,11 @@ public class KrumGame{
         }
         else if (content.getValue("readyCheck") != null) {
             JsonObject j = new JsonObject().put("p1ready", ready[0]).put("p2ready", ready[1]);
+            renderingCommands.add(j);
+            return new RenderingPackage(gameMetadata(), renderingCommands);
+        }
+        else if (content.getInteger("quit") != null) {
+            JsonObject j = new QuitToMenu().toJson();
             renderingCommands.add(j);
             return new RenderingPackage(gameMetadata(), renderingCommands);
         }
