@@ -22,7 +22,7 @@ public class InGameUI extends JPanel {
     private static final int ballSize = 5; // Adjust as needed
     private static final double ballSpeed = 5.0; // Adjust as needed
 
-    // MM added - Create a list of bricks
+    // Create a list of bricks
     ArrayList<Brick> bricks = new ArrayList<>();
     private MinigameNetworkClient mnClient;
     private PeggleUI peggleUI;
@@ -64,7 +64,7 @@ public class InGameUI extends JPanel {
                 handleHover(e);
             }
         });
-        // MM added - Initialize bricks array
+        // Initialize bricks array
         initBricks();
     }
 
@@ -94,13 +94,12 @@ public class InGameUI extends JPanel {
                 if (!brick.isHit() && brick.checkCollision(ball)) {
                     if (currentBallBounds.intersects(new Rectangle(brick.getX(), brick.getY(), brick.getWidth(), brick.getHeight()))) {
                         ball.bounceOffObject();
-                        System.out.println("The ball hit");
                     }
                     brick.isHit = true;
                 }
             }
 
-            ball.updateBall(0, getWidth(), getHeight());
+            ball.updateBall(0, columns, 0, rows);
 
             if (!ball.active) {
                 balls.remove(i);
@@ -131,8 +130,8 @@ public class InGameUI extends JPanel {
         int brickHeight = 20;
         int xOffset = 50;
         int yOffset = 100;
-        for (int row = 0; row < 5; row++) {
-            for (int col = 0; col < 10; col++) {
+        for (int row = 0; row < 10; row++) {
+            for (int col = 0; col < 20; col++) {
                 int x = xOffset + (col * (brickWidth + 10));
                 int y = yOffset + (row * (brickHeight + 10));
                 bricks.add(new Brick(x, y, brickWidth, brickHeight));

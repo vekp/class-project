@@ -8,11 +8,11 @@ import javax.imageio.ImageIO;
 
 public class Ball {
 
-    private float xDelta, yDelta, xVelocity, yVelocity;
+    private float xVelocity, yVelocity;
     private int x, y, size;
     boolean active;
     private static BufferedImage ballImage;
-    private static final float GRAVITY = 0.2f; // Gravity constant
+    private static final float gravity = 0.4f; // Gravity constant
 
     static {
         try {
@@ -25,8 +25,6 @@ public class Ball {
     public Ball(int x, int y, boolean active, int size) {
         this.x = x;
         this.y = y;
-        this.xDelta = 0;
-        this.yDelta = 0;
         this.xVelocity = 0;
         this.yVelocity = 0;
         this.active = active;
@@ -38,10 +36,10 @@ public class Ball {
         this.yVelocity = (float) (speed * Math.sin(angle));
     }
 
-    public void updateBall(int leftWall, int rightWall, int floorYValue) {
+    public void updateBall(int leftWall, int rightWall, int roofYValue, int floorYValue) {
         if (active) {
-            bounceOffWalls(leftWall, rightWall);
-            yVelocity += GRAVITY; // Apply gravity to yVelocity
+            bounceOffWalls(leftWall, rightWall, roofYValue);
+            yVelocity += gravity; // Apply gravity to yVelocity
             moveBall();
             ballActive(floorYValue);
         }
@@ -52,10 +50,15 @@ public class Ball {
         this.y += yVelocity;
     }
 
-    private void bounceOffWalls(int leftWall, int rightWall) {
+    private void bounceOffWalls(int leftWall, int rightWall, int roofYValue) {
         if (x < leftWall || x > rightWall - this.size) {
             xVelocity = -xVelocity;
         }
+
+        else if (y < roofYValue) {
+            yVelocity = -yVelocity;
+        }
+
     }
 
     private void ballActive(int floorYValue) {
@@ -84,27 +87,9 @@ public class Ball {
 
 
     public void bounceOffObject() {
-        yDelta *= -1;
-        x -= xDelta; // Move back to the previous position
-        y -= yDelta;
+        yVelocity = -yVelocity;
+        xVelocity = -xVelocity;
     }
-
-
-
-    // Getter for xDelta and yDelta
-    public float getXDelta() {
-        return xDelta;
-    }
-
-    public float getYDelta() {
-        return yDelta;
-    }
-
-
-    public Rectangle getFutureBounds() {
-        return new Rectangle((int) (x + xDelta), (int) (y + yDelta), size, size);
-    }
-
 
 
 
