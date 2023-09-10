@@ -223,7 +223,7 @@ public class KrumPlayer {
         this.ypos = ypos;
         this.active = false;
         this.aimAngleRadians = 0;
-        this.hp = 250;
+        this.hp = 100;
         this.spriteDir = spriteFileName;
         firstLanding = true;
         canShootRope = true;
@@ -1380,7 +1380,7 @@ public class KrumPlayer {
 
     void startGrenadeFire(MouseEvent e) {
         if (ammo[NADE] < 1 || firedThisTurn[NADE] >= shotsPerTurn[NADE]) {
-            KrumSound.playSound("grenadeclick2");
+            KrumSound.playSound("grenadeclick3");
             return;
         }
         firingGrenade = true;
@@ -1412,7 +1412,7 @@ public class KrumPlayer {
      */
     void startFire(MouseEvent e) {
         if (ammo[ZOOK] < 1 || firedThisTurn[ZOOK] >= shotsPerTurn[ZOOK]) {
-            KrumSound.playSound("gunclick");
+            KrumSound.playSound("gunclick2");
             return;
         }
         firing = true;
