@@ -761,6 +761,11 @@ public class MazeControl {
     public int getKeysRemaining() {
         return numKeysToUnlock - mazePlayer.checkNumberOfKeys();
     }
+
+    public boolean awardFastAsLightning() {
+        String currentTime = mazeTimer.getCurrentTime();
+        return currentTime.equals("0:00");
+    }
     
 
 

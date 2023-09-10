@@ -99,7 +99,14 @@ public class SpaceMazeGame {
                     switch (mazeControl.getNextTile()) {
                         case 'M' -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.DYNAMITE.toString());
                         case 'H' -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.WORM_HOLE.toString());
-                        case '$' -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.TREASURE_CHEST.toString());
+                        case '$' ->  {
+                                boolean awardFastAsLightning = mazeControl.awardFastAsLightning();
+                                if(awardFastAsLightning) { 
+                                    AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
+                                    handler.unlockAchievement(getPlayerNames()[0],FAST_AS_LIGHTNING.toString());
+                                }
+                                serializedMazeArray.put("interactiveResponse", InteractiveResponses.TREASURE_CHEST.toString()); 
+                            }
                         case 'K' -> {
                             int keysRemaining = mazeControl.getKeysRemaining();
                             switch (keysRemaining) {
@@ -198,14 +205,22 @@ public class SpaceMazeGame {
                             AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
                             handler.unlockAchievement(getPlayerNames()[0],TIME_LORD.toString());
                         }
-                        else if (isPlayerAKeyKeeper) {
+                        if (isPlayerAKeyKeeper) {
                             AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
                             handler.unlockAchievement(getPlayerNames()[0],KEEPER_OF_THE_KEYS.toString());
                         }
-                        else if (isPlayerAKeyKeeper && isPlayerATimeLord) {
+                        if (isPlayerAKeyKeeper && isPlayerATimeLord) {
                             AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
                             handler.unlockAchievement(getPlayerNames()[0],THE_COLLECTORS_COLLECTION.toString());
                         }
+
+                        // TODO Nik - implement seasoned maze runner achievement.
+                        Boolean isPlayerASeasonedMazeRunner = !player.hasLostLives();
+                        if(isPlayerASeasonedMazeRunner) {
+                            AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
+                            handler.unlockAchievement(getPlayerNames()[0],SEASONED_MAZE_RUNNER.toString());
+                        }
+                        // TODO Nik - implement fast as lightning achievement.
                     }
                 }
             }

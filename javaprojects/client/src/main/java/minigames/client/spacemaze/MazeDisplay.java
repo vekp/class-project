@@ -45,7 +45,7 @@ public class MazeDisplay extends JPanel {
 
     // ArrayList of SpaceBot objects in the maze
     private ArrayList<SpaceBot> bots;
-    // Delay in milliseconds between bot movement
+    // Delay in milliseconds between bot movement 300
     private int botDelay = 300;
 
     // Game window and tile dimensions
