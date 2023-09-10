@@ -5,6 +5,7 @@ import io.vertx.core.Promise;
 import minigames.server.battleship.BattleshipServer;
 import minigames.server.highscore.*;
 import minigames.server.muddle.MuddleServer;
+import minigames.server.snakeGameServer.SnakeServer;
 import minigames.server.peggle.PeggleServer;
 import minigames.server.spacemaze.SpaceMazeServer;
 import minigames.server.telepathy.TelepathyServer;
@@ -71,6 +72,7 @@ public class Main extends AbstractVerticle {
         gameRegistry.registerGameServer("SpaceMaze", new SpaceMazeServer());
         gameRegistry.registerGameServer("Battleship", new BattleshipServer());
         gameRegistry.registerGameServer("Telepathy", new TelepathyServer());
+        gameRegistry.registerGameServer("Snake", new SnakeServer());
         gameRegistry.registerGameServer("Peggle", new PeggleServer());
 
         // Initialize the HighScoreAPI
@@ -86,6 +88,7 @@ public class Main extends AbstractVerticle {
         players.add("Amy");
         players.add("Robert");
         players.add("Georgia");
+        players.add("Sushil");
     }
 
     public static void main(String... args) {

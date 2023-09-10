@@ -7,6 +7,7 @@ import minigames.client.muddletext.MuddleText;
 import minigames.client.peggle.PeggleUI;
 import minigames.client.spacemaze.SpaceMaze;
 import minigames.client.telepathy.Telepathy;
+import minigames.client.snakeGameClient.SnakeGameText;
 import io.vertx.core.Launcher;
 
 import org.apache.logging.log4j.LogManager;
@@ -35,6 +36,7 @@ public class Main extends AbstractVerticle {
         clientRegistry.registerGameClient("SpaceMaze", new SpaceMaze());
         clientRegistry.registerGameClient("Battleship", new Battleship());
         clientRegistry.registerGameClient("Telepathy", new Telepathy());
+        clientRegistry.registerGameClient("Snake", new SnakeGameText());
         clientRegistry.registerGameClient("Peggle", new PeggleUI());
     }
 
