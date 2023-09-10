@@ -53,6 +53,8 @@ public class MinigameNetworkClientWindow {
     // We hang on to this one for registering in servers
     JTextField nameField;
 
+    JTextField krumNameField;
+
     public MinigameNetworkClientWindow(MinigameNetworkClient networkClient) {
         this.networkClient = networkClient;
 
@@ -77,6 +79,8 @@ public class MinigameNetworkClientWindow {
 
         nameField = new JTextField(20);
         nameField.setText("Algernon");
+        krumNameField = new JTextField(20);
+        krumNameField.setText("Algernon");
     }
 
     /** Removes all components from the south panel */
@@ -284,7 +288,7 @@ public class MinigameNetworkClientWindow {
         newGameButton.setBounds(485, 414, 277, 108);
         newGameButton.setFocusable(false);
         newGameButton.addActionListener((evt) -> {
-            networkClient.newGame("KrumGame", nameField.getText());
+            networkClient.newGame("KrumGame", krumNameField.getText());
             return;
         });
         screen.add(newGameButton);
@@ -305,7 +309,7 @@ public class MinigameNetworkClientWindow {
                 jb.setBorderPainted(false);
                 jb.setBounds(x, y, 200, 60);
                 jb.addActionListener((evt) -> {
-                    networkClient.joinGame("KrumGame", gm.name(), nameField.getText());
+                    networkClient.joinGame("KrumGame", gm.name(), krumNameField.getText());
                     return;
                 });
                 screen.add(jb);
@@ -314,6 +318,8 @@ public class MinigameNetworkClientWindow {
             }
             if (numListed >= 3) break;
         }
+        screen.add(krumNameField);
+
         center.add(screen);
         pack();
         parent.repaint();
@@ -344,7 +350,7 @@ public class MinigameNetworkClientWindow {
         newGameButton.setBounds(485, 414, 277, 108);
         newGameButton.setFocusable(false);
         newGameButton.addActionListener((evt) -> {
-            networkClient.newGame("KrumGame", nameField.getText());
+            networkClient.newGame("KrumGame", krumNameField.getText());
             return;
         });
         screen.add(newGameButton);     
@@ -365,7 +371,7 @@ public class MinigameNetworkClientWindow {
                 jb.setBorderPainted(false);
                 jb.setBounds(x, y, 200, 60);
                 jb.addActionListener((evt) -> {
-                    networkClient.joinGame("KrumGame", gm.name(), nameField.getText());
+                    networkClient.joinGame("KrumGame", gm.name(), krumNameField.getText());
                     return;
                 });
                 screen.add(jb);
@@ -374,6 +380,7 @@ public class MinigameNetworkClientWindow {
             }
             if (numListed >= 3) break;
         }
+        screen.add(krumNameField);
 
         center.add(screen);
         pack();
@@ -382,6 +389,8 @@ public class MinigameNetworkClientWindow {
 
     public void showKrumTitle(List<GameMetadata> games) {
         clearAll();
+        krumNameField.setLayout(null);
+        krumNameField.setBounds(373, 10, 54, 30);
         KrumMenu menu = new KrumMenu();
         JLabel screen = new JLabel(new ImageIcon(menu.getScreen("title")));
         JButton optionsButton = new JButton("");
@@ -413,17 +422,20 @@ public class MinigameNetworkClientWindow {
                 }
             }
             if (gameToJoin != null) {
-                networkClient.joinGame("KrumGame", gameToJoin, nameField.getText());
+                networkClient.joinGame("KrumGame", gameToJoin, krumNameField.getText());
             }
             else {
-                networkClient.newGame("KrumGame", nameField.getText());
+                networkClient.newGame("KrumGame", krumNameField.getText());
             }            
             return;
         });
-        screen.add(quickPlayButton);
-        center.add(screen);
- 
+        screen.add(quickPlayButton);    
+        screen.add(krumNameField);
+        
+        
 
+
+        center.add(screen);
         pack();
         parent.repaint();
     }
