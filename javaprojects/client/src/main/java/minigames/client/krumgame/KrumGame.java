@@ -1,6 +1,8 @@
 package minigames.client.krumgame;
 
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
@@ -878,7 +880,7 @@ public class KrumGame implements GameClient {
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(j)));
     }
 
-    public void sendQuitCommand() {
+    public void sendQuitCommand() {        
         JsonObject j = new JsonObject().put("quit", myPlayerIndex);
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(j)));
     }
@@ -909,7 +911,13 @@ public class KrumGame implements GameClient {
                 }
 
             }
-        });        
+        });       
+        mnClient.getMainWindow().getFrame().addWindowListener(new WindowAdapter(){
+            @Override
+            public void windowClosing(WindowEvent we) {
+                sendQuitCommand();
+            }
+        });
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(panel);
         mnClient.getMainWindow().pack();
@@ -959,6 +967,7 @@ public class KrumGame implements GameClient {
 
     @Override
     public void closeGame() {
+        panel.gameActive = false;
         // todo: make sure we don't leave any mess
         // should probably remove the component listener we added to the main jframe?
     }
