@@ -4,11 +4,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import minigames.client.useraccount.User.*;
-import minigames.client.useraccount.GenerateUser.*;
-import minigames.client.useraccount.GenerateJSON.*;
-
-
+import java.io.File;
+import minigames.client.useraccount.FileHandler.*;
+import java.io.IOException;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
 
 public class UserAccountFrame extends JFrame implements ActionListener {
 
@@ -56,12 +56,17 @@ public class UserAccountFrame extends JFrame implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e){
                 String emailInput = emailField.getText();
-                GenerateJSON json = new GenerateJSON();
+                FileHandler user = new FileHandler();
                 if (emailInput.contains("@myune.edu.au")) {
                         System.out.println("Welcome, " + emailInput + ", enjoy your session!"); 
-                        json.addUser(emailInput);
-                        GenerateUser user = new GenerateUser();
-                        user.generateUsers(json.getJSONArray());
+                        String username = emailInput.split("@")[0];
+                        String path = "src/main/java/minigames/client/useraccount/" + username + ".json";
+                        File file = new File(path);
+                        if(file.exists()){
+                                user.addSession(emailInput, file, path, username);        
+                        }else{
+                                user.generateUser(emailInput, "1234");                                
+                        }
                         this.dispose();
                 } else {
                         System.out.println("Please enter a valid email address.");
