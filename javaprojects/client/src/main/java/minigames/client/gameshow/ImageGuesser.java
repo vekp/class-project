@@ -30,7 +30,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ImageGuesser {
-
+    private static final Logger logger = Logger.getLogger(GameShow.class.getName());
     private final static String dir = "./src/main/java/minigames/client/gameshow/GameShowImages/";
     private static final ImageIcon submitButtonButton = new ImageIcon(dir + "submit-button.png");
 
@@ -46,6 +46,7 @@ public class ImageGuesser {
         JLabel imageLabel = new JLabel(imageIcon);
 
         GridPanel gridPanel = new GridPanel(imageIcon);
+
 
         Timer timer = new Timer(1000, e -> {
             boolean cellVisible = true;
@@ -86,13 +87,14 @@ public class ImageGuesser {
 
         inputComponents.add(guessField);
         inputComponents.add(submitButton);
-
+        gs.inputPanel.add(gs.gameTimer, BorderLayout.NORTH);
         gs.inputPanel.add(inputComponents, BorderLayout.CENTER); // Add the container with fixed-size components
         gs.inputPanel.add(gs.outcomeContainer, BorderLayout.SOUTH);
         // Add the grid panel to the center of the container
         JPanel revealHeader = GameShowUI.generateRevealHeader();
         GameShowUI.gameContainer.add(revealHeader, BorderLayout.NORTH);
         GameShowUI.gameContainer.add(gridPanel, BorderLayout.CENTER);
+        // GameShowUI.gameContainer.add(gs.inputPanel, BorderLayout.SOUTH);
         GameShowUI.gameContainer.add(gs.inputPanel, BorderLayout.SOUTH);
 
         GameShowUI.gameContainer.validate();
@@ -111,6 +113,9 @@ public class ImageGuesser {
 
             gs.outcomeContainer.add(tryAgain, BorderLayout.CENTER);
         } else {
+            gs.gameTimer.stop();
+            int remainingTime = gs.gameTimer.calculateScore();
+            logger.log(Level.INFO, "Remaining Time: " + remainingTime);
             JLabel congrats = new JLabel("Congratulations! You Win :)",
                     SwingConstants.CENTER);
             Font pixelFont = GameShowUI.pixelFont;
