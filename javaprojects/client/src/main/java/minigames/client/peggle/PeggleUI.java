@@ -42,13 +42,15 @@ public class PeggleUI implements GameClient {
         this.gm = game;
         logger.info("my command: " + command.encode());
         switch(command.getString("command")) {
-//            case "startGame" -> sendCommand("test");
+//            case "startGame" -> sendCommand("startGame");
+
         }
     }
 
     @Override
     public void closeGame() {
         sendCommand("exitGame");
+        mnClient.getMainWindow().getFrame().setPreferredSize(new Dimension(1000 ,750));
         mnClient.runMainMenuSequence();
 
 

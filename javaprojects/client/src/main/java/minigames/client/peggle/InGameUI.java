@@ -11,11 +11,9 @@ import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 
 public class InGameUI extends JPanel {
-    final int columns = 1000;
-    final int rows = 750;
+    final int columns = 1920;
+    final int rows = 1080;
     final Color background = Color.BLACK;
-    private final boolean[][] grid = new boolean[rows][columns];
-    private final Cannon cannon;
     private Timer gameLoopTimer;
     private int delay = 8; // approx 120 FPS (1000 / 60 = 8.3 milliseconds per frame, delay shown in milliseconds)
 
@@ -24,10 +22,11 @@ public class InGameUI extends JPanel {
     private static final int ballSize = 5; // Adjust as needed
     private static final double ballSpeed = 5.0; // Adjust as needed
 
-    //MM added - Create a list of bricks
+    // MM added - Create a list of bricks
     ArrayList<Brick> bricks = new ArrayList<>();
     private MinigameNetworkClient mnClient;
     private PeggleUI peggleUI;
+    private final Cannon cannon;
 
     InGameUI(MinigameNetworkClient mnClient, PeggleUI peggleUI) {
         this.mnClient = mnClient;
@@ -46,14 +45,12 @@ public class InGameUI extends JPanel {
         // Creates the cannon at position (0, 0)
         cannon = new Cannon(0, 0);
 
-
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                launchBall();
+                launchBall(e);
             }
         });
-
 
         // Used for cannon to track mouse location if mouse moved or dragged
         addMouseMotionListener(new MouseMotionAdapter() {
@@ -67,59 +64,57 @@ public class InGameUI extends JPanel {
                 handleHover(e);
             }
         });
-        //MM added - Initialize bricks array
+        // MM added - Initialize bricks array
         initBricks();
-
     }
 
-    private void launchBall() {
-        // Calculate velocity based on cannon's angle
-        float xVelocity = (float) -(ballSpeed * Math.cos(cannon.angle));
-        float yVelocity = (float) (ballSpeed * Math.sin(cannon.angle));
+    public void launchBall(MouseEvent e) {
 
-        // TODO fix ball parameters
-        Ball newBall = new Ball(cannon.x, cannon.y, (float) cannon.angle, (float) cannon.angle, xVelocity, yVelocity, true, 1, 10);
-        balls.add(newBall);
+        float angle = (float) Math.atan2(e.getY() - cannon.getY(), e.getX() - cannon.getX());
+
+        Ball ball = new Ball(cannon.getX(), cannon.getY(), true, 10);
+        ball.shoot(angle, 20);  // SHOOTING_SPEED is a constant that you can adjust
+
+        // Now add the ball to the list of balls or wherever you're storing them
+        balls.add(ball);
     }
+
 
     private void gameLoop() {
         updateGame();
         repaint();
-
     }
 
     public void updateGame() {
-        // Update each ball's position and check for collisions
         for (int i = 0; i < balls.size(); i++) {
             Ball ball = balls.get(i);
-            ball.updateBall(0, getWidth(), getHeight());
+            Rectangle currentBallBounds = new Rectangle(ball.getX(), ball.getY(), ball.getSize(), ball.getSize());
 
-            // MM added - Check for collisions with bricks
             for (Brick brick : bricks) {
                 if (!brick.isHit() && brick.checkCollision(ball)) {
-                    brick.isHit = true;  // Mark the brick as hit
-                    // You may also want to update the ball's position or velocity here
+                    if (currentBallBounds.intersects(new Rectangle(brick.getX(), brick.getY(), brick.getWidth(), brick.getHeight()))) {
+                        ball.bounceOffObject();
+                        System.out.println("The ball hit");
+                    }
+                    brick.isHit = true;
                 }
             }
 
+            ball.updateBall(0, getWidth(), getHeight());
 
-            //TODO fix isActive
-            if (!true) {
+            if (!ball.active) {
                 balls.remove(i);
-                i--; // Account for shifting elements
+                i--;
             }
         }
-
-        // Repaint to show changes
-        repaint();
     }
 
+
+
     void handleHover(MouseEvent e) {
-
-        //Update the angle of the cannon to point towards the mouse position
-        int dx = e.getX() - cannon.x;
-        int dy = e.getY() - cannon.y;
-
+        // Update the angle of the cannon to point towards the mouse position
+        int dx = e.getX() - cannon.getX();
+        int dy = e.getY() - cannon.getY();
         double angle = Math.atan2(dy, dx);
         cannon.setAngle(angle);
         repaint();
@@ -128,13 +123,9 @@ public class InGameUI extends JPanel {
     void handleDrag(MouseEvent e) {
         // Tracks cannon while mouse key pressed+dragged
         handleHover(e);
-
         repaint();
     }
 
-    /* MM added -  initializes the bricks. Sets up a grid of bricks,
-specifying their position X & Y, width, and height.
-Then, adds these brick objects to an ArrayList called bricks, a field of this class*/
     private void initBricks() {
         int brickWidth = 50;
         int brickHeight = 20;
@@ -149,7 +140,6 @@ Then, adds these brick objects to an ArrayList called bricks, a field of this cl
         }
     }
 
-
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -163,9 +153,13 @@ Then, adds these brick objects to an ArrayList called bricks, a field of this cl
         for (Ball ball : balls) {
             ball.drawBall(g);
         }
-        //MM Added - drawing the bricks
+        // MM Added - drawing the bricks
         for (Brick brick : bricks) {
             brick.draw(g);
         }
     }
+
+
+
+
 }
