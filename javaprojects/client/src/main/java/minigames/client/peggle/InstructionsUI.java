@@ -18,9 +18,12 @@ public class InstructionsUI extends JPanel{
     private final String instructionsPic2FilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/instructions/instructionspic2.gif";
     private final String instructionsPic3FilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/instructions/instructionspic3.gif";
     private MinigameNetworkClient mnClient;
+    private PeggleUI peggleUI;
 
-    public InstructionsUI(MinigameNetworkClient mnClient) {
+    public InstructionsUI(MinigameNetworkClient mnClient, PeggleUI peggleUI) {
         this.mnClient = mnClient;
+        this.peggleUI = peggleUI;
+
 
         setBorder(new EmptyBorder(10,10,10,10));
 
@@ -34,7 +37,7 @@ public class InstructionsUI extends JPanel{
         layoutConstraints.weightx = 1.0;
         layoutConstraints.weighty = 0.1;
         layoutConstraints.fill = GridBagConstraints.BOTH;
-        add(generateTopOptionsPanel(backButtonFilePath, mnClient), layoutConstraints);
+        add(generateTopOptionsPanel(backButtonFilePath, mnClient, peggleUI), layoutConstraints);
 
         //creating text instructions panel with gridbaglayout options
         layoutConstraints.gridx = 0;
@@ -108,10 +111,10 @@ public class InstructionsUI extends JPanel{
 
     }
 
-    private JPanel generateTopOptionsPanel(String backButtonFilePath, MinigameNetworkClient mnClient){
+    private JPanel generateTopOptionsPanel(String backButtonFilePath, MinigameNetworkClient mnClient, PeggleUI peggleUI){
 
         JPanel topOptionsPanel = new JPanel(new BorderLayout());
-        topOptionsPanel.add(createImageButton(backButtonFilePath, e -> PeggleUI.showMainMenu(mnClient), 0.3), BorderLayout.WEST);
+        topOptionsPanel.add(createImageButton(backButtonFilePath, e -> peggleUI.showMainMenu(mnClient), 0.3), BorderLayout.WEST);
 
         return topOptionsPanel;
 
