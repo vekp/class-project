@@ -27,8 +27,8 @@ public class InGameUI extends JPanel {
 
 
 
-    InGameUI() {
-        gameLoopTimer = new Timer(delay, e -> gameLoop());
+    InGameUI(GameContainer gameContainer) {
+        gameLoopTimer = new Timer(delay, e -> gameLoop(gameContainer));
         gameLoopTimer.start();
 
         setBackground(background);
@@ -71,12 +71,12 @@ public class InGameUI extends JPanel {
     }
 
 
-    private void gameLoop() {
-        updateGame();
+    private void gameLoop(GameContainer gameContainer) {
+        updateGame(gameContainer);
         repaint();
     }
 
-    public void updateGame() {
+    public void updateGame(GameContainer gameContainer) {
         for (int i = 0; i < balls.size(); i++) {
             Ball ball = balls.get(i);
             Rectangle currentBallBounds = new Rectangle(ball.getX(), ball.getY(), ball.getSize(), ball.getSize());
@@ -85,6 +85,7 @@ public class InGameUI extends JPanel {
                 if (!brick.isHit() && brick.checkCollision(ball)) {
                     if (currentBallBounds.intersects(new Rectangle(brick.getX(), brick.getY(), brick.getWidth(), brick.getHeight()))) {
                         ball.bounceOffObject();
+                        gameContainer.incrementScore(10);
                     }
                     brick.isHit = true;
                 }
