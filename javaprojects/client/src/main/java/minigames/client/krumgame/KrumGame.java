@@ -380,6 +380,7 @@ public class KrumGame implements GameClient {
             if (p.ypos > waterLevel) p.die();
             if (p.projectile != null) {
                 if(p.projectile.collisionCheck()) {
+                    KrumSound.playSound("explode2");
                     ExplosionDetails.explode((int)p.projectile.x, (int)p.projectile.y, p.projectile.explosionRadius, 
                         KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
                     handlePlayerKnock(p.projectile);                   
@@ -394,6 +395,7 @@ public class KrumGame implements GameClient {
                 if (p.projectile != null) {
                     int n = p.projectile.playerCollisionCheck(players, p.playerIndex);
                     if (n >= 0) {
+                        KrumSound.playSound("explode2");
                         ExplosionDetails.explode((int)p.projectile.x, (int)p.projectile.y, p.projectile.explosionRadius, 
                             KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
                         handlePlayerKnock(p.projectile);
@@ -417,6 +419,7 @@ public class KrumGame implements GameClient {
                             pl.hit(p.grenade.maxDamage, distance, p.grenade.damageRadius);
                         }
                     }
+                    KrumSound.playSound("explode2");
                     ExplosionDetails.explode((int)p.grenade.x, (int)p.grenade.y, p.grenade.explosionRadius, 
                         KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
                     handlePlayerKnock(p.grenade);

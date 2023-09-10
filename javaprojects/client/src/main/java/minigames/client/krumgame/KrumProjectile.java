@@ -69,7 +69,6 @@ public class KrumProjectile {
                 if (j >= ground.getHeight()) break;
                 if (java.lang.Math.sqrt(xr * xr + yr * yr) <= radius) {
                     if(ground.getPixel(i, j, z)[0] > KrumC.OPACITY_THRESHOLD) {
-                        KrumSound.playSound("bazookaexplode");
                         return true;
                     }
                 }
@@ -105,7 +104,6 @@ public class KrumProjectile {
                         if (j >= (int)p.ypos + p.sprite.getHeight()) break;
                         if (java.lang.Math.sqrt(xr * xr + yr * yr) <= radius) {
                             if(p.alphaRaster.getPixel(i - (int)p.xpos, j - (int)p.ypos, z)[0] > KrumC.OPACITY_THRESHOLD) {
-                                KrumSound.playSound("bazookaexplode");
                                 return n;
                             }
                         }
