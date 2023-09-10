@@ -15,14 +15,27 @@ public class KrumSound {
 
     static int clientIndex;
 
+    static boolean muted;
+
+    public static void setMuted(boolean m) {
+        muted = m;
+    }
+
+    public static void toggleMuted() {
+        muted = !muted;
+    }
+
     public static void setClientIndex(int i) {
         clientIndex = i;
+        if (clientIndex > 0) {
+            muted = true;
+        }
     }
 
     public static void initializeSounds(){
 
         ArrayList<String> names = new ArrayList<>(Arrays.asList(soundNames));
-
+        muted = false;
         sounds = new HashMap<String, Clip>();
         for (String s : names) {
             try {
@@ -40,8 +53,8 @@ public class KrumSound {
     }
 
     public static void playSound(String soundName) {
-        // for the sake of our ears while testing, suppress sounds on the second client
-        if (clientIndex == 1) return;
+        
+        if (muted) return;
 
         System.out.println("playing sound " + soundName + "\n");
         

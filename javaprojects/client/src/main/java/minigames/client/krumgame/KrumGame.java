@@ -590,7 +590,7 @@ public class KrumGame implements GameClient {
             drawAmmo(KrumPlayer.BLOW, tx, ty, 0x8afff7, g);
         }
 
-
+        // draw level selection / ready text
         if (choosingLevel) {
             g.setColor(Color.black);
             g.setFont(new Font("Courier New", 1, 22));
@@ -607,9 +607,17 @@ public class KrumGame implements GameClient {
                 else {
                     g.drawString("Ready! Waiting for opponent to choose level", 50, 200);
                 }
-            }
-                
+            }                
         }
+
+        // draw sound status
+        if (KrumSound.muted) {
+            g.setFont(new Font("Courier New", 1, 14));
+            g.setColor(Color.BLACK);
+            g.drawString("muted - M to unmute", 70, 15);
+        }            
+
+
     }
 
     void drawAmmo(int w, int x, int y, int c, Graphics2D g) {
@@ -690,6 +698,7 @@ public class KrumGame implements GameClient {
             players[playerTurn].endGrenadeFire(e);
     }
     void keyDown(KeyEvent e) {
+        // keys that should take effect even if it's not your turn
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             if (choosingLevel) {
                 setReady();
@@ -699,7 +708,13 @@ public class KrumGame implements GameClient {
                 players[playerTurn].enterKeyPressed();
             }
         }
+        else if(e.getKeyCode() == KeyEvent.VK_S || e.getKeyCode() == KeyEvent.VK_M){
+            KrumSound.toggleMuted();
+        }
+
         if (myPlayerIndex != playerTurn) return;
+
+        //keys that should only take effect if it's your turn
         if (e.getKeyCode() == KeyEvent.VK_SPACE) { // Spacebar
             if (players[playerTurn].airborne) {
                 players[playerTurn].shootRopeNextFrame = true;
