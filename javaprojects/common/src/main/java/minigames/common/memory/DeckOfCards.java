@@ -108,7 +108,9 @@ public class DeckOfCards {
                         PlayingCard cardPair = new PlayingCard(card);
                         cardStack[i] = card;
                         cardStack[i+1] = cardPair;
-                    }
+                    } else {
+                        card = null;
+                    } 
                 }
             }
         } else {
@@ -117,9 +119,10 @@ public class DeckOfCards {
                 while (card == null) {
                     card = new PlayingCard(suits[rand.nextInt(suits.length)], values[rand.nextInt(values.length)], true);
                     if (!Arrays.asList(cardStack).contains(card) && card != null) { // no duplicate cards allowed
-                        PlayingCard cardPair = new PlayingCard(card);
                         cardStack[i] = card;
-                    }
+                    } else {
+                        card = null;
+                    }                    
                 }
             }
         }
