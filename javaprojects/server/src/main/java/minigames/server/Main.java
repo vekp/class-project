@@ -5,7 +5,7 @@ import io.vertx.core.Promise;
 import minigames.server.battleship.BattleshipServer;
 import minigames.server.highscore.*;
 import minigames.server.muddle.MuddleServer;
-import minigames.server.snakeGameServer.SnakeServer;
+import minigames.server.snake.SnakeServer;
 import minigames.server.peggle.PeggleServer;
 import minigames.server.spacemaze.SpaceMazeServer;
 import minigames.server.telepathy.TelepathyServer;
@@ -14,9 +14,7 @@ import io.vertx.core.Launcher;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**

@@ -1,4 +1,4 @@
-package minigames.server.snakeGameServer;
+package minigames.server.snake;
 
 
 import minigames.achievements.Achievement;
