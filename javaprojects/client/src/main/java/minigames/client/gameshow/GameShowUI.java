@@ -46,6 +46,8 @@ public class GameShowUI {
 
         private static final ImageIcon startButton = new ImageIcon(dir + "start-button.png");
 
+        private static final ImageIcon submitButton = new ImageIcon(dir + "submit-button.png");
+
         public static JPanel lobbyHeader;
         public static JPanel memoryHeader;
         public static JPanel scrambleHeader;
@@ -236,7 +238,8 @@ public class GameShowUI {
                 revealHeader.setLayout(new BorderLayout());
                 revealHeader.setBackground(Color.ORANGE);
                 revealHeaderImage = new JLabel(
-                                new ImageIcon(revealIcon.getImage()));
+                                new ImageIcon(revealIcon.getImage().getScaledInstance(600, 100,
+                                                Image.SCALE_DEFAULT)));
 
                 revealInstructions = new JTextField("add reveal instructions");
                 revealInstructions.setEditable(false);
@@ -245,8 +248,8 @@ public class GameShowUI {
                 revealInstructions.setFont(pixelFont.deriveFont(15f));
                 // TODO: add reveal instructions
 
-                revealHeader.add(revealHeaderImage);
-                revealHeader.add(revealInstructions);
+                revealHeader.add(revealHeaderImage, BorderLayout.NORTH);
+                revealHeader.add(revealInstructions, BorderLayout.SOUTH);
 
                 return revealHeader;
 
