@@ -554,10 +554,13 @@ public class KrumGame implements GameClient {
                 resultString += "Game drawn!";
             }
             else {
-                if (winner == myPlayerIndex)
+                if (winner == myPlayerIndex){
                     resultString += "You win!";
-                else 
+                    KrumSound.playSound("applause");
+                }else{ 
+                    KrumSound.playSound("wahwah");
                     resultString += "You lose!";
+                }
             }
             g.setColor(Color.BLACK);
             g.setFont(new Font("Courier New", 1, 42));
