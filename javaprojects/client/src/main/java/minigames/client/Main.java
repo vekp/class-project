@@ -9,7 +9,7 @@ import minigames.client.gameshow.GameShow;
 import minigames.client.peggle.PeggleUI;
 import minigames.client.spacemaze.SpaceMaze;
 import minigames.client.telepathy.Telepathy;
-import minigames.client.snakeGameClient.SnakeGameText;
+import minigames.client.snake.SnakeGameText;
 import io.vertx.core.Launcher;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -1,4 +1,4 @@
-package minigames.server.snakeGameServer;
+package minigames.server.snake;
 
 import java.util.*;
 
@@ -11,7 +11,7 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.*;
 import minigames.rendering.NativeCommands.LoadClient;
 
-import static minigames.server.snakeGameServer.SnakeAchievement.*;
+import static minigames.server.snake.SnakeAchievement.*;
 
 
 /**
