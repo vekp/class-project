@@ -56,6 +56,8 @@ public class KrumGame{
     private AchievementsService achievementsService;
     private ColorsService colorsService;
 
+    private boolean joinable;
+
     public KrumGame(String name, TableManager tableManager){
         this.name = name;
         this.playerTurn = 0;
@@ -71,6 +73,7 @@ public class KrumGame{
         this.playerService = tableManager.getPlayerService();
         this.achievementsService = tableManager.getAchievementsService();
         this.colorsService = tableManager.getColorsService();
+        this.joinable = true;
         // TODO: Remove this is after testing database
         testDatabase();
     }
@@ -102,7 +105,7 @@ public class KrumGame{
     }
 
     public GameMetadata gameMetadata(){
-        return new GameMetadata("KrumGame", name, getPlayerNames(), true);
+        return new GameMetadata("KrumGame", name, getPlayerNames(), joinable);
     }
 
     public void changeTurn(){
@@ -159,6 +162,8 @@ public class KrumGame{
         // TODO: It might not be the first player joined due to hashmap
         if (players.size() == 2){
             this.currentPlayerTurn = players.keySet().iterator().next();
+
+            joinable = false;
         }
 
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
@@ -217,6 +222,7 @@ public class KrumGame{
             return new RenderingPackage(gameMetadata(), renderingCommands);
         }
         else if (content.getInteger("quit") != null) {
+            joinable = false;
             JsonObject j = new QuitToMenu().toJson();
             renderingCommands.add(j);
             return new RenderingPackage(gameMetadata(), renderingCommands);
