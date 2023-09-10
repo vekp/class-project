@@ -8,7 +8,7 @@ import minigames.rendering.RenderingPackage;
 import minigames.server.ClientType;
 import minigames.server.GameServer;
 import minigames.server.achievements.AchievementHandler;
-import minigames.server.gameNameGenerator.GameNameGenerator;  // Import the GameNameGenerator
+import minigames.server.gameNameGenerator.GameNameGenerator;
 
 import java.util.HashMap;
 
