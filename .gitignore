@@ -80,3 +80,4 @@ testDB/
 # ignore KrumDatabase
 javaprojects/server/KrumDatabase/
 javaprojects/KrumDatabase
+KrumDatabase/
