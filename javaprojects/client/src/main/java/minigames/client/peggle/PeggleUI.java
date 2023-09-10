@@ -135,7 +135,7 @@ public class PeggleUI implements GameClient {
     }
 
     private void startGame(MinigameNetworkClient client) {
-        InGameUI gameSession = new InGameUI(client, this);
+        GameContainer gameSession = new GameContainer(client, this);
 
         JFrame mainWindow = client.getMainWindow().getFrame();
         mainWindow.setContentPane(gameSession);

@@ -4,15 +4,14 @@ import minigames.client.MinigameNetworkClient;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 
 public class InGameUI extends JPanel {
-    final int columns = 1920;
-    final int rows = 1080;
+    final int columns = 1820;
+    final int rows = 980;
     final Color background = Color.BLACK;
     private Timer gameLoopTimer;
     private int delay = 8; // approx 120 FPS (1000 / 60 = 8.3 milliseconds per frame, delay shown in milliseconds)
@@ -24,25 +23,16 @@ public class InGameUI extends JPanel {
 
     // Create a list of bricks
     ArrayList<Brick> bricks = new ArrayList<>();
-    private MinigameNetworkClient mnClient;
-    private PeggleUI peggleUI;
     private final Cannon cannon;
 
-    InGameUI(MinigameNetworkClient mnClient, PeggleUI peggleUI) {
-        this.mnClient = mnClient;
-        this.peggleUI = peggleUI;
 
+
+    InGameUI() {
         gameLoopTimer = new Timer(delay, e -> gameLoop());
         gameLoopTimer.start();
 
         setBackground(background);
 
-        JButton returnButton = new JButton("Return to Main Menu");
-        ActionListener returnActionListener = e -> peggleUI.showMainMenu(mnClient);
-        returnButton.addActionListener(returnActionListener);
-        add(returnButton, BorderLayout.NORTH);
-
-        // Creates the cannon at position (0, 0)
         cannon = new Cannon(0, 0);
 
         addMouseListener(new MouseAdapter() {
@@ -67,6 +57,7 @@ public class InGameUI extends JPanel {
         // Initialize bricks array
         initBricks();
     }
+
 
     public void launchBall(MouseEvent e) {
 
@@ -107,7 +98,6 @@ public class InGameUI extends JPanel {
             }
         }
     }
-
 
 
     void handleHover(MouseEvent e) {
@@ -152,7 +142,7 @@ public class InGameUI extends JPanel {
         for (Ball ball : balls) {
             ball.drawBall(g);
         }
-        // MM Added - drawing the bricks
+        // Drawing the bricks
         for (Brick brick : bricks) {
             brick.draw(g);
         }
