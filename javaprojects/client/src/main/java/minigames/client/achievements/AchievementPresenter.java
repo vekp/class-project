@@ -143,7 +143,7 @@ public class AchievementPresenter {
         }
 
         JLabel image = new JLabel(achievementImage(192));
-        JLabel name = new JLabel("<html><h1 style='text-align:center'>" + achievement.name() + "</h1></html>", SwingConstants.CENTER);
+        JLabel name = new JLabel("<html><h1 style='text-align:center; margin-top: 20px'>" + achievement.name() + "</h1></html>", SwingConstants.CENTER);
         JLabel description = new JLabel("<html><h2 style='text-align:center; font-weight:normal;'>" + achievement.description() + "</h2></html>", SwingConstants.CENTER);
 
         if (achievement.hidden()) {
@@ -155,7 +155,8 @@ public class AchievementPresenter {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = GridBagConstraints.RELATIVE;
-        gbc.fill = GridBagConstraints.CENTER;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1;
 
         panel.add(image, gbc);
         panel.add(name, gbc);

@@ -6,7 +6,10 @@ import minigames.client.battleship.Battleship;
 import minigames.client.muddletext.MuddleText;
 import minigames.client.gameshow.FadePanel;
 import minigames.client.gameshow.GameShow;
+import minigames.client.peggle.PeggleUI;
+import minigames.client.spacemaze.SpaceMaze;
 import minigames.client.telepathy.Telepathy;
+import minigames.client.snakeGameClient.SnakeGameText;
 import io.vertx.core.Launcher;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,9 +35,12 @@ public class Main extends AbstractVerticle {
      */
     private static void doWiring() {
         clientRegistry.registerGameClient("MuddleText", new MuddleText());
+        clientRegistry.registerGameClient("SpaceMaze", new SpaceMaze());
         clientRegistry.registerGameClient("Battleship", new Battleship());
         clientRegistry.registerGameClient("Telepathy", new Telepathy());
         clientRegistry.registerGameClient("GameShow", new GameShow());
+        clientRegistry.registerGameClient("Snake", new SnakeGameText());
+        clientRegistry.registerGameClient("Peggle", new PeggleUI());
     }
 
     public static void main(String... args) {
