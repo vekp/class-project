@@ -2,8 +2,10 @@ package minigames.client;
 
 import javax.swing.*;
 
-import minigames.client.achievementui.AchievementNotificationHandler;
-import minigames.client.achievementui.AchievementUI;
+import java.awt.event.ActionListener;
+
+import minigames.client.achievements.AchievementNotificationHandler;
+import minigames.client.achievements.AchievementUI;
 import minigames.client.survey.Survey;
 import minigames.client.backgrounds.Starfield;
 import minigames.rendering.GameMetadata;
@@ -197,19 +199,16 @@ public class MinigameNetworkClientWindow {
         // Create a button for the Achievement UI.
         JButton achievementsButton = new JButton("Achievements");
         achievementsButton.addActionListener(e -> {
-            clearAll();
-            JPanel achievements = new AchievementUI(networkClient);
-            frame.setTitle(AchievementUI.TITLE);
-            center.add(achievements);
-            pack();
+            AchievementUI achievements = new AchievementUI(networkClient);
+            achievements.load();
         });
         south.add(achievementsButton);
 
-        // // Create a button for the Achievement UI.
         JButton surveyButton = new JButton("Survey");
         surveyButton.addActionListener(e -> {
             clearAll();
-            Survey survey = new Survey();
+            JPanel survey = new Survey(networkClient);
+            frame.setTitle(Survey.FRAME_TITLE);
             center.add(survey);
             pack();
         });

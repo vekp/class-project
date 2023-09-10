@@ -10,27 +10,27 @@ import static java.lang.Math.round;
  * The Board Class contains all the information about the current state of a player's game board, including the player's name
  */
 public class Board {
-    private String playerName;
-    private String boardTitle;
     private Grid grid; // A two-dimensional array of Cells for drawing the game board
-    private HashMap<String, Ship> vessels;  // An array containing each of the five ship types for the current board
+    private HashMap<String, Ship> vessels;  // A hashmap containing each of the five ship types for the current board
     private int turnNumber;  // The current turn number
-    private String messageHistory;  // String of all valid messages, both game and player
+
     private GameState gameState;
 
 
     /**
      * The Constructor takes only the player's name as a parameter
-     * @param playerName A String representing the name of the player
+//     * @param   String representing the name of the player
      */
-    public Board(String playerName, String message){
-        this.playerName = playerName;
+    public Board(int choice){
         this.turnNumber = 0;
         this.vessels = new HashMap<>();
         this.grid = new Grid(); // Create a default grid
-        defaultGrid();  // Set the grid to default ship positions
-        this.messageHistory = message;
+        chooseGrid(choice); // Fake name while I sort this out
+
         this.gameState = GameState.SHIP_PLACEMENT;
+        // Set the player to be the owner for all ships on this board
+        this.setPlayerOwner();
+
     }
 
 
@@ -48,7 +48,7 @@ public class Board {
      * Getter for the player name
      * @return The String of the player that owns the board
      */
-    public String getPlayerName() {return this.playerName;}
+//    public String getPlayerName() {return this.playerName;}
 
     /**
      * Getter for the current turn number
@@ -60,9 +60,9 @@ public class Board {
      * Getter for the player's message history
      * @return the message history string
      */
-    public String getMessageHistory() {
-        return messageHistory;
-    }
+//    public String getMessageHistory() {
+//        return messageHistory;
+//    }
 
     /**
      * Getter for the player's current game state
@@ -76,6 +76,13 @@ public class Board {
         return vessels;
     }
 
+    /**
+     * Return the ship object of the specified class on the current game board
+     * @param shipClass A String containing the class of the ship
+     * @return
+     */
+    public Ship getShip(String shipClass){return this.vessels.get(shipClass);}
+
     // Setters
     /**
      * Sets the current game state for the player
@@ -86,22 +93,48 @@ public class Board {
     }
 
     /**
+     * Updates / sets the Ship objects within the vessels HashMap
+     * @param vessels the Hashmap containing all Ship objects
+     */
+    public void setVessels(HashMap<String, Ship> vessels){
+        this.vessels = vessels;
+    }
+
+    /**
+     * Sets the player to be the owner for all ships on this board
+     */
+    public void setPlayerOwner(){
+        this.vessels.forEach((key, value) ->{
+            Ship current = value;
+//            current.setOwner(this.playerName);
+            vessels.replace(key, current);
+        });
+    }
+
+    /**
      * Sets the CellType for a given coordinate in the grid
-     * @param x horizontal position
-     * @param y vertical position
+     * @param col horizontal position
+     * @param row vertical position
      * @param cellType enum value representing the cell state changing to
      */
-    public void setGridCell(int x, int y, CellType cellType){
-        this.grid.setCellType(x, y, cellType);
+    public void setGridCell(int col, int row, CellType cellType){
+        this.grid.setCellType(col, row, cellType);
+        // if the cell is being changed to a "hit" or "miss" cell, update the cell's shotAt boolean to be true
+        // This function is also used to update the grid when placing ships, it was causing issues because all parts of the
+        // ships were being read as "shotAt"
+        if(cellType.toString().equals("X") || cellType.toString().equals(".")) {
+            this.grid.shootCell(col, row);
+        }
     }
+
 
     /**
      * Adds the user's input to the message history
      * @param input user's input
      */
-    public void updateMessageHistory(String input) {
-        this.messageHistory = getMessageHistory() + input;
-    }
+//    public void updateMessageHistory(String input) {
+//        this.messageHistory = getMessageHistory() + input;
+//    }
 
     /**
      * Increments the turn number
@@ -145,6 +178,40 @@ public class Board {
         return gridStrings.toString();
     }
 
+    public static String showEnemyBoard(String boardTitle, Cell[][] grid) {
+        StringBuilder gridStrings = new StringBuilder();
+        String chars = "ABCDEFGHIJ";
+
+        // Character width of the board
+        int strLength = 24;
+        int titleSpace = round((float) (strLength - boardTitle.length()) / 2);
+
+        // Adds space to the start of the title to centre the text
+        for (int i = 0; i < titleSpace; i++) {
+            gridStrings.append(" ");
+        }
+        gridStrings.append(boardTitle).append("\n").append(" ---------------------\n");
+
+        for (int i=0; i<11; i++) {
+            for (int j = 0; j < 10; j++) {
+                if (i==0 && j==0) gridStrings.append("   ");
+                if (i==0) gridStrings.append(j).append(" ");
+                if (j==0 && i!=0) gridStrings.append(" ").append(chars.charAt(i-1)).append(" ");
+                if (i>0) {
+                    if(grid[i-1][j].getCellTypeString().equals(".") || grid[i-1][j].getCellTypeString().equals("X")){
+                        gridStrings.append(grid[i-1][j].getCellTypeString()).append(" ");
+                    } else {
+                        gridStrings.append("~ ");
+                    }
+
+                    //System.out.print(grid[i-1][j].getCellTypeString());
+                }
+            }
+            if (i<10) gridStrings.append("\n");
+        }
+        return gridStrings.toString();
+    }
+
     /**
      * Call the grid's default grid creator
      * @return A 2D array of cells
@@ -157,12 +224,25 @@ public class Board {
     // placeShip() method, which puts a ship on the grid and then returns a ship object which is added to the hashmap
     // and finally returns the players grid after all this is complete (in defaultGrid() below)
 
+    public Cell[][] chooseGrid(int choice){
+        if(choice==1){
+            return otherGrid();
+        } else {
+            return defaultGrid();
+        }
+    }
+
     /**
      * Set the vessels map, and place ships on the grid in a default position
      * @return a 2D cell array
      */
     public Cell[][] defaultGrid() {
         this.vessels = new HashMap<>(this.grid.defaultShips());
+        return this.getGrid();
+    }
+
+    public Cell[][] otherGrid(){
+        this.vessels = new HashMap<>(this.grid.defaultShips1());
         return this.getGrid();
     }
 

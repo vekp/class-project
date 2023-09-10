@@ -5,6 +5,7 @@ import minigames.client.MinigameNetworkClient;
 import minigames.client.Tickable;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -16,13 +17,13 @@ import java.util.List;
  */
 public class NotificationManager implements Tickable {
     private final JFrame frame;
-    private final JLayeredPane layeredPane;
+    private JLayeredPane layeredPane;
     private final Animator animator;
     private final List<Component> queuedNotifications;
     JPanel notificationPanel;
     // Margins to leave between frame edge and notification
     private int topMargin, leftMargin, rightMargin;
-    // Size of notification panel
+    // Alignment of notification panel
     private float alignment;
     private int height;
     // Panel's position
@@ -33,6 +34,11 @@ public class NotificationManager implements Tickable {
     private int displayTime;
     // Timer starts when notification is fully displayed
     private long startTime;
+    private boolean applyColourAndFontStyling;
+    private Color backgroundColor;
+    private Color foregroundColor;
+    private String fontName;
+    private Border border;
 
     /**
      * Status enum defines the current state of the notification panel
@@ -43,8 +49,8 @@ public class NotificationManager implements Tickable {
     private Status status = Status.IDLE;
 
     /**
-     * Constructor for
-     * @param mnClient
+     * Constructor for NotificationManager
+     * @param mnClient the currently running MinigameNetworkClient
      */
 
     public NotificationManager(MinigameNetworkClient mnClient) {
@@ -80,9 +86,12 @@ public class NotificationManager implements Tickable {
         // create a panel to contain component
         notificationPanel = new JPanel();
         notificationPanel.add(component);
+        // apply the set border if component does not already have one
         if (component instanceof JComponent jc && jc.getBorder() == null) {
-            notificationPanel.setBorder(BorderFactory.createEtchedBorder());
+            notificationPanel.setBorder(border);
         }
+        // apply custom styling of colours and font
+        if (applyColourAndFontStyling) applyStyling(notificationPanel);
         // make dismissible
         if (isDismissible) {
             notificationPanel.addMouseListener(new MouseAdapter() {
@@ -96,7 +105,7 @@ public class NotificationManager implements Tickable {
         int width = (int) notificationPanel.getPreferredSize().getWidth();
         height = (int) notificationPanel.getPreferredSize().getHeight();
         // calculate start position
-        int maxX = frame.getWidth() - width - rightMargin;
+        int maxX = layeredPane.getWidth() - width - rightMargin;
         int minX = leftMargin;
         currentX = minX + (int) (alignment * (maxX - minX));
         currentY = - height;
@@ -131,7 +140,6 @@ public class NotificationManager implements Tickable {
             // Wait for display time to elapse
             case FULLY_DISPLAYED -> {
                 if (displayTime > 0 && (now - startTime) / 1000000 >= displayTime) {
-                    System.out.println(displayTime);
                     status = Status.MOVING_UP;
                 }
             }
@@ -146,6 +154,26 @@ public class NotificationManager implements Tickable {
             }
         }
         al.requestTick(this);
+    }
+
+    /**
+     * Set the area to contain notifications based on the given Component.
+     * NOTE: This may not work as intended depending on the Layout Manager used by the Component's parent.
+     */
+    public void setNotificationArea(Component notificationArea) {
+        // Create new layered pane
+        JLayeredPane pane = new JLayeredPane();
+        // Get parent container and position of area within its parent
+        Container parent = notificationArea.getParent();
+        int index = parent.getComponentZOrder(notificationArea);
+        // Set sizes of pane and area
+        pane.setPreferredSize(notificationArea.getPreferredSize());
+        notificationArea.setBounds(0, 0, notificationArea.getPreferredSize().width, notificationArea.getPreferredSize().height);
+        // Put area inside pane, and pane inside parent
+        pane.add(notificationArea, JLayeredPane.DEFAULT_LAYER);
+        parent.add(pane, index);
+        parent.revalidate();
+        this.layeredPane = pane;
     }
 
     /**
@@ -164,8 +192,15 @@ public class NotificationManager implements Tickable {
      * Setter for changing the speed at which the notification slides up and down.
      * @param animationSpeed speed in pixels per 16ms tick.
      */
-    public void setAnimationSpeed(int animationSpeed) {
+    public void setAnimation(int animationSpeed) {
         this.animationSpeed = animationSpeed;
+    }
+
+    /**
+     * Set animation using bool to enable or disable animations completely.
+     */
+    public void setAnimation(boolean enabled) {
+        this.animationSpeed = enabled? 4 : 1000;
     }
 
     /**
@@ -207,15 +242,96 @@ public class NotificationManager implements Tickable {
 
     /**
      * Reset settings to their default values. Default values are: <br>
-     * alignment     :   Component.RIGHT_ALIGNMENT (1.0f)<br>
-     * animationSpeed:   4 <br>
-     * displayTime   :   5000 <br>
-     * margins       :   5
+     * alignment        :   Component.RIGHT_ALIGNMENT (1.0f) <br>
+     * animationSpeed   :   4 <br>
+     * displayTime      :   5000 <br>
+     * margins          :   5 <br>
+     * colours          :   system default colours <br>
+     * font             :   system default font <br>
+     * border           :   EtchedBorder
      */
     public void resetToDefaultSettings() {
         setAlignment(Component.RIGHT_ALIGNMENT);
-        setAnimationSpeed(4);
+        setAnimation(4);
         setDisplayTime(5000);
         setMargins(5, 5, 5);
+        JPanel defaultPanel = new JPanel();
+        setColours(defaultPanel.getForeground(), defaultPanel.getBackground());
+        setFont(defaultPanel.getFont().getFontName());
+        setBorder(BorderFactory.createEtchedBorder());
+        setApplyColourAndFontStyling(false);
+        this.layeredPane = frame.getLayeredPane();
     }
+
+    /**
+     * Specifies whether or not to call applyColourAndFontStyling
+     */
+    private void setApplyColourAndFontStyling(boolean applyColourAndFontStyling) {
+        this.applyColourAndFontStyling = applyColourAndFontStyling;
+    }
+
+    /**
+     * Set the colours to be applied to notifications
+     */
+    public void setColours(Color foregroundColour, Color backgroundColour) {
+        this.foregroundColor = foregroundColour;
+        this.backgroundColor = backgroundColour;
+        setApplyColourAndFontStyling(true);
+    }
+
+    /**
+     * Set font for notifications
+     */
+    public void setFont(String fontname) {
+        this.fontName = fontname;
+        setApplyColourAndFontStyling(true);
+    }
+
+    /**
+     * Set the border to be applied to notifications
+     */
+    public void setBorder(Border border) {
+        this.border = border;
+    }
+
+    /**
+     * Set styling for foreground/background colours, font and border in one method.
+     */
+    public void setStyling(Color foregroundColour, Color backgroundColour, String fontName, Border border) {
+        setColours(foregroundColour, backgroundColour);
+        setFont(fontName);
+        setBorder(border);
+    }
+
+    /**
+     * Set styling for foreground/background colours, font and border based on a component.
+     */
+    public void setStyling(Component component) {
+        setColours(component.getForeground(), component.getBackground());
+        setFont(component.getFont().getFontName());
+        if (component instanceof JComponent jc) setBorder(jc.getBorder());
+    }
+
+    /**
+     * Apply font, foreground and background colours to a Component.
+     * If Container, recurse through its children.
+     */
+    private void applyStyling(Component component) {
+        // Set colours
+        component.setForeground(foregroundColor);
+        component.setBackground(backgroundColor);
+        if (component instanceof JComponent c) {
+            c.setOpaque(true);
+        }
+        // Set font
+        Font f = component.getFont();
+        component.setFont(new Font(fontName, f.getStyle(), f.getSize()));
+        // Recurse
+        if (component instanceof Container container) {
+            for (Component c : container.getComponents()) {
+                applyStyling(c);
+            }
+        }
+    }
+
 }
