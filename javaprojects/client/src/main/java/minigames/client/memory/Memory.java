@@ -64,9 +64,13 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
     int [] timeElapsed = {1, 0}; // {mins, seconds}
     Timer timer;
 
-    
+
     JPanel GUI;
     JFrame MemoryWindow;
+
+    private long last = System.nanoTime();
+    private long interval = 2500000000L;
+
 
     /** Initialize Swing components */
     public Memory() {
@@ -121,7 +125,7 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         playerPanel.setLayout(new GridLayout(1, 4));
         playerPanel.setPreferredSize(new Dimension(800, 30));
 
-        playerName = new JLabel("Player: " + player); //player); // Placeholder text for player name
+        playerName = new JLabel("Player: " + player);
         playerName.setFont(new Font("Arial", Font.BOLD, 14));
         playerName.setHorizontalAlignment(JLabel.CENTER);
 
@@ -129,7 +133,7 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         difficulty.setFont(new Font("Arial", Font.BOLD, 14));
         difficulty.setHorizontalAlignment(JLabel.CENTER);
 
-        matches = new JLabel("Pairs Matched: " + "NEED TO FIX"); // + matchesCounter + "/8"); // Placeholder text for matched pairs
+        matches = new JLabel("Pairs Matched: " + matchesCounter + "/8"); 
         matches.setFont(new Font("Arial", Font.BOLD, 14));
         matches.setHorizontalAlignment(JLabel.CENTER);
 
@@ -298,13 +302,11 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
     /** a variable called every tick that probes the server for the current state */
     @Override
     public void tick(Animator al, long now, long delta) {
-        JsonObject result = new JsonObject();
-        result.put("command", "update");
-        
-        //result.put("moves", moveCounter);
-        //sendCommand(result);
-
-        al.requestTick(this);
+        if(now - last > interval){
+            sendCommand("Update");
+            last = now;
+        }
+            al.requestTick(this);
     }
 
 
@@ -365,9 +367,7 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
             String [] cardElements = cardAsArray[i].split("=");
             card[i] = cardElements[1];
         }
-        
         cardName.append("_").append(card[1]).append("_of_").append(card[0]).append(".png");
-        System.out.println("cardName: " + cardName);
 
         return cardName.toString();
     }
@@ -458,7 +458,6 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
                 for(int i = 0; i < cardsArray.size(); i++){
                     StringBuilder imagePath = new StringBuilder();
                     imagePath.append("/memory/images/playing_cards/front/").append(parseCardString(cardsArray.getString(i)));
-                    System.out.println(i + ": imagePath: " + imagePath);
                     cardFrontImages[i] = new ImageIcon(getClass().getResource(imagePath.toString()));
                 }
             }

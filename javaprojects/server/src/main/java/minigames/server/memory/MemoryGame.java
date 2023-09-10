@@ -34,11 +34,10 @@ public class MemoryGame {
     String name;
     String playerName;
     AchievementHandler achievementHandler;
-    String cardToShow = "_2_of_Clubs.png";
     PlayingCard[] playingCards;
-    // PlayingCard previousCardIndex = null;
     int previousCardIndex = -1;
     int playerScore = 0;
+    int [] selectedCards = new int [2];
 
     public MemoryGame(String name, String playerName) {
         this.name = name;
@@ -131,9 +130,14 @@ public class MemoryGame {
             // }
 
             case "Flip_Card_1" -> {
-                renderingCommands.add(new JsonObject().put("command", "Flip_Card_1"));
-                System.out.println(playingCards[0].getValue() + " of " + playingCards[0].getSuit());
                 check(0);
+                JsonObject result = new JsonObject();
+                result.put("command", "Flip_Card_1");
+                result.put("update", "true");
+                renderingCommands.add(result);
+
+
+                System.out.println(playingCards[0].getValue() + " of " + playingCards[0].getSuit());
             }
             case "Flip_Card_2" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_2"));
