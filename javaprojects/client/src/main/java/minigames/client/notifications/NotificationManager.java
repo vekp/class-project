@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class NotificationManager implements Tickable {
     private final JFrame frame;
-    private final JLayeredPane layeredPane;
+    private JLayeredPane layeredPane;
     private final Animator animator;
     private final List<Component> queuedNotifications;
     JPanel notificationPanel;
@@ -157,6 +157,26 @@ public class NotificationManager implements Tickable {
     }
 
     /**
+     * Set the area to contain notifications based on the given Component.
+     * NOTE: This may not work as intended depending on the Layout Manager used by the Component's parent.
+     */
+    public void setNotificationArea(Component notificationArea) {
+        // Create new layered pane
+        JLayeredPane pane = new JLayeredPane();
+        // Get parent container and position of area within its parent
+        Container parent = notificationArea.getParent();
+        int index = parent.getComponentZOrder(notificationArea);
+        // Set sizes of pane and area
+        pane.setPreferredSize(notificationArea.getPreferredSize());
+        notificationArea.setBounds(0, 0, notificationArea.getPreferredSize().width, notificationArea.getPreferredSize().height);
+        // Put area inside pane, and pane inside parent
+        pane.add(notificationArea, JLayeredPane.DEFAULT_LAYER);
+        parent.add(pane, index);
+        parent.revalidate();
+        this.layeredPane = pane;
+    }
+
+    /**
      * Setter for changing the horizontal alignment of the notification.
      * This can be used if default value of Component.CENTER_ALIGNMENT (0.5f) could cause notifications to obstruct
      * important gameplay UI elements. Use together with setMargins for precise control of positioning.
@@ -240,6 +260,7 @@ public class NotificationManager implements Tickable {
         setFont(defaultPanel.getFont().getFontName());
         setBorder(BorderFactory.createEtchedBorder());
         setApplyColourAndFontStyling(false);
+        this.layeredPane = frame.getLayeredPane();
     }
 
     /**

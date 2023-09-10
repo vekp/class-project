@@ -96,9 +96,9 @@ public class TelepathyServerTest {
         server.newGame("Bob");
         GameMetadata gameData = server.getGamesInProgress()[0];
         
-        // Send an empty CommandPackage to the server to verify an INVALIDCOMMAND response is sent back        
+        // Send a test CommandPackage to the server to verify an INVALIDCOMMAND response is sent back        
         CommandPackage command = new CommandPackage(gameData.gameServer(), gameData.name(), "Bob",
-                Collections.singletonList(new JsonObject().put("command", " ")));
+                Collections.singletonList(new JsonObject().put("command", TelepathyCommands.TESTCOMMAND.toString())));
         server.callGame(command).onSuccess((r) -> {
             String response = r.renderingCommands().get(0).getString("command");
             assertTrue(response.equals(TelepathyCommands.INVALIDCOMMAND.toString()));
