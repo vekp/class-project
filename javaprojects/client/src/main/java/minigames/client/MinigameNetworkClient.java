@@ -8,8 +8,8 @@ import javax.swing.*;
 import minigames.achievements.Achievement;
 import minigames.achievements.GameAchievementState;
 import minigames.achievements.PlayerAchievementRecord;
-import minigames.client.achievementui.AchievementPresenterRegistry;
-import minigames.client.achievementui.AchievementUI;
+import minigames.client.achievements.AchievementPresenterRegistry;
+import minigames.client.achievements.AchievementUI;
 import minigames.client.notifications.NotificationManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,6 +19,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.HttpResponse;
 
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
@@ -184,10 +185,9 @@ public class MinigameNetworkClient {
                 .onSuccess((resp) -> {
                     //re-create the player's GameAchievementState from the JSON we should have been sent, and
                     //display it in a message dialog in a background thread
-                    AchievementPresenterRegistry ac = new AchievementPresenterRegistry(GameAchievementState.fromJSON(resp.bodyAsString()));
                     vertx.executeBlocking(getGameAchievements -> {
-                        JOptionPane.showMessageDialog(getMainWindow().frame, ac.achievementListPanel(),
-                                gameID + " achievements", JOptionPane.PLAIN_MESSAGE);
+                        AchievementPresenterRegistry ac = new AchievementPresenterRegistry(GameAchievementState.fromJSON(resp.bodyAsString()), getAnimator());
+                        ac.showGameAchievements(getMainWindow().getFrame());
                         getGameAchievements.complete();
                     });
                     logger.info(resp.bodyAsString());
@@ -295,6 +295,20 @@ public class MinigameNetworkClient {
                 .onSuccess((rp) -> runRenderingPackage(rp))
                 .onFailure((resp) -> {
                     logger.error("Failed: {} ", resp.getMessage());
+                });
+    }
+
+    /*
+     * Sends a JSON object of survey responses to the server for saving to a database
+     */
+    public Future<HttpResponse<Buffer>> sendSurveyData(JsonObject surveyData) {
+        return webClient.post(port, host, "/sendSurveyData")
+                .sendJson(surveyData)
+                .onSuccess((resp) -> {
+                    logger.info("Survey data sent successfully.");
+                })
+                .onFailure((resp) -> {
+                    logger.error("Failed to send survey data: {}", resp.getMessage());
                 });
     }
 
