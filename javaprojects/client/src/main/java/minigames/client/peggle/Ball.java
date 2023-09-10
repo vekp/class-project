@@ -87,7 +87,7 @@ public class Ball {
 
 
     public void bounceOffObject() {
-        yVelocity = -yVelocity;
+        yVelocity = (float) (-yVelocity * 0.9);
         xVelocity = -xVelocity;
     }
 
