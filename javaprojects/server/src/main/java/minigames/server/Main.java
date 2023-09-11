@@ -72,6 +72,7 @@ public class Main extends AbstractVerticle {
         gameRegistry.registerGameServer("Telepathy", new TelepathyServer());
         gameRegistry.registerGameServer("Snake", new SnakeServer());
         gameRegistry.registerGameServer("Peggle", new PeggleServer());
+        gameRegistry.registerGameServer("TicTacToe", new TicTacToeServer());
 
         // Initialize the HighScoreAPI
         HighScoreStorage highScoreStorage = new StubHighScoreStorage();
@@ -87,6 +88,9 @@ public class Main extends AbstractVerticle {
         players.add("Robert");
         players.add("Georgia");
         players.add("Sushil");
+        players.add("Bikaskh");
+        players.add("Sabin");
+        players.add("Anil");
     }
 
     public static void main(String... args) {
