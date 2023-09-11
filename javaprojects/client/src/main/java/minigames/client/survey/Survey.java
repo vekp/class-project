@@ -52,7 +52,7 @@ public class Survey extends JPanel implements ActionListener {
     public String callingGame = "(Your Game Name Here!)";
 
     // Main Survey Class
-    public Survey(MinigameNetworkClient mnClient) {
+    public Survey(MinigameNetworkClient mnClient, String gameId) {
 
         // Survey main panel layout
         this.setPreferredSize(new Dimension(800, 600));
@@ -317,7 +317,7 @@ public class Survey extends JPanel implements ActionListener {
         submitPanel = new JPanel();
         submitButton = new JButton("Submit");
         submitButton.setFont(fontButton);
-        submitButton.addActionListener(e -> submit(mnClient));
+        submitButton.addActionListener(e -> submit(mnClient, gameId));
         submitPanel.add(submitButton);
 
         // Results Button
@@ -377,7 +377,7 @@ public class Survey extends JPanel implements ActionListener {
         // uiRatingButtonGroup.add(uiRatingFive);
     // }
 
-    public void submit(MinigameNetworkClient mnClient) {
+    public void submit(MinigameNetworkClient mnClient, String gameId) {
         String text = feedbackText.getText();
         
         // Get the selected values from the radio button groups
@@ -388,7 +388,7 @@ public class Survey extends JPanel implements ActionListener {
         int overallRating = Integer.parseInt(getSelectedRadioButtonValue(overallRatingButtonGroup));
 
         JsonObject surveyData = new JsonObject()
-            .put("game_id", "64fec6296849f97cdc19f017")
+            .put("game_id", gameId)
             .put("ui_rating", uiRating)
             .put("enjoyment_rating", enjoymentRating)
             .put("functionality_rating", functionalityRating)
