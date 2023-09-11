@@ -10,30 +10,37 @@ import javax.swing.JButton;
 import javax.swing.JTextField;
 
 public class KrumMenu {
-    final static String[] screenNames = {"title", "achievements", "instructions"};
-    final static String[] buttonNames = {"newgame", "instructions", "achievements", "quickplay", "options"};
+
+    // buttonBounds should be changed if we move a button (not including the open game buttons, i.e. the clickable names that join a specific game)
     final static Rectangle[] buttonBounds = {   new Rectangle(485, 414, 277, 108),      // newgame (x, y, width, height)
                                                 new Rectangle(50, 60, 142, 42),         // instructions (x, y, width, height)
                                                 new Rectangle(200, 59, 200, 43),        // achievements (x, y, width, height)
                                                 new Rectangle(100, 416, 293, 123),      // quickplay (x, y, width, height)
                                                 new Rectangle(400, 416, 293, 123)   };  // options (x, y, width, height)
 
+    // nameFieldBounds can be changed to move or resize the name input field
     final static Rectangle nameFieldBounds = new Rectangle(373, 10, 54, 30); // x, y, width, height
     
-    public static JTextField nameField;
-    
-    public final static int gameListX = 525;
-    public final static int gameListYStart = 175;
-    public final static int gameListYIncrement = 75;
-    public final static int gameListWidth = 200;
-    public final static int gameListButtonHeight= 60;
+    // these can be changed to tweak the open game buttons, i.e. the clickable names that join a specific game
+    public final static int gameListX = 525; // x position of the open game buttons
+    public final static int gameListYStart = 175; // y position of the first open game button
+    public final static int gameListYIncrement = 75; // vertical distance between top of one open game button and the next
+    public final static int gameListWidth = 200; // width of the open game buttons
+    public final static int gameListButtonHeight= 60; // height of each open game button
     public final static String gameListFontName = "Courier New";
-    public final static int gameListFontStyle = Font.PLAIN;
+    public final static int gameListFontStyle = Font.PLAIN; // can be plain, bold, or italic
     public final static int gameListFontSize = 24;
     public final static Color gameListFontColour = Color.RED;
 
+    // end of tweakable constants
+
+    public static JTextField nameField;
+
     static HashMap<String, BufferedImage> screens;
     static HashMap<String, Rectangle> bounds;
+
+    final static String[] screenNames = {"title", "achievements", "instructions"}; // don't change these unless we're adding or removing a screen
+    final static String[] buttonNames = {"newgame", "instructions", "achievements", "quickplay", "options"}; // don't change these unless we're adding or removing a button
 
     public static BufferedImage getScreen(String name) {
         return screens.get(name);
