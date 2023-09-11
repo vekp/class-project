@@ -6,6 +6,9 @@ import javax.swing.*;
 import io.vertx.core.json.JsonObject;
 
 public class WordScramble {
+    private final static String dir = "./src/main/java/minigames/client/gameshow/GameShowImages/";
+    private static final ImageIcon submitButtonButton = new ImageIcon(dir + "submit-button.png");
+
     /**
      * Creates a welcome screen, currently prompting user for difficulty
      */
@@ -125,7 +128,8 @@ public class WordScramble {
 
         // Display the scrambled letters
         JLabel scrambledLetters = new JLabel(letters);
-        scrambledLetters.setFont(new Font("Arial", Font.BOLD, 32));
+        Font pixelFont = GameShowUI.pixelFont;
+        scrambledLetters.setFont(pixelFont.deriveFont(30f));
 
         gbc.insets = new Insets(20, 0, 20, 0);
         gbc.gridx = 0;
@@ -138,7 +142,7 @@ public class WordScramble {
 
         // A text box in which to type a guess (and optionally submit on Enter)
         JTextField guessBox = new JTextField(7);
-        guessBox.setFont(new Font("Arial", Font.PLAIN, 28));
+        guessBox.setFont(pixelFont.deriveFont(18f));
         guessBox.setHorizontalAlignment(SwingConstants.CENTER);
         guessBox.addActionListener((evt) -> sendGuess(gs, guessBox.getText(), gameId));
 
@@ -148,7 +152,12 @@ public class WordScramble {
         guessPanel.add(guessBox, gbc);
 
         // A submit button - alternative to submitting on Enter from guessBox
-        JButton submitButton = new JButton("Submit guess");
+        JButton submitButton;
+        submitButton = new JButton(
+                new ImageIcon(submitButtonButton.getImage().getScaledInstance(150, 40, Image.SCALE_DEFAULT)));
+        submitButton.setContentAreaFilled(false);
+        submitButton.setFocusPainted(false);
+        submitButton.setBorderPainted(false);
         submitButton.addActionListener((evt) -> sendGuess(gs, guessBox.getText(), gameId));
 
         gbc.gridx = 0;
@@ -161,7 +170,10 @@ public class WordScramble {
         gbc.gridy = 1;
         gs.gamePanel.add(guessPanel, gbc);
 
-        GameShowUI.gameContainer.add(gs.gamePanel);
+        JPanel scrambleHeader = GameShowUI.generateScrambleHeader();
+
+        GameShowUI.gameContainer.add(scrambleHeader, BorderLayout.NORTH);
+        GameShowUI.gameContainer.add(gs.gamePanel, BorderLayout.CENTER);
         GameShowUI.gameContainer.validate();
         GameShowUI.gameContainer.repaint();
     }
@@ -175,7 +187,8 @@ public class WordScramble {
 
         if (!correct) {
             JLabel incorrectGuess = new JLabel("Incorrect :( Try again!");
-            incorrectGuess.setFont(new Font("Arial", Font.PLAIN, 18));
+            Font pixelFont = GameShowUI.pixelFont;
+            incorrectGuess.setFont(pixelFont.deriveFont(15f));
             incorrectGuess.setForeground(Color.RED);
             gbc.gridx = 0;
             gbc.gridy = 2;
@@ -183,6 +196,8 @@ public class WordScramble {
         } else {
             gs.gamePanel.removeAll();
             JLabel correctGuess = new JLabel("Congratulations! You Win :)");
+            Font pixelFont = GameShowUI.pixelFont;
+            correctGuess.setFont(pixelFont.deriveFont(15f));
             gbc.gridx = 0;
             gbc.gridy = 0;
             gs.gamePanel.add(correctGuess, gbc);
