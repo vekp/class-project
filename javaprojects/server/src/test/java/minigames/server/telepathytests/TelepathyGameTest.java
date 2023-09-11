@@ -176,7 +176,7 @@ public class TelepathyGameTest {
     @Test
     @DisplayName("Test running a TOGGLEREADY command")
     public void testToggleReady(){
-        TelepathyGame game = makeTestGame(2);
+        TelepathyGame game = makeTestGame(1);
         assertFalse(game.getPlayers().get(playerNames[0]).isReady());
 
         RenderingPackage response = game.runCommands(new CommandPackage(
@@ -197,7 +197,19 @@ public class TelepathyGameTest {
     @Test
     @DisplayName("Test running a CHOOSETILE command")
     public void testChooseTile(){
+        TelepathyGame game = makeTestGame(1);
 
+        RenderingPackage response = game.runCommands(makeCommandPackage(
+            game.telepathyGameMetadata(),
+            playerNames[0],
+            TelepathyCommands.CHOOSETILE.toString()));
+
+        // Will return an INVALIDCOMMANd as not in correct state for choosing tiles
+        assertTrue(response.renderingCommands().get(0).getString("command").equals(TelepathyCommands.INVALIDCOMMAND.toString()));
+        ArrayList<String> attributes = TelepathyCommandHandler.getAttributes(response.renderingCommands().get(0));
+        assertTrue(attributes.get(0).equals(
+            "ERROR: Attempting to choose Tile while not in " + State.TILESELECTION + " state."
+        ));
     }
 
     @Test
@@ -209,8 +221,33 @@ public class TelepathyGameTest {
                 TelepathyCommands.ASKQUESTION.toString());
         RenderingPackage response = game.runCommands(cp);
 
-        // Will just return INVALIDCOMMAND unless in correct state - tested further in state testing
+        // Will just return INVALIDCOMMAND unless in correct state
         assertTrue(response.renderingCommands().get(0).getString("command").equals(TelepathyCommands.INVALIDCOMMAND.toString()));
+
+        // Check correct player turn - only take questions on your turn
+        game = progressGameToState(State.RUNNING);
+    }
+
+    @Test
+    @DisplayName("Test running a FINALGUESS command")
+    public void testFinalQuestion(){
+        TelepathyGame game = progressGameToState(State.RUNNING);
+        assertTrue(game.getState() == State.RUNNING);
+        // TODO Do proper checks for correct/incorrect guesses
+        // Check a correct FINALGUESS / both players have to send one as turn start is random
+        RenderingPackage response = game.runCommands(makeCommandPackage(
+            game.telepathyGameMetadata(), 
+            playerNames[0],
+            TelepathyCommands.FINALGUESS, "1", "1"));
+        System.out.println("Response from FINALGUESS command: " + response.renderingCommands().toString());
+        
+        response = game.runCommands(makeCommandPackage(
+            game.telepathyGameMetadata(),
+            playerNames[1], 
+            TelepathyCommands.FINALGUESS, "0", "0"));
+        System.out.println("Response from FINALGUESS command: " + response.renderingCommands().toString());
+        System.out.println("Game state after final guess: " + game.getState());
+        assertTrue(game.getState() == State.GAMEOVER);
     }
 
     @Test
@@ -224,14 +261,54 @@ public class TelepathyGameTest {
 
         game.joinGame(playerNames[0]);
         game.joinGame(playerNames[1]);
-
         game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), playerNames[0], TelepathyCommands.TOGGLEREADY.toString()));
-        game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), playerNames[1], TelepathyCommands.TOGGLEREADY.toString()));
+        assertTrue(game.getState() == State.INITIALISE);
         
+        
+        game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), playerNames[1], TelepathyCommands.TOGGLEREADY.toString()));
+        assertTrue(game.getState() == State.TILESELECTION);
+
+        // Test TILESELECTION state
+
+        assertTrue(game.getState() == State.TILESELECTION);
+
+        // Make and run a CHOOSETILE command
+        CommandPackage selectTile = makeCommandPackage(
+            game.telepathyGameMetadata(),
+            playerNames[0], 
+            TelepathyCommands.CHOOSETILE,
+            "0", "0");
+        RenderingPackage response = game.runCommands(selectTile);
+        assertTrue(response.renderingCommands().get(0).getString("command").equals(TelepathyCommands.POPUP.toString()));
+        assertTrue(response.renderingCommands().get(1).getString("command").equals(TelepathyCommands.BUTTONUPDATE.toString()));
+
+        // Check that chosen tile is the correct tile TOOD
+        //game.getPlayers().get(playerNames[0]).getChosenTile();
+        
+        // Can only choose tile once
+        selectTile = makeCommandPackage(
+            game.telepathyGameMetadata(),
+            playerNames[0],
+            TelepathyCommands.CHOOSETILE,
+            "1", "2");
+        response = game.runCommands(selectTile);
+        assertTrue(response.renderingCommands().get(0).getString("command").equals(TelepathyCommands.INVALIDCOMMAND.toString()));
+        
+
+        // Players cannot toggle ready state again
+        response = game.runCommands(makeCommandPackage(
+            game.telepathyGameMetadata(), 
+            playerNames[0], 
+            TelepathyCommands.TOGGLEREADY.toString()));
+        assertTrue(game.getState() == State.TILESELECTION);
+        assertTrue(response.renderingCommands().get(0).getString("command").equals(TelepathyCommands.INVALIDCOMMAND.toString()));
+
+
+
         // Test RUNNING state
 
         // Send toggle ready during running state
-        RenderingPackage response = game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), playerNames[0], TelepathyCommands.TOGGLEREADY.toString()));
+        response = game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), playerNames[0], TelepathyCommands.TOGGLEREADY.toString()));
         assertTrue(response.renderingCommands().get(0).getString("command").equals("INVALIDCOMMAND"));
 
         // Test GAMEOVER state
@@ -263,18 +340,65 @@ public class TelepathyGameTest {
     }
 
     /**
+     * Create a new TelepathyGame set that has been progressed to the specified
+     * game state.
+     * @param state: The State the TelepathyGame should be progressed to.
+     * @return TelepathyGame at specified state
+     */
+    private TelepathyGame progressGameToState(State state){
+        TelepathyGame game = makeTestGame(2);
+
+        if(state == State.TILESELECTION || state == State.RUNNING){
+            game.runCommands(makeCommandPackage(
+                game.telepathyGameMetadata(),
+                playerNames[0], 
+                TelepathyCommands.TOGGLEREADY));
+            game.runCommands(makeCommandPackage(
+                game.telepathyGameMetadata(),
+                playerNames[1],
+                TelepathyCommands.TOGGLEREADY));
+        }
+
+        if(state == State.RUNNING){
+            game.runCommands(makeCommandPackage(
+                game.telepathyGameMetadata(), 
+                playerNames[0], 
+                TelepathyCommands.CHOOSETILE, "0", "0"));
+            game.runCommands(makeCommandPackage(
+                game.telepathyGameMetadata(), 
+                playerNames[1], 
+                TelepathyCommands.CHOOSETILE, "1", "1"));
+        }
+        return game;
+    }
+
+    /**
      * Create a CommandPackage with a single command to be used for testing.
      * @param data GameMetadata to apply to the CommandPackage
      * @param playerName Name of the 'player' sending the command
-     * @param commandString The command to send with the CommandPackage
+     * @param command The command to send with the CommandPackage
      * @return A new CommandPackage with required data
      */
-    private CommandPackage makeCommandPackage(GameMetadata data, String playerName, String commandString){
+    private CommandPackage makeCommandPackage(GameMetadata data, String playerName, String command){
         ArrayList<JsonObject> jsonCommands = new ArrayList<>();
-        jsonCommands.add(new JsonObject().put("command", commandString));
+        jsonCommands.add(new JsonObject().put("command", command));
         CommandPackage cp = new CommandPackage(data.gameServer(), data.name(), playerName, jsonCommands);
 
         return cp;
     }
-    
+
+    /**
+     * Create a CommandPackage with a single command to be used for testing.
+     * @param data GameMetadata to apply to the CommandPackage
+     * @param playerName Name of the 'player' sending the command
+     * @param command The command to send with the CommandPackage
+     * @return A new CommandPackage with required data
+     */
+    private CommandPackage makeCommandPackage(GameMetadata data, String playerName, TelepathyCommands command, String... attributes){
+        ArrayList<JsonObject> jsonCommands = new ArrayList<>();
+        jsonCommands.add(TelepathyCommandHandler.makeJsonCommand(command, attributes));
+        CommandPackage cp = new CommandPackage(data.gameServer(), data.name(), playerName, jsonCommands);
+
+        return cp;
+    }
 }

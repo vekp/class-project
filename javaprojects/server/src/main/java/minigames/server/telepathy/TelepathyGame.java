@@ -245,7 +245,7 @@ public class TelepathyGame {
      */
     private ArrayList<JsonObject> chooseTile(JsonObject commandObject, String playerName) {
         // Check in correct running state to execute command
-        ArrayList<JsonObject> renderingCommands = commandStateCheck(State.TILESELECTION, "ERROR: Attempting to choose Tile while in " + State.TILESELECTION + " state.");
+        ArrayList<JsonObject> renderingCommands = commandStateCheck(State.TILESELECTION, "ERROR: Attempting to choose Tile while not in " + State.TILESELECTION + " state.");
         if(renderingCommands.size() > 0){ return renderingCommands; }
         
         // Tile coordinates
