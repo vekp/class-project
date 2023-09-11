@@ -50,7 +50,7 @@ import minigames.client.krumgame.components.*;
 /**
  * The state of each running game will be represented by an instance of KrumGame on the server and an instance on each participating client
  */
-public class KrumGame implements GameClient {
+public class KrumGame {
 
     int myPlayerIndex;
 
@@ -897,7 +897,6 @@ public class KrumGame implements GameClient {
     /**
      * Called when our client is loaded into the main screen
      */ 
-    @Override
     public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {
         this.mnClient = mnClient;
         this.gm = game;
@@ -925,7 +924,6 @@ public class KrumGame implements GameClient {
         disableInfoLogging();
     }
 
-    @Override
     public void execute(GameMetadata game, JsonObject command) {
         this.gm = game;
         //System.out.println("command received" + command + "metadata: " + game);
@@ -965,7 +963,6 @@ public class KrumGame implements GameClient {
         }
     }
 
-    @Override
     public void closeGame() {
         panel.gameActive = false;
         // todo: make sure we don't leave any mess
