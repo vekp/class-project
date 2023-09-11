@@ -63,11 +63,11 @@ public class BattleshipPlayer {
         // Get formatted input and spit it to be passed into shotOutcome()
         String[] validatedInput = formatInput(input).split(",");
 
-        int col = BattleshipGame.chars.indexOf(validatedInput[0]);
-        int row = -1;
+        int row = BattleshipGame.chars.indexOf(validatedInput[0]);
+        int col = -1;
         // This technically should not need error handling as only valid input can get to this stage - precautionary
         try {
-            row = Integer.parseInt(validatedInput[1]);
+            col = Integer.parseInt(validatedInput[1]);
         } catch (NumberFormatException e) {
             return BattleshipTurnResult.invalidInput(input);
         }
@@ -77,7 +77,7 @@ public class BattleshipPlayer {
 
         opponent.setLastShot(row, col);
 
-        return shotOutcome(opponent, col, row);
+        return shotOutcome(opponent, row, col);
     }
 
     /**

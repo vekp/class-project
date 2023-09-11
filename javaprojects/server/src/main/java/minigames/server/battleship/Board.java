@@ -176,7 +176,7 @@ public class Board {
                     // Replace boats with water if enemy board
                     if (isEnemy && !("X.".contains(cellString))) cellString = "~";
                     // Most recent shot is coloured red
-                    if (i-1 == lastColShot && j == lastRowShot) {
+                    if (i-1 == lastRowShot && j == lastColShot) {
                         cellString = "<span style='color:red'>" + cellString + "</span>";
                     }
                     gridStrings.append(cellString).append(" ");
