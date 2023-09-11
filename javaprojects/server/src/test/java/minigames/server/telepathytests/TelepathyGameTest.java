@@ -25,6 +25,9 @@ import java.util.HashMap;
 
 
 public class TelepathyGameTest {
+    private String[] playerNames = {"Bob", "Alice", "Fred"};
+
+
     @Test
     @DisplayName("The TelepathyGame constructor should initalise a name and players correctly")
     public void testTelepathyGameInitialisation(){
@@ -59,8 +62,8 @@ public class TelepathyGameTest {
         TelepathyGame game = new TelepathyGame("TestGame");
 
         // Test joining empty game (when creating new game)
-        game.joinGame("Bob");
-        assertTrue(game.getPlayers().get("Bob").getName().equals("Bob"));
+        game.joinGame(playerNames[0]);
+        assertTrue(game.getPlayers().get(playerNames[0]).getName().equals(playerNames[0]));
 
         // Check that another Bob cannot join
         RenderingPackage renderingPackage = game.joinGame("Bob");
@@ -69,7 +72,7 @@ public class TelepathyGameTest {
 
         HashMap<String,Player> players = game.getPlayers();
         assertTrue(players.size() == 1);
-        assertTrue(players.keySet().contains("Bob"));
+        assertTrue(players.keySet().contains(playerNames[0]));
 
         // Check that players with invalid names cannot join
         renderingPackage = game.joinGame(" ");
@@ -83,7 +86,7 @@ public class TelepathyGameTest {
         );
 
         // Check another player can join a game with a free spot
-        renderingPackage = game.joinGame("Alice");
+        renderingPackage = game.joinGame(playerNames[1]);
         assertTrue(
                 (renderingPackage.renderingCommands().get(0).getString("nativeCommand").equals("client.loadClient")));
 
@@ -107,20 +110,19 @@ public class TelepathyGameTest {
     @DisplayName("Test runCommand to ensure invalid commands are handled correctly")
     public void testRunCommand() {
         TelepathyGame game = new TelepathyGame("TestGame");
-        String testPlayerName = "Bob";
-        game.joinGame(testPlayerName); // Join game for player response
+        game.joinGame(playerNames[0]); // Join game for player response
 
         // Test an INVALID command
         RenderingPackage response = game.runCommands(
             makeCommandPackage(game.telepathyGameMetadata(), 
-            testPlayerName, 
+            playerNames[0], 
             TelepathyCommands.INVALIDCOMMAND.toString())
         );
         assertTrue(response.renderingCommands().get(0).getString("command").equals(TelepathyCommands.INVALIDCOMMAND.toString()));
         
         // Test empty, commands not defined will throw an exception
         assertThrows(TelepathyCommandException.class, () -> {
-            game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), testPlayerName, " "));
+            game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), playerNames[0], " "));
         });
     }
 
@@ -128,15 +130,13 @@ public class TelepathyGameTest {
     @DisplayName("Test running a REQUESTUPDATE command")
     public void testRequestUpdate(){
         // Set up
-        TelepathyGame game = new TelepathyGame("TestGame");
-        String testPlayerName = "Bob";
-        game.joinGame(testPlayerName);
+        TelepathyGame game = makeTestGame(1);
 
         // Run the command
         RenderingPackage response = game.runCommands(new CommandPackage(
             game.telepathyGameMetadata().gameServer(), 
             game.telepathyGameMetadata().name(), 
-            testPlayerName, 
+            playerNames[0], 
             Collections.singletonList(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.REQUESTUPDATE))));
 
         // Updates expected
@@ -149,12 +149,10 @@ public class TelepathyGameTest {
     @Test
     @DisplayName("Test running a SYSTEMQUIT command")
     public void testSystemQuit(){
-        TelepathyGame game = new TelepathyGame("TestGame");
-        String testPlayerName = "Bob";
-        game.joinGame(testPlayerName);
+        TelepathyGame game = makeTestGame(1);
 
 
-        CommandPackage cp = makeCommandPackage(game.telepathyGameMetadata(), testPlayerName,
+        CommandPackage cp = makeCommandPackage(game.telepathyGameMetadata(), playerNames[0],
                 TelepathyCommands.SYSTEMQUIT.toString());
         RenderingPackage response = game.runCommands(cp);
         assertTrue(response.renderingCommands().get(0).getString("command").equals(TelepathyCommands.QUIT.toString()));
@@ -164,13 +162,11 @@ public class TelepathyGameTest {
     @Test
     @DisplayName("Test running a QUIT command")
     public void testQuit(){
-        TelepathyGame game = new TelepathyGame("TestGame");
-        String testPlayerName = "Bob";
-        game.joinGame(testPlayerName);
+        TelepathyGame game = makeTestGame(1);
 
         assertTrue(game.telepathyGameMetadata().players().length == 1);
 
-        CommandPackage cp = makeCommandPackage(game.telepathyGameMetadata(), testPlayerName, TelepathyCommands.QUIT.toString());
+        CommandPackage cp = makeCommandPackage(game.telepathyGameMetadata(), playerNames[0], TelepathyCommands.QUIT.toString());
         RenderingPackage response = game.runCommands(cp);
         assertTrue(response.renderingCommands().get(0).getString("nativeCommand").equals("client.quitToMGNMenu"));
         assertTrue(game.telepathyGameMetadata().players().length == 0); // Player has been removed from the game
@@ -180,15 +176,13 @@ public class TelepathyGameTest {
     @Test
     @DisplayName("Test running a TOGGLEREADY command")
     public void testToggleReady(){
-        TelepathyGame game = new TelepathyGame("TestGame");
-        String testPlayerName = "Bob";
-        game.joinGame(testPlayerName);
-        assertFalse(game.getPlayers().get(testPlayerName).isReady());
+        TelepathyGame game = makeTestGame(2);
+        assertFalse(game.getPlayers().get(playerNames[0]).isReady());
 
         RenderingPackage response = game.runCommands(new CommandPackage(
             game.telepathyGameMetadata().gameServer(), 
             game.telepathyGameMetadata().name(), 
-            testPlayerName,
+            playerNames[0],
             Collections.singletonList(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.TOGGLEREADY))));
 
         // Get the attributes and expected attributes
@@ -197,18 +191,26 @@ public class TelepathyGameTest {
         expectedAttributes.add("readyButton");
         expectedAttributes.add("true");
         assertTrue(returnedAttributes.containsAll(expectedAttributes));
-        assertTrue(game.getPlayers().get(testPlayerName).isReady());
+        assertTrue(game.getPlayers().get(playerNames[0]).isReady());
+    }
+
+    @Test
+    @DisplayName("Test running a CHOOSETILE command")
+    public void testChooseTile(){
+
     }
 
     @Test
     @DisplayName("Test running an ASKQUESTION command")
     public void testAskQuestion(){
-        TelepathyGame game = new TelepathyGame("TestGame");
-        String testPlayerName = "Bob";
-        CommandPackage cp = makeCommandPackage(game.telepathyGameMetadata(), testPlayerName,
+        TelepathyGame game = makeTestGame(2);
+
+        CommandPackage cp = makeCommandPackage(game.telepathyGameMetadata(), playerNames[0],
                 TelepathyCommands.ASKQUESTION.toString());
         RenderingPackage response = game.runCommands(cp);
 
+        // Will just return INVALIDCOMMAND unless in correct state - tested further in state testing
+        assertTrue(response.renderingCommands().get(0).getString("command").equals(TelepathyCommands.INVALIDCOMMAND.toString()));
     }
 
     @Test
@@ -216,32 +218,49 @@ public class TelepathyGameTest {
     public void testGameState(){
         // Test state transitions and methods that check for state
 
-        String player1 = "Bob";
-        String player2 = "Alice";
         // Test INITIALISE state
         TelepathyGame game = new TelepathyGame("test");
         assertTrue(game.getState() == State.INITIALISE);
 
-        game.joinGame(player1);
-        game.joinGame(player2);
+        game.joinGame(playerNames[0]);
+        game.joinGame(playerNames[1]);
 
-        game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), player1, TelepathyCommands.TOGGLEREADY.toString()));
-        game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), player2, TelepathyCommands.TOGGLEREADY.toString()));
+        game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), playerNames[0], TelepathyCommands.TOGGLEREADY.toString()));
+        game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), playerNames[1], TelepathyCommands.TOGGLEREADY.toString()));
         
         // Test RUNNING state
 
         // Send toggle ready during running state
-        RenderingPackage response = game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), player1, TelepathyCommands.TOGGLEREADY.toString()));
+        RenderingPackage response = game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), playerNames[0], TelepathyCommands.TOGGLEREADY.toString()));
         assertTrue(response.renderingCommands().get(0).getString("command").equals("INVALIDCOMMAND"));
 
         // Test GAMEOVER state
 
         // Game is over if player leaves while game is running
-        game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), player1, TelepathyCommands.QUIT.toString()));
+        game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), playerNames[0], TelepathyCommands.QUIT.toString()));
         assertTrue(game.getState() == State.GAMEOVER);
     }
     
     /* HELPER METHODS */
+
+    /**
+     * Make a TelepathyGame for testing purposes. Add the specified number
+     * of players to the game using test player names array.
+     * 
+     * @param playersToAdd: integer value with the number of players to add
+     *  to the game.
+     * @return TelepathyGame with the specified number of players. 
+     */
+    private TelepathyGame makeTestGame(int numPlayers){
+        TelepathyGame game = new TelepathyGame("TestGame");
+        int i = 0;
+        while(i < numPlayers && i < playerNames.length){
+            game.joinGame(playerNames[i]);
+            i++;
+        }
+
+        return game;
+    }
 
     /**
      * Create a CommandPackage with a single command to be used for testing.
