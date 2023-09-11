@@ -138,8 +138,7 @@ public class KrumGame {
         waterLevel = KrumC.RES_Y - 1;
         initializePanel();
         initializeLevels();
-        setActiveLevel(0);    
-        KrumSound.initializeSounds();                   
+        setActiveLevel(0);                   
         windString = "";        
         initialized = true;
         System.out.println("KrumGame instance created on client");
@@ -928,7 +927,10 @@ public class KrumGame {
     }
 
     public void execute(GameMetadata game, JsonObject command) {
-        this.gm = game;
+        if (!this.gm.name().equals(game.name())) {
+            System.out.println("ignoring command from previous server");
+            return;
+        }
         //System.out.println("command received" + command + "metadata: " + game);
         JsonObject frame = command.getJsonObject("frame");
         if (frame != null) {
@@ -953,6 +955,7 @@ public class KrumGame {
             readyStatus[0] = command.getInteger("p1ready");
             readyStatus[1] = command.getInteger("p2ready");
             if (readyStatus[0] == readyStatus[1] && readyStatus[0] != -1) {
+                System.out.println("both players ready");
                 choosingLevel = false;
             }
             return;

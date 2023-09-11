@@ -11,6 +11,7 @@ public class KrumGameClient implements GameClient {
 
     public KrumGameClient() {
         kgc = this;
+        KrumSound.initializeSounds();
     }
     
     public static KrumGameClient getGameClient () {
@@ -19,7 +20,7 @@ public class KrumGameClient implements GameClient {
 
     public void createKrumGame() {
         System.out.println("creating new KrumGame");
-        krumGame = new KrumGame();
+        krumGame = new KrumGame();        
     }
 
     @Override

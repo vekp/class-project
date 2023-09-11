@@ -59,6 +59,7 @@ public class KrumGame{
     public boolean joinable;
 
     public KrumGame(String name, TableManager tableManager){
+        System.out.println("creating game " + name);
         this.name = name;
         this.playerTurn = 0;
         this.frameIndex = 0;
@@ -139,6 +140,8 @@ public class KrumGame{
 
         String playerName = playerNameWithType;
         String playerType = "";
+
+        System.out.println("player " + playerName + " joining game " + this.name);
 
         while (players.containsKey(playerName) && playerName.length() < PLAYER_NAME_MAX_CHARS) {
             playerName += "_";

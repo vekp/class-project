@@ -20,6 +20,7 @@ import java.awt.KeyEventDispatcher;
 public class KrumPanel extends JPanel {
     boolean gameActive;
     KrumGame game;
+    KeyEventDispatcher eventDispatcher;
     public KrumPanel(KrumGame g) {
         gameActive = false;
         setBorder(BorderFactory.createLineBorder(Color.black));
@@ -47,22 +48,29 @@ public class KrumPanel extends JPanel {
             }
         });
 
+
         // Ensure keyboard events reach this panel
         JPanel t = this;
         KeyboardFocusManager focusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-        focusManager.addKeyEventDispatcher(new KeyEventDispatcher() {
+        eventDispatcher = new KeyEventDispatcher() {
             public boolean dispatchKeyEvent(KeyEvent e) {
                 if(focusManager.getFocusOwner()!=t){
                                 focusManager.redispatchEvent(t,e);
                                 return gameActive;}
                 else return false;
             }
-        });
+        };
+        focusManager.addKeyEventDispatcher(eventDispatcher);
                
         this.setFocusable(true);
         
         this.game = g;        
     }    
+
+    public void removeEventDispatcher() {
+        KeyboardFocusManager focusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        focusManager.removeKeyEventDispatcher(eventDispatcher);
+    }
 
     public Dimension getPreferredSize() {
         return new Dimension(KrumC.RES_X,KrumC.RES_Y);
