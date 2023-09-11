@@ -13,10 +13,10 @@ public class MongoDB {
     private MongoDatabase database;
 
     // Establish a connection to Mongo database
-    public MongoDB(String connectionString, String databaseName) {
-        ConnectionString connString = new ConnectionString(connectionString);
+    public MongoDB() {
+        ConnectionString connString = new ConnectionString("mongodb+srv://cosc220:WxsFWGOiEuilbtkj@cluster0.sk5iqrw.mongodb.net/?retryWrites=true&w=majority");
         this.mongoClient = MongoClients.create(connString);
-        this.database = mongoClient.getDatabase(databaseName);
+        this.database = mongoClient.getDatabase("une-db");
     }
 
     // Add new data to Database
@@ -25,7 +25,6 @@ public class MongoDB {
         document.append("timestamp", this.getCurrentTimestamp());
         collection.insertOne(document);
 
-        // Parse the JSON string from document.toJson() into a JSONObject
         JSONParser jsonParser = new JSONParser();
         JSONObject insertedDocument;
 
@@ -33,7 +32,7 @@ public class MongoDB {
             insertedDocument = (JSONObject) jsonParser.parse(document.toJson());
         } catch (ParseException e) {
             e.printStackTrace();
-            return null; // Handle the parsing error appropriately
+            return null; 
         }
 
         // Remove the object in _id and only leave the _id string

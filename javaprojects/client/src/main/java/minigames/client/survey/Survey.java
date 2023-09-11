@@ -388,7 +388,7 @@ public class Survey extends JPanel implements ActionListener {
         int overallRating = Integer.parseInt(getSelectedRadioButtonValue(overallRatingButtonGroup));
 
         JsonObject surveyData = new JsonObject()
-            .put("game_id", 111)
+            .put("game_id", "64fec6296849f97cdc19f017")
             .put("ui_rating", uiRating)
             .put("enjoyment_rating", enjoymentRating)
             .put("functionality_rating", functionalityRating)
