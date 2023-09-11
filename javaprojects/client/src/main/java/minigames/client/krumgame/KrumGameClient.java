@@ -7,14 +7,27 @@ import minigames.rendering.GameMetadata;
 
 public class KrumGameClient implements GameClient {
     KrumGame krumGame;
+    static KrumGameClient kgc;
 
     public KrumGameClient() {
+        kgc = this;
+    }
+    
+    public static KrumGameClient getGameClient () {
+        return kgc;
+    }
 
+    public void createKrumGame() {
+        System.out.println("creating new KrumGame");
+        krumGame = new KrumGame();
     }
 
     @Override
-    public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {
-        krumGame = new KrumGame();
+    public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {     
+        if (krumGame == null) {
+            System.out.println("krumGame is null; creating");
+            krumGame = new KrumGame();
+        }   
         krumGame.load(mnClient, game, player);
     }
 

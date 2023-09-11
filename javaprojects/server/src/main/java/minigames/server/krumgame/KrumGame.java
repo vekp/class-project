@@ -149,7 +149,7 @@ public class KrumGame{
         }
         
         // Check if game is full
-        if (players.size() >= 2){
+        if (players.size() >= 2 || !joinable){
             return sendErrorMsg("The game is full");
         }
 

@@ -16,7 +16,7 @@ import minigames.client.achievementui.AchievementUI;
 import minigames.client.backgrounds.Starfield;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.GameServerDetails;
-
+import minigames.client.krumgame.KrumGameClient;
 import minigames.client.krumgame.KrumMenu;
 
 import java.awt.BorderLayout;
@@ -210,7 +210,7 @@ public class MinigameNetworkClientWindow {
      * @param servers
      */
     public void showGames(String gameServer, List<GameMetadata> inProgress) {
-        if (gameServer.equals("KrumGame")) {
+        if (gameServer.equals("KrumGame")) {            
             KrumMenu.initialise();
             showKrumTitle(inProgress);
             return;
@@ -364,5 +364,6 @@ public class MinigameNetworkClientWindow {
         center.add(screen);
         pack();
         parent.repaint();
+        KrumGameClient.getGameClient().createKrumGame();
     }
 }

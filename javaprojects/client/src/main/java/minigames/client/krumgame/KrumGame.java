@@ -121,6 +121,8 @@ public class KrumGame {
 
     final int MIN_PLAYBACK_BUFFER = 0;
 
+    ComponentAdapter offsetListener;
+
 
 
     long seed; // seed for Random() -- needs to be the same for all clients
@@ -901,7 +903,7 @@ public class KrumGame {
         this.mnClient = mnClient;
         this.gm = game;
         this.player = player;
-        mnClient.getMainWindow().getFrame().addComponentListener(new ComponentAdapter() {
+        offsetListener = new ComponentAdapter() {
             public void componentMoved(ComponentEvent e) {
                 if (playersInitialized) {
                     for (KrumPlayer p : players) {
@@ -910,7 +912,8 @@ public class KrumGame {
                 }
 
             }
-        });       
+        };
+        mnClient.getMainWindow().getFrame().addComponentListener(offsetListener);       
         mnClient.getMainWindow().getFrame().addWindowListener(new WindowAdapter(){
             @Override
             public void windowClosing(WindowEvent we) {
@@ -964,9 +967,9 @@ public class KrumGame {
     }
 
     public void closeGame() {
-        panel.gameActive = false;
+        panel.gameActive = false;        
         // todo: make sure we don't leave any mess
-        // should probably remove the component listener we added to the main jframe?
+        mnClient.getMainWindow().getFrame().removeComponentListener(offsetListener);
     }
 
     //Getters and setters:
