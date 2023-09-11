@@ -9,6 +9,7 @@ public class WordScramble {
         private final static String dir = "./src/main/java/minigames/client/gameshow/GameShowImages/";
         private static final ImageIcon submitButtonButton = new ImageIcon(dir + "submit-button.png");
         private static final ImageIcon paperBackground = new ImageIcon(dir + "paper.png");
+        private static final ImageIcon backBackground = new ImageIcon(dir + "back.png");
 
         /**
          * Creates a welcome screen, currently prompting user for difficulty
@@ -123,7 +124,7 @@ public class WordScramble {
         public static void startGame(GameShow gs, String letters, int gameId) {
                 GameShowUI.gameContainer.removeAll();
 
-                ImageIcon imageIcon = new ImageIcon(paperBackground.getImage().getScaledInstance(400, 100,
+                ImageIcon imageIcon = new ImageIcon(backBackground.getImage().getScaledInstance(600, 300,
                                 Image.SCALE_DEFAULT));
                 JLabel background = new JLabel(imageIcon);
 
@@ -131,7 +132,7 @@ public class WordScramble {
                 Font pixelFont = GameShowUI.pixelFont;
                 scrambledLetters.setFont(pixelFont.deriveFont(60f));
                 scrambledLetters.setSize(scrambledLetters.getPreferredSize());
-                scrambledLetters.setLocation(100, 20);
+                scrambledLetters.setLocation(210, 150);
                 scrambledLetters.setContentAreaFilled(false);
                 scrambledLetters.setFocusPainted(false);
                 scrambledLetters.setBorderPainted(false);
@@ -142,7 +143,7 @@ public class WordScramble {
                 GridBagConstraints gbc = new GridBagConstraints();
 
                 // Display the scrambled letters
-                gbc.insets = new Insets(20, 0, 20, 0);
+                // gbc.insets = new Insets(20, 0, 20, 0);
                 gbc.gridx = 0;
                 gbc.gridy = 0;
                 gs.gamePanel.add(background, gbc);
@@ -153,10 +154,10 @@ public class WordScramble {
                 // A text box in which to type a guess (and optionally submit on Enter)
                 JTextField guessBox = new JTextField(15);
                 guessBox.setFont(pixelFont.deriveFont(18f));
-                guessBox.setHorizontalAlignment(SwingConstants.CENTER);
+                // guessBox.setHorizontalAlignment(SwingConstants.CENTER);
                 guessBox.addActionListener((evt) -> sendGuess(gs, guessBox.getText(), gameId));
 
-                gbc.insets = new Insets(20, 20, 20, 20);
+                // gbc.insets = new Insets(20, 20, 20, 20);
                 gbc.anchor = GridBagConstraints.LINE_START;
                 gbc.gridx = 0;
                 gbc.gridy = 0;
@@ -172,14 +173,14 @@ public class WordScramble {
                 submitButton.setBorderPainted(false);
                 submitButton.addActionListener((evt) -> sendGuess(gs, guessBox.getText(), gameId));
 
-                gbc.insets = new Insets(20, 20, 20, 20);
+                gbc.insets = new Insets(0, 80, 0, 30);
                 gbc.anchor = GridBagConstraints.LINE_END;
                 gbc.gridx = 1;
                 gbc.gridy = 0;
                 guessPanel.add(submitButton, gbc);
 
                 // Add the guessing panel to the game panel
-                gbc.insets = new Insets(20, 0, 20, 0);
+                // gbc.insets = new Insets(20, 0, 20, 0);
                 gbc.gridx = 0;
                 gbc.gridy = 1;
                 gs.gamePanel.add(guessPanel, gbc);
