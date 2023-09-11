@@ -46,9 +46,10 @@ public class GameTimer extends JPanel {
         // Draw the remaining time and score on the JPanel
         g.setColor(Color.BLACK);
         Font pixelFont = GameShowUI.pixelFont;
-        g.setFont(pixelFont.deriveFont(15f));
+        g.setFont(pixelFont.deriveFont(20f));
         g.drawString("Remaining Time: " + formatTime(remainingTime), 10, 20);
         g.drawString("Score: " + score, 10, 40);
+
     }
 
     private String formatTime(long milliseconds) {

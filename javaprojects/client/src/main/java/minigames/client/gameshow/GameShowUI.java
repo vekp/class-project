@@ -247,7 +247,6 @@ public class GameShowUI {
                 revealInstructions.setBackground(Color.ORANGE);
                 revealInstructions.setFont(pixelFont.deriveFont(15f));
                 // TODO: add reveal instructions
-
                 revealHeader.add(revealHeaderImage, BorderLayout.NORTH);
                 revealHeader.add(revealInstructions, BorderLayout.SOUTH);
 

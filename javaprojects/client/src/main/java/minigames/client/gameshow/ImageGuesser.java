@@ -30,11 +30,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ImageGuesser {
+
     private static final Logger logger = Logger.getLogger(GameShow.class.getName());
     private final static String dir = "./src/main/java/minigames/client/gameshow/GameShowImages/";
     private static final ImageIcon submitButtonButton = new ImageIcon(dir + "submit-button.png");
 
     public static void startImageGuesser(GameShow gs, String imageFileName, int gameId) {
+
         GameShowUI.gameContainer.removeAll();
         GameShowUI.gameContainer.validate();
         GameShowUI.gameContainer.repaint();
@@ -67,7 +69,7 @@ public class ImageGuesser {
         gs.outcomeContainer = new JPanel(new BorderLayout(10, 0));
 
         JPanel inputComponents = new JPanel(); // Create a container for fixed-size components
-        inputComponents.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20)); // You can adjust the layout manager as
+        inputComponents.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10)); // You can adjust the layout manager as
                                                                               // needed
 
         JTextField guessField = new JTextField(20);
@@ -86,9 +88,11 @@ public class ImageGuesser {
 
         inputComponents.add(guessField);
         inputComponents.add(submitButton);
+
         gs.inputPanel.add(gs.gameTimer, BorderLayout.NORTH);
         gs.inputPanel.add(inputComponents, BorderLayout.CENTER); // Add the container with fixed-size components
         gs.inputPanel.add(gs.outcomeContainer, BorderLayout.SOUTH);
+
         // Add the grid panel to the center of the container
         JPanel revealHeader = GameShowUI.generateRevealHeader();
         GameShowUI.gameContainer.add(revealHeader, BorderLayout.NORTH);
