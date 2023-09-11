@@ -47,7 +47,6 @@ public class ImageGuesser {
 
         GridPanel gridPanel = new GridPanel(imageIcon);
 
-
         Timer timer = new Timer(1000, e -> {
             boolean cellVisible = true;
             while (cellVisible) {
@@ -73,7 +72,7 @@ public class ImageGuesser {
 
         JTextField guessField = new JTextField(20);
         Font pixelFont = GameShowUI.pixelFont;
-        guessField.setFont(pixelFont.deriveFont(15f));
+        guessField.setFont(pixelFont.deriveFont(18f));
         JButton submitButton;
         submitButton = new JButton(
                 new ImageIcon(submitButtonButton.getImage().getScaledInstance(150, 40, Image.SCALE_DEFAULT)));

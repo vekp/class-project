@@ -210,9 +210,9 @@ public class GameShowUI {
 
                 scrambleHeader.setLayout(new BorderLayout());
                 scrambleHeader.setBackground(Color.ORANGE);
-
                 scrambleHeaderImage = new JLabel(
-                                new ImageIcon(scrambleIcon.getImage()));
+                                new ImageIcon(scrambleIcon.getImage().getScaledInstance(600, 100,
+                                                Image.SCALE_DEFAULT)));
 
                 scrambleInstructions = new JTextField("add scramble instructions");
                 scrambleInstructions.setEditable(false);
@@ -221,8 +221,8 @@ public class GameShowUI {
                 scrambleInstructions.setFont(pixelFont.deriveFont(15f));
                 // TODO: add scramble instructions
 
-                scrambleHeader.add(scrambleHeaderImage);
-                scrambleHeader.add(scrambleInstructions);
+                scrambleHeader.add(scrambleHeaderImage, BorderLayout.NORTH);
+                scrambleHeader.add(scrambleInstructions, BorderLayout.SOUTH);
 
                 return scrambleHeader;
 
