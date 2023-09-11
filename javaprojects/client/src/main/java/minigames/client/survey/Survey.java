@@ -4,6 +4,8 @@ import minigames.client.MinigameNetworkClient;
 
 import io.vertx.core.json.JsonObject;
 
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.Sanitizers;
 
 import javax.swing.border.*;
 
@@ -40,6 +42,8 @@ public class Survey extends JPanel implements ActionListener {
     private Font fontHelp = new Font("Open sans semibold", Font.PLAIN, 14);
     private Font fontButton = new Font("Open sans semibold", Font.PLAIN, 12);
 
+    private final PolicyFactory sanitiser = Sanitizers.BLOCKS.and(Sanitizers.FORMATTING);
+
     // Background image variable declaration
     private Image image;
     private final String imageFolderPath = "src/main/resources/images/backgrounds/";
@@ -52,7 +56,7 @@ public class Survey extends JPanel implements ActionListener {
     public String callingGame = "(Your Game Name Here!)";
 
     // Main Survey Class
-    public Survey(MinigameNetworkClient mnClient) {
+    public Survey(MinigameNetworkClient mnClient, String gameId) {
 
         // Survey main panel layout
         this.setPreferredSize(new Dimension(800, 600));
@@ -317,7 +321,7 @@ public class Survey extends JPanel implements ActionListener {
         submitPanel = new JPanel();
         submitButton = new JButton("Submit");
         submitButton.setFont(fontButton);
-        submitButton.addActionListener(e -> submit(mnClient));
+        submitButton.addActionListener(e -> submit(mnClient, gameId));
         submitPanel.add(submitButton);
 
         // Results Button
@@ -377,8 +381,20 @@ public class Survey extends JPanel implements ActionListener {
         // uiRatingButtonGroup.add(uiRatingFive);
     // }
 
-    public void submit(MinigameNetworkClient mnClient) {
+    public void submit(MinigameNetworkClient mnClient, String gameId) {
         String text = feedbackText.getText();
+
+        // Validate the feedbackText input
+        if (!isValidText(text)) {
+            // Display an error message or handle the invalid input as needed
+            JOptionPane.showMessageDialog(this, "Invalid feedback text. Please enter valid text.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Sanitise the feedbackText to remove any potentially harmful content
+        String sanitisedText = sanitiseText(text);
+
+        System.out.println(sanitisedText);
         
         // Get the selected values from the radio button groups
         int uiRating = Integer.parseInt(getSelectedRadioButtonValue(uiRatingButtonGroup));
@@ -388,15 +404,34 @@ public class Survey extends JPanel implements ActionListener {
         int overallRating = Integer.parseInt(getSelectedRadioButtonValue(overallRatingButtonGroup));
 
         JsonObject surveyData = new JsonObject()
-            .put("user_id", 111)
+            .put("game_id", gameId)
             .put("ui_rating", uiRating)
             .put("enjoyment_rating", enjoymentRating)
             .put("functionality_rating", functionalityRating)
             .put("difficulty_rating", difficultyRating)
             .put("overall_rating", overallRating)
-            .put("feedback_text", text);
+            .put("feedback_text", sanitisedText);
 
         mnClient.sendSurveyData(surveyData).onSuccess(e -> mnClient.runMainMenuSequence());
+    }
+
+    // Validate the feedbackText input
+    private boolean isValidText(String text) {
+        // Check for common SQL injection patterns
+        if (text != null && text.matches("(?i).*\\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER)\\b.*")) {
+            return false;
+        }
+        
+        // Allow only alphanumeric characters and common punctuation
+        if (text != null && !text.matches("^[a-zA-Z0-9 .,!?'\"()\\-]+$")) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private String sanitiseText(String text) {
+        return sanitiser.sanitize(text);
     }
 
     // Get the selected radio button value from a ButtonGroup
