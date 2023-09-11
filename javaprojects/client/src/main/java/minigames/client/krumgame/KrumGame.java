@@ -887,12 +887,11 @@ public class KrumGame {
     }
 
     void disableInfoLogging(){
-        // LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-        // Configuration config = ctx.getConfiguration();
-        // LoggerConfig loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
-        // loggerConfig.setLevel(Level.WARN);
-        // ctx.updateLoggers();
         Configurator.setLevel(LogManager.getLogger(MinigameNetworkClient.class), Level.WARN);
+    }
+
+    void enableInfoLogging() {
+        Configurator.setLevel(LogManager.getLogger(MinigameNetworkClient.class), Level.INFO);
     }
 
     /**
@@ -973,6 +972,7 @@ public class KrumGame {
         panel.gameActive = false;        
         // todo: make sure we don't leave any mess
         mnClient.getMainWindow().getFrame().removeComponentListener(offsetListener);
+        enableInfoLogging();
     }
 
     //Getters and setters:
