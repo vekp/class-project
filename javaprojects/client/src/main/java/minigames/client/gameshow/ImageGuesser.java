@@ -123,33 +123,49 @@ public class ImageGuesser {
         GameShowUI.gameContainer.validate();
         GameShowUI.gameContainer.repaint();
     }
-
+    
     public static void guess(GameShow gs, boolean correct) {
+        clearOutcomeContainer(gs);
+        
+        if (!correct) {
+            displayTryAgainMessage(gs);
+        } else {
+            handleCorrectGuess(gs);
+        }
+        
+        validateAndRepaintInputPanel(gs);
+    }
+
+    private static void clearOutcomeContainer(GameShow gs) {
         gs.outcomeContainer.removeAll();
         gs.outcomeContainer.validate();
         gs.outcomeContainer.repaint();
-        if (!correct) {
-            JLabel tryAgain = new JLabel("That's not quite right :( Try again!",
-                    SwingConstants.CENTER);
-            Font pixelFont = GameShowUI.pixelFont;
-            tryAgain.setFont(pixelFont.deriveFont(15f));// size may need changing
+    }
 
-            gs.outcomeContainer.add(tryAgain, BorderLayout.CENTER);
-        } else {
-            gs.gameTimer.stop();
-            int remainingTime = gs.gameTimer.calculateScore();
-            logger.log(Level.INFO, "Remaining Time: " + remainingTime);
-            JLabel congrats = new JLabel("Congratulations! You Win :)",
-                    SwingConstants.CENTER);
-            Font pixelFont = GameShowUI.pixelFont;
-            congrats.setFont(pixelFont.deriveFont(15f));// size may need changing
-            gs.outcomeContainer.add(congrats, BorderLayout.CENTER);
-        }
-        // logger.log(Level.INFO, "GameShow instance created");
+    private static void displayTryAgainMessage(GameShow gs) {
+        JLabel tryAgain = new JLabel("That's not quite right :( Try again!",
+                SwingConstants.CENTER);
+        Font pixelFont = GameShowUI.pixelFont;
+        tryAgain.setFont(pixelFont.deriveFont(15f));
+        gs.outcomeContainer.add(tryAgain, BorderLayout.CENTER);
+    }
 
+    private static void handleCorrectGuess(GameShow gs) {
+        gs.gameTimer.stop();
+        int remainingTime = gs.gameTimer.calculateScore();
+        logger.log(Level.INFO, "Remaining Time: " + remainingTime);
+        JLabel congrats = new JLabel("Congratulations! You Win :)",
+                SwingConstants.CENTER);
+        Font pixelFont = GameShowUI.pixelFont;
+        congrats.setFont(pixelFont.deriveFont(15f));
+        gs.outcomeContainer.add(congrats, BorderLayout.CENTER);
+    }
+
+    private static void validateAndRepaintInputPanel(GameShow gs) {
         gs.inputPanel.validate();
         gs.inputPanel.repaint();
     }
+
 
     private static void sendGuess(GameShow gs, String guess, int gameId) {
         gs.sendCommand(new JsonObject()
