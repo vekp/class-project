@@ -138,15 +138,14 @@ public class SpaceMazeGame {
                                     .put("lives", playerLives)
                                     .put("interactiveResponse", InteractiveResponses.BOTS_COLLISION.toString()));
                         } else {
-                            String playerScoreString = String.valueOf(player.getPlayerScore());
                             int time = mazeControl.timeTaken;
                             int minutes = time / 60;
                             int seconds = time % 60;
                             String timeTaken = String.format("%d:%02d", minutes, seconds);
                             mazeControl.playerDead();
                             renderingCommands.add(new JsonObject().put("command", "playerDead")
-                                .put("totalScore", playerScoreString)
                                 .put("timeTaken", timeTaken)
+                                .put("level", Integer.toString(mazeControl.getCurrentLevel()))
                             );
                         }
                     }

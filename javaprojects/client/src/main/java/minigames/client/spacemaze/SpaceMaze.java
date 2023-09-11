@@ -24,8 +24,6 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.JLabel;
 import javax.swing.BoxLayout;
@@ -36,18 +34,15 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 
-import javax.swing.JComponent;
 import javax.swing.AbstractButton;
 import javax.swing.Box;
 import javax.swing.Timer;
 
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
-import minigames.client.spacemaze.MazeDisplay;
 import minigames.client.MinigameNetworkClient;
 import minigames.rendering.GameMetadata;
 import minigames.commands.CommandPackage;
-import minigames.client.spacemaze.Images;
 
 
 /**
@@ -80,11 +75,10 @@ public class SpaceMaze implements GameClient {
     private int currentImageIndex;
     private Timer timer;
     ImageIcon headerImage1;
-    ImageIcon headerImage2a;
-    ImageIcon headerImage2b;
-    ImageIcon headerImage2c;
-    ImageIcon headerImage2d;
-
+    
+    //Game Over Header Section
+    JPanel gameOverHeaderPanel;
+    JLabel gameOverHeaderText;
 
     //Menu Section
     JPanel mainMenuPanel; 
@@ -109,8 +103,6 @@ public class SpaceMaze implements GameClient {
     JLabel sampleHelpText6;
     JLabel sampleHelpText7;
     JLabel sampleHelpText8;
-    JLabel sampleHelpText9;
-
 
     //HighScore Panel
     JPanel highScorePanel;
@@ -266,16 +258,15 @@ public class SpaceMaze implements GameClient {
                 String totalScore = command.getString("totalScore");
                 String totalTime = command.getString("timeTaken");
                 statusBar.updateScore(totalScore);
-                displayGameOver(totalScore, totalTime);
+                displayGameOver(totalScore, totalTime, true); //if game won, pass total score
             }
-            // TODO: Niraj add call to playerDead - game over screen
             case "playerDead" -> {
                 SpaceMazeSound.play("gameover");
-                String totalScore = command.getString("totalScore");
                 String totalTime = command.getString("timeTaken");
+                String levelNumber = command.getString("level");
                 statusBar.stopTimer();
                 maze.stopTimer();
-                displayGameOver(totalScore, totalTime);
+                displayGameOver(levelNumber, totalTime, false); //If game over, pass level number
             }
             // Up to you if you want to take the String or the Int
             case "playerLives" -> {
@@ -355,8 +346,13 @@ public class SpaceMaze implements GameClient {
         mnClient.getMainWindow().pack();
     }
 
-    public void displayGameOver(String totalScore, String totalTime){
-
+    //String totalScore depends on game state, if player game is finished, totalScore is the total score
+    //if the player died, total score is level number. 
+    public void displayGameOver(String totalScore, String totalTime, Boolean gameFinished){
+        String levelNumber = "0";
+        if (gameFinished == false){
+            levelNumber = totalScore;
+        }
         // Releasing sounds for garbage collection
         SpaceMazeSound.closeSounds();
 
@@ -371,7 +367,11 @@ public class SpaceMaze implements GameClient {
         Font gameOverFonts = customFont;
         gameOverFonts = gameOverFonts.deriveFont(16f);
 
-        greetingLabel = new JLabel("Thank You For Playing!");
+        if (gameFinished == true){
+            greetingLabel = new JLabel("THANK YOU FOR PLAYING ");
+        } else {
+            greetingLabel = new JLabel("YOU RAN OUT OF LIVES COMMANDER! ");
+        }
         greetingLabel.setFont(gameOverFonts);
         greetingLabel.setForeground(Color.WHITE);
         gbc.insets = new Insets(-200, 0, 0, 0);
@@ -380,7 +380,13 @@ public class SpaceMaze implements GameClient {
         gameOverPanel.add(greetingLabel, gbc);
 
         gameOverFonts = gameOverFonts.deriveFont(14f);
-        totalScoreLabel = new JLabel("Total Score: " + totalScore);
+
+        if (gameFinished == true){
+            totalScoreLabel = new JLabel("TOTAL SCORE : " + totalScore);
+        } else {
+            totalScoreLabel = new JLabel("LEVEL REACHED : " + levelNumber);
+        }
+        
         totalScoreLabel.setFont(gameOverFonts);
         totalScoreLabel.setForeground(Color.WHITE);
         gbc.insets = new Insets(20, 0, 0, 0);
@@ -388,7 +394,11 @@ public class SpaceMaze implements GameClient {
         gbc.gridy = 1;
         gameOverPanel.add(totalScoreLabel, gbc);
 
-        timeTakenLabel = new JLabel("Time Taken: " + timeTaken );
+        if (gameFinished == true){
+            timeTakenLabel = new JLabel("TIME TAKEN : " + timeTaken );
+        } else {
+            timeTakenLabel = new JLabel("WELL PLAYED! ");
+        }
         timeTakenLabel.setFont(gameOverFonts);
         timeTakenLabel.setForeground(Color.WHITE);
         gbc.insets = new Insets(20, 0, 0, 0);
@@ -396,7 +406,7 @@ public class SpaceMaze implements GameClient {
         gbc.gridy = 2;
         gameOverPanel.add(timeTakenLabel, gbc);
 
-        pressToExitLabel = new JLabel("Press ESC to exit to game menu!");
+        pressToExitLabel = new JLabel("PRESS ESC TO EXIT TO MAIN MENU ");
         pressToExitLabel.setFont(gameOverFonts);
         pressToExitLabel.setForeground(Color.WHITE);
         gbc.insets = new Insets(20, 0, 0, 0);
@@ -404,11 +414,28 @@ public class SpaceMaze implements GameClient {
         gbc.gridy = 3;
         gameOverPanel.add(pressToExitLabel, gbc);
 
+        gameOverHeaderPanel = new JPanel();
+        gameOverHeaderPanel.setPreferredSize(new Dimension(600, 200));
+        gameOverHeaderPanel.setBackground(Color.BLACK);
+        gameOverHeaderPanel.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+
+        JLabel gameOverHeaderText;
+        customFont = customFont.deriveFont(40f);
+        if (gameFinished == true){
+            gameOverHeaderText = new JLabel("VICTORY!!");
+        } else {
+            gameOverHeaderText = new JLabel("GAME OVER");
+        }
+        
+        gameOverHeaderText.setFont(customFont);
+        gameOverHeaderText.setForeground(Color.WHITE);
+        gameOverHeaderPanel.add(gameOverHeaderText, c);
+
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(gameOverPanel);
         mnClient.getMainWindow().addSouth(developerCredits);
-        //headerText = new JLabel("GAME OVER!"); //Maybe GameOver animation?
-        mnClient.getMainWindow().addNorth(headerPanel);
+        mnClient.getMainWindow().addNorth(gameOverHeaderPanel);
         mnClient.getMainWindow().pack();
 
         headerPanel.repaint();
