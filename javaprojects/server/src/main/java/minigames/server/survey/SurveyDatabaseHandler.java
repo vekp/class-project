@@ -14,7 +14,7 @@ import io.vertx.core.json.JsonObject;
 
 public class SurveyDatabaseHandler {
     private JSONArray feedbackArray = new JSONArray();
-    private static final String JSON_FILE_PATH = "feedback.json";
+    private static final String JSON_FILE_PATH = "src/main/java/minigames/server/survey/data/feedback.json";
 
     // Saves jsonData object to feedback.json file
     public void saveToSurveyDatabase(JsonObject jsonData) {
