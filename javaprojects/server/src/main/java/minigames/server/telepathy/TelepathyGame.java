@@ -597,4 +597,8 @@ public class TelepathyGame {
     public State getState(){
         return this.state;
     }
+
+    public String getCurrentPlayerTurn(){
+        return this.currentPlayerTurn;
+    }
 }

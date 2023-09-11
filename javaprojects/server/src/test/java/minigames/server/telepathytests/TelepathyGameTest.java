@@ -226,6 +226,22 @@ public class TelepathyGameTest {
 
         // Check correct player turn - only take questions on your turn
         game = progressGameToState(State.RUNNING);
+
+        
+        String player = game.getCurrentPlayerTurn();
+        cp = makeCommandPackage(game.telepathyGameMetadata(), 
+            player, 
+            TelepathyCommands.ASKQUESTION, "1", "1");
+        response = game.runCommands(cp);
+
+        assertTrue(response.renderingCommands().get(0).getString("command").equals(TelepathyCommands.BUTTONUPDATE.toString()));
+        
+        // Check that turns have switched
+        assertTrue(!game.getCurrentPlayerTurn().equals(player));
+
+        // Check that same player cannot take another turn
+        response = game.runCommands(cp);
+        assertTrue(response.renderingCommands().get(0).getString("command").equals(TelepathyCommands.INVALIDCOMMAND.toString()));
     }
 
     @Test
