@@ -88,7 +88,7 @@ public class Main extends AbstractVerticle {
         players.add("Robert");
         players.add("Georgia");
         players.add("Sushil");
-        players.add("Bikaskh");
+        players.add("Bikash");
         players.add("Sabin");
         players.add("Anil");
     }
