@@ -2,6 +2,9 @@ package minigames.client.telepathy;
 
 import minigames.utilities.MinigameUtils;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.*;
 import javax.swing.*;
 import java.awt.*;
@@ -15,33 +18,29 @@ import java.awt.Point;
 
 
 /**
- * A class to load and sort icons as a HashMap
+ * A class of methods used to load and handle implementation of UI icons.
  */
-
 
 
 public final class TelepathyIcons{
 
+    // Logger
+   private static final Logger logger = LogManager.getLogger(TelepathyIcons.class);
 
-    /*String[] list = {"RedClubs", "OrangeSpades", "RedHeart", "BlueClubs", "GreenStar", "OrangeClubs", "GreenClubs", "CyanStar", "PinkMoon", 
-    "GreenSpades", "OrangeCircle", "RedExclamations", "OrangeHeart", "GreenCircle", "GreenDiamond", "YellowSpade", "YellowHeart", "MagentaMoon",
-    "GreyDiamond", "RedHeart", "GreenQuestions", "GreyMoon", "RedHeart", "YellowDiamond", "GreyStar", "GreyHeart", "PinkHeart",
-    "MagentaDiamond", "GreyClubs", "YellowSpade", "RedExclamations", "RedCircle", "GreyHeart", "CyanCircle", "MagentaSpade", "OrangeCircle",
-    "PinkSpade", "OrangeStar", "RedStar", "OrangeHeart", "CyanClubs", "PinkHeart", "YellowSpade", "YellowExclamations", "BlueSpades",
-    "GreenHeart", "GreyDiamonds", "BlueSpades", "MagentaCircle", "BlueSpade", "MagentaCircle", "GreyClubs", "OrangeSpade", "CyanSpade", "OrangeHeart", "BlueHeart",
-    "OrangeExclamations", "CyanSpade", "MagentaCircle", "PinkSpade", "GreenCircle", "PinkSpade", "GreenCircle", "BlueCircle", "GreyMoon", "MagentaExclamations", "RedMoon",
-    "GreyExclamations", "CyanCircle", "BlueHeart", "RedDiamond", "YellowSpade", "BlueMoon", "CyanCircle", "RedQuestions", "GreyExclamations",
-    "GreyMoon", "GreenExclamations", "MagentaDiamond", "GreyStar", "YellowMoon", "MagentaExclamations", "RedClubs", "PinkClubs", "YellowDiamond"}; */
 
-   
+   /**
+    * A method to load and sort all icons from the Resources Directory into an ArrayList
+    * @return iconList ArrayList
+    */
     
-    public static ArrayList<ImageIcon> loadIcons(){
+    public static ArrayList<ImageIcon> loadIcons() {
 
-         ArrayList<ImageIcon> iconList = new ArrayList<>();
+        // method follows documentation from https://www.tutorialspoint.com/how-to-list-all-files-only-from-a-directory-using-java  
+        ArrayList<ImageIcon> iconList = new ArrayList<>();
+         
+        File path = new File("src/main/resources/telepathyicons");
 
-         File path = new File("src/main/resources/telepathyicons");
-
-         FileFilter fileFilter = new FileFilter(){
+        FileFilter fileFilter = new FileFilter(){
             public boolean accept(File dir){
                 if (dir.isFile()){
                     return true;
@@ -49,19 +48,26 @@ public final class TelepathyIcons{
                     return false;
                 }
             }
-         };
+        };
 
-         File[] list = path.listFiles(fileFilter);
+        File[] list = path.listFiles(fileFilter);
+        Arrays.sort(list);
 
-         for(File fileName: list){
+        for(File fileName: list){
+            // utilises team Intelligits scaledImage method
             ImageIcon icon = MinigameUtils.scaledImage(fileName.toString(), 40);
             iconList.add(icon);
-
         }
 
-        return iconList;
+     return iconList;
 
     }
+
+
+    /**
+    * A method to create a list of all coordinates on the board; utilises Point class.
+    * @return coordinates ArrayList
+    */
 
 
     public static ArrayList<Point> allCoordinates(JButton[][] buttonGrid){
@@ -77,6 +83,11 @@ public final class TelepathyIcons{
 
     }
 
+
+    /**
+    * A method that maps ordered icons to coordinates on the board; utilises Point class
+    * @return mappedIcons Map<Point, ImageIcon>
+    */
 
     public static Map<Point, ImageIcon> mappedIcons(ArrayList<Point> coordinates, ArrayList<ImageIcon> icons){
 
