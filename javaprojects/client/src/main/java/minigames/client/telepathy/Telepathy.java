@@ -17,7 +17,10 @@ import minigames.client.Animator;
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
 import minigames.client.Tickable;
+import minigames.client.telepathy.TelepathyIcons;
 import minigames.rendering.GameMetadata;
+import minigames.utilities.MinigameUtils;
+
 
 import minigames.commands.CommandPackage;
 import minigames.client.notifications.NotificationManager;
@@ -26,6 +29,7 @@ import minigames.client.notifications.DialogManager;
 import minigames.telepathy.TelepathyCommandException;
 import minigames.telepathy.TelepathyCommandHandler;
 import minigames.telepathy.TelepathyCommands;
+
 import minigames.telepathy.State;
 
 import java.awt.*;
@@ -33,6 +37,15 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.lang.String;
 import java.util.HashMap;
+import java.util.*;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import java.awt.Point;
 
 
 /**
@@ -70,6 +83,10 @@ public class Telepathy implements GameClient, Tickable{
 
     ArrayList<JButton> coloursList; // list of colours used in game
     ArrayList<JButton> symbolsList; // list of symbols used in game
+    
+    ArrayList<ImageIcon> allIcons; // ordered list of icons
+
+    Map<Point, ImageIcon> mappedIcons; // a map to store mapped icons to board buttons
 
     
     JButton startGame; // Button to initialise game
@@ -186,11 +203,17 @@ public class Telepathy implements GameClient, Tickable{
                 }
             }
         };
-        // a nested for loop to add buttons with ActionListeners to the panel
-        // UPDATE code here to add colours and symbols?? 
+
+        ArrayList<Point> allCoordinatesList = TelepathyIcons.allCoordinates(this.buttonGrid);
+        allIcons = TelepathyIcons.loadIcons();
+
+        mappedIcons = TelepathyIcons.mappedIcons(allCoordinatesList, allIcons);
+
+
         for (int row = 0; row < this.buttonGrid.length; row++) {
-            for (int col = 0; col < this.buttonGrid.length; col++) {
-                this.buttonGrid[col][row] = new JButton();
+            for (int col = 0; col < this.buttonGrid[row].length; col++) {
+                ImageIcon icon = mappedIcons.get(new Point(col, row));
+                this.buttonGrid[col][row] = new JButton(icon);
                 this.buttonGrid[col][row].setPreferredSize(new Dimension(50, 50));
                 this.buttonGrid[col][row].addActionListener(buttonListener);
                 board.add(buttonGrid[col][row]);
@@ -544,6 +567,7 @@ public class Telepathy implements GameClient, Tickable{
         button.setBorderPainted(true);
         button.setFocusPainted(false);
     }
+
 
 
     /**
