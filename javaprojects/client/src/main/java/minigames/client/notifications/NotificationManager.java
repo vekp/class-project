@@ -189,13 +189,13 @@ public class NotificationManager implements Tickable {
         setColours(defaultPanel.getForeground(), defaultPanel.getBackground(), null);
         setFont(defaultPanel.getFont().getFontName());
         setBorder(BorderFactory.createEtchedBorder());
-        setApplyColourAndFontStyling(false);
         this.layeredPane = frame.getLayeredPane();
         if (notification != null && notification.getParent() != layeredPane) {
             layeredPane.add(notification);
             applyStyling(notification);
             applyBorder(notification);
         }
+        setApplyColourAndFontStyling(false);
         return this;
     }
 
