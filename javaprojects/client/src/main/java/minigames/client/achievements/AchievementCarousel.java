@@ -12,17 +12,17 @@ import java.awt.event.ActionListener;
  */
 
 public class AchievementCarousel implements Tickable {
+    /**
+     * Enum Direction indicates the current status of the panel, whether at rest, moving left, or right.
+     */
     private enum Direction {
-        NONE(0),
-        LEFT(carouselPanelWidth),
-        RIGHT(-carouselPanelWidth);
+        NONE(0), LEFT(carouselPanelWidth), RIGHT(-carouselPanelWidth);
         final private int initialX;
         Direction(int initialX) {
             this.initialX = initialX;
         }
 
     }
-    // Direction of animation movement of the panels
     private Direction direction = Direction.NONE;
     private final AchievementPresenterRegistry apRegistry;
     private final int unlockedQty;
@@ -42,7 +42,7 @@ public class AchievementCarousel implements Tickable {
 
 
     /**
-     * Construct an AchievementCarousel
+     * Constructor for AchievementCarousel
      */
     public AchievementCarousel(AchievementPresenterRegistry apRegistry, Animator animator, int unlockedQty) {
         this.apRegistry = apRegistry;
@@ -85,13 +85,8 @@ public class AchievementCarousel implements Tickable {
      * @param index the current position in the list
      */
     private void updateCarousel(int index) {
-        position = index;
         if (index < 0 || index >= unlockedQty) return;
-
-        // Update currently displayed achievement
-        nextAchievement = apRegistry.achievements.get(index).largeAchievementPanel();
-        apRegistry.dialogManager.applyStyling(nextAchievement);
-        animator.requestTick(this);
+        position = index;
 
         // Update current position label
         southLabel.setText("Unlocked achievement " + (index + 1) + " of " + unlockedQty);
@@ -110,6 +105,20 @@ public class AchievementCarousel implements Tickable {
 
         // Enable/disable buttons at either end of carousel
         setButtons();
+
+        // Update currently displayed achievement
+        nextAchievement = apRegistry.achievements.get(index).largeAchievementPanel();
+        apRegistry.dialogManager.applyStyling(nextAchievement);
+
+        // When first opened, show achievement panel immediately.
+        if (direction.equals(Direction.NONE)) {
+            nextAchievement.setBounds(0, 0, carouselPanelWidth, carouselPanelHeight);
+            centrePanel.add(nextAchievement);
+            currentAchievement = nextAchievement;
+        } else {
+            //Otherwise, animate
+            animator.requestTick(this);
+        }
     }
 
     /**
@@ -125,27 +134,24 @@ public class AchievementCarousel implements Tickable {
      */
     @Override
     public void tick(Animator al, long now, long delta) {
-        // No animation required when first displayed
-        if (direction.equals(Direction.NONE)) {
-            nextAchievement.setBounds(0, 0, carouselPanelWidth, carouselPanelHeight);
-            centrePanel.add(nextAchievement);
-            currentAchievement = nextAchievement;
-            return;
-        }
         // Position and add the incoming achievement panel
         if (nextAchievement.getBounds().equals(new Rectangle(0, 0, 0, 0))) {
             currentX = direction.initialX;
             nextAchievement.setBounds(direction.initialX, 0, carouselPanelWidth, carouselPanelHeight);
             centrePanel.add(nextAchievement);
+            // Disable buttons for animation duration
+            leftButton.setEnabled(false);
+            rightButton.setEnabled(false);
+            animator.requestTick(this);
+            return;
         }
-        // Disable buttons for animation duration
-        leftButton.setEnabled(false);
-        rightButton.setEnabled(false);
+
         // Calculate and set new positions
         currentX *= 0.8;
         int newX = Math.round(currentX);
         currentAchievement.setLocation(newX - direction.initialX, 0);
         nextAchievement.setLocation(newX, 0);
+
         // Stop if final position reached
         if (newX == 0) {
             direction = Direction.NONE;
