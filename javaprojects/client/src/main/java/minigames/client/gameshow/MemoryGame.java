@@ -14,8 +14,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class MemoryGame {
+    private static boolean listeningForClicks = true;
+    private static boolean startGame = false;
     private static JPanel panel; // Declare panel as a class variable
     private static JLabel instruction;
+
+    private static int currentRound = 1;
+    private static final int TOTAL_ROUNDS = 3;
     public static void main(String[] args) {
         // Provide the correct path using forward slashes
         File folder = new File("C:/Users/Admin/OneDrive - University of New England/Documents/Jenifer/Masters in IT/COSC220/Assignment 3 - Gameshow/classproject/javaprojects/client/src/main/resources/images/memory_game_pics");
@@ -31,7 +36,7 @@ public class MemoryGame {
             JFrame frame = new JFrame("Memory Game");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setSize(800, 600); // Set the window size
-         instruction = new JLabel("Memorise Images");
+            instruction = new JLabel("Memorise Images");
             JPanel instructionPanel = new JPanel();
             instructionPanel.setPreferredSize(new Dimension(700, 100));
             instructionPanel .add(instruction );
@@ -148,6 +153,7 @@ public class MemoryGame {
         int desiredHeight = 100;
         JLabel correctImage = null;
 
+
         if (filesCover != null && filesCover.length > 0) {
             // Create a list of image files
             for (File file : filesCover) {
@@ -158,6 +164,7 @@ public class MemoryGame {
             if (correctNumber >= 0 && correctNumber < imageFilesCover.size()) {
                 for (int i = 0; i < 6; i++) {
                     File imageIcon = imageFilesCover.get(i);
+                    int imageCovernumber=i;
                     ImageIcon imageIconCover = resizeImage(imageIcon, desiredWidth, desiredHeight);
                     if (i == correctNumber) {
                         correctImage = new JLabel(imageIconCover);
@@ -170,18 +177,47 @@ public class MemoryGame {
                     // Add a mouse listener to the label to handle mouse click events
                     JLabel finalCorrectImage = correctImage;
                     label.addMouseListener(new MouseListener() {
+                        private final boolean clicksEnabled = listeningForClicks;
                         @Override
                         public void mouseClicked(MouseEvent e) {
                             // Handle the mouse click event for the image here
                             // For example, you can display a message or perform an action
-                            if (label == finalCorrectImage) {
+                            if (listeningForClicks) {
+                            if (correctNumber == imageCovernumber) {
                                 System.out.println("Correct Image.");
-                            } else {
-                                System.out.println("Not Correct Image.");
-                            }
+                                System.out.println("Icon nummer is " + imageCovernumber);
+                                panel.remove(imageLabels.get(correctNumber));
+                                File newImageFile = new File("C:/Users/Admin/OneDrive - University of New England/Documents/Jenifer/Masters in IT/COSC220/Assignment 3 - Gameshow/classproject/javaprojects/client/src/main/resources/images/result/Correct.jpg");
+                                ImageIcon newImageIcon = resizeImage(newImageFile, desiredWidth, desiredHeight);
+                                // Create a new JLabel with the replacement image
+                                JLabel newLabel = new JLabel(newImageIcon);
 
-                            // Remove the mouse listener after handling the click event
-                            label.removeMouseListener(this);
+                                // Add the new JLabel to the panel at the same position
+                                panel.add(newLabel, correctNumber);
+                                imageLabels.set(correctNumber, newLabel);
+                                panel.revalidate();
+                                panel.repaint();
+
+
+                            } else {
+                                System.out.println("Not Correct Image." + imageCovernumber);
+                                panel.remove(imageLabels.get(imageCovernumber));
+                                File newImageFile = new File("C:/Users/Admin/OneDrive - University of New England/Documents/Jenifer/Masters in IT/COSC220/Assignment 3 - Gameshow/classproject/javaprojects/client/src/main/resources/images/result/Inccorrect.jpg");
+                                ImageIcon newImageIcon = resizeImage(newImageFile, desiredWidth, desiredHeight);
+                                // Create a new JLabel with the replacement image
+                                JLabel newLabel = new JLabel(newImageIcon);
+
+                                // Add the new JLabel to the panel at the same position
+                                panel.add(newLabel, imageCovernumber);
+                                imageLabels.set(imageCovernumber, newLabel);
+                                panel.revalidate();
+                                panel.repaint();
+
+                            }
+                            listeningForClicks = false;
+
+                        } //enf it // Remove the mouse listener after handling the click even
+
                         }
 
                         @Override
@@ -202,12 +238,13 @@ public class MemoryGame {
         }
 
         // Repaint the panel to reflect the changes
-       // panel.revalidate();
-       // panel.repaint();
-                }
+        // panel.revalidate();
+        // panel.repaint();
+    }
 
 
     private static void updateInstructionText(String newText) {
         instruction.setText(newText);
     }
 }
+
