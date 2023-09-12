@@ -62,9 +62,9 @@ public class Telepathy implements GameClient, Tickable{
     JPanel gridIndexWest; // alphabetical index
     JPanel gridIndexNorth; // numerical index
     JPanel board; // game board grid
-    JPanel welcomeMessage; // first popup message to start game
-    JPanel confirmTargetTile; // popup panel to confirm players target tile selection
-    JPanel questionOrFinalGuess; // popup panel that asks player about their button selection
+    //JPanel welcomeMessage; // first popup message to start game
+    //JPanel confirmTargetTile; // popup panel to confirm players target tile selection
+    //JPanel questionOrFinalGuess; // popup panel that asks player about their button selection
     JPanel sidePanel; // board game side panel
     JPanel colourSymbolPanel; //  nested panel listing the colours and symbols in the gameboard
 
@@ -82,6 +82,10 @@ public class Telepathy implements GameClient, Tickable{
     String columns = "ABCDEFGHI"; // string of letters to label y coordinate
     
     JButton[][] buttonGrid; // 2D button array
+
+    // Client information
+    private int xCoord; // X coordinate of button on board that is pressed
+    private int yCoord; // Y coordiante of button on board that is pressed
 
     // Tick information
     private boolean ticking;
@@ -176,13 +180,26 @@ public class Telepathy implements GameClient, Tickable{
             JButton selectedBtn = (JButton) evt.getSource();
             for (int row = 0; row < this.buttonGrid.length; row++) {
                 for (int col = 0; col < this.buttonGrid[row].length; col++) {
-                    if (this.buttonGrid[col][row] == selectedBtn && this.serverState == State.TILESELECTION) {
+                    if (this.buttonGrid[col][row] == selectedBtn) {
+                        this.xCoord = col;
+                        this.yCoord = row;
                         disableButtonGrid();
-                        selectTargetTile(col, row); 
+
+                        if (this.serverState == State.TILESELECTION) {
+                            activateTargetTileMessage();    
+                        } else if (this.serverState == State.RUNNING) {
+                            activateQuestionGuessMessage();
+                        }
+                    }
+                    /* Old version of selecting buttons
+                    if (this.buttonGrid[col][row] == selectedBtn && this.serverState == State.TILESELECTION) {
+                        
+                        disableButtonGrid();
+                         
                     }else if (this.buttonGrid[col][row] == selectedBtn && this.serverState == State.RUNNING){
                         disableButtonGrid();
                         activateQuestOrGuessMessage(col, row); 
-                    }
+                    }*/
                 }
             }
         };
@@ -270,184 +287,163 @@ public class Telepathy implements GameClient, Tickable{
         }
     }
     
-
-
     /**
-     * A JPanel displaying a welcome message and information about game play.
-     * @return popupWelcome JPanel 
+     * Create a JPanel that can be used to display a message to the user.
+     * 
+     * @param heading: The main heading to use at the top of the panel.
+     * @param subHeading: A sub-heading to use underneath the main heading.
+     * @param descriptionString: The message to display to the user.
+     * @return JPanel containing all the required components to display a message.
      */
-    public JPanel popupWelcomeMessage(){
-    
+    private JPanel makeMessagePopup(String heading, String subHeading, String descriptionString) {
 
-        JPanel popupWelcome = new JPanel();
-        popupWelcome.setLayout(new BoxLayout(popupWelcome, BoxLayout.PAGE_AXIS));
-        popupWelcome.setPreferredSize(new Dimension(300, 300));
-        
-        
+        // Sub-panels for the heading
+        JPanel headingPanel = new JPanel();
+        headingPanel.setLayout(new BoxLayout(headingPanel, BoxLayout.PAGE_AXIS));
+
         Font font = new Font("futura", Font.BOLD, 20);
         Font subFont = new Font("georgia", Font.ITALIC, 18);
 
-        JPanel headings = new JPanel();
-        headings.setLayout(new BoxLayout(headings, BoxLayout.PAGE_AXIS));
-        JLabel heading = new JLabel("Telepathy");
-        JLabel subHeading = new JLabel("are you telepathic " + player + "? ");
-        heading.setFont(font);
-        heading.setAlignmentX(Component.CENTER_ALIGNMENT);
-        subHeading.setFont(subFont);
-        subHeading.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
+        JLabel headingLabel = new JLabel(heading);
+        JLabel subHeadingLabel = new JLabel(subHeading);
 
-        headings.add(heading);
-        headings.add(subHeading);
+        headingLabel.setFont(font);
+        headingLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        subHeadingLabel.setFont(subFont);
+        subHeadingLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JTextPane description = new JTextPane();
-        description.setText("\n\n\n     To start a game, choose your target tile!\n\n\n       Once your target tile is selected, start\n    asking questions by clicking another tile...");
-        description.setEditable(false);
-        description.setAlignmentX(Component.CENTER_ALIGNMENT);
+        headingPanel.add(headingLabel);
+        headingPanel.add(subHeadingLabel);
 
-        popupWelcome.add(headings);
-        popupWelcome.add(subHeading);
-        popupWelcome.add(description);
+        // Main text for the popup
+        JTextPane descriptionTextPane = new JTextPane();
+        descriptionTextPane.setText("\n\n\n" + descriptionString);
+        descriptionTextPane.setEditable(false);
+        descriptionTextPane.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        // The main popup JPanel
+        JPanel popupPanel = new JPanel();
+        popupPanel.setLayout(new BoxLayout(popupPanel, BoxLayout.PAGE_AXIS));
+        popupPanel.setPreferredSize(new Dimension(300, 300));
 
-        return popupWelcome;
+        popupPanel.add(headingPanel);
+        popupPanel.add(descriptionTextPane);
+
+        return popupPanel;
     }
 
+    /**
+     * Create a JPanel that can be used to display a message and give the user a 
+     * choice to make. 
+     * 
+     * @param headingString: The main heading to use at the top of the panel.
+     * @param descriptionString: The message to display to the user.
+     * @param buttonOneLabel: The label to apply to the first button option.
+     * @param buttonTwoLabel: The label to apply to the second button option.
+     * @param listenerOne: ActionListener defining action for first button press.
+     * @param listenerTwo: ActionListener defining action for second button press.
+     * @return The JPanel with a message and two buttons prompting the user.
+     */
+    private JPanel makeChoicePopup(String headingString, String descriptionString, String buttonOneLabel, String buttonTwoLabel, ActionListener listenerOne,
+            ActionListener listenerTwo) {
+
+        
+        Font font = new Font("futura", Font.BOLD, 20);
+
+        JLabel headingLabel = new JLabel(headingString);
+        headingLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        headingLabel.setFont(font);
+
+        JTextPane descriptionTextPane = new JTextPane();
+        descriptionTextPane.setText("\n\n\n" + descriptionString);
+        descriptionTextPane.setEditable(false);
+
+        JPanel buttonPanel = new JPanel();
+        JButton buttonOne = new JButton(buttonOneLabel);
+        JButton buttonTwo = new JButton(buttonTwoLabel);
+        buttonOne.addActionListener(listenerOne);
+        buttonTwo.addActionListener(listenerTwo);
+
+        buttonPanel.add(buttonOne);
+        buttonPanel.add(buttonTwo);
+        buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JPanel choicePanel = new JPanel();
+        choicePanel.setLayout(new BoxLayout(choicePanel, BoxLayout.Y_AXIS));
+        choicePanel.setPreferredSize(new Dimension(300, 290));
+
+        choicePanel.add(headingLabel);
+        choicePanel.add(descriptionTextPane);
+        choicePanel.add(buttonPanel);
+
+        return choicePanel;
+
+    }
 
     /**
      * A method to display the Welcome JPanel as a popup message.
      */
-    public void activateWelcomeMessage(){
-        welcomeMessage = popupWelcomeMessage();
+    private void activateWelcomeMessage() {
+        JPanel welcomeMessage = makeMessagePopup(
+                "Telepathy",
+                "are you telepathic " + player + "? ",
+                "To start a game, choose your target tile!\n\n\n       Once your target tile is selected, start\n    asking questions by clicking another tile...");
+
+        //welcomeMessage = popupWelcomeMessage();
         telepathyNotificationManager.showMessageDialog("Telepathy", welcomeMessage);
     }
 
+
     /**
-     * A method to display the questionOrGuess Jpanel as a popup message.
-     * @param int x representing the x coordinate of the selected tile
-     * @param int y represetning the y coordinate of the selected tile
+     * A method to display the question or guess message as a popup message.
+     * Prompts the user using two buttons.
      */
+    private void activateQuestionGuessMessage(){
+        ActionListener questionListener = e -> {
+            sendCommand(TelepathyCommands.ASKQUESTION, Integer.toString(this.xCoord), Integer.toString(this.yCoord));
+            telepathyNotificationManager.dismissCurrentNotification();
+        };
 
-    public void activateQuestOrGuessMessage(int x, int y){
-        questionOrFinalGuess = questionOrGuess(x, y);
-        telepathyNotificationManager.showNotification(questionOrFinalGuess, false); 
+        ActionListener finalListener = e -> {
+            sendCommand(TelepathyCommands.FINALGUESS, Integer.toString(this.xCoord), Integer.toString(this.yCoord));
+            telepathyNotificationManager.dismissCurrentNotification();
+        };
+
+        JPanel choicePanel = makeChoicePopup(
+            "Question Or Final Guess?",
+            "Are you asking if your opponent's tile shares any features with this tile?\n\n\nOr is this your Final Guess?\n\n\nChoose wisely!",
+            "Question",
+            "Final Guess",
+            questionListener,
+            finalListener
+            );
+
+            telepathyNotificationManager.showNotification(choicePanel, false);
     }
-
 
     /**
      * A method to display the selectTargetTile Jpanel as a popup message.
-     * @param int x representing the x coordinate of the selected tile
-     * @param int y represetning the y coordinate of the selected tile
      */
-    public void selectTargetTile(int x, int y){
-        confirmTargetTile = confirmTargetTile(x, y);
+    public void activateTargetTileMessage() {
+        ActionListener yesListener = e -> {
+            sendCommand(TelepathyCommands.CHOOSETILE, Integer.toString(this.xCoord), Integer.toString(this.yCoord));
+            setButtonBorder(this.buttonGrid[this.xCoord][this.yCoord], Color.BLUE);
+            telepathyNotificationManager.dismissCurrentNotification();
+        };
+
+        ActionListener noListener = e -> {
+            telepathyNotificationManager.dismissCurrentNotification();
+            enableButtonGrid();
+        };
+
+        JPanel confirmTargetTile = makeChoicePopup(
+            "Is this your chosen target tile?",
+            "Select 'Yes' to continue or 'No' to make another choice",
+            "Yes",
+            "No",
+            yesListener,
+            noListener);
         telepathyNotificationManager.showNotification(confirmTargetTile, false); 
-    }
-
-    
-    /**
-     * A JPanel that enables the player to select their target tile.
-     * @param int x representing the x coordinate of the selected tile
-     * @param int y represetning the y coordinate of the selected tile
-     * @return confirmTargetTile JPanel
-     */
-
-     public JPanel confirmTargetTile(int x, int y){
-
-        JPanel confirmTargetTile = new JPanel();
-        confirmTargetTile.setLayout(new BoxLayout(confirmTargetTile, BoxLayout.Y_AXIS));
-        confirmTargetTile.setPreferredSize(new Dimension(400, 150));
-        
-        Font font = new Font("futura", Font.BOLD, 16);
-
-        JLabel heading = new JLabel("Is this your chosen target tile?");
-        heading.setAlignmentX(Component.CENTER_ALIGNMENT);
-        heading.setFont(font);
-
-        JTextPane description = new JTextPane();
-        description.setText("\n\n\n      Select 'Yes' to continue or 'No' to make another choice");
-        description.setEditable(false);
-       
-
-        JPanel buttonPanel = new JPanel();
-
-        String xyTargetTile = (Integer.toString(x) + ", " + Integer.toString(y));
-
-        JButton yes = new JButton("Yes");
-        yes.addActionListener(e -> {
-            sendCommand(TelepathyCommands.CHOOSETILE, Integer.toString(x), Integer.toString(y));
-            setButtonBorder(this.buttonGrid[x][y], Color.BLUE);
-            telepathyNotificationManager.dismissCurrentNotification();
-        });
-
-        JButton no = new JButton("No");
-        no.addActionListener(e -> {
-            telepathyNotificationManager.dismissCurrentNotification();
-        });
-
-        buttonPanel.add(yes);
-        buttonPanel.add(no);
-        buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
-
-        confirmTargetTile.add(heading);
-        confirmTargetTile.add(description);
-        confirmTargetTile.add(buttonPanel);
-        
-        
-        return confirmTargetTile;
-    }
-
-
-    /**
-     * A JPanel that enables the player to ask a question or make their final guess. 
-     * @param int x representing the x coordinate of the selected tile
-     * @param int y represetning the y coordinate of the selected tile
-     * @return questionOrGuess JPanel
-     */
-
-    public JPanel questionOrGuess(int x, int y){
-    
-        JPanel questionOrGuess = new JPanel();
-        questionOrGuess.setLayout(new BoxLayout(questionOrGuess, BoxLayout.Y_AXIS));
-        questionOrGuess.setPreferredSize(new Dimension(300, 290));
-        
-        Font font = new Font("futura", Font.BOLD, 20);
-
-        JLabel heading = new JLabel("Question Or Final Guess?");
-        heading.setAlignmentX(Component.CENTER_ALIGNMENT);
-        heading.setFont(font);
-
-        JTextPane description = new JTextPane();
-        description.setText("\n\n\nAre you asking if your opponent's tile shares any features with this tile?\n\n\nOr is this your Final Guess?\n\n\nChoose wisely!");
-        description.setEditable(false);
-       
-
-        JPanel buttonPanel = new JPanel();
-        
-        String xyCoords = (Integer.toString(x) + ", " + Integer.toString(y));
-
-        JButton question = new JButton("Question");
-        question.addActionListener(e -> {
-            sendCommand(TelepathyCommands.ASKQUESTION, xyCoords);
-            telepathyNotificationManager.dismissCurrentNotification();
-        });
-
-        JButton finalGuess = new JButton("Final Guess");
-        finalGuess.addActionListener(e -> {
-            sendCommand(TelepathyCommands.FINALGUESS, xyCoords);
-            telepathyNotificationManager.dismissCurrentNotification();
-        });
-
-        buttonPanel.add(question);
-        buttonPanel.add(finalGuess);
-        buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        questionOrGuess.add(heading);
-        questionOrGuess.add(description);
-        questionOrGuess.add(buttonPanel);
-      
-        return questionOrGuess;
     }
 
     /**
