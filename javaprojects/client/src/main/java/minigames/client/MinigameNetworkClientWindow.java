@@ -60,7 +60,7 @@ public class MinigameNetworkClientWindow {
                 }
             }
         } catch (Exception e) {
-            // Handle the exception (e.g., show a message)
+
         }
 
         this.networkClient = networkClient;
@@ -90,6 +90,8 @@ public class MinigameNetworkClientWindow {
 
         nameField = new JTextField(20);
         nameField.setText("Algernon");
+
+        frame.setLocationRelativeTo(null);
 
     }
 
@@ -301,12 +303,28 @@ public class MinigameNetworkClientWindow {
             // FIXME: We've got a hardcoded player name here
             networkClient.newGame(gameServer, nameField.getText());
         });
-        panel.add(newG);
+
+        JButton returnToMainMenu = new JButton("Return to Main Menu");
+        // TODO
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+        buttonPanel.add(newG);
+        buttonPanel.add(returnToMainMenu);
+
+        // Create a main panel with BorderLayout
+        JPanel mainPanel = new JPanel(new BorderLayout());
 
         JScrollPane scrollPane = new JScrollPane(panel);
         scrollPane.setPreferredSize(new Dimension(800, 600));
 
-        center.add(scrollPane);
+        // Add the scroll pane to the center of the main panel
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+
+        // Add the button panel to the west of the main panel
+        mainPanel.add(buttonPanel, BorderLayout.WEST);
+
+        center.add(mainPanel);
         pack();
         parent.repaint();
     }
