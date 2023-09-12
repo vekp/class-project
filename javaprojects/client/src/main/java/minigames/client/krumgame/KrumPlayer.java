@@ -1457,12 +1457,11 @@ public class KrumPlayer {
             blowtorchStartX = playerCentre().x;
             blowtorchStartY = playerCentre().y;
             KrumSound.playSound("laser1");
+            System.out.println("blowtorch firing from " + blowtorchStartX + ", " + blowtorchStartY + " at angle " + blowtorchAimAngle + ". player sprite is " + spriteIndex);
         }
         else if (blowtorchWidening || blowtorchWide) {
             KrumPlayer otherPlayer = players[1 - playerIndex];
-            // destory level and hit opponent            
-            // double y = (int)blowtorchStartY;
-            // double x = (int)blowtorchStartX;
+            // destroy level and hit opponent            
             int maxDrawWidth = BLOWTORCH_MAX_WIDTH / 2;
             double ex = (int)(blowtorchStartX + Math.cos(blowtorchAimAngle) * (blowtorchLength));
             double ey = (int)(blowtorchStartY - Math.sin(blowtorchAimAngle) * (blowtorchLength));

@@ -973,6 +973,7 @@ public class KrumGame {
         // todo: make sure we don't leave any mess
         mnClient.getMainWindow().getFrame().removeComponentListener(offsetListener);
         enableInfoLogging();
+        running = false;
     }
 
     //Getters and setters:
