@@ -313,7 +313,7 @@ public class MinigameNetworkClient {
      * Sends a JSON object of survey responses to the server for saving to a database
      */
     public Future<HttpResponse<Buffer>> sendSurveyData(JsonObject surveyData) {
-        return webClient.post(port, host, "/sendSurveyData")
+        return webClient.post(port, host, "/survey/sendSurveyData")
                 .sendJson(surveyData)
                 .onSuccess((resp) -> {
                     logger.info("Survey data sent successfully.");
