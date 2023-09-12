@@ -21,7 +21,6 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.RenderingPackage;
 
-
 public class MinigameNetworkServer {
 
     /**
@@ -52,6 +51,9 @@ public class MinigameNetworkServer {
           ctx.response().putHeader("Acces-Control-Allow-Origin", "*");
           ctx.response().end("");
         });*/
+
+        SurveyRoutesHandler surveyRoutesHandler = new SurveyRoutesHandler();
+        surveyRoutesHandler.setupRoutes(router);
 
         // A basic ping route to check if there is contact
         router.get("/ping").handler((ctx) -> {

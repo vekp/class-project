@@ -1,5 +1,6 @@
 package minigames.client;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,6 +11,7 @@ import minigames.achievements.GameAchievementState;
 import minigames.achievements.PlayerAchievementRecord;
 import minigames.client.achievements.AchievementPresenterRegistry;
 import minigames.client.achievements.AchievementUI;
+import minigames.client.notifications.DialogManager;
 import minigames.client.notifications.NotificationManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,6 +21,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.HttpResponse;
 
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
@@ -60,6 +63,7 @@ public class MinigameNetworkClient {
 
     Optional<GameClient> gameClient;
     NotificationManager notificationManager;
+    DialogManager dialogManager;
 
     public MinigameNetworkClient(Vertx vertx) {
         this.vertx = vertx;
@@ -71,6 +75,7 @@ public class MinigameNetworkClient {
 
         mainWindow = new MinigameNetworkClientWindow(this);
         notificationManager = new NotificationManager(this);
+        dialogManager = new DialogManager(this);
         mainWindow.show();
     }
 
@@ -96,10 +101,17 @@ public class MinigameNetworkClient {
     }
 
     /**
-     * Get a reference to the notification manager
+     * Getter for system NotificationManager. Intended for system notifications in the top right corner of the frame.
      */
     public NotificationManager getNotificationManager() {
         return this.notificationManager;
+    }
+
+    /**
+     * Getter for dialog NotificationManager. Intended for dialogs in the centre of the frame.
+     */
+    public DialogManager getDialogManager() {
+        return this.dialogManager;
     }
 
     /**
@@ -184,10 +196,9 @@ public class MinigameNetworkClient {
                 .onSuccess((resp) -> {
                     //re-create the player's GameAchievementState from the JSON we should have been sent, and
                     //display it in a message dialog in a background thread
-                    AchievementPresenterRegistry ac = new AchievementPresenterRegistry(GameAchievementState.fromJSON(resp.bodyAsString()));
                     vertx.executeBlocking(getGameAchievements -> {
-                        JOptionPane.showMessageDialog(getMainWindow().frame, ac.achievementListPanel(),
-                                gameID + " achievements", JOptionPane.PLAIN_MESSAGE);
+                        AchievementPresenterRegistry ac = new AchievementPresenterRegistry(GameAchievementState.fromJSON(resp.bodyAsString()), getAnimator());
+                        ac.showGameAchievements(dialogManager);
                         getGameAchievements.complete();
                     });
                     logger.info(resp.bodyAsString());
@@ -298,11 +309,28 @@ public class MinigameNetworkClient {
                 });
     }
 
+    /*
+     * Sends a JSON object of survey responses to the server for saving to a database
+     */
+    public Future<HttpResponse<Buffer>> sendSurveyData(JsonObject surveyData) {
+        return webClient.post(port, host, "/survey/sendSurveyData")
+                .sendJson(surveyData)
+                .onSuccess((resp) -> {
+                    logger.info("Survey data sent successfully.");
+                })
+                .onFailure((resp) -> {
+                    logger.error("Failed to send survey data: {}", resp.getMessage());
+                });
+    }
+
     /**
      * Runs the sequence that opens the main menu - starting with a title card before communicating with
      * the server to get a list of available games.
      */
     public void runMainMenuSequence() {
+        notificationManager.resetToDefaultSettings();
+        dialogManager.dismissCurrentNotification()
+                .resetToDefaultSettings();
         mainWindow.showStarfieldMessage("Minigame Network");
 
         ping().flatMap((s) -> getGameServers()).map((list) -> {

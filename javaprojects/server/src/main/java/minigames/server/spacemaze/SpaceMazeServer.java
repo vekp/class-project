@@ -1,4 +1,4 @@
-package minigames.server.survey;
+package minigames.server.spacemaze;
 
 import io.vertx.core.Future;
 import minigames.commands.CommandPackage;
@@ -12,10 +12,12 @@ import java.util.HashMap;
 import java.util.Random;
 
 /**
- * Our SurveyServer holds FeedbackSurveys. 
- * When it receives a CommandPackage, it finds the FeedbackSurvey and calls it.
+ * Our SpaceMazeServer holds SpaceMazeGames.
+ * When it receives a CommandPackage, it finds the SpaceMazeGame and calls it.
+ *
+ * @author Andrew McKenzie
  */
-public class SurveyServer implements GameServer {
+public class SpaceMazeServer implements GameServer {
 
     static final String chars = "abcdefghijklmopqrstuvwxyz";
 
@@ -30,11 +32,11 @@ public class SurveyServer implements GameServer {
     }
 
     /** Holds the games in progress in memory (no db) */
-    HashMap<String, FeedbackSurvey> games = new HashMap<>();
+    HashMap<String, SpaceMazeGame> games = new HashMap<>();
 
     @Override
     public GameServerDetails getDetails() {
-        return new GameServerDetails("Survey", "Feedback Survey");
+        return new GameServerDetails("SpaceMaze", "Race through the cosmic corridors");
     }
 
     @Override
@@ -45,27 +47,28 @@ public class SurveyServer implements GameServer {
     @Override
     public GameMetadata[] getGamesInProgress() {
         return games.keySet().stream().map((name) -> {
-            return new GameMetadata("Survey", name, games.get(name).getPlayerNames(), true);
+            // Change to true when we go two player
+            return new GameMetadata("SpaceMaze", name, games.get(name).getPlayerNames(), false);
         }).toArray(GameMetadata[]::new);
     }
 
     @Override
     public Future<RenderingPackage> newGame(String playerName) {
-        FeedbackSurvey g = new FeedbackSurvey(randomName());
+        SpaceMazeGame g = new SpaceMazeGame(randomName());
         games.put(g.name, g);
         return Future.succeededFuture(g.joinGame(playerName));
     }
 
     @Override
     public Future<RenderingPackage> joinGame(String game, String playerName) {
-        FeedbackSurvey g = games.get(game);
+        SpaceMazeGame g = games.get(game);
         return Future.succeededFuture(g.joinGame(playerName));
     }
 
     @Override
     public Future<RenderingPackage> callGame(CommandPackage cp) {
-        FeedbackSurvey g = games.get(cp.gameId());
+        SpaceMazeGame g = games.get(cp.gameId());
         return Future.succeededFuture(g.runCommands(cp));
     }
-    
+
 }

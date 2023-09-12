@@ -43,7 +43,7 @@ public class MuddleGame {
         this.achievementHandler = new AchievementHandler(MuddleServer.class);
 
         // Unlock Muddler achievement for starting a new game
-        achievementHandler.unlockAchievement(playerName, MUDDLER.toString());
+        achievementHandler.unlockAchievement(playerName, MUDDLER.achievement.name());
     }
 
     String[][] rooms = new String[][] {
@@ -99,9 +99,9 @@ public class MuddleGame {
 
         // Unlock achievements
         switch (userInput.toLowerCase().strip()) {
-            case "east" -> achievementHandler.unlockAchievement(playerName, EAST_BUTTON_PUSHER.toString());
-            case "south" -> achievementHandler.unlockAchievement(playerName, SOUTH_BUTTON_PUSHER.toString());
-            case "abracadabra" -> achievementHandler.unlockAchievement(playerName, SAY_THE_MAGIC_WORD.toString());
+            case "east" -> achievementHandler.unlockAchievement(playerName, EAST_BUTTON_PUSHER.achievement.name());
+            case "south" -> achievementHandler.unlockAchievement(playerName, SOUTH_BUTTON_PUSHER.achievement.name());
+            case "abracadabra" -> achievementHandler.unlockAchievement(playerName, SAY_THE_MAGIC_WORD.achievement.name());
         }
 
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();

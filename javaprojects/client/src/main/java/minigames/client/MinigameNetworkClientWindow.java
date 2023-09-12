@@ -2,8 +2,6 @@ package minigames.client;
 
 import javax.swing.*;
 
-import java.awt.event.ActionListener;
-
 import minigames.client.achievements.AchievementNotificationHandler;
 import minigames.client.achievements.AchievementUI;
 import minigames.client.survey.Survey;
@@ -172,7 +170,6 @@ public class MinigameNetworkClientWindow {
     public void showGameServers(List<GameServerDetails> servers) {
         frame.setTitle("COSC220 2023 Minigame Collection");
         clearAll();
-        networkClient.getNotificationManager().resetToDefaultSettings();
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -199,23 +196,16 @@ public class MinigameNetworkClientWindow {
         // Create a button for the Achievement UI.
         JButton achievementsButton = new JButton("Achievements");
         achievementsButton.addActionListener(e -> {
-            clearAll();
-            JPanel achievements = new AchievementUI(networkClient);
-            frame.setTitle(AchievementUI.TITLE);
-            center.add(achievements);
-            pack();
+            AchievementUI achievements = new AchievementUI(networkClient);
+            achievements.load();
         });
         south.add(achievementsButton);
-
-        // Added action listener back in for back btn in Survey
-        ActionListener returnAction = (a) -> {
-            showGameServers(servers);
-        }; 
 
         JButton surveyButton = new JButton("Survey");
         surveyButton.addActionListener(e -> {
             clearAll();
-            JPanel survey = new Survey(returnAction);
+            String gameId = "64fec6296849f97cdc19f017";
+            JPanel survey = new Survey(networkClient, gameId);
             frame.setTitle(Survey.FRAME_TITLE);
             center.add(survey);
             pack();

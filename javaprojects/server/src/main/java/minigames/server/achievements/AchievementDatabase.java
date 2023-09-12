@@ -4,6 +4,12 @@ import minigames.achievements.*;
 
 import java.util.*;
 
+/**
+ * This is a makeshift 'database' class to hold achievements that have been registered by Game Servers. As Game
+ * Servers register their achievements every time the server starts (in code), there is technically no real need to
+ * store this information in a database, but there is potential to do so, so that achievements could be registered
+ * outside of code (e.g. by importing a csv file or entering data into the database manually).
+ */
 public class AchievementDatabase {
 
     /**

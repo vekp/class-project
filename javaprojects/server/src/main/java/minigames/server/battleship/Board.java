@@ -10,31 +10,31 @@ import static java.lang.Math.round;
  * The Board Class contains all the information about the current state of a player's game board, including the player's name
  */
 public class Board {
-    private String playerName;
-    private String boardTitle;
     private Grid grid; // A two-dimensional array of Cells for drawing the game board
     private HashMap<String, Ship> vessels;  // A hashmap containing each of the five ship types for the current board
     private int turnNumber;  // The current turn number
-    private String messageHistory;  // String of all valid messages, both game and player
+
     private GameState gameState;
+    private int lastRowShot;
+    private int lastColShot;
 
 
     /**
      * The Constructor takes only the player's name as a parameter
-     * @param playerName A String representing the name of the player
+//     * @param   String representing the name of the player
      */
-    public Board(String playerName, String message){
-        this.playerName = playerName;
+    public Board(int choice){
         this.turnNumber = 0;
         this.vessels = new HashMap<>();
         this.grid = new Grid(); // Create a default grid
-        chooseGrid();
+        chooseGrid(choice); // Fake name while I sort this out
 
-        this.messageHistory = message;
         this.gameState = GameState.SHIP_PLACEMENT;
         // Set the player to be the owner for all ships on this board
         this.setPlayerOwner();
-
+        // Initialise last shot to invalid coordinates.
+        this.lastRowShot = -1;
+        this.lastColShot = -1;
     }
 
 
@@ -52,7 +52,7 @@ public class Board {
      * Getter for the player name
      * @return The String of the player that owns the board
      */
-    public String getPlayerName() {return this.playerName;}
+//    public String getPlayerName() {return this.playerName;}
 
     /**
      * Getter for the current turn number
@@ -64,9 +64,9 @@ public class Board {
      * Getter for the player's message history
      * @return the message history string
      */
-    public String getMessageHistory() {
-        return messageHistory;
-    }
+//    public String getMessageHistory() {
+//        return messageHistory;
+//    }
 
     /**
      * Getter for the player's current game state
@@ -110,7 +110,7 @@ public class Board {
     public void setPlayerOwner(){
         this.vessels.forEach((key, value) ->{
             Ship current = value;
-            current.setOwner(this.playerName);
+//            current.setOwner(this.playerName);
             vessels.replace(key, current);
         });
     }
@@ -136,9 +136,9 @@ public class Board {
      * Adds the user's input to the message history
      * @param input user's input
      */
-    public void updateMessageHistory(String input) {
-        this.messageHistory = getMessageHistory() + input;
-    }
+//    public void updateMessageHistory(String input) {
+//        this.messageHistory = getMessageHistory() + input;
+//    }
 
     /**
      * Increments the turn number
@@ -150,10 +150,9 @@ public class Board {
     /**
      * Function to create a grid of strings to be displayed
      * @param boardTitle String value for the board title
-     * @param grid 2D cell array values are retrieved from
-     * @return formatted string to be displayed
+     * @return HTML formatted string to be displayed
      */
-    public static String generateBoard(String boardTitle, Cell[][] grid) {
+    public String generateBoard(String boardTitle, boolean isEnemy) {
         StringBuilder gridStrings = new StringBuilder();
         String chars = "ABCDEFGHIJ";
 
@@ -173,16 +172,26 @@ public class Board {
                 if (i==0) gridStrings.append(j).append(" ");
                 if (j==0 && i!=0) gridStrings.append(" ").append(chars.charAt(i-1)).append(" ");
                 if (i>0) {
-                    gridStrings.append(grid[i-1][j].getCellTypeString()).append(" ");
-                    //System.out.print(grid[i-1][j].getCellTypeString());
+                    String cellString = getGrid()[i-1][j].getCellTypeString();
+                    // Replace boats with water if enemy board
+                    if (isEnemy && !("X.".contains(cellString))) cellString = "~";
+                    // Most recent shot is coloured red
+                    if (i-1 == lastRowShot && j == lastColShot) {
+                        cellString = "<span style='color:red'>" + cellString + "</span>";
+                    }
+                    gridStrings.append(cellString).append(" ");
                 }
             }
             if (i<10) gridStrings.append("\n");
         }
-        return gridStrings.toString();
+        // Put string into HTML format
+        return "<html><body>"
+                + gridStrings.toString().replace(" ", "&nbsp;").replace("\n", "<br>")
+                + "</body></html>";
     }
 
-    public static String showEnemyBoard(String boardTitle, Cell[][] grid) {
+    //TODO: remove this function if not needed.
+    public String showEnemyBoard(String boardTitle) {
         StringBuilder gridStrings = new StringBuilder();
         String chars = "ABCDEFGHIJ";
 
@@ -202,18 +211,23 @@ public class Board {
                 if (i==0) gridStrings.append(j).append(" ");
                 if (j==0 && i!=0) gridStrings.append(" ").append(chars.charAt(i-1)).append(" ");
                 if (i>0) {
-                    if(grid[i-1][j].getCellTypeString().equals(".") || grid[i-1][j].getCellTypeString().equals("X")){
-                        gridStrings.append(grid[i-1][j].getCellTypeString()).append(" ");
+                    String cellString = getGrid()[i-1][j].getCellTypeString();
+                    if(cellString.equals(".") || cellString.equals("X")){
+                        if (i-1 == lastColShot && j == lastRowShot) {
+                            cellString = "<span style='color:red'>" + cellString + "</span>";
+                        }
+                        gridStrings.append(cellString).append(" ");
                     } else {
                         gridStrings.append("~ ");
                     }
-
-                    //System.out.print(grid[i-1][j].getCellTypeString());
                 }
             }
             if (i<10) gridStrings.append("\n");
         }
-        return gridStrings.toString();
+        // Put string into HTML format
+        return "<html><body>"
+                + gridStrings.toString().replace(" ", "&nbsp;").replace("\n", "<br>")
+                + "</body></html>";
     }
 
     /**
@@ -228,8 +242,8 @@ public class Board {
     // placeShip() method, which puts a ship on the grid and then returns a ship object which is added to the hashmap
     // and finally returns the players grid after all this is complete (in defaultGrid() below)
 
-    public Cell[][] chooseGrid(){
-        if(playerName == "CPU"){
+    public Cell[][] chooseGrid(int choice){
+        if(choice==1){
             return otherGrid();
         } else {
             return defaultGrid();
@@ -250,4 +264,11 @@ public class Board {
         return this.getGrid();
     }
 
+    /**
+     * Sets the most recent shot fields to the given coordinates.
+     */
+    public void setLastShot(int row, int col) {
+        this.lastRowShot = row;
+        this.lastColShot = col;
+    }
 }
