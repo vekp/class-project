@@ -526,9 +526,16 @@ public class KrumPlayer {
             recordingFrame.spriteIndex = spriteIndex;
             recordingFrame.lastAimAngle = lastAimAngle;
             recordingFrame.facingRight = facingRight;
+            recordingFrame.xpos = xpos;
+            recordingFrame.ypos = ypos;
         }        
         this.tick = tick;
-        if (playbackFrame != null && playbackFrame.activePlayer == playerIndex) {            
+        if (playbackFrame != null && playbackFrame.activePlayer == playerIndex) {
+            if (playbackFrame.xpos != xpos || playbackFrame.ypos != ypos) {
+                System.out.println("start of frame: moving from " + xpos + ", " + ypos + " to " + playbackFrame.xpos + ", " + playbackFrame.ypos + ". This should only happen if the player changed direction using the mouse and gained height as a result.");
+                xpos = playbackFrame.xpos;
+                ypos = playbackFrame.ypos;
+            }            
             shootNextFrame = playbackFrame.shoot;
             shotPower = playbackFrame.shotPower;
             shootAimAngle = playbackFrame.shootAimAngle;
@@ -1339,9 +1346,11 @@ public class KrumPlayer {
     }
 
     void detachRope() {
-        onRope = false;
-        airborne = true;
-        KrumSound.playSound("rope");
+        if (onRope) {
+            KrumSound.playSound("rope");
+            onRope = false;
+            airborne = true;   
+        }             
     }
 
     void fireRope() {

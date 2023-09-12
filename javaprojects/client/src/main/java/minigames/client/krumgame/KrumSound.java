@@ -56,7 +56,7 @@ public class KrumSound {
         
         if (muted) return;
 
-        System.out.println("playing sound " + soundName + "\n");
+        System.out.println("playing sound " + soundName);
         
         // stop the sound if it's currently playing
         sounds.get(soundName).stop();
