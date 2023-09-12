@@ -2,8 +2,6 @@ package minigames.client;
 
 import javax.swing.*;
 
-import java.awt.event.ActionListener;
-
 import minigames.client.achievements.AchievementNotificationHandler;
 import minigames.client.achievements.AchievementUI;
 import minigames.client.survey.Survey;
@@ -172,7 +170,6 @@ public class MinigameNetworkClientWindow {
     public void showGameServers(List<GameServerDetails> servers) {
         frame.setTitle("COSC220 2023 Minigame Collection");
         clearAll();
-        networkClient.getNotificationManager().resetToDefaultSettings();
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));

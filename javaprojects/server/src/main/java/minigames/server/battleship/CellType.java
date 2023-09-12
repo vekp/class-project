@@ -16,7 +16,7 @@ public enum CellType {
     @Override
     public String toString() {
         return switch (this) {
-            case SHIP_LEFT -> "<";
+            case SHIP_LEFT -> "&#60;"; // html for "<"
             case SHIP_RIGHT -> ">";
             case SHIP_UP -> "^";
             case SHIP_DOWN -> "v";

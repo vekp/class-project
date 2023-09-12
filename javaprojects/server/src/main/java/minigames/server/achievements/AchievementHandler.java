@@ -17,7 +17,7 @@ public class AchievementHandler {
     //implemented later)
     private final static AchievementDatabase database = new AchievementDatabase();
 
-    //manager class responsible for holding all of the player achievement profiles
+    //manager class responsible for holding all the player achievement profiles
     private final static PlayerAchievementProfileManager playerManager = new PlayerAchievementProfileManager();
 
     //This stores recently unlocked achievements, so that notifications can be played on the client.
