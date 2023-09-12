@@ -8,6 +8,7 @@ import minigames.client.achievementui.AchievementNotificationHandler;
 import minigames.client.achievementui.AchievementUI;
 import minigames.client.survey.Survey;
 import minigames.client.backgrounds.Starfield;
+import minigames.client.useraccount.UserAccountFrame;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.GameServerDetails;
 
@@ -219,6 +220,16 @@ public class MinigameNetworkClientWindow {
             pack();
         });
         south.add(surveyButton);
+
+        // Create a button for the User Account UI
+        JButton userAccountButton = new JButton("User Account");
+        userAccountButton.addActionListener(e -> {
+            // TODO implement properly. tests to run the UI on init.
+            UserAccountFrame login = new UserAccountFrame();
+            login.userLogin();
+            login.setVisible(true);
+        });
+        south.add(userAccountButton);
 
         pack();
     }

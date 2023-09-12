@@ -9,12 +9,13 @@ public class UserData {
     private String username;
     private String pin;
     private List<Session> session;
-    // could have another List of achievements here 
+    private UserAccountSchema schema;
+    // could have another List of achievements here
 
     // Getters and setters for username, pin, and session
 
     public String getUsername() {
-        return username;
+        return this.username;
     }
 
     public void setUsername(String username) {
@@ -22,7 +23,7 @@ public class UserData {
     }
 
     public String getPin() {
-        return pin;
+        return this.pin;
     }
 
     public void setPin(String pin) {
@@ -30,7 +31,7 @@ public class UserData {
     }
 
     public List<Session> getSession() {
-        return session;
+        return this.session;
     }
 
     public void setSession(List<Session> session) {

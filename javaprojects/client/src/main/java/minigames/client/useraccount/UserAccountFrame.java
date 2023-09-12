@@ -17,10 +17,10 @@ public class UserAccountFrame extends JFrame implements ActionListener {
         private JButton enterButton;
         private JButton skipButton;
         
-        public void UserAccount(){
+        public void userLogin(){
                 //set up the frame
                 setTitle("Login");
-                setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 setSize(300,150);
                 setResizable(false);
                 setLocationRelativeTo(null);
@@ -50,27 +50,28 @@ public class UserAccountFrame extends JFrame implements ActionListener {
                 add(panel);
 
                 enterButton.addActionListener(this);
-                skipButton.addActionListener(this);
+                skipButton.addActionListener(e -> { this.dispose(); });
         }
 
         @Override
         public void actionPerformed(ActionEvent e){
                 String emailInput = emailField.getText();
+                String pinInput = pinField.getText();
                 FileHandler user = new FileHandler();
-                if (emailInput.contains("@myune.edu.au")) {
-                        System.out.println("Welcome, " + emailInput + ", enjoy your session!"); 
+                UserAccountSchema schema = new UserAccountSchema();
+                if (schema.isValid("email", emailInput)) {
                         String username = emailInput.split("@")[0];
+                        //TODO: Store these .json files on the server
+                        System.out.println("Welcome, " + emailInput + ", enjoy your session!");
                         String path = "src/main/java/minigames/client/useraccount/" + username + ".json";
                         File file = new File(path);
                         if(file.exists()){
                                 user.addSession(emailInput, file, path, username);        
                         }else{
-                                user.generateUser(emailInput, "1234");                                
+                                user.generateUser(emailInput, pinInput);                                
                         }
                         this.dispose();
-                } else {
-                        System.out.println("Please enter a valid email address.");
-                }
+                } else { System.out.println("Please enter a valid email address."); }
         }     
 }
 

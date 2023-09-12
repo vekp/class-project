@@ -13,7 +13,6 @@ import minigames.client.achievementui.AchievementUI;
 import minigames.client.notifications.NotificationManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import minigames.client.useraccount.*;
 
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -307,11 +306,6 @@ public class MinigameNetworkClient {
      */
     public void runMainMenuSequence() {
         mainWindow.showStarfieldMessage("Minigame Network");
-
-        // TODO implement properly. tests to run the UI on init.
-        UserAccountFrame login = new UserAccountFrame();
-        login.UserAccount();
-        login.setVisible(true);
 
         ping().flatMap((s) -> getGameServers()).map((list) -> {
             logger.info("Got servers {}", list);

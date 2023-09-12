@@ -24,14 +24,22 @@ public class UserAccountSchema {
         setSchema("password", "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&-+=()])(?=\\S+$).{8,20}$");
         //Email - Regex Source: Jason Buberel @ StackOverflow
         //Web: https://stackoverflow.com/a/8204716
-        setSchema("email", "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$");
+        setSchema("email", "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,12}$");
+        //Alternate Password for where user wishes to use a PIN
+        setSchema("password", "^[0-9].{1,6}$");
     }
 
     //Setters
     //Allows for key-value pairing as (String, Set<String>)
     private void setSchema(String key, Set<String> value) {
         String keyLower = key.toLowerCase();
-        this.accountSchema.put(keyLower, value);
+        if (!getSchema().containsKey(keyLower)) {
+            this.accountSchema.put(keyLower, value);
+        } else {
+            Set<String> newValue = getSchema(keyLower);
+            newValue.addAll(value);
+            this.accountSchema.put(keyLower, newValue);
+        }
     }
     //Allows for key-value pairing as (String, String)
     private void setSchema(String key, String value) {
@@ -83,37 +91,32 @@ public class UserAccountSchema {
     }
     //Allows for validation of specific field given a key-value pairing
     public boolean isValid(String field, String value) {
-        // Convert field to lower case
+        //Convert field to lower case
         String fieldLower = field.toLowerCase();
-        
-        // Check if the field exists in the schema
+        //Print an error message to the console where field is not an existing schema
         if (!getSchema().containsKey(fieldLower)) {
             System.out.println("Error: field not a valid UserAccountSchema key");
             System.out.println(
                     "\tCallback: UserAccountSchema.isValid(field = "
-                    + field
-                    + ", value = "
-                    + value
-                    + ")"
+                    +field
+                    +", value = "
+                    +value
+                    +")"
             );
             return false;
         }
-        
-        // Check if the value is null
-        if (value == null) {
-            return false;
-        }
-        
-        // Iterate over schema, testing whether value matches the schema pattern
+
+        //Return false where value is null
+        if (value == null) { return false; }
+        //Iterate over schema, testing for whether value matches the schema pattern
         for (String expression : getSchema(fieldLower)) {
             Pattern pattern = Pattern.compile(expression);
             Matcher matcher = pattern.matcher(value);
-            if (!matcher.matches()) { return false; }
+            if (matcher.matches()) { return true; }
         }
-        
-        // Return true where value has not failed any previous test (i.e., is valid)
-        return true;
-    } 
+        //Return true where value has not failed any previous test (i.e. is valid)
+        return false;
+    }
 
-    
+    //Private Functions
 }
