@@ -34,7 +34,7 @@ public class GameShowUI {
 
         private static final ImageIcon hScreenBackground = new ImageIcon(dir + "homescreen-background.jpg");
 
-        private static final ImageIcon lobbyButton = new ImageIcon(dir + "lobby-button.png");// make home button
+        // make home button
 
         private static final ImageIcon lobbyIcon = new ImageIcon(dir + "lobby.png");
 
@@ -64,6 +64,8 @@ public class GameShowUI {
         private int alpha = 255;
         private int increment = -5;
         private FadePanel background;
+
+        public JButton quit = GameShow.quit();
 
         public static Font pixelFont() {
                 try {
@@ -152,6 +154,7 @@ public class GameShowUI {
 
                 JLabel lobbyHeaderImage;
                 JTextField lobbyInstructions;
+                JButton qiut = GameShow.quit();
 
                 lobbyHeader.setLayout(new BorderLayout());
                 lobbyHeader.setBackground(Color.ORANGE);
@@ -167,6 +170,7 @@ public class GameShowUI {
                 lobbyInstructions.setFont(pixelFont.deriveFont(15f));
 
                 lobbyHeader.add(lobbyHeaderImage);
+                lobbyHeader.add(qiut, BorderLayout.NORTH);
                 lobbyHeader.add(lobbyInstructions, BorderLayout.PAGE_END);
 
                 return lobbyHeader;
@@ -179,6 +183,7 @@ public class GameShowUI {
 
                 JLabel memoryHeaderImage;
                 JTextField memoryInstructions;
+                JButton qiut = GameShow.quit();
 
                 memoryHeader.setLayout(new BorderLayout());
                 memoryHeader.setBackground(Color.ORANGE);
@@ -195,7 +200,8 @@ public class GameShowUI {
                 // TODO: add memory instructions
 
                 memoryHeader.add(memoryHeaderImage);
-                memoryHeader.add(memoryInstructions);
+                memoryHeader.add(qiut, BorderLayout.NORTH);
+                memoryHeader.add(memoryInstructions, BorderLayout.PAGE_END);
 
                 return memoryHeader;
 
@@ -207,6 +213,7 @@ public class GameShowUI {
 
                 JLabel scrambleHeaderImage;
                 JTextField scrambleInstructions;
+                JButton qiut = GameShow.quit();
 
                 scrambleHeader.setLayout(new BorderLayout());
                 scrambleHeader.setBackground(Color.ORANGE);
@@ -221,8 +228,9 @@ public class GameShowUI {
                 scrambleInstructions.setFont(pixelFont.deriveFont(15f));
                 // TODO: add scramble instructions
 
-                scrambleHeader.add(scrambleHeaderImage, BorderLayout.NORTH);
-                scrambleHeader.add(scrambleInstructions, BorderLayout.SOUTH);
+                scrambleHeader.add(scrambleHeaderImage);
+                scrambleHeader.add(qiut, BorderLayout.NORTH);
+                scrambleHeader.add(scrambleInstructions, BorderLayout.PAGE_END);
 
                 return scrambleHeader;
 
@@ -234,6 +242,7 @@ public class GameShowUI {
 
                 JLabel revealHeaderImage;
                 JTextField revealInstructions;
+                JButton qiut = GameShow.quit();
 
                 revealHeader.setLayout(new BorderLayout());
                 revealHeader.setBackground(Color.ORANGE);
@@ -247,8 +256,9 @@ public class GameShowUI {
                 revealInstructions.setBackground(Color.ORANGE);
                 revealInstructions.setFont(pixelFont.deriveFont(15f));
                 // TODO: add reveal instructions
-                revealHeader.add(revealHeaderImage, BorderLayout.NORTH);
-                revealHeader.add(revealInstructions, BorderLayout.SOUTH);
+                revealHeader.add(revealHeaderImage);
+                revealHeader.add(qiut, BorderLayout.NORTH);
+                revealHeader.add(revealInstructions, BorderLayout.PAGE_END);
 
                 return revealHeader;
 
@@ -286,6 +296,7 @@ public class GameShowUI {
                 startGame.setContentAreaFilled(false);
                 startGame.setFocusPainted(false);
                 startGame.setBorderPainted(false);
+                // TODO: add action listener
 
                 wordScramble = new JButton("Word Scramble");
                 // wordScramble.setAlignmentX(Component.CENTER_ALIGNMENT);
