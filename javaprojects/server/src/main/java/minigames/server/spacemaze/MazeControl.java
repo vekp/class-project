@@ -77,8 +77,7 @@ public class MazeControl {
     private Boolean gameFinished = false;
     
 
-    // INITALISE MAZE
-    
+    // INITALISE MAZE:
     // MazeControl - set player
     public MazeControl(SpacePlayer player)
     {
@@ -149,11 +148,8 @@ public class MazeControl {
 
     }
 
-
-
     
-    // SET MAZE ELEMENTS
-
+    // SET MAZE ELEMENTS:
     /*
      * set_Locations function - iterates throught the maze array and sets locations
      *  
@@ -263,12 +259,8 @@ public class MazeControl {
     }
 
 
-
-
     // MAZE LOGIC: 
-
-    // VALID MOVE AND COLLISIONS
-
+    // VALID MOVE AND COLLISIONS:
     /* 
     * validMove function - checks if potential move coord is not a wall or locked exit
     * @param posMove - Point object of possible (player) move
@@ -343,10 +335,7 @@ public class MazeControl {
     }
 
 
-
-
-    // UPDATE PLAYER/MAZE ELEMENTS AND UNLOCK EXIT
-
+    // UPDATE PLAYER/MAZE ELEMENTS AND UNLOCK EXIT:
     /*
     * updatePlayerLocationMaze function - takes a SpacePlayer and Point(x, y) coords updates playerLocation and mazeArray,
     *              and updates keyStatus and checks if game is over. 
@@ -535,11 +524,7 @@ public class MazeControl {
     }
 
     
-
-
-    
     // NEW LEVEL, PLAYER DEAD, GAMEOVER:
-
     /*
      * newLevel function - if player exits maze, start new level
      */
@@ -596,8 +581,7 @@ public class MazeControl {
 
             // Re-position player's start location 
             playerLocation = startLocation;
-            playerEntersMaze(playerLocation);
-            
+            playerEntersMaze(playerLocation);    
         } 
         else if (currentLevel == maxLevel) 
         {
@@ -632,10 +616,7 @@ public class MazeControl {
     }
 
 
-
-
-    // GET MAZE ELEMENTS
-
+    // GET MAZE ELEMENTS:
     /*
      * getMazeArray function - returns 2D char array
      * @return mazeArray - char[][]
@@ -656,7 +637,7 @@ public class MazeControl {
 
     /*
      * getExitUnLockedStatus function - returns bool value -> unlocked == true
-     * @return exitUnlocked - bool
+     * @return exitUnlocked - true if unlocked
      */
     public Boolean getExitUnLockedStatus()
     {
@@ -664,7 +645,9 @@ public class MazeControl {
     }
 
     /*
-     * 
+     * isGameFinished function - checks if game has finished, either player has died
+     * or player has finished all levels
+     * @return gameFinished - true if finished
      */
     public boolean isGameFinished()
     {
@@ -673,6 +656,7 @@ public class MazeControl {
 
     /*
      * Pass a list<string> with the coordinates of the bots.
+     * @return botsLocationsList - list of Point locations
      */
     public List<Point> getBotStartLocations()
     {
@@ -768,35 +752,32 @@ public class MazeControl {
     }
     
 
-
-
-    // BYPASS FUNCTIONS FOR TESTING
-
-    // bypassUnlockExit function - dev tool to check validMove - delete after tests
-    public void bypassUnlockExit(Boolean status) {
+    // BYPASS FUNCTIONS FOR TESTING:
+    // bypassUnlockExit function - dev tool to check validMove 
+    protected void bypassUnlockExit(Boolean status) {
         exitUnlocked = status;
     }
 
     // bypassAllKeysCollected function - dev tool to mimic all keys have been collected by player
-    public void bypassSetAllKeysCollected()
+    protected void bypassSetAllKeysCollected()
     {
         allKeysPerLevel.forEach((k, v) -> allKeysPerLevel.put(k, true));
     }
 
     // bypassAllBonusesCollected function - dev tool to mimic all bonuses have been collected by player
-    public void bypassAllBonusesCollected()
+    protected void bypassAllBonusesCollected()
     {
         allBonusPerLevel.forEach((k, v) -> allBonusPerLevel.put(k, true));
     }
 
-    //bypassAllKeysStatusToTrue - dev tool
-    public void bypassAllKeysStatusToTrue()
+    //bypassAllKeysStatusToTrue - dev tool to set all keys to collected
+    protected void bypassAllKeysStatusToTrue()
     {
         keyStatus.forEach((k, v) -> keyStatus.put(k, true));
     }
 
-    // bypassAllBonusStatusToTrue - dev tool
-    public void bypassAllBonusStatusToTrue()
+    // bypassAllBonusStatusToTrue - dev tool to set all chests to opened
+    protected void bypassAllBonusStatusToTrue()
     {
         bonusStatus.forEach((k, v) -> bonusStatus.put(k, true));
     }
