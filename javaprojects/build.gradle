@@ -35,6 +35,8 @@ subprojects {
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
         testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '4.6.1'
 
+        implementation 'org.mongodb:mongodb-driver-sync:4.1.1'
+
         // For Hashing Passwords
         implementation "org.connectbot:jbcrypt:1.0.2"
 
