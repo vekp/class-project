@@ -390,6 +390,9 @@ public class Telepathy implements GameClient, Tickable{
         telepathyNotificationManager.showMessageDialog("Telepathy", welcomePanel);
     }
 
+    /**
+     * Display the tile selection state popup message.
+     */
     private void activateTileSelectMessage() {
         JPanel tileSelectPanel = makeMessagePopup(
                 "Tile Selection",
@@ -399,6 +402,9 @@ public class Telepathy implements GameClient, Tickable{
         telepathyNotificationManager.showMessageDialog("Telepathy", tileSelectPanel);
     }
     
+    /**
+     * Display the game running popup message.
+     */
     private void activateGameRunningMessage() {
         JPanel gameRunningPanel = makeMessagePopup(
             "Time to play", 
@@ -408,6 +414,11 @@ public class Telepathy implements GameClient, Tickable{
         telepathyNotificationManager.showMessageDialog("Telepathy", gameRunningPanel);
     }
 
+    /**
+     * Display the game over popup message.
+     * @param winLose: String received from the server with the name of the winner
+     *  of this game of Telepathy.
+     */
     private void activateGameOverMessage(String winLose) {
         JPanel gameOverPanel = makeMessagePopup(
             "Game Over",
@@ -650,8 +661,6 @@ public class Telepathy implements GameClient, Tickable{
     private void handlePopupCommand(JsonObject commandPackage){
         ArrayList<String> popups = TelepathyCommandHandler.getAttributes(commandPackage);
 
-        // TODO: Replace all placeholder popups with specific message to use
-
         // First attribute is the identifier for popup
         if (popups.get(0).equals("welcomeMessage")) {
             activateWelcomeMessage();
@@ -659,19 +668,16 @@ public class Telepathy implements GameClient, Tickable{
         }
         
         if (popups.get(0).equals("tileSelect")) {
-            // Use welcome message as a placeholder for future popups
             activateTileSelectMessage();
             this.serverState = State.TILESELECTION;
         }
         
         if(popups.get(0).equals("gameRunning")){
-            // Use welcome message as a placeholder
             activateGameRunningMessage();
             this.serverState = State.RUNNING;
         }
 
         if(popups.get(0).equals("gameOver")){
-            // Use welcome message as a placeholder
             // TODO: Add winner/loser message based on attributes received
 
             activateGameOverMessage("Placeholder winner");
@@ -710,31 +716,11 @@ public class Telepathy implements GameClient, Tickable{
     }
 
     /**
-     * Get a List of the attributes stored in a renderingCommand.
-     * @param renderingCommand: The renderingCommand portion of a RenderingPackage 
-     *      received from the server.
-     * @return ArrayList of Strings containing the attributes sent in the renderingCommand. 
-     
-    private ArrayList<String> getAttributes(JsonObject renderingCommand){
-        // Weirdness with double nested JsonArray - works now to separate attributes but could change later
-        JsonArray jsonAttributes = renderingCommand.getJsonArray("attributes").getJsonArray(0);
-        ArrayList<String> strAttributes = new ArrayList<>();
-        for(int i = 0; i < jsonAttributes.size(); i++){
-            strAttributes.add(jsonAttributes.getString(i));
-        }
-
-        return strAttributes;
-    }
-
-    */
-
-    /**
      * Updates a button based on an UPDATEBUTTON RenderingCommand received from the server. The
      * command must contain attributes describing the button to update and changes how it should
      * be updated.
      * 
      * The button to be updated MUST be in the componentList HashMap in order to access it.
-     * 
      * 
      * @param command A RenderingCommand JsonObject with a UPDATEBUTTON command value. There must also
      *  be a list of attributes specifying the button to update and what updates are to be made.
