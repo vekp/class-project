@@ -64,13 +64,6 @@ public class Images {
     private static BufferedImage bombImage1;
     private static BufferedImage bombImage2;
 
-    //Title Images
-    private static BufferedImage titleImage1;
-    private static BufferedImage titleImage2;
-    private static BufferedImage titleImage3;
-    private static BufferedImage titleImage4;
-    private static BufferedImage titleImage5;
-
     // HashMap for storing all the images
     private static HashMap<String, BufferedImage> singleImages;
     private static HashMap<Integer, BufferedImage> unlockedImages;
@@ -334,27 +327,22 @@ public class Images {
      * Method to load Menu Title Images.
      */
     public void loadTitleImages(){
-        try{
-            titleImage1 = ImageIO.read(getClass().getResource("/images/spacemaze/Title1.png"));
-            titleImage2 = ImageIO.read(getClass().getResource("/images/spacemaze/Title2a.png"));
-            titleImage3 = ImageIO.read(getClass().getResource("/images/spacemaze/Title2b.png"));
-            titleImage4 = ImageIO.read(getClass().getResource("/images/spacemaze/Title2c.png"));
-            titleImage5 = ImageIO.read(getClass().getResource("/images/spacemaze/Title2d.png"));
-            titleImages.put(0, titleImage1);
-            titleImages.put(1, titleImage2);
-            titleImages.put(2, titleImage3);
-            titleImages.put(3, titleImage4);
-            titleImages.put(4, titleImage5);
+        
+        for (int i=0; i<34; i++){
+            String finalFilePath = "/images/spaceMazeTitles/sm" + String.valueOf(i+1) + ".png";
+            try{
+                BufferedImage myTitleImage  = ImageIO.read(getClass().getResource(finalFilePath));
+                titleImages.put(i, myTitleImage);
 
-            for (int i=0; i<titleImages.size(); i++){
-                BufferedImage resizedImage = resizeImage(titleImages.get(i), 590, 190);
-                titleImages.put(i, resizedImage);
+            } catch (IOException e) {
+                logger.error("Image loading failed: {} ", e);
             }
+        }
+        for (int i=0; i<titleImages.size(); i++){
+            BufferedImage resizedImage = resizeImage(titleImages.get(i), 590, 190);
+            titleImages.put(i, resizedImage);            
+        }
 
-        }
-        catch (IOException e) {
-            logger.error("Image loading failed: {} ", e);
-        }
     }
 
     /**

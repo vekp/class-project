@@ -547,7 +547,7 @@ public class SpaceMaze implements GameClient {
             currentImageIndex = 0; 
 
             headerText = new JLabel(new ImageIcon(titleImages.get(currentImageIndex)));
-            timer = new Timer(400, new ActionListener() { //Timer to switch image at every 400ms.
+            timer = new Timer(120, new ActionListener() { //Timer to switch image at every 120ms.
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
