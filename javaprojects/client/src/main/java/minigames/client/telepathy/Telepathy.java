@@ -62,9 +62,6 @@ public class Telepathy implements GameClient, Tickable{
     JPanel gridIndexWest; // alphabetical index
     JPanel gridIndexNorth; // numerical index
     JPanel board; // game board grid
-    //JPanel welcomeMessage; // first popup message to start game
-    //JPanel confirmTargetTile; // popup panel to confirm players target tile selection
-    //JPanel questionOrFinalGuess; // popup panel that asks player about their button selection
     JPanel sidePanel; // board game side panel
     JPanel colourSymbolPanel; //  nested panel listing the colours and symbols in the gameboard
 
@@ -384,13 +381,39 @@ public class Telepathy implements GameClient, Tickable{
      * A method to display the Welcome JPanel as a popup message.
      */
     private void activateWelcomeMessage() {
-        JPanel welcomeMessage = makeMessagePopup(
+        JPanel welcomePanel = makeMessagePopup(
                 "Telepathy",
                 "are you telepathic " + player + "? ",
-                "To start a game, choose your target tile!\n\n\n       Once your target tile is selected, start\n    asking questions by clicking another tile...");
+                "Currently waiting for all players to join and show they are ready.\n\n\n       Once you are ready to begin playing, press the ready button!\n");
 
         //welcomeMessage = popupWelcomeMessage();
-        telepathyNotificationManager.showMessageDialog("Telepathy", welcomeMessage);
+        telepathyNotificationManager.showMessageDialog("Telepathy", welcomePanel);
+    }
+
+    private void activateTileSelectMessage() {
+        JPanel tileSelectPanel = makeMessagePopup(
+                "Tile Selection",
+                "",
+                "Time to choose a tile for your opponent to guess!");
+
+        telepathyNotificationManager.showMessageDialog("Telepathy", tileSelectPanel);
+    }
+    
+    private void activateGameRunningMessage() {
+        JPanel gameRunningPanel = makeMessagePopup(
+            "Time to play", 
+            "", 
+                "The game has started! \nWhen it is your turn the board will activate and you can start asking questions to try and find out what your opponent's chosen tile is...");
+
+        telepathyNotificationManager.showMessageDialog("Telepathy", gameRunningPanel);
+    }
+
+    private void activateGameOverMessage(String winLose) {
+        JPanel gameOverPanel = makeMessagePopup(
+            "Game Over",
+            winLose, 
+                "Thanks for playing!");
+        telepathyNotificationManager.showMessageDialog("Telepathy", gameOverPanel);
     }
 
 
@@ -637,19 +660,21 @@ public class Telepathy implements GameClient, Tickable{
         
         if (popups.get(0).equals("tileSelect")) {
             // Use welcome message as a placeholder for future popups
-            activateWelcomeMessage();
+            activateTileSelectMessage();
             this.serverState = State.TILESELECTION;
         }
         
         if(popups.get(0).equals("gameRunning")){
             // Use welcome message as a placeholder
-            activateWelcomeMessage();
+            activateGameRunningMessage();
             this.serverState = State.RUNNING;
         }
 
         if(popups.get(0).equals("gameOver")){
             // Use welcome message as a placeholder
-            activateWelcomeMessage();
+            // TODO: Add winner/loser message based on attributes received
+
+            activateGameOverMessage("Placeholder winner");
             this.serverState = State.GAMEOVER;
         }
     }
