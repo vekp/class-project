@@ -367,17 +367,19 @@ public class Telepathy implements GameClient, Tickable{
     private JPanel makeChoicePopup(String headingString, String descriptionString, String buttonOneLabel, String buttonTwoLabel, ActionListener listenerOne,
             ActionListener listenerTwo) {
 
-        
+        // Create the heading
         Font font = new Font("futura", Font.BOLD, 20);
 
         JLabel headingLabel = new JLabel(headingString);
         headingLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         headingLabel.setFont(font);
 
+        // Create the main text pane
         JTextPane descriptionTextPane = new JTextPane();
         descriptionTextPane.setText("\n\n\n" + descriptionString);
         descriptionTextPane.setEditable(false);
 
+        // Create the buttons and add the ActionListeners
         JPanel buttonPanel = new JPanel();
         JButton buttonOne = new JButton(buttonOneLabel);
         JButton buttonTwo = new JButton(buttonTwoLabel);
@@ -388,6 +390,7 @@ public class Telepathy implements GameClient, Tickable{
         buttonPanel.add(buttonTwo);
         buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        // Create the JPanel to contain all the components
         JPanel choicePanel = new JPanel();
         choicePanel.setLayout(new BoxLayout(choicePanel, BoxLayout.Y_AXIS));
         choicePanel.setPreferredSize(new Dimension(300, 290));
@@ -401,7 +404,7 @@ public class Telepathy implements GameClient, Tickable{
     }
 
     /**
-     * A method to display the Welcome JPanel as a popup message.
+     * Display the game welcome message.
      */
     private void activateWelcomeMessage() {
         JPanel welcomePanel = makeMessagePopup(
@@ -456,6 +459,7 @@ public class Telepathy implements GameClient, Tickable{
      * Prompts the user using two buttons.
      */
     private void activateQuestionGuessMessage(){
+        // Define actions to take when player presses Question/Final Guess button
         ActionListener questionListener = e -> {
             sendCommand(TelepathyCommands.ASKQUESTION, Integer.toString(this.xCoord), Integer.toString(this.yCoord));
             telepathyNotificationManager.dismissCurrentNotification();
@@ -466,6 +470,7 @@ public class Telepathy implements GameClient, Tickable{
             telepathyNotificationManager.dismissCurrentNotification();
         };
 
+        // Create the JPanel to display in the notification
         JPanel choicePanel = makeChoicePopup(
             "Question Or Final Guess?",
             "Are you asking if your opponent's tile shares any features with this tile?\n\n\nOr is this your Final Guess?\n\n\nChoose wisely!",
@@ -475,13 +480,14 @@ public class Telepathy implements GameClient, Tickable{
             finalListener
             );
 
-            telepathyNotificationManager.showNotification(choicePanel, false);
+        telepathyNotificationManager.showNotification(choicePanel, false);
     }
 
     /**
      * A method to display the selectTargetTile Jpanel as a popup message.
      */
     public void activateTargetTileMessage() {
+        // Define actions to take when player presses yes/no buttons
         ActionListener yesListener = e -> {
             sendCommand(TelepathyCommands.CHOOSETILE, Integer.toString(this.xCoord), Integer.toString(this.yCoord));
             setButtonBorder(this.buttonGrid[this.xCoord][this.yCoord], Color.BLUE);
@@ -493,6 +499,7 @@ public class Telepathy implements GameClient, Tickable{
             enableButtonGrid();
         };
 
+        // Create the JPanel to display in the notification
         JPanel confirmTargetTile = makeChoicePopup(
             "Is this your chosen target tile?",
             "Select 'Yes' to continue or 'No' to make another choice",
