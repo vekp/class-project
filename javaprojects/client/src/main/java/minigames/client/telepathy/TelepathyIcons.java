@@ -21,24 +21,23 @@ import java.awt.Point;
  * A class of methods used to load and handle implementation of UI icons.
  */
 
-
-public final class TelepathyIcons{
+public class TelepathyIcons{
 
     // Logger
    private static final Logger logger = LogManager.getLogger(TelepathyIcons.class);
 
+   private static final File path = new File("src/main/resources/telepathyicons");
+
 
    /**
-    * A method to load and sort all icons from the Resources Directory into an ArrayList
-    * @return iconList ArrayList
+    * A method to load and sort icons from the Resources Directory
     */
     
-    public static ArrayList<ImageIcon> loadIcons() {
+    public static File[] loadIcons(File path) {
 
         // method follows documentation from https://www.tutorialspoint.com/how-to-list-all-files-only-from-a-directory-using-java  
-        ArrayList<ImageIcon> iconList = new ArrayList<>();
-         
-        File path = new File("src/main/resources/telepathyicons");
+       
+        File[] list = null;
 
         FileFilter fileFilter = new FileFilter(){
             public boolean accept(File dir){
@@ -50,18 +49,36 @@ public final class TelepathyIcons{
             }
         };
 
-        File[] list = path.listFiles(fileFilter);
-        Arrays.sort(list);
+        try{
+            list = path.listFiles(fileFilter);
+            Arrays.sort(list);
+        } catch (NullPointerException e){
+            logger.error("Image loading failed: {} ", e);
+        } finally {
+            return list;
+        }
+
+    }
+
+
+    /**
+    * A method to add all icons to an ArrayList
+    * @return iconList ArrayList
+    */
+     public static ArrayList<ImageIcon> allIcons() {
+        
+        ArrayList<ImageIcon> iconList = new ArrayList<>();
+        File[] list = loadIcons(path);
 
         for(File fileName: list){
             // utilises team Intelligits scaledImage method
             ImageIcon icon = MinigameUtils.scaledImage(fileName.toString(), 40);
             iconList.add(icon);
         }
+        
+        return iconList;
 
-     return iconList;
-
-    }
+     }
 
 
     /**
@@ -97,16 +114,9 @@ public final class TelepathyIcons{
             mappedIcons.put(coordinates.get(i), icons.get(i));
         }
 
-
-
     return mappedIcons;
 
     }
-
-    
-
-
-
 
 }
 

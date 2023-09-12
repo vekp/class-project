@@ -205,7 +205,7 @@ public class Telepathy implements GameClient, Tickable{
         };
 
         ArrayList<Point> allCoordinatesList = TelepathyIcons.allCoordinates(this.buttonGrid);
-        allIcons = TelepathyIcons.loadIcons();
+        allIcons = TelepathyIcons.allIcons();
 
         mappedIcons = TelepathyIcons.mappedIcons(allCoordinatesList, allIcons);
 
@@ -405,6 +405,7 @@ public class Telepathy implements GameClient, Tickable{
 
         JButton no = new JButton("No");
         no.addActionListener(e -> {
+            enableButtonGrid();
             telepathyNotificationManager.dismissCurrentNotification();
         });
 
