@@ -1,84 +1,56 @@
 package minigames.server.tictactoe;
 
-import io.vertx.core.Vertx;
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Promise;
-import io.vertx.core.http.HttpServer;
-import io.vertx.ext.web.Router;
-import io.vertx.ext.web.RoutingContext;
-import io.vertx.core.json.JsonObject;
+import io.vertx.core.Future;
+import minigames.commands.CommandPackage;
+import minigames.rendering.GameMetadata;
+import minigames.rendering.GameServerDetails;
+import minigames.rendering.RenderingPackage;
+import minigames.server.ClientType;
+import minigames.server.GameServer;
 
-public class TicTacToeServer extends AbstractVerticle {
+import java.util.HashMap;
 
-    // Constants
-    private static final int PORT = 8080;
+/**
+ * The TicTacToeServer class manages individual games of Tic Tac Toe.
+ */
+public class TicTacToeServer implements GameServer {
 
-    // Variables
-    private TicTacToeGame game;
-    private HttpServer server;
+    /** Holds the games in progress in memory (no db) */
+    HashMap<String, TicTacToeGame> games = new HashMap<>();
 
-    public TicTacToeServer() {
-        this.game = new TicTacToeGame("TicTacToe", "Player1");
+    @Override
+    public GameServerDetails getDetails() {
+        return new GameServerDetails("TicTacToe", "Classic 3x3 grid game");
     }
 
     @Override
-    public void start(Promise<Void> startPromise) {
-        initializeServer(startPromise);
+    public ClientType[] getSupportedClients() {
+        return new ClientType[]{ClientType.Swing, ClientType.Scalajs, ClientType.Scalafx};
     }
 
-    // Initialize the server with routes and start listening
-    private void initializeServer(Promise<Void> startPromise) {
-        server = vertx.createHttpServer();
-        Router router = Router.router(vertx);
-        
-        // Define the routes
-        router.post("/move").handler(this::handleMove);
-        router.get("/boardState").handler(this::handleBoardState);
-
-        server.requestHandler(router).listen(PORT, http -> {
-            if (http.succeeded()) {
-                startPromise.complete();
-                System.out.println("HTTP server started on port " + PORT);
-            } else {
-                startPromise.fail(http.cause());
-            }
-        });
+    @Override
+    public GameMetadata[] getGamesInProgress() {
+        return games.keySet().stream().map(gameName -> 
+            new GameMetadata("TicTacToe", gameName, games.get(gameName).getPlayerNames(), false)
+        ).toArray(GameMetadata[]::new);
     }
 
-    // Handler for /move endpoint
-    private void handleMove(RoutingContext context) {
-        // Get move details from the request body
-        JsonObject requestBody = context.getBodyAsJson();
-        int row = requestBody.getInteger("row");
-        int col = requestBody.getInteger("col");
-
-        // Make the move and get result
-        String result = game.makeMove(row, col);
-
-        // Send the response back
-        context.response()
-               .putHeader("content-type", "application/json")
-               .end(new JsonObject().put("result", result).encode());
+    @Override
+    public Future<RenderingPackage> newGame(String playerName) {
+        TicTacToeGame game = new TicTacToeGame();
+        games.put(playerName, game);  // Using playerName as game key for simplicity
+        return Future.succeededFuture(game.joinGame(playerName));
     }
 
-    // Handler for /boardState endpoint
-    private void handleBoardState(RoutingContext context) {
-        char[][] board = game.getBoard();
-        JsonObject boardState = new JsonObject();
-        
-        for (int i = 0; i < board.length; i++) {
-            boardState.put("row" + i, new JsonObject().put("cols", board[i]));
-        }
-
-        // Send the board state as response
-        context.response()
-               .putHeader("content-type", "application/json")
-               .end(boardState.encode());
+    @Override
+    public Future<RenderingPackage> joinGame(String game, String playerName) {
+        TicTacToeGame g = games.get(game);
+        return Future.succeededFuture(g.joinGame(playerName));
     }
 
-    // Main method to run the server
-    public static void main(String[] args) {
-        Vertx vertx = Vertx.vertx();
-        vertx.deployVerticle(new TicTacToeServer());
+    @Override
+    public Future<RenderingPackage> callGame(CommandPackage cp) {
+        TicTacToeGame game = games.get(cp.gameId());
+        return Future.succeededFuture(game.processCommand(cp));
     }
 }

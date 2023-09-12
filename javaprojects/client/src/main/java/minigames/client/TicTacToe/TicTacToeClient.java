@@ -1,97 +1,168 @@
-package minigames.client.tictactoe;
+import java.awt.*;
+import javax.swing.*;
+import java.awt.event.*;
+import java.util.Collections;
+import com.somepackage.networking.*;  // Placeholder import for networking utilities
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
+public class TicTacToeClient implements Minigame {
 
-/**
- * The TicTacToeClient class provides an interface to play the Tic Tac Toe game 
- * by connecting to the TicTacToeServer.
- */
-public class TicTacToeClient {
+    private MinigameNetworkClient ttClient;
+    private GameMetadata gm;
+    private String player;
+    private String opponent;
+    private JButton[][] boardButtons = new JButton[3][3];
+    private boolean isMyTurn = false;
+    private String mySymbol = "";
+    private String opponentSymbol = "";
 
-    // Hostname and port for the Tic Tac Toe server.
-    private static final String HOSTNAME = "localhost";
-    private static final int PORT = 8080;
-
-    // Socket for communication and its associated readers and writers.
-    private Socket socket;
-    private PrintWriter out;
-    private BufferedReader in;
-
-    /**
-     * Connects to the Tic Tac Toe server.
-     */
+    // Constructor to initialize the board UI
     public TicTacToeClient() {
-        try {
-            socket = new Socket(HOSTNAME, PORT);
-            out = new PrintWriter(socket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        } catch (Exception e) {
-            System.out.println("Failed to connect to the server.");
-            e.printStackTrace();
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                boardButtons[i][j] = new JButton();
+                boardButtons[i][j].addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        int row = (int) e.getSource().getClientProperty("row");
+                        int col = (int) e.getSource().getClientProperty("col");
+                        makeMove(row, col);
+                    }
+                });
+                boardButtons[i][j].putClientProperty("row", i);
+                boardButtons[i][j].putClientProperty("col", j);
+                boardButtons[i][j].setEnabled(false);  // Disable buttons initially
+            }
         }
     }
 
-    /**
-     * Main loop to play the game.
-     */
-    public void play() {
-        try {
-            String serverResponse;
+    // Load game and set up initial configurations
+    @Override
+    public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {
+        this.ttClient = mnClient;
+        this.gm = game;
+        this.player = player;
+        this.opponent = player.equals("Player1") ? "Player2" : "Player1";
+        this.mySymbol = player.equals("Player1") ? "X" : "O";
+        this.opponentSymbol = player.equals("Player1") ? "O" : "X";
+        this.isMyTurn = player.equals("Player1");
 
-            // Display the initial game state.
-            System.out.println(in.readLine());
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                boardButtons[i][j].setEnabled(isMyTurn);
+            }
+        }
+    }
 
-            while (true) {
-                // Display the current game state and any server messages.
-                while ((serverResponse = in.readLine()) != null) {
-                    if (serverResponse.equals("YOUR_TURN")) {
-                        break;
-                    }
-                    System.out.println(serverResponse);
+    // Handling received game commands
+    @Override
+    public void execute(GameMetadata game, JsonObject command) {
+        this.gm = game;
+        String cmd = command.getString("command");
+
+        if ("makeMove".equals(cmd)) {
+            int row = command.getInt("row");
+            int col = command.getInt("col");
+            String symbol = command.getString("symbol");
+
+            // Guard against invalid moves
+            if (!"".equals(boardButtons[row][col].getText())) {
+                return;
+            }
+
+            boardButtons[row][col].setText(symbol);
+
+            // Check game end conditions
+            if (checkForWin(row, col, symbol) || isBoardFull()) {
+                if (checkForWin(row, col, symbol)) {
+                    JOptionPane.showMessageDialog(null, symbol.equals(mySymbol) ? "You Win!" : "You Lose!");
+                } else {
+                    JOptionPane.showMessageDialog(null, "It's a Draw!");
                 }
+                closeGame();
+                return;
+            }
 
-                // Get the player's move.
-                System.out.println("Enter your move (row and column separated by space, e.g., '1 2' for row 1 and column 2):");
-                BufferedReader userIn = new BufferedReader(new InputStreamReader(System.in));
-                String userInput = userIn.readLine();
-                out.println(userInput);
-
-                // Check if the game has ended.
-                serverResponse = in.readLine();
-                if (serverResponse.equals("GAME_OVER")) {
-                    System.out.println(in.readLine()); // Display the final state and reason for game over.
-                    break;
+            // Swap turns
+            isMyTurn = !isMyTurn;
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    boardButtons[i][j].setEnabled(isMyTurn);
                 }
             }
-        } catch (Exception e) {
-            System.out.println("Error occurred while playing the game.");
-            e.printStackTrace();
         }
     }
 
-    /**
-     * Close the client's resources.
-     */
-    public void close() {
-        try {
-            out.close();
-            in.close();
-            socket.close();
-        } catch (Exception e) {
-            System.out.println("Error occurred while closing the client.");
-            e.printStackTrace();
+    // Execute move after ensuring valid conditions
+    public void makeMove(int row, int col) {
+        if (!isMyTurn || !"".equals(boardButtons[row][col].getText())) {
+            return;
         }
+
+        boardButtons[row][col].setText(mySymbol);
+
+        JsonObject command = new JsonObject();
+        command.put("command", "makeMove");
+        command.put("row", row);
+        command.put("col", col);
+        command.put("symbol", mySymbol);
+
+        ttClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(command)));
     }
 
-    /**
-     * The main entry point for the TicTacToeClient.
-     */
-    public static void main(String[] args) {
-        TicTacToeClient client = new TicTacToeClient();
-        client.play();
-        client.close();
+    // Check for win condition
+    private boolean checkForWin(int x, int y, String symbol) {
+        // Check respective column
+        if (boardButtons[x][0].getText().equals(symbol) &&
+            boardButtons[x][1].getText().equals(symbol) &&
+            boardButtons[x][2].getText().equals(symbol)) {
+            return true;
+        }
+
+        // Check respective row
+        if (boardButtons[0][y].getText().equals(symbol) &&
+            boardButtons[1][y].getText().equals(symbol) &&
+            boardButtons[2][y].getText().equals(symbol)) {
+            return true;
+        }
+
+        // Check main diagonal
+        if (boardButtons[0][0].getText().equals(symbol) &&
+            boardButtons[1][1].getText().equals(symbol) &&
+            boardButtons[2][2].getText().equals(symbol)) {
+            return true;
+        }
+
+        // Check other diagonal
+        if (boardButtons[0][2].getText().equals(symbol) &&
+            boardButtons[1][1].getText().equals(symbol) &&
+            boardButtons[2][0].getText().equals(symbol)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    // Check if the board is full leading to a draw
+    private boolean isBoardFull() {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if ("".equals(boardButtons[i][j].getText())) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // Cleanup or reset when the game ends
+    @Override
+    public void closeGame() {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                boardButtons[i][j].setText("");
+                boardButtons[i][j].setEnabled(false);
+            }
+        }
+        isMyTurn = player.equals("Player1");
     }
 }

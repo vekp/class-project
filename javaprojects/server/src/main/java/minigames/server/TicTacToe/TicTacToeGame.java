@@ -1,114 +1,85 @@
 package minigames.server.tictactoe;
 
-import minigames.server.achievements.AchievementHandler;
-import io.vertx.core.json.JsonObject;
+import minigames.commands.CommandPackage;
+import minigames.rendering.GameMetadata;
+import minigames.rendering.RenderingPackage;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class TicTacToeGame {
 
-    // Constants to define the size of the board
-    private final static int SIZE = 3;
+    private final Map<String, Character> players = new HashMap<>();
+    private final char[][] board = new char[3][3];
+    private String currentPlayer;
 
-    // 2D array representing the Tic Tac Toe board
-    private char[][] board = new char[SIZE][SIZE];
-
-    // Current player's turn, initialized to 'X'
-    private char currentPlayer = 'X';
-
-    // Keep track of the number of moves to determine a draw
-    private int movesCount = 0;
-
-    // Handle achievements for the game
-    AchievementHandler achievementHandler;
-
-    // Name of the game and player
-    String gameName;
-    String playerName;
-
-    // Constructor to initialize the Tic Tac Toe game
-    public TicTacToeGame(String gameName, String playerName) {
-        this.gameName = gameName;
-        this.playerName = playerName;
-
-        // Initialize achievement handler
-        this.achievementHandler = new AchievementHandler(TicTacToeServer.class);
-
-        // Fill board with spaces to represent empty cells
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
+    public TicTacToeGame() {
+        // Initialize the board with empty spaces
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
                 board[i][j] = ' ';
             }
         }
     }
 
-    // Method to handle a player's move
-    public String makeMove(int row, int col) {
-        // Validate the move's coordinates
-        if (row < 0 || row >= SIZE || col < 0 || col >= SIZE) {
-            return "Invalid move.";
-        }
-
-        // Check if the selected cell is empty
-        if (board[row][col] == ' ') {
-            board[row][col] = currentPlayer;  // Place the current player's symbol
-            movesCount++;
-
-            // Check if the current move resulted in a win
-            if (checkWin(row, col)) {
-                achievementHandler.unlockAchievement(playerName, "WINNER");
-                return currentPlayer + " wins!";
+    public RenderingPackage joinGame(String playerName) {
+        if (players.size() < 2) {
+            char symbol = players.isEmpty() ? 'X' : 'O';
+            players.put(playerName, symbol);
+            if (players.size() == 1) {
+                currentPlayer = playerName;
             }
-
-            // Check if the board is full (resulting in a draw)
-            if (movesCount == SIZE * SIZE) {
-                return "Draw!";
-            }
-
-            // Switch to the other player
-            togglePlayer();
-            return currentPlayer + "'s turn.";
+            return new RenderingPackage(gameMetadata(), null);
+        } else {
+            return null; // Handle error for game full.
         }
-        return "Cell already taken.";
     }
 
-    // Check if the given move leads to a win
-    private boolean checkWin(int row, int col) {
-        // Check if current row, column, or either diagonal has all the same symbols
-        return (board[row][0] == currentPlayer && board[row][1] == currentPlayer && board[row][2] == currentPlayer) ||
-               (board[0][col] == currentPlayer && board[1][col] == currentPlayer && board[2][col] == currentPlayer) ||
-               (row == col && board[0][0] == currentPlayer && board[1][1] == currentPlayer && board[2][2] == currentPlayer) ||
-               (row + col == SIZE - 1 && board[0][2] == currentPlayer && board[1][1] == currentPlayer && board[2][0] == currentPlayer);
+    public String[] getPlayerNames() {
+        return players.keySet().toArray(new String[0]);
     }
 
-    // Toggle the currentPlayer from 'X' to 'O' or vice versa
-    private void togglePlayer() {
-        currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+    public GameMetadata gameMetadata() {
+        return new GameMetadata("TicTacToe", String.join(" vs ", getPlayerNames()), getPlayerNames(), true);
     }
 
-    // Return the current state of the board as a JsonObject
-    public JsonObject boardState() {
-        JsonObject state = new JsonObject();
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                state.put("cell_" + i + "_" + j, board[i][j]);
-            }
-        }
-        return state;
-    }
-
-    // Get the current player's symbol ('X' or 'O')
-    public char getCurrentPlayer() {
-        return currentPlayer;
-    }
-    
-    // Check if the game is over (board is full without a winner)
-    public boolean isGameOver() {
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                if(board[i][j] == ' ') {
-                    return false;
+    public RenderingPackage processCommand(CommandPackage cp) {
+        // Assume command has the format "move:x,y" where x and y are coordinates
+        if (cp.command.startsWith("move:")) {
+            String[] parts = cp.command.split(":")[1].split(",");
+            int x = Integer.parseInt(parts[0]);
+            int y = Integer.parseInt(parts[1]);
+            if (isValidMove(x, y)) {
+                board[x][y] = players.get(currentPlayer);
+                if (checkWinCondition(x, y, players.get(currentPlayer))) {
+                    return new RenderingPackage(gameMetadata(), currentPlayer + " wins!");
                 }
+                switchTurns();
+            } else {
+                return new RenderingPackage(gameMetadata(), "Invalid move");
             }
         }
-        return true;
+        return new RenderingPackage(gameMetadata(), null);
+    }
+
+    private boolean isValidMove(int x, int y) {
+        return board[x][y] == ' ';
+    }
+
+    private boolean checkWinCondition(int x, int y, char symbol) {
+        // Check rows, columns, and diagonals
+        return (board[x][0] == symbol && board[x][1] == symbol && board[x][2] == symbol)
+            || (board[0][y] == symbol && board[1][y] == symbol && board[2][y] == symbol)
+            || (board[0][0] == symbol && board[1][1] == symbol && board[2][2] == symbol)
+            || (board[0][2] == symbol && board[1][1] == symbol && board[2][0] == symbol);
+    }
+
+    private void switchTurns() {
+        for (String player : players.keySet()) {
+            if (!player.equals(currentPlayer)) {
+                currentPlayer = player;
+                break;
+            }
+        }
     }
 }
