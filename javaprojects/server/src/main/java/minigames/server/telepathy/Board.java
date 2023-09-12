@@ -32,7 +32,7 @@ public class Board{
      */
     public Tile[][] generateBoard(int cols, int rows) {
         Tile[][] board = new Tile[cols][rows];
-        Random randNumber = new Random(16); // every board will be the same because of 'seed' number in formula
+        Random randNumber = new Random(88); // every board will be the same because of 'seed' number in formula
         ArrayList<Object> colourList = generateColours();
         ArrayList<Object> symbolList = generateSymbols();
         for (int row = 0; row < board.length; row++){
