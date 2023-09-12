@@ -2,6 +2,8 @@ package minigames.client.gameshow;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Image;
+import java.awt.Insets;
 import java.util.Collections;
 import java.util.Random;
 import java.util.logging.Level;
@@ -31,7 +33,7 @@ import minigames.commands.CommandPackage;
 public class GameShow implements GameClient {
     private static final Logger logger = Logger.getLogger(GameShow.class.getName());
 
-    MinigameNetworkClient mnClient;
+    static MinigameNetworkClient mnClient;
 
     /**
      * We hold on to this because we'll need it when sending commands to the server
@@ -65,11 +67,27 @@ public class GameShow implements GameClient {
     int gameId;
     JPanel gamePanel;
     GameTimer gameTimer;
+    private final static String dir = "./src/main/java/minigames/client/gameshow/GameShowImages/";
+    private static final ImageIcon quitButton = new ImageIcon(dir + "quit-button.png");
 
     public static GameShow Main;
 
     public GameShow() {
         Main = this;
+    }
+
+    public static JButton quit() {
+        JButton quitGame;
+
+        quitGame = new JButton(
+                new ImageIcon(quitButton.getImage().getScaledInstance(100, 20, Image.SCALE_DEFAULT)));
+        quitGame.setContentAreaFilled(false);
+        quitGame.setFocusPainted(false);
+        quitGame.setBorderPainted(false);
+        quitGame.setMargin(new Insets(0, 650, 0, 0));
+        quitGame.addActionListener(e -> mnClient.runMainMenuSequence());
+
+        return quitGame;
     }
 
     /**

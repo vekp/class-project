@@ -30,12 +30,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ImageGuesser {
+
     private static final Logger logger = Logger.getLogger(GameShow.class.getName());
     private final static String dir = "./src/main/java/minigames/client/gameshow/GameShowImages/";
     private static final ImageIcon submitButtonButton = new ImageIcon(dir + "submit-button.png");
     private static GridPanel gridPanel;
     private static JTextField guessField;
-    
+
     public static void startImageGuesser(GameShow gs, String imageFileName, int gameId) {
         clearGameContainer();
         loadAndDisplayImage(imageFileName);
@@ -102,7 +103,8 @@ public class ImageGuesser {
     }
 
     private static JButton createSubmitButton(GameShow gs) {
-        JButton submitButton = new JButton(new ImageIcon(submitButtonButton.getImage().getScaledInstance(150, 40, Image.SCALE_DEFAULT)));
+        JButton submitButton = new JButton(
+                new ImageIcon(submitButtonButton.getImage().getScaledInstance(150, 40, Image.SCALE_DEFAULT)));
         submitButton.setContentAreaFilled(false);
         submitButton.setFocusPainted(false);
         submitButton.setBorderPainted(false);
@@ -113,6 +115,7 @@ public class ImageGuesser {
         return submitButton;
     }
 
+    // Add the grid panel to the center of the container
     private static void addComponentsToGameContainer(GameShow gs) {
         JPanel revealHeader = GameShowUI.generateRevealHeader();
         GameShowUI.gameContainer.add(revealHeader, BorderLayout.NORTH);
@@ -123,16 +126,16 @@ public class ImageGuesser {
         GameShowUI.gameContainer.validate();
         GameShowUI.gameContainer.repaint();
     }
-    
+
     public static void guess(GameShow gs, boolean correct) {
         clearOutcomeContainer(gs);
-        
+
         if (!correct) {
             displayTryAgainMessage(gs);
         } else {
             handleCorrectGuess(gs);
         }
-        
+
         validateAndRepaintInputPanel(gs);
     }
 
@@ -165,7 +168,6 @@ public class ImageGuesser {
         gs.inputPanel.validate();
         gs.inputPanel.repaint();
     }
-
 
     private static void sendGuess(GameShow gs, String guess, int gameId) {
         gs.sendCommand(new JsonObject()

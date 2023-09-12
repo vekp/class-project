@@ -124,7 +124,7 @@ public class WordScramble {
         public static void startGame(GameShow gs, String letters, int gameId) {
                 GameShowUI.gameContainer.removeAll();
 
-                ImageIcon imageIcon = new ImageIcon(backBackground.getImage().getScaledInstance(600, 300,
+                ImageIcon imageIcon = new ImageIcon(backBackground.getImage().getScaledInstance(600, 290,
                                 Image.SCALE_DEFAULT));
                 JLabel background = new JLabel(imageIcon);
 
@@ -152,8 +152,9 @@ public class WordScramble {
                 JPanel guessPanel = new JPanel(new GridBagLayout());
 
                 // A text box in which to type a guess (and optionally submit on Enter)
-                JTextField guessBox = new JTextField(15);
+                JTextField guessBox = new JTextField();
                 guessBox.setFont(pixelFont.deriveFont(18f));
+                guessBox.setColumns(20);
                 // guessBox.setHorizontalAlignment(SwingConstants.CENTER);
                 guessBox.addActionListener((evt) -> sendGuess(gs, guessBox.getText(), gameId));
 
