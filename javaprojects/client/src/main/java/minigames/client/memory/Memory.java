@@ -61,8 +61,10 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
     // Game variable
     boolean gameStarted = false;
     int matchesCounter = 0;
-    int [] timeElapsed = {1, 0}; // {mins, seconds}
+    int [] timeElapsed = {1, 30}; // {mins, seconds}
     Timer timer;
+    boolean newGame;
+    boolean exiting;
 
 
     JPanel GUI;
@@ -137,8 +139,8 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         matches.setFont(new Font("Arial", Font.BOLD, 14));
         matches.setHorizontalAlignment(JLabel.CENTER);
 
-        //stopwatch = new JLabel(String.format("Time elapsed: %02d:%02d", timeElapsed[0], timeElapsed[1])); // Placeholder text for Timer
-        stopwatch = new JLabel("Time: NEED TO FIX");
+        //stopwatch = new JLabel("Time: NEED TO FIX");
+        stopwatch = new JLabel(String.format("Time: %02d:%02d", timeElapsed[0], timeElapsed[1])); // Text for Timer
         stopwatch.setFont(new Font("Arial", Font.BOLD, 14));
         stopwatch.setHorizontalAlignment(JLabel.CENTER);
 
@@ -208,7 +210,7 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         gameOptionsPanel.add(exitButton);
     }
 
-    private void setButtonPanelDisplay() {
+    public void setButtonPanelDisplay() {
         btnContainerWidth = 470;
         btnContainerHeight = 435;
 
@@ -238,6 +240,116 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         btn17 = new JButton(image);
         btn18 = new JButton(image);
 
+        btn1.addActionListener((evt) -> {
+            sendCommand("Flip_Card_1");
+            if (!gameStarted) {
+                startTimer();
+            }
+        });
+        btn2.addActionListener((evt) -> {
+            sendCommand("Flip_Card_2");
+            if (!gameStarted) {
+                startTimer();
+            }
+        });
+        btn3.addActionListener((evt) -> {
+            sendCommand("Flip_Card_3");
+            if (!gameStarted) {
+                startTimer();
+            }
+        });
+        btn4.addActionListener((evt) -> {
+            sendCommand("Flip_Card_4");
+            if (!gameStarted) {
+                startTimer();
+            }
+        });
+        btn5.addActionListener((evt) -> {
+            sendCommand("Flip_Card_5");
+            if (!gameStarted) {
+                startTimer();
+            }
+        });
+        btn6.addActionListener((evt) -> {
+            sendCommand("Flip_Card_6");
+            if (!gameStarted) {
+                startTimer();
+            }
+        });
+        btn7.addActionListener((evt) -> {
+            sendCommand("Flip_Card_7");
+            if (!gameStarted) {
+                startTimer();
+            }
+        });
+        btn8.addActionListener((evt) -> {
+            sendCommand("Flip_Card_8");
+            if (!gameStarted) {
+                startTimer();
+            }
+        });
+        btn9.addActionListener((evt) -> {
+            sendCommand("Flip_Card_9");
+            if (!gameStarted) {
+                startTimer();
+            }
+        });
+        btn10.addActionListener((evt) -> {
+            sendCommand("Flip_Card_10");
+            if (!gameStarted) {
+                startTimer();
+            }
+        });
+        btn11.addActionListener((evt) -> {
+            sendCommand("Flip_Card_11");
+            if (!gameStarted) {
+                startTimer();
+            }
+        });
+        btn12.addActionListener((evt) -> {
+            sendCommand("Flip_Card_12");
+            if (!gameStarted) {
+                startTimer();
+            }
+        });
+        btn13.addActionListener((evt) -> {
+            sendCommand("Flip_Card_13");
+            if (!gameStarted) {
+                startTimer();
+            }
+        });
+        btn14.addActionListener((evt) -> {
+            sendCommand("Flip_Card_14");
+            if (!gameStarted) {
+                startTimer();
+            }
+        });
+        btn15.addActionListener((evt) -> {
+            sendCommand("Flip_Card_15");
+            if (!gameStarted) {
+                startTimer();
+            }
+        });
+        btn16.addActionListener((evt) -> {
+            sendCommand("Flip_Card_16");
+            if (!gameStarted) {
+                startTimer();
+            }
+        });
+        btn17.addActionListener((evt) -> {
+            sendCommand("Flip_Card_17");
+            if (!gameStarted) {
+                startTimer();
+            }
+        });
+        btn18.addActionListener((evt) -> {
+            sendCommand("Flip_Card_18");
+            if (!gameStarted) {
+                startTimer();
+            }
+        });
+
+        /*
         btn1.addActionListener((evt) -> sendCommand("Flip_Card_1"));
         btn2.addActionListener((evt) -> sendCommand("Flip_Card_2"));
         btn3.addActionListener((evt) -> sendCommand("Flip_Card_3"));
@@ -256,6 +368,7 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         btn16.addActionListener((evt) -> sendCommand("Flip_Card_16"));
         btn17.addActionListener((evt) -> sendCommand("Flip_Card_17"));
         btn18.addActionListener((evt) -> sendCommand("Flip_Card_18"));
+        */
 
         buttonPanel.add(btn1);
         buttonPanel.add(btn2);
@@ -318,6 +431,7 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
             if (timeElapsed[1] == 0) {
                 if (timeElapsed[0] == 0) {
                     ((Timer) e.getSource()).stop();
+                    stopwatch.setText("Game Over!");
                     JOptionPane.showMessageDialog(null, "Game Over!");
                 } 
                 else {
@@ -334,7 +448,19 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
 
     // Method to update stopwatch
     private void updateStopwatch() {
-        stopwatch.setText(String.format("Time elapsed: %02d:%02d", timeElapsed[0], timeElapsed[1]));
+        stopwatch.setText(String.format("Time: %02d:%02d", timeElapsed[0], timeElapsed[1]));
+    }
+
+    public void resetTimer() {
+        timeElapsed[0] = 1; // Set minutes to 1
+        timeElapsed[1] = 30; // Set seconds to 30
+        updateStopwatch(); // Update the display
+    }
+
+    public void startTimer() {
+        timer = new Timer(1000, new TimerListener());
+        timer.start();
+        gameStarted = true;
     }
 
     // Run
@@ -387,10 +513,9 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
     }
 
     public void sendCommand(JsonObject command) {
-        mnClient.send(
-            new CommandPackage(
-                gm.gameServer(), gm.name(), player, Collections.
-                singletonList(command)));
+        if (exiting) return;
+        if (newGame) return;
+        mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(command)));
     }
 
 
@@ -406,7 +531,32 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
         // Update Player Name
         playerName.setText("Player: " + player);
         // Exit button to return to main game menu - Working
-        exitButton.addActionListener(e -> mnClient.runMainMenuSequence());
+        
+        newGameButton.addActionListener(e -> {
+            timer.stop();
+            resetTimer();
+            sendCommand("resetCards");
+            sendCommand("newGame");
+            gameStarted = false;
+            newGame = true;
+        });
+
+        
+        restartLevelButton.addActionListener(e -> {
+            timer.stop();
+            resetTimer();
+            sendCommand("resetCards");
+            gameStarted = false;
+        });
+
+        exitButton.addActionListener(e -> {
+            timer.stop();
+            resetTimer();
+            sendCommand("resetCards");
+            gameStarted = false;
+            closeGame();
+            mnClient.runMainMenuSequence();
+        });
 
         // Add our components to the north, south, east, west, or centre of the main window's BorderLayout
         mnClient.getMainWindow().addCenter(GUI);
@@ -450,7 +600,7 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
 
         switch (command.getString("command")) {
 
-            case "deckOfCards" ->{
+            case "deckOfCards" -> {
                 // Get the data about what cards exist on the server and use that to populate our card images.
                 // Not sure what to do with this data yet, maybe just an array of strings with the suit and value info
                 // and we use that to get the image for each button. idk
@@ -514,6 +664,27 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
             }
             case "Flip_Card_18" -> {
                 btn18.setIcon(resizeImageIcon(cardFrontImages[17],-1,btnContainerHeight/rows-5));
+            }
+            case "resetCards" -> {
+                ImageIcon image = resizeImageIcon(cardBackImage,-1,btnContainerHeight/rows-5);
+                btn1.setIcon(image);
+                btn2.setIcon(image);
+                btn3.setIcon(image);
+                btn4.setIcon(image);
+                btn5.setIcon(image);
+                btn6.setIcon(image);
+                btn7.setIcon(image);
+                btn8.setIcon(image);
+                btn9.setIcon(image);
+                btn10.setIcon(image);
+                btn11.setIcon(image);
+                btn12.setIcon(image);
+                btn13.setIcon(image);
+                btn14.setIcon(image);
+                btn15.setIcon(image);
+                btn16.setIcon(image);
+                btn17.setIcon(image);
+                btn18.setIcon(image);
             }
         }
     }
@@ -613,7 +784,9 @@ public class Memory implements GameClient, ActionListener, Tickable { //, MouseL
 
     @Override
     public void closeGame() {
-        // Nothing to do        
+        // Nothing to do     
+        sendCommand("exitGame");
+        exiting = true;   
     }
 
 }
