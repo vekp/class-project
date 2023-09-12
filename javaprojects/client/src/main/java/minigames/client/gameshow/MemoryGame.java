@@ -13,6 +13,7 @@ import javax.imageio.ImageIO;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+
 public class MemoryGame {
     private static boolean listeningForClicks = true;
     private static boolean startGame = false;
@@ -23,8 +24,9 @@ public class MemoryGame {
     private static final int TOTAL_ROUNDS = 3;
     public static void main(String[] args) {
         // Provide the correct path using forward slashes
-        File folder = new File("C:/Users/Admin/OneDrive - University of New England/Documents/Jenifer/Masters in IT/COSC220/Assignment 3 - Gameshow/classproject/javaprojects/client/src/main/resources/images/memory_game_pics");
+        File folder = new File("./client/src/main/resources/images/memory_game_pics");
         File[] files = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png"));
+
 
         if (files != null && files.length > 0) {
             // Create a list of image files
@@ -144,7 +146,7 @@ public class MemoryGame {
     public static void replaceImages(JPanel panel, int correctNumber) {
 
         panel.removeAll(); // Remove existing components from the panel
-        File folderCover = new File("C:/Users/Admin/OneDrive - University of New England/Documents/Jenifer/Masters in IT/COSC220/Assignment 3 - Gameshow/classproject/javaprojects/client/src/main/resources/images/hiding_cards");
+        File folderCover = new File("./client/src/main/resources/images/hiding_cards");
         File[] filesCover = folderCover.listFiles((dir, name) -> name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png"));
 
         List<File> imageFilesCover = new ArrayList<>();
@@ -187,7 +189,7 @@ public class MemoryGame {
                                 System.out.println("Correct Image.");
                                 System.out.println("Icon nummer is " + imageCovernumber);
                                 panel.remove(imageLabels.get(correctNumber));
-                                File newImageFile = new File("C:/Users/Admin/OneDrive - University of New England/Documents/Jenifer/Masters in IT/COSC220/Assignment 3 - Gameshow/classproject/javaprojects/client/src/main/resources/images/result/Correct.jpg");
+                                File newImageFile = new File("./client/src/main/resources/images/result/Correct.jpg");
                                 ImageIcon newImageIcon = resizeImage(newImageFile, desiredWidth, desiredHeight);
                                 // Create a new JLabel with the replacement image
                                 JLabel newLabel = new JLabel(newImageIcon);
@@ -202,7 +204,7 @@ public class MemoryGame {
                             } else {
                                 System.out.println("Not Correct Image." + imageCovernumber);
                                 panel.remove(imageLabels.get(imageCovernumber));
-                                File newImageFile = new File("C:/Users/Admin/OneDrive - University of New England/Documents/Jenifer/Masters in IT/COSC220/Assignment 3 - Gameshow/classproject/javaprojects/client/src/main/resources/images/result/Inccorrect.jpg");
+                                File newImageFile = new File("./client/src/main/resources/images/result/Inccorrect.jpg");
                                 ImageIcon newImageIcon = resizeImage(newImageFile, desiredWidth, desiredHeight);
                                 // Create a new JLabel with the replacement image
                                 JLabel newLabel = new JLabel(newImageIcon);
