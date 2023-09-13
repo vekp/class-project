@@ -25,6 +25,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
+import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import minigames.client.Main;
 import minigames.client.MinigameNetworkClient;
@@ -328,7 +329,8 @@ public class GameShowUI {
                 miniMiniGame.add(testingButtons, BorderLayout.PAGE_START);
                 miniMiniGame.add(startGame, BorderLayout.PAGE_END);
 
-                players = new JTextArea("Players in lobby: " + "", 18, 20);// TODO: get names of players
+                players = new JTextArea("Players in lobby: \n" + gameShow.player, 18, 20);// TODO: get names of
+                                                                                          // players
                 players.setEditable(false);
                 players.setFont(pixelFont.deriveFont(15f));
                 JScrollPane scrollableTextArea = new JScrollPane(players);
@@ -342,9 +344,12 @@ public class GameShowUI {
                 return lobbyPanel;
         }
 
-        // public static playersNames(MinigameNetworkClient mg){
+        public static void playersNames(MinigameNetworkClient mg) {
 
-        // playersNames = mg.getPlayerNames();
+                Future<String> playersNames = mg.getPlayerNames();
+                System.out.println(playersNames);
+
+        }
 
         public static JPanel generateConsistentPanel(GameShow gameShow) {
 

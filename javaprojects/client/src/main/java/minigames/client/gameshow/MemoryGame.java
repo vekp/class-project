@@ -23,6 +23,7 @@ public class MemoryGame {
     private static final int TOTAL_ROUNDS = 3;
 
     private final static String dir = "./src/main/resources/images/memory_game_pics/";
+    private final static String covers = "./src/main/resources/images/hiding_cards/";
 
     public static void main(GameShow main) {
         // Provide the correct path using forward slashes
@@ -141,7 +142,7 @@ public class MemoryGame {
     public static void replaceImages(JPanel panel, int correctNumber) {
 
         panel.removeAll(); // Remove existing components from the panel
-        File folderCover = new File("./client/src/main/resources/images/hiding_cards");
+        File folderCover = new File(covers);
         File[] filesCover = folderCover
                 .listFiles((dir, name) -> name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png"));
 
