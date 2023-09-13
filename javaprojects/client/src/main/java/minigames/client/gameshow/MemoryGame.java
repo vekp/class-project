@@ -24,6 +24,8 @@ public class MemoryGame {
 
     private final static String dir = "./src/main/resources/images/memory_game_pics/";
     private final static String covers = "./src/main/resources/images/hiding_cards/";
+    private final static String correct = "./src/main/resources/images/result/Correct.jpg";
+    private final static String incorrect = "./src/main/resources/images/result/Inccorrect.jpg";
 
     public static void main(GameShow main) {
         // Provide the correct path using forward slashes
@@ -187,7 +189,7 @@ public class MemoryGame {
                                     System.out.println("Icon nummer is " + imageCovernumber);
                                     panel.remove(imageLabels.get(correctNumber));
                                     File newImageFile = new File(
-                                            "./client/src/main/resources/images/result/Correct.jpg");
+                                            correct);
                                     ImageIcon newImageIcon = resizeImage(newImageFile, desiredWidth, desiredHeight);
                                     // Create a new JLabel with the replacement image
                                     JLabel newLabel = new JLabel(newImageIcon);
@@ -202,7 +204,7 @@ public class MemoryGame {
                                     System.out.println("Not Correct Image." + imageCovernumber);
                                     panel.remove(imageLabels.get(imageCovernumber));
                                     File newImageFile = new File(
-                                            "./client/src/main/resources/images/result/Inccorrect.jpg");
+                                            incorrect);
                                     ImageIcon newImageIcon = resizeImage(newImageFile, desiredWidth, desiredHeight);
                                     // Create a new JLabel with the replacement image
                                     JLabel newLabel = new JLabel(newImageIcon);
