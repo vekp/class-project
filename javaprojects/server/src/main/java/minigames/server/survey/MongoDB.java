@@ -14,6 +14,7 @@ public class MongoDB {
 
     // Establish a connection to Mongo database
     public MongoDB() {
+        // To see the database and it's relation, download MongoDB Compass UI and paste the Connection String below to connect
         ConnectionString connString = new ConnectionString("mongodb+srv://cosc220:WxsFWGOiEuilbtkj@cluster0.sk5iqrw.mongodb.net/?retryWrites=true&w=majority");
         this.mongoClient = MongoClients.create(connString);
         this.database = mongoClient.getDatabase("une-db");
