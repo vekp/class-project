@@ -2,6 +2,7 @@ package minigames.server.tictactoe;
 
 import io.vertx.core.Future;
 import minigames.commands.CommandPackage;
+import minigames.rendering.RenderingPackage;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.GameServerDetails;
 import minigames.server.ClientType;

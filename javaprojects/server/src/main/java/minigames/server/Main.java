@@ -4,12 +4,12 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import minigames.server.battleship.BattleshipServer;
 import minigames.server.highscore.*;
-import minigames.server.TicTacToe.TicTacToeServer;
 import minigames.server.muddle.MuddleServer;
 import minigames.server.snake.SnakeServer;
 import minigames.server.peggle.PeggleServer;
 import minigames.server.spacemaze.SpaceMazeServer;
 import minigames.server.telepathy.TelepathyServer;
+import minigames.server.tictactoe.TicTacToeServer;
 import io.vertx.core.Launcher;
 
 import org.apache.logging.log4j.LogManager;

@@ -1,7 +1,13 @@
 package minigames.server.tictactoe;
 
 import io.vertx.core.json.JsonObject;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 import minigames.commands.CommandPackage;
+import minigames.rendering.GameMetadata;
 import minigames.rendering.RenderingPackage;
 
 import java.util.Arrays;
@@ -16,7 +22,7 @@ public class TicTacToeGame {
         PLAYING, X_WINS, O_WINS, DRAW
     }
 
-    private String name;
+    public String name;
     private String[] players = new String[2];
     private PlayerSymbol[] board = new PlayerSymbol[9];
     private PlayerSymbol currentPlayer = PlayerSymbol.X;
@@ -28,14 +34,30 @@ public class TicTacToeGame {
         Arrays.fill(board, null);
     }
 
-    public RenderingPackage joinGame(String playerName) {
-        if (players[1] == null) {
-            players[1] = playerName;
-        }
+    public GameMetadata gameMetadata() {
+    // Determine the list of players currently in the game (excluding null entries)
+    List<String> playerNames = Arrays.stream(players)
+                                    .filter(Objects::nonNull)
+                                    .collect(Collectors.toList());
 
-        JsonObject command = new JsonObject().put("command", "join").put("player", playerName);
-        return new RenderingPackage(name, players[0], command);
+    // Assume the game is joinable if there are fewer than 2 players
+    boolean isJoinable = playerNames.size() < 2;
+
+    return new GameMetadata("TicTacToe", name, playerNames.toArray(new String[0]), isJoinable);
+    
+}
+
+
+    public RenderingPackage joinGame(String playerName) {
+    if (players[1] == null) {
+        players[1] = playerName;
     }
+
+    ArrayList<JsonObject> renderingCommands = new ArrayList<>();
+    renderingCommands.add(new JsonObject().put("command", "join").put("player", playerName));
+
+    return new RenderingPackage(gameMetadata(), renderingCommands);
+}
 
     public String[] getPlayerNames() {
         return players;
@@ -92,11 +114,17 @@ public class TicTacToeGame {
     }
 
     private RenderingPackage renderGameState() {
-        JsonObject gameState = new JsonObject()
+    ArrayList<JsonObject> renderingCommands = new ArrayList<>();
+    
+    JsonObject gameState = new JsonObject()
+            .put("command", "updateGameState")
             .put("board", board)
             .put("currentPlayer", currentPlayer.toString())
             .put("status", status.toString());
+    
+    renderingCommands.add(gameState);
+    
+    return new RenderingPackage(gameMetadata(), renderingCommands);
+}
 
-        return new RenderingPackage(name, players[0], gameState);
-    }
 }
