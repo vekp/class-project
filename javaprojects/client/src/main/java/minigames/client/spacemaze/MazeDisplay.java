@@ -46,7 +46,7 @@ public class MazeDisplay extends JPanel {
     // ArrayList of SpaceBot objects in the maze
     private ArrayList<SpaceBot> bots;
     // Delay in milliseconds between bot movement 300
-    private int botDelay = 300;
+    private int botDelay = 400;
 
     // Game window and tile dimensions
     private int jPanelWidth = 800;
@@ -124,24 +124,15 @@ public class MazeDisplay extends JPanel {
             @Override
             public void run() {
                 for (SpaceBot bot : bots ) {
-                    // moving randomly - gets stuck at deadends.
-                    /*
-                    Random ran = new Random();
-                    bot.moveRandom(ran);
-                    */
-                    // always moving closer
                     bot.move(playerPos);
-                   
                     detectAndSendCollisions();
                 }
-
                 // For controlling the cycling of images with multiple pngs
                 if (imageCycle < 60) {
                     imageCycle++;
                 } else {
                     imageCycle = 1;
                 }
-
                 repaint();
             }
             }, 0, botDelay);
@@ -452,12 +443,10 @@ public class MazeDisplay extends JPanel {
         return (!outOfBounds && !isWallOrExit);
     }
 
-    /*
+    /**
      * Method for detecting collisions between bots and players.
-     * 
      */
     public void detectAndSendCollisions() {
-
         // iterate through the bots and compare position with the players.
             for (SpaceBot bot : bots) {
                 Point botPosition = bot.getLocation();
@@ -468,7 +457,6 @@ public class MazeDisplay extends JPanel {
                     spaceMaze.sendCommand("botCollision");
                     bot.reset();
                 }
-                
             }
     }
 }

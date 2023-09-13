@@ -19,9 +19,7 @@ import minigames.server.achievements.AchievementHandler;
 import static minigames.server.spacemaze.achievements.*;
 
 /**
- * Represents an actual Space Maze game in progress
- *
- * @author Andrew McKenzie
+ * SpaceMazeGame class represents an actual Space Maze game in progress
  */
 public class SpaceMazeGame {
 
@@ -35,10 +33,6 @@ public class SpaceMazeGame {
 
     // The instance of MazeControl for this individual game
     MazeControl mazeControl;
-
-    //HighScoreAPI api = new HighScoreAPI(new DerbyDatabase());
-
-    //List<ScoreRecord> topScores;
 
     /**
      * Constructor
@@ -195,8 +189,6 @@ public class SpaceMazeGame {
                         renderingCommands.add(new JsonObject().put("command", "gameOver")
                                 .put("totalScore", playerScoreString)
                                 .put("timeTaken", timeTaken));
-                        //api.recordScore(p, "SpaceMaze", player.getPlayerScore());
-
                         // Set endgame achievements
                         Boolean isPlayerATimeLord = mazeControl.getAllBonusStatus();
                         Boolean isPlayerAKeyKeeper = mazeControl.getAllKeysStatus();

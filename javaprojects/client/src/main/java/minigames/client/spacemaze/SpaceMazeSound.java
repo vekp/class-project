@@ -10,6 +10,8 @@ import org.apache.logging.log4j.Logger;
  * Class for the basic sound effects in the game
  *
  * @author Andrew McKenzie
+ *
+ * All sound files were created by myself in https://sfxr.me
  */
 public class SpaceMazeSound {
 
