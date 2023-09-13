@@ -10,6 +10,7 @@ import minigames.server.peggle.PeggleServer;
 import minigames.server.spacemaze.SpaceMazeServer;
 import minigames.server.telepathy.TelepathyServer;
 import minigames.server.tictactoe.TicTacToeServer;
+import minigames.server.noughtsandcrosses.NoughtsAndCrossesServer;
 import io.vertx.core.Launcher;
 
 import org.apache.logging.log4j.LogManager;
@@ -74,6 +75,7 @@ public class Main extends AbstractVerticle {
         gameRegistry.registerGameServer("Snake", new SnakeServer());
         gameRegistry.registerGameServer("Peggle", new PeggleServer());
         gameRegistry.registerGameServer("TicTacToe", new TicTacToeServer());
+        gameRegistry.registerGameServer("NoughtsAndCrosses", new NoughtsAndCrossesServer());
 
         // Initialize the HighScoreAPI
         HighScoreStorage highScoreStorage = new StubHighScoreStorage();
