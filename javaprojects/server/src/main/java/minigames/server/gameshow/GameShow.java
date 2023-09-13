@@ -128,6 +128,10 @@ public class GameShow {
                         .put("command", "guessImageOutcome")
                         .put("outcome", outcome));
             }
+            case "quit" -> {
+                players.remove(cp.player());
+                renderingCommands.add(new NativeCommands.QuitToMenu().toJson());
+            }
         }
 
         return new RenderingPackage(this.gameMetadata(), renderingCommands);

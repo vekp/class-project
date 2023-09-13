@@ -43,26 +43,10 @@ public class GameShow implements GameClient {
     /** Your name */
     String player;
 
-    JButton imageButton;
-
-    JPanel background;
-
-    JPanel titleArea;
-    JLabel title;
-
     JPanel homeScreen;
 
-    JPanel gameArea;
-    JPanel gameSelect;
-    JLabel gameSelectInstructions;
-    JPanel guessContainer;
     JPanel inputPanel;
     JPanel outcomeContainer;
-
-    JButton wordScramble;
-    JButton imageGuesserStart;
-    JButton memoryGame;
-    JButton guessingGame;
 
     int gameId;
     JPanel gamePanel;
@@ -85,7 +69,7 @@ public class GameShow implements GameClient {
         quitGame.setFocusPainted(false);
         quitGame.setBorderPainted(false);
         quitGame.setMargin(new Insets(0, 650, 0, 0));
-        quitGame.addActionListener(e -> mnClient.runMainMenuSequence());
+        quitGame.addActionListener(e -> Main.sendCommand(new JsonObject().put("command", "quit")));
 
         return quitGame;
     }
