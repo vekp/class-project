@@ -310,7 +310,7 @@ public class GameShowUI {
 
                 JButton memoryButton = new JButton("Memory Game");
                 memoryButton.addActionListener(null);
-                miniMiniGame.add(memoryButton, BorderLayout.PAGE_END);
+                miniMiniGame.add(memoryButton, BorderLayout.LINE_START);
 
                 wordScramble = new JButton("Word Scramble");
                 // wordScramble.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -343,7 +343,7 @@ public class GameShowUI {
 
         // playersNames = mg.getPlayerNames();
 
-        }
+        // }
 
         public static JPanel generateConsistentPanel(GameShow gameShow) {
 
