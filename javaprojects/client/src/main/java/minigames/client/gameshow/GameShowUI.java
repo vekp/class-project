@@ -305,6 +305,7 @@ public class GameShowUI {
                 startGame.setFocusPainted(false);
                 startGame.setBorderPainted(false);
                 // TODO: add action listener
+                startGame.addActionListener((evt) -> gameShow.sendCommand(new JsonObject().put("command", "ready")));
 
                 wordScramble = new JButton("Word Scramble");
                 // wordScramble.setAlignmentX(Component.CENTER_ALIGNMENT);

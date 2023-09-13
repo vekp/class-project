@@ -144,6 +144,13 @@ public class GameShow implements GameClient {
             case "guessImageOutcome" -> {
                 ImageGuesser.guess(this, command.getBoolean("outcome"));
             }
+            case "ready" -> { // Log the ready state (for testing purposes)
+                logger.log(
+                        Level.INFO,
+                        "Player {0} is now ready: {1}",
+                        new Object[] { player, command.getBoolean("state")}
+                );
+            }
         }
     }
 

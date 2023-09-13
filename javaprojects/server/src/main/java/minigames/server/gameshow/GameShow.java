@@ -18,14 +18,33 @@ public class GameShow {
     /** A logger for logging output */
     private static final Logger logger = LogManager.getLogger(GameShow.class);
 
-    static int WIDTH = 2;
-    static int HEIGHT = 2;
+    /** A class to hold the state of players */
+    private static class GameShowPlayer {
+        private final String name;
+        private int score;
+        private boolean ready;
 
-    record GameShowPlayer(
-        String name,
-        int x, int y,
-        List<String> inventory
-    ) {
+        public GameShowPlayer(String name) {
+            this.name = name;
+            this.score = 0;
+            this.ready = false;
+        }
+
+        public String name() { return this.name; }
+        public int score() { return this.score; }
+        public boolean isReady() { return this.ready; }
+
+        public void addToScore(int amount) { this.score += amount; }
+        public void toggleReady() { this.ready = !this.ready; }
+
+        public boolean equals(GameShowPlayer p) {
+            return this.name.equals(p.name());
+        }
+
+        @Override
+        public String toString() {
+            return this.name + ": " + this.score;
+        }
     }
 
     /** Uniquely identifies this game */
@@ -51,16 +70,6 @@ public class GameShow {
         return new GameMetadata("GameShow", name, getPlayerNames(), true);
     }
 
-    /** Describes the state of a player */
-    private String describeState(GameShowPlayer p) {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(String.format("[%d,%d] \n\n", p.x, p.y));
-
-        return sb.toString();
-    }
-
-
     public RenderingPackage runCommands(CommandPackage cp) {
         logger.info("Received command package {}", cp);
 
@@ -69,6 +78,15 @@ public class GameShow {
         JsonObject msg = cp.commands().get(0);
 
         switch (msg.getString("command")) {
+            case "ready" -> {
+                players.get(cp.player()).toggleReady();
+                // Respond with ready state (for testing purposes):
+                renderingCommands.add(
+                        new JsonObject()
+                                .put("command", "ready")
+                                .put("state", players.get(cp.player()).isReady())
+                );
+            }
             case "startGame" -> {
                 switch (msg.getString("game")) {
                     case "wordScramble" -> {
@@ -147,7 +165,7 @@ public class GameShow {
                 }).map((r) -> r.toJson()).toList()
             );
         } else {
-            GameShowPlayer p = new GameShowPlayer(playerName, 0, 0, List.of());
+            GameShowPlayer p = new GameShowPlayer(playerName);
             players.put(playerName, p);
 
             ArrayList<JsonObject> renderingCommands = new ArrayList<>();
