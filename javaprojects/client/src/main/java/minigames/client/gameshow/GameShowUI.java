@@ -322,7 +322,7 @@ public class GameShowUI {
                 testingButtons.add(imageGuesserStart, BorderLayout.CENTER);
 
                 JButton memoryButton = new JButton("Memory Game");
-                memoryButton.addActionListener(null);
+                memoryButton.addActionListener((evt) -> MemoryGame.main(gameShow));
                 testingButtons.add(memoryButton, BorderLayout.PAGE_END);
 
                 miniMiniGame.add(testingButtons, BorderLayout.PAGE_START);
