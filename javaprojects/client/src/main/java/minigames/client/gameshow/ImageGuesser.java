@@ -37,7 +37,7 @@ public class ImageGuesser {
     private static GridPanel gridPanel;
     private static JTextField guessField;
 
-    public static void startImageGuesser(GameShow gs, String imageFileName, int gameId) {
+    public static void startImageGuesser(GameShow gs, String imageFileName) {
         clearGameContainer();
         loadAndDisplayImage(imageFileName);
         startCellVisibilityTimer();
@@ -111,7 +111,7 @@ public class ImageGuesser {
         submitButton.addActionListener((evt) -> gs.sendCommand(new JsonObject()
                 .put("command", "guessImage")
                 .put("guess", guessField.getText())
-                .put("gameId", gs.gameId)));
+                .put("round", gs.round)));
         return submitButton;
     }
 
@@ -162,6 +162,12 @@ public class ImageGuesser {
         Font pixelFont = GameShowUI.pixelFont;
         congrats.setFont(pixelFont.deriveFont(15f));
         gs.outcomeContainer.add(congrats, BorderLayout.CENTER);
+
+        JButton nextRoundButton = new JButton("Next round ->");
+        nextRoundButton.addActionListener((evt) -> {
+            gs.sendCommand(new JsonObject().put("command", "nextRound").put("round", gs.round + 1));
+        });
+        gs.outcomeContainer.add(nextRoundButton, BorderLayout.PAGE_END);
     }
 
     private static void validateAndRepaintInputPanel(GameShow gs) {

@@ -105,6 +105,32 @@ public class GameShow {
         this.games.add(new WordScramble("words_hard.txt"));
     }
 
+    /** Progress the game to the next round */
+    public JsonObject nextRound(int round) {
+        JsonObject commands = new JsonObject();
+        String minigameName = this.games.get(round).getClass().getSimpleName();
+
+        commands.put("command", "nextRound").put("minigame", minigameName);
+
+        switch (minigameName) {
+            case "ImageGuesser" -> {
+                ImageGuesser minigame = (ImageGuesser) this.games.get(round);
+                String image = minigame.getImageName();
+                String imageFilePath = minigame.getImageFileName();
+
+                commands.put("image", image).put("imageFilePath", imageFilePath).put("round", round);
+            }
+            case "WordScramble" -> {
+                WordScramble minigame = (WordScramble) this.games.get(round);
+                String letters = minigame.getScrambledWord();
+
+                commands.put("letters", letters).put("round", round);
+            }
+        }
+
+        return commands;
+    }
+
     public RenderingPackage runCommands(CommandPackage cp) {
         logger.info("Received command package {}", cp);
 
@@ -118,17 +144,12 @@ public class GameShow {
                 if (allPlayersReady()) { // Log (for testing purposes)
                     logger.info("All players in game '{}' are ready", this.name);
                     this.inProgress = true;
-                    // TODO: Add begin rounds functionality
+                    renderingCommands.add(nextRound(0));
                 } else { // Log (for testing purposes)
                     logger.info("There are players in game '{}' who are not yet ready", this.name);
                 }
-                // Respond with ready state (for testing purposes):
-                renderingCommands.add(
-                        new JsonObject()
-                                .put("command", "ready")
-                                .put("state", players.get(cp.player()).isReady())
-                );
             }
+            case "nextRound" -> renderingCommands.add(nextRound(cp.commands().get(0).getInteger("round")));
             case "startGame" -> {
                 switch (msg.getString("game")) {
                     case "wordScramble" -> {
@@ -168,9 +189,7 @@ public class GameShow {
 
                 switch (msg.getString("game")) {
                     case "wordScramble" -> {
-                        int gameId = (int) msg.getInteger("gameId");
-                        boolean correct = wordScrambleGames
-                            .get(gameId).guessIsCorrect(guess);
+                        boolean correct = games.get(msg.getInteger("round")).guessIsCorrect(guess);
                         renderingCommands.
                             add(new JsonObject()
                                 .put("command", "guessOutcome")
@@ -181,8 +200,10 @@ public class GameShow {
             }
             case "guessImage" -> {
                 String guess = cp.commands().get(0).getString("guess");
-                int gameId = (int) cp.commands().get(0).getInteger("gameId");
-                boolean outcome = imageGuesserGames.get(gameId).guessIsCorrect(guess);
+                logger.info("Processing Image Guesser guess '{}' at Round {}", new Object[] {
+                        guess, cp.commands().get(0).getInteger("round")
+                });
+                boolean outcome = this.games.get(cp.commands().get(0).getInteger("round")).guessIsCorrect(guess);
                 renderingCommands.
                     add(new JsonObject()
                         .put("command", "guessImageOutcome")

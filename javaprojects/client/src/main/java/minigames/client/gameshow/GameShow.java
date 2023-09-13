@@ -45,7 +45,8 @@ public class GameShow implements GameClient {
     JPanel inputPanel;
     JPanel outcomeContainer;
 
-    int gameId;
+    /** The current round for this player, zero-indexed */
+    protected int round;
     JPanel gamePanel;
     GameTimer gameTimer;
     private final static String dir = "./src/main/java/minigames/client/gameshow/GameShowImages/";
@@ -113,13 +114,28 @@ public class GameShow implements GameClient {
         logger.info("execute called with command: {}", command.getString("command"));
 
         switch (command.getString("command")) {
+            case "nextRound" -> {
+                logger.info("Starting minigame {}", command.getString("minigame"));
+                this.round = command.getInteger("round");
+                switch (command.getString("minigame")) {
+                    case "ImageGuesser" -> {
+                        this.gameTimer = new GameTimer(130000);
+                        ImageGuesser.startImageGuesser(this, command.getString("imageFilePath"));
+                        this.gameTimer.start();
+                    }
+                    case "WordScramble" -> {
+                        this.gameTimer = new GameTimer(130000);
+                        WordScramble.startGame(this, command.getString("letters"));
+                        this.gameTimer.start();
+                    }
+                }
+            }
             case "startGame" -> {
                 switch (command.getString("game")) {
                     case "wordScramble" -> {
                         WordScramble.startGame(
                                 this,
-                                command.getString("letters"),
-                                (int) command.getInteger("gameId"));
+                                command.getString("letters"));
                     }
                 }
             }
@@ -134,8 +150,7 @@ public class GameShow implements GameClient {
             }
             case "startImageGuesser" -> {
                 this.gameTimer = new GameTimer(130000);
-                ImageGuesser.startImageGuesser(this, command.getString("imageFilePath"),
-                        (int) command.getInteger("gameId"));
+                ImageGuesser.startImageGuesser(this, command.getString("imageFilePath"));
                 this.gameTimer.start();
             }
             case "guessImageOutcome" -> {

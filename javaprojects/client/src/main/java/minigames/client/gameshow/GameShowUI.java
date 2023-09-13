@@ -304,20 +304,25 @@ public class GameShowUI {
                 startGame.setContentAreaFilled(false);
                 startGame.setFocusPainted(false);
                 startGame.setBorderPainted(false);
-                // TODO: add action listener
                 startGame.addActionListener((evt) -> gameShow.sendCommand(new JsonObject().put("command", "ready")));
+
+                JPanel testingButtons = new JPanel(new BorderLayout(100, 10));
 
                 wordScramble = new JButton("Word Scramble");
                 // wordScramble.setAlignmentX(Component.CENTER_ALIGNMENT);
                 wordScramble.addActionListener((evt) -> WordScramble.welcome(GameShow.Main));
-                miniMiniGame.add(wordScramble, BorderLayout.PAGE_START);
+                testingButtons.add(wordScramble, BorderLayout.PAGE_START);
 
                 imageGuesserStart = new JButton("Image Guesser");
                 // imageGuesserStart.setAlignmentX(Component.CENTER_ALIGNMENT);
                 imageGuesserStart.addActionListener(
                                 (evt) -> gameShow.sendCommand(new JsonObject().put("command", "imageGuesser")));
-                miniMiniGame.add(imageGuesserStart, BorderLayout.CENTER);
+                testingButtons.add(imageGuesserStart, BorderLayout.CENTER);
 
+                JButton memoryGameStart = new JButton("Memory Game");
+                testingButtons.add(memoryGameStart, BorderLayout.PAGE_END);
+
+                miniMiniGame.add(testingButtons, BorderLayout.PAGE_START);
                 miniMiniGame.add(startGame, BorderLayout.PAGE_END);
 
                 players = new JTextArea("Players in lobby: " + "", 18, 20);// TODO: get names of players
