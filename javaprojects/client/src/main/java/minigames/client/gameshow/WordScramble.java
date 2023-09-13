@@ -11,6 +11,8 @@ public class WordScramble {
         private static final ImageIcon paperBackground = new ImageIcon(dir + "paper.png");
         private static final ImageIcon backBackground = new ImageIcon(dir + "back.png");
 
+        public static JLabel backGround;
+
         /**
          * Creates a welcome screen, currently prompting user for difficulty
          */
@@ -126,17 +128,18 @@ public class WordScramble {
 
                 ImageIcon imageIcon = new ImageIcon(backBackground.getImage().getScaledInstance(600, 290,
                                 Image.SCALE_DEFAULT));
-                JLabel background = new JLabel(imageIcon);
+                backGround = new JLabel(imageIcon);
 
                 JButton scrambledLetters = new JButton(letters);
                 Font pixelFont = GameShowUI.pixelFont;
                 scrambledLetters.setFont(pixelFont.deriveFont(60f));
-                scrambledLetters.setSize(scrambledLetters.getPreferredSize());
-                scrambledLetters.setLocation(210, 150);
+                scrambledLetters.setSize(600, 220);
+                scrambledLetters.setVerticalAlignment(SwingConstants.BOTTOM);
+                // scrambledLetters.setLocation(210, 150);
                 scrambledLetters.setContentAreaFilled(false);
                 scrambledLetters.setFocusPainted(false);
                 scrambledLetters.setBorderPainted(false);
-                background.add(scrambledLetters);
+                backGround.add(scrambledLetters);
 
                 // The base panel for the screen
                 gs.gamePanel = new JPanel(new GridBagLayout());
@@ -146,7 +149,7 @@ public class WordScramble {
                 // gbc.insets = new Insets(20, 0, 20, 0);
                 gbc.gridx = 0;
                 gbc.gridy = 0;
-                gs.gamePanel.add(background, gbc);
+                gs.gamePanel.add(backGround, gbc);
 
                 // Add a panel for making guesses
                 JPanel guessPanel = new JPanel(new GridBagLayout());
@@ -201,15 +204,22 @@ public class WordScramble {
         public static void processGuess(GameShow gs, boolean correct) {
                 GridBagConstraints gbc = new GridBagConstraints();
                 gbc.insets = new Insets(20, 0, 20, 0);
+                // backGround.validate();
 
                 if (!correct) {
-                        JLabel incorrectGuess = new JLabel("Incorrect :( Try again!");
+                        JButton incorrectGuess = new JButton("Incorrect :( Try again!");
                         Font pixelFont = GameShowUI.pixelFont;
                         incorrectGuess.setFont(pixelFont.deriveFont(15f));
                         incorrectGuess.setForeground(Color.RED);
+                        incorrectGuess.setSize(600, 290);
+                        incorrectGuess.setVerticalAlignment(SwingConstants.BOTTOM);
+                        // scrambledLetters.setLocation(210, 150);
+                        incorrectGuess.setContentAreaFilled(false);
+                        incorrectGuess.setFocusPainted(false);
+                        incorrectGuess.setBorderPainted(false);
                         gbc.gridx = 0;
-                        gbc.gridy = 2;
-                        gs.gamePanel.add(incorrectGuess, gbc);
+                        gbc.gridy = 0;
+                        backGround.add(incorrectGuess, gbc);
                 } else {
                         gs.gamePanel.removeAll();
                         JLabel correctGuess = new JLabel("Congratulations! You Win :)");
@@ -218,10 +228,12 @@ public class WordScramble {
                         gbc.gridx = 0;
                         gbc.gridy = 0;
                         gs.gamePanel.add(correctGuess, gbc);
+                        gs.gamePanel.validate();
+                        gs.gamePanel.repaint();
                 }
 
-                gs.gamePanel.validate();
-                gs.gamePanel.repaint();
+                backGround.validate();
+                backGround.repaint();
         }
 
         /**
