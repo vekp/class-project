@@ -18,6 +18,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.OverlayLayout;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -26,6 +27,7 @@ import javax.swing.border.LineBorder;
 
 import io.vertx.core.json.JsonObject;
 import minigames.client.Main;
+import minigames.client.MinigameNetworkClient;
 import minigames.commands.CommandPackage;
 
 import java.awt.event.ActionEvent;
@@ -306,6 +308,10 @@ public class GameShowUI {
                 startGame.setBorderPainted(false);
                 // TODO: add action listener
 
+                JButton memoryButton = new JButton("Memory Game");
+                memoryButton.addActionListener(null);
+                miniMiniGame.add(memoryButton, BorderLayout.PAGE_END);
+
                 wordScramble = new JButton("Word Scramble");
                 // wordScramble.setAlignmentX(Component.CENTER_ALIGNMENT);
                 wordScramble.addActionListener((evt) -> WordScramble.welcome(GameShow.Main));
@@ -331,6 +337,12 @@ public class GameShowUI {
                 lobbyPanel.add(miniMiniGame, BorderLayout.LINE_END);
 
                 return lobbyPanel;
+        }
+
+        // public static playersNames(MinigameNetworkClient mg){
+
+        // playersNames = mg.getPlayerNames();
+
         }
 
         public static JPanel generateConsistentPanel(GameShow gameShow) {
@@ -375,7 +387,6 @@ public class GameShowUI {
                 playersScore.setFont(pixelFont.deriveFont(40f));
                 playersScore.setBorder(compound);
                 playersScore.setHorizontalAlignment(JTextField.CENTER);
-                playersScore.setEditable(false);
                 playersScorePanel = new JPanel(new BorderLayout());
                 playersScorePanel.setBackground(Color.ORANGE);
                 playersScorePanel.setBorder(new EmptyBorder(0, 0, 0, 30));
