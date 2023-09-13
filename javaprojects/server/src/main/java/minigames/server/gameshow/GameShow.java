@@ -18,7 +18,7 @@ public class GameShow {
     /** A logger for logging output */
     private static final Logger logger = LogManager.getLogger(GameShow.class);
 
-    private List<GameShowMiniGame> games;
+    private static final int MAX_PLAYERS = 4;
 
     /** A class to hold the state of players */
     private static class GameShowPlayer {
@@ -52,8 +52,15 @@ public class GameShow {
     /** Uniquely identifies this game */
     String name;
 
+    /** Holds the actual minigame instances to be played in a given instance of GameShow */
+    private List<GameShowMiniGame> games;
+
+    /** Has the game started? */
+    private boolean inProgress;
+
     public GameShow(String name) {
         this.name = name;
+        this.inProgress = false;
         this.initialiseGames();
     }
 
@@ -110,6 +117,7 @@ public class GameShow {
                 players.get(cp.player()).toggleReady();
                 if (allPlayersReady()) { // Log (for testing purposes)
                     logger.info("All players in game '{}' are ready", this.name);
+                    this.inProgress = true;
                     // TODO: Add begin rounds functionality
                 } else { // Log (for testing purposes)
                     logger.info("There are players in game '{}' who are not yet ready", this.name);
@@ -198,6 +206,20 @@ public class GameShow {
                 Arrays.stream(new RenderingCommand[] {
                     new NativeCommands.ShowMenuError("That name's not available")
                 }).map((r) -> r.toJson()).toList()
+            );
+        } else if (this.inProgress) {
+            return new RenderingPackage(
+                    gameMetadata(),
+                    Arrays.stream(new RenderingCommand[]{
+                            new NativeCommands.ShowMenuError("Game already started")
+                    }).map((r) -> r.toJson()).toList()
+            );
+        } else if (this.players.size() == MAX_PLAYERS) {
+            return new RenderingPackage(
+                    gameMetadata(),
+                    Arrays.stream(new RenderingCommand[]{
+                            new NativeCommands.ShowMenuError("Game is full")
+                    }).map((r) -> r.toJson()).toList()
             );
         } else {
             GameShowPlayer p = new GameShowPlayer(playerName);
