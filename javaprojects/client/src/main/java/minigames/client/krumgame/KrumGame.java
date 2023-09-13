@@ -12,41 +12,25 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import javax.swing.SwingUtilities;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.config.LoggerConfig;
-import org.checkerframework.checker.units.qual.C;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
 import minigames.rendering.GameMetadata;
-import minigames.rendering.NativeCommands.LoadClient;
-import minigames.rendering.NativeCommands.QuitToMenu;
-import minigames.rendering.NativeCommands.ShowMenuError;
-import minigames.rendering.RenderingPackage;
 import minigames.commands.CommandPackage;
 import minigames.krumgame.KrumInputFrame;
 
 import java.util.List;
-import java.util.Optional;
 import java.awt.geom.Point2D;
 
-//Imports for sound effects
-import java.net.URL;
-import javax.swing.*;
-import javax.sound.sampled.*;
-
 import minigames.client.krumgame.components.*;
+
 /**
  * The state of each running game will be represented by an instance of KrumGame on the server and an instance on each participating client
  */
@@ -127,6 +111,9 @@ public class KrumGame {
 
     long seed; // seed for Random() -- needs to be the same for all clients
 
+    /**
+     * constructor for a KrumGame object
+     */
     public KrumGame() {  
         initialized = false;
         playersInitialized = false;
@@ -144,6 +131,9 @@ public class KrumGame {
         System.out.println("KrumGame instance created on client");
     }
 
+    /**
+     * loads levels from file into KrumLevel objects
+     */
     private void initializeLevels() {
         levels = new ArrayList<KrumLevel>();
         KrumLevel chameleon = new KrumLevel("chameleon.png", null, 235, 0, 600, 0);
@@ -155,6 +145,10 @@ public class KrumGame {
         setActiveLevel(0);           
     }
 
+    /**
+     * sets currently selected level
+     * @param index
+     */
     private void setActiveLevel(int index) {
         currentLevel = levels.get(index);
         backgroundComponent = currentLevel.background;
@@ -163,16 +157,26 @@ public class KrumGame {
         currentLevelIndex = index;        
     }
 
+    /**
+     * called when the player indicates they are ready
+     */
     private void setReady() {
         ready = true;
         sendReady();
     }
 
+    /**
+     * initialises the KrumPanel that will contain our game
+     */
     private void initializePanel(){
         panel = new KrumPanel(this);
         panel.setPreferredSize(panel.getPreferredSize());
     }
 
+    /**
+     * creates the KrumPlayer objects representing player-controlled characters in the game
+     * @param level
+     */
     private void initializePlayers(KrumLevel level){
         players = new KrumPlayer[2];
         players[0] = new KrumPlayer(level.p1x, level.p1y, "kangaroo_sprite/", 8, 31, true, alphaRaster, 0, players, primaryColor, secondaryColor, gunColor);
@@ -251,12 +255,20 @@ public class KrumGame {
         }
     }
 
+    /**
+     * called when only 1 or 0 players are left alive
+     * @param w     index of the winning player (-1 for no winner)
+     */
     void gameOver(int w) {
         winner = w;        
         running = false;
         ending = true;
     }
 
+    /**
+     * called when a projectile explodes; calls KrumPlayer.knockback on each player
+     * @param proj
+     */
     void handlePlayerKnock(KrumProjectile proj){               
         for (int i = 0; i < players.length; i++) {
             if (proj != null) players[i].knockback(proj);  
@@ -620,13 +632,17 @@ public class KrumGame {
 
     }
 
+    /**
+     * displays ammo count for a weapon (greyed out if the weapon cannot be fired now)
+     * @param w     weapon
+     * @param x     x coordinate to draw at
+     * @param y     y coordinate to draw at
+     * @param c     colour
+     * @param g     
+     */
     void drawAmmo(int w, int x, int y, int c, Graphics2D g) {
         if (playerTurn < 0) return;
         int a = players[playerTurn].ammo[w];
-        // if (players[playerTurn].firedThisTurn[w] >= KrumPlayer.shotsPerTurn[w]) {
-        //     c = c << 16;
-        //     c += 128;
-        // }
         g.setColor(new Color(c));
         String s = "" + a;
         int o = 0;        
@@ -803,18 +819,17 @@ public class KrumGame {
         }
     }
 
+    /**
+     * adds an input frame to the list of frames to be played back
+     * @param frame JsonObject representing a KrumInputFrame
+     */
     void addReceivedFrame(JsonObject frame) {
-        //JsonObject frame = command.getJsonObject("frame");
         if (frame == null) return;
         receivedFrames.add(new KrumInputFrame(frame));
     }
 
-    // void addReceivedFrames(JsonObject frames) {
-    //     frames.fieldNames()
-    // }
-
     /** 
-     * Sends a command to the game at the server.
+     * Sends multiple KrumInputFrames to the server as a list of JsonObjects
      */
     public void sendFrames(ArrayList<KrumInputFrame> frames) {
         List<JsonObject> jsonList = new ArrayList<JsonObject>();
@@ -824,26 +839,35 @@ public class KrumGame {
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, jsonList));
     }
 
+    /**
+     * sents a single KrumInputFrame to the server as Json
+     * @param frame KrumInputFrame to send
+     */
     public void sendFrame(KrumInputFrame frame) {       
         // Collections.singletonList() is a quick way of getting a "list of one item"
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(frame.getJson())));
     }
 
-    // public void requestFrames(int numFrames) {
-    //     JsonObject j = new JsonObject().put("framesRequest", numFrames);
-    //     mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(j)));
-    // }
-
+    /**
+     * asks the server for the next KrumInputFrame from the other client
+     */
     public void requestSingleFrame() {
         JsonObject j = new JsonObject().put("frameRequest", myPlayerIndex);
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(j)));
     }
 
+    /**
+     * asks the server for the player index of the KrumPlayer controlled by this client
+     */
     public void requestMyPlayerIndex() {
         JsonObject j = new JsonObject().put("indexRequest", 1);
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(j)));
     }
 
+    /**
+     * sets myPlayerIndex and starts the game
+     * @param index
+     */
     public void setPlayerIndexAndBegin(int index) {
         this.myPlayerIndex = index;
         KrumSound.setClientIndex(index);
@@ -855,41 +879,66 @@ public class KrumGame {
         gameThread.start();
     }
 
-
+    /**
+     * sends a level index to the server
+     * @param index
+     */
     public void sendLevelIndex(int index) {
         JsonObject j = new JsonObject().put("levelIndexSend", index);
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(j)));
     }
 
+    /**
+     * sends the currently-selected level index to the server
+     * @param index
+     */
     public void sendLevelIndex() {
         sendLevelIndex(currentLevelIndex);
     }
 
+    /**
+     * asks the server for the currently-selected level index from the other client
+     */
     public void requestLevelIndex() {
         JsonObject j = new JsonObject().put("levelCheck", 0);
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(j)));
     }
 
+    /**
+     * tells the server this client is ready
+     */
     public void sendReady() {
         System.out.println("ready");
         JsonObject j = new JsonObject().put("readySend", myPlayerIndex).put("level", currentLevelIndex);
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(j)));
     }
 
+    /**
+     * asks the server whether both clients are ready
+     */
     public void checkReady() {
         JsonObject j = new JsonObject().put("readyCheck", 0);
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(j)));
     }
 
+    /**
+     * tells the server we want to quit the game
+     */
     public void sendQuitCommand() {        
         JsonObject j = new JsonObject().put("quit", myPlayerIndex);
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(j)));
     }
 
+    /**
+     * suppresses logging messages with a level lower than WARN
+     */
     void disableInfoLogging(){
         Configurator.setLevel(LogManager.getLogger(MinigameNetworkClient.class), Level.WARN);
     }
 
+    /**
+     * re-enables logging messages with level INFO or higher
+     */
     void enableInfoLogging() {
         Configurator.setLevel(LogManager.getLogger(MinigameNetworkClient.class), Level.INFO);
     }
@@ -925,6 +974,11 @@ public class KrumGame {
         disableInfoLogging();
     }
 
+    /**
+     * executes a command from the server
+     * @param game
+     * @param command
+     */
     public void execute(GameMetadata game, JsonObject command) {
         if (!this.gm.name().equals(game.name())) {
             System.out.println("ignoring command from previous server");
@@ -968,6 +1022,9 @@ public class KrumGame {
         }
     }
 
+    /**
+     * called when we quit the game (after sending a quit message to the server)
+     */
     public void closeGame() {
         panel.gameActive = false;        
         // todo: make sure we don't leave any mess
