@@ -12,19 +12,21 @@ import javax.swing.JTextField;
 public class KrumMenu {
 
     // buttonBounds should be changed if we move a button (not including the open game buttons, i.e. the clickable names that join a specific game)
-    final static Rectangle[] buttonBounds = {   new Rectangle(485, 414, 277, 108),      // newgame (x, y, width, height)
+    final static Rectangle[] buttonBounds = {   new Rectangle(485, 350, 277, 87),      // newgame (x, y, width, height)
                                                 new Rectangle(50, 60, 142, 42),         // instructions (x, y, width, height)
                                                 new Rectangle(200, 59, 200, 43),        // achievements (x, y, width, height)
-                                                new Rectangle(100, 416, 293, 123),      // quickplay (x, y, width, height)
-                                                new Rectangle(400, 416, 293, 123)   };  // options (x, y, width, height)
+                                                new Rectangle(100, 416, 293, 87),      // quickplay (x, y, width, height)
+                                                new Rectangle(400, 416, 293, 87)   };  // options (x, y, width, height)
 
     // nameFieldBounds can be changed to move or resize the name input field
-    final static Rectangle nameFieldBounds = new Rectangle(373, 10, 54, 30); // x, y, width, height
+    final public static Rectangle nameFieldBoundsDefault = new Rectangle(373, 10, 54, 30); // x, y, width, height
+    final public static Rectangle nameFieldBoundsTitle = new Rectangle(391, 518, 212, 27); // x, y, width, height
+    final public static Rectangle nameFieldBoundsInstructions = new Rectangle(507, 484, 239, 35); // x, y, width, height
     
     // these can be changed to tweak the open game buttons, i.e. the clickable names that join a specific game
-    public final static int gameListX = 525; // x position of the open game buttons
-    public final static int gameListYStart = 175; // y position of the first open game button
-    public final static int gameListYIncrement = 75; // vertical distance between top of one open game button and the next
+    public final static int gameListX = 520; // x position of the open game buttons
+    public final static int gameListYStart = 165; // y position of the first open game button
+    public final static int gameListYIncrement = 63; // vertical distance between top of one open game button and the next
     public final static int gameListWidth = 200; // width of the open game buttons
     public final static int gameListButtonHeight= 60; // height of each open game button
     public final static String gameListFontName = "Courier New";
@@ -69,6 +71,6 @@ public class KrumMenu {
         nameField = new JTextField(20);
         nameField.setText("Algernon");
         nameField.setLayout(null);
-        nameField.setBounds(nameFieldBounds);
+        nameField.setBounds(nameFieldBoundsDefault);
     } 
 }

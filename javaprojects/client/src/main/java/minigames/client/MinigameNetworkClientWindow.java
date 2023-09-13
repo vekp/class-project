@@ -309,7 +309,8 @@ public class MinigameNetworkClientWindow {
         });
         screen.add(instructionsButton);
         screen.add(krumNewGameButton());
-        krumListGames(screen, games);        
+        krumListGames(screen, games);    
+        KrumMenu.nameField.setBounds(KrumMenu.nameFieldBoundsInstructions);     
         screen.add(KrumMenu.nameField);
         center.add(screen);
         pack();
@@ -326,6 +327,7 @@ public class MinigameNetworkClientWindow {
         screen.add(achievementsButton); 
         screen.add(krumNewGameButton());     
         krumListGames(screen, games);
+        KrumMenu.nameField.setBounds(KrumMenu.nameFieldBoundsInstructions); 
         screen.add(KrumMenu.nameField);
         center.add(screen);
         pack();
@@ -359,7 +361,8 @@ public class MinigameNetworkClientWindow {
             }            
             return;
         });
-        screen.add(quickPlayButton);    
+        screen.add(quickPlayButton);  
+        KrumMenu.nameField.setBounds(KrumMenu.nameFieldBoundsTitle);  
         screen.add(KrumMenu.nameField);     
         center.add(screen);
         pack();
