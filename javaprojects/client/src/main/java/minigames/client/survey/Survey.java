@@ -394,8 +394,6 @@ public class Survey extends JPanel implements ActionListener {
         // Sanitise the feedbackText to remove any potentially harmful content
         String sanitisedText = sanitiseText(text);
 
-        System.out.println(sanitisedText);
-        
         // Get the selected values from the radio button groups
         int uiRating = Integer.parseInt(getSelectedRadioButtonValue(uiRatingButtonGroup));
         int enjoymentRating = Integer.parseInt(getSelectedRadioButtonValue(enjoymentButtonGroup));
@@ -423,7 +421,7 @@ public class Survey extends JPanel implements ActionListener {
         }
         
         // Allow only alphanumeric characters and common punctuation
-        if (text != null && !text.matches("^[a-zA-Z0-9 .,!?'\"()\\-]+$")) {
+        if (text != null && !text.matches("^[a-zA-Z0-9 .,!?'\"()%\\-]+$")) {
             return false;
         }
 

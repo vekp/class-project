@@ -11,6 +11,7 @@ import minigames.server.spacemaze.SpaceMazeServer;
 import minigames.server.telepathy.TelepathyServer;
 import minigames.server.gameshow.GameShowServer;
 
+import minigames.server.tictactoe.TicTacToeServer;
 import io.vertx.core.Launcher;
 
 import org.apache.logging.log4j.LogManager;
@@ -53,14 +54,15 @@ public class Main extends AbstractVerticle {
      */
     public static HighScoreAPI highScoreAPI;
 
-    //todo replace this with a proper user profile/account system
+    // todo replace this with a proper user profile/account system
     /**
-     * This is a makeshift 'player database' holding currently-known players (basically just names that
-     * have been entered into the client to join a game, plus a few default names for filling out the achievement
+     * This is a makeshift 'player database' holding currently-known players
+     * (basically just names that
+     * have been entered into the client to join a game, plus a few default names
+     * for filling out the achievement
      * window). THIS SHOULD BE REPLACED WITH THE USER PROFILE SYSTEM WHEN READY
      */
     public static Set<String> players = new HashSet<>();
-
 
     /**
      * A place for groups to put code that registers their GameServer with the
@@ -75,6 +77,7 @@ public class Main extends AbstractVerticle {
         gameRegistry.registerGameServer("GameShow", new GameShowServer());
         gameRegistry.registerGameServer("Snake", new SnakeServer());
         gameRegistry.registerGameServer("Peggle", new PeggleServer());
+        gameRegistry.registerGameServer("TicTacToe", new TicTacToeServer());
 
         // Initialize the HighScoreAPI
         HighScoreStorage highScoreStorage = new StubHighScoreStorage();
@@ -82,7 +85,7 @@ public class Main extends AbstractVerticle {
         GlobalLeaderboard globalLeaderboard = new GlobalLeaderboard(highScoreStorage);
         highScoreAPI = new HighScoreAPI(highScoreManager, globalLeaderboard);
 
-        //adding some dummy/default names to the player list
+        // adding some dummy/default names to the player list
         players.add("James");
         players.add("Sarah");
         players.add("Andrew");
@@ -90,6 +93,9 @@ public class Main extends AbstractVerticle {
         players.add("Robert");
         players.add("Georgia");
         players.add("Sushil");
+        players.add("Bikash");
+        players.add("Sabin");
+        players.add("Anil");
     }
 
     public static void main(String... args) {
