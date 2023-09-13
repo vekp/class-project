@@ -308,21 +308,24 @@ public class GameShowUI {
                 startGame.setBorderPainted(false);
                 // TODO: add action listener
 
-                JButton memoryButton = new JButton("Memory Game");
-                memoryButton.addActionListener(null);
-                miniMiniGame.add(memoryButton, BorderLayout.PAGE_END);
+                JPanel testingButtons = new JPanel(new BorderLayout(0, 10));
 
                 wordScramble = new JButton("Word Scramble");
                 // wordScramble.setAlignmentX(Component.CENTER_ALIGNMENT);
                 wordScramble.addActionListener((evt) -> WordScramble.welcome(GameShow.Main));
-                miniMiniGame.add(wordScramble, BorderLayout.PAGE_START);
+                testingButtons.add(wordScramble, BorderLayout.PAGE_START);
 
                 imageGuesserStart = new JButton("Image Guesser");
                 // imageGuesserStart.setAlignmentX(Component.CENTER_ALIGNMENT);
                 imageGuesserStart.addActionListener(
                                 (evt) -> gameShow.sendCommand(new JsonObject().put("command", "imageGuesser")));
-                miniMiniGame.add(imageGuesserStart, BorderLayout.CENTER);
+                testingButtons.add(imageGuesserStart, BorderLayout.CENTER);
 
+                JButton memoryButton = new JButton("Memory Game");
+                memoryButton.addActionListener(null);
+                testingButtons.add(memoryButton, BorderLayout.PAGE_END);
+
+                miniMiniGame.add(testingButtons, BorderLayout.PAGE_START);
                 miniMiniGame.add(startGame, BorderLayout.PAGE_END);
 
                 players = new JTextArea("Players in lobby: " + "", 18, 20);// TODO: get names of players
@@ -342,8 +345,6 @@ public class GameShowUI {
         // public static playersNames(MinigameNetworkClient mg){
 
         // playersNames = mg.getPlayerNames();
-
-        }
 
         public static JPanel generateConsistentPanel(GameShow gameShow) {
 
