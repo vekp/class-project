@@ -1,16 +1,13 @@
 package minigames.client.gameshow;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.util.Collections;
-import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
@@ -31,7 +28,7 @@ import minigames.commands.CommandPackage;
  * and S)
  */
 public class GameShow implements GameClient {
-    private static final Logger logger = Logger.getLogger(GameShow.class.getName());
+    private static final Logger logger = LogManager.getLogger(GameShow.class);
 
     static MinigameNetworkClient mnClient;
 
@@ -84,7 +81,7 @@ public class GameShow implements GameClient {
     public void sendCommand(JsonObject json) {
         // Collections.singletonList() is a quick way of getting a "list of one item"
         // logger.log(Level.INFO, "sendCommand called with command: {0}", command);
-        logger.log(Level.INFO, "Sending JSON: {0}", json.toString());
+        logger.info("Sending JSON: {}", json.toString());
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), this.player, Collections.singletonList(json)));
     }
 
@@ -106,14 +103,14 @@ public class GameShow implements GameClient {
 
         // mnClient.getMainWindow().setVisible(true)
 
-        logger.log(Level.INFO, "load executed for player: {0}, game: {1}", new Object[] { player, game.name() });
+        logger.info("Joined GameShow '{}' as '{}'", new Object[] { game.name(), player });
 
     }
 
     @Override
     public void execute(GameMetadata game, JsonObject command) {
         this.gm = game;
-        logger.log(Level.INFO, "execute called with command: {0}", command.getString("command"));
+        logger.info("execute called with command: {}", command.getString("command"));
 
         switch (command.getString("command")) {
             case "startGame" -> {
@@ -145,9 +142,8 @@ public class GameShow implements GameClient {
                 ImageGuesser.guess(this, command.getBoolean("outcome"));
             }
             case "ready" -> { // Log the ready state (for testing purposes)
-                logger.log(
-                        Level.INFO,
-                        "Player {0} is now ready: {1}",
+                logger.info(
+                        "Player '{}' is now ready: {}",
                         new Object[] { player, command.getBoolean("state")}
                 );
             }
@@ -156,7 +152,7 @@ public class GameShow implements GameClient {
 
     @Override
     public void closeGame() {
-        // Nothing to do
+        logger.info("Exited GameShow '{}' as '{}'", new Object[] { this.gm.name(), this.player });
     }
 
 }

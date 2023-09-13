@@ -70,6 +70,19 @@ public class GameShow {
         return new GameMetadata("GameShow", name, getPlayerNames(), true);
     }
 
+    private boolean allPlayersReady() {
+        boolean allReady = true;
+
+        for (GameShowPlayer p : players.values()) {
+            if (!p.isReady()) {
+                allReady = false;
+                break;
+            }
+        }
+
+        return allReady;
+    }
+
     public RenderingPackage runCommands(CommandPackage cp) {
         logger.info("Received command package {}", cp);
 
@@ -80,6 +93,12 @@ public class GameShow {
         switch (msg.getString("command")) {
             case "ready" -> {
                 players.get(cp.player()).toggleReady();
+                if (allPlayersReady()) { // Log (for testing purposes)
+                    logger.info("All players in game '{}' are ready", this.name);
+                    // TODO: Add begin rounds functionality
+                } else { // Log (for testing purposes)
+                    logger.info("There are players in game '{}' who are not yet ready", this.name);
+                }
                 // Respond with ready state (for testing purposes):
                 renderingCommands.add(
                         new JsonObject()
@@ -148,6 +167,7 @@ public class GameShow {
             }
             case "quit" -> {
                 players.remove(cp.player());
+                logger.info("Player '{}' has quit GameShow '{}'", new Object[] { cp.player(), this.name });
                 renderingCommands.add(new NativeCommands.QuitToMenu().toJson());
             }
         }
