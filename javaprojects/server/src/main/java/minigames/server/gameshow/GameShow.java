@@ -18,6 +18,8 @@ public class GameShow {
     /** A logger for logging output */
     private static final Logger logger = LogManager.getLogger(GameShow.class);
 
+    private List<GameShowMiniGame> games;
+
     /** A class to hold the state of players */
     private static class GameShowPlayer {
         private final String name;
@@ -52,6 +54,7 @@ public class GameShow {
 
     public GameShow(String name) {
         this.name = name;
+        this.initialiseGames();
     }
 
     HashMap<String, GameShowPlayer> players = new HashMap<>();
@@ -70,6 +73,7 @@ public class GameShow {
         return new GameMetadata("GameShow", name, getPlayerNames(), true);
     }
 
+    /** Are all players ready to start? */
     private boolean allPlayersReady() {
         boolean allReady = true;
 
@@ -81,6 +85,17 @@ public class GameShow {
         }
 
         return allReady;
+    }
+
+    /** Minigame instances are created on instantiation of the GameShow game; all players play the same puzzles */
+    private void initialiseGames() {
+        this.games = new ArrayList<>();
+        this.games.add(new ImageGuesser());
+        this.games.add(new WordScramble("words_easy.txt"));
+        this.games.add(new ImageGuesser());
+        this.games.add(new WordScramble("words_medium.txt"));
+        this.games.add(new ImageGuesser());
+        this.games.add(new WordScramble("words_hard.txt"));
     }
 
     public RenderingPackage runCommands(CommandPackage cp) {
@@ -147,7 +162,7 @@ public class GameShow {
                     case "wordScramble" -> {
                         int gameId = (int) msg.getInteger("gameId");
                         boolean correct = wordScrambleGames
-                            .get(gameId).guess(guess);
+                            .get(gameId).guessIsCorrect(guess);
                         renderingCommands.
                             add(new JsonObject()
                                 .put("command", "guessOutcome")
@@ -159,7 +174,7 @@ public class GameShow {
             case "guessImage" -> {
                 String guess = cp.commands().get(0).getString("guess");
                 int gameId = (int) cp.commands().get(0).getInteger("gameId");
-                boolean outcome = imageGuesserGames.get(gameId).guess(guess);
+                boolean outcome = imageGuesserGames.get(gameId).guessIsCorrect(guess);
                 renderingCommands.
                     add(new JsonObject()
                         .put("command", "guessImageOutcome")

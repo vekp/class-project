@@ -20,7 +20,7 @@ import org.apache.logging.log4j.Logger;
 /*
  *  A class to implement the server for the Word Scramble game
  */
-public class ImageGuesser {
+public class ImageGuesser implements GameShowMiniGame {
 
    private String imageFileName;
    private Path path;
@@ -78,7 +78,7 @@ public class ImageGuesser {
 
 
     // Check if a guess is correct
-    public boolean guess(String guess) {
+    public boolean guessIsCorrect(String guess) {
         logger.info("The guessed word is {}", guess);
         logger.info("The actual word is {}", this.chosenImage.getImageAnswer());
         return guess.toLowerCase().equals(this.chosenImage.getImageAnswer().toLowerCase());
