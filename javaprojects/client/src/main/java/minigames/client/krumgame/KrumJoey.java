@@ -319,6 +319,7 @@ public class KrumJoey extends KrumProjectile {
         if (!flash && KrumHelpers.distanceBetween(xpos + sprite.getWidth() / 2, ypos + sprite.getHeight() / 2, otherPlayer.playerCentre().x, otherPlayer.playerCentre().y) < PROXIMITY_THRESHOLD) {
             if (currentTick - startTick > PROXIMITY_BEGIN) {
                 explosionTick = Math.min(explosionTick, tick + PROXIMITY_DELAY);
+                KrumSound.playSound("joeypop");
                 flash = true;
             }           
         }

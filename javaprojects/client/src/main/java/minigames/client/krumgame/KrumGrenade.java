@@ -15,6 +15,7 @@ public class KrumGrenade extends KrumProjectile {
     final int EXPLOSION_RADIUS = 40;
     final int MAX_DAMAGE = 50;
     long explosionTick; 
+    boolean hasBounced = false;
     KrumGrenade(int xpos, int ypos, double xvel, double yvel, int seconds, BufferedImage sprite, WritableRaster ground, long tick) {
         super(xpos, ypos, xvel, yvel, sprite, ground);        
         knockbackDistance = KNOCKBACK_DISTANCE;
@@ -24,6 +25,7 @@ public class KrumGrenade extends KrumProjectile {
         explosionTick = tick + (long)seconds * KrumC.TARGET_FRAMERATE;
         maxDamage = MAX_DAMAGE;
         damageRadius = explosionRadius + 20;
+        hasBounced = false;
     }
     @Override
     void update(double windX, double windY) {
@@ -36,6 +38,7 @@ public class KrumGrenade extends KrumProjectile {
         this.y += yvel;
         ArrayList<int[]> collisionPoints = new ArrayList<int[]>();
         if (collisionCheck()) {
+            hasBounced = true;
             int inc = Math.abs(Math.max((int)xvel, (int)yvel));
             inc++;
             int i = inc;

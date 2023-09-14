@@ -1,11 +1,13 @@
 package minigames.server.krumgame;
 
 import io.vertx.core.Future;
+import minigames.achievements.Achievement;
 import minigames.commands.CommandPackage;
 import minigames.rendering.*;
 import minigames.server.ClientType;
 import minigames.server.GameServer;
 import minigames.server.MinigameNetworkServer;
+import minigames.server.achievements.AchievementHandler;
 
 import minigames.server.krumgame.database.TableManager;
 
@@ -31,6 +33,13 @@ public class KrumGameServer implements GameServer{
         // Start the database
         db.startDatabase();
         tableManager = db.getTableManager();
+
+        // Register achievements
+        AchievementHandler achievementHandler = new AchievementHandler(KrumGameServer.class);
+        achievementHandler.registerAchievement(new Achievement("Long Range Bazooka", "Score a direct hit with the bazooka from more than 500 pixels away", 25, "", false));
+        achievementHandler.registerAchievement(new Achievement("Grenade Direct Hit", "Hurt your opponent with a grenade that never bounced", 25, "", false));
+
+
     }
 
     @Override

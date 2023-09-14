@@ -18,6 +18,7 @@ import minigames.krumgame.KrumInputFrame;
 import java.util.Queue;
 import java.util.LinkedList;
 
+import minigames.server.achievements.AchievementHandler;
 import minigames.server.krumgame.database.*;
 
 import minigames.rendering.NativeCommands.QuitToMenu;
@@ -58,6 +59,10 @@ public class KrumGame{
 
     public boolean joinable;
 
+    private AchievementHandler achievementHandler;
+
+    private ArrayList<String> playerNameList;
+
     public KrumGame(String name, TableManager tableManager){
         System.out.println("creating game " + name);
         this.name = name;
@@ -75,6 +80,8 @@ public class KrumGame{
         this.achievementsService = tableManager.getAchievementsService();
         this.colorsService = tableManager.getColorsService();
         this.joinable = true;
+        this.achievementHandler = new AchievementHandler(KrumGameServer.class);
+        this.playerNameList = new ArrayList<String>();
         // TODO: Remove this is after testing database
         testDatabase();
     }
@@ -160,6 +167,7 @@ public class KrumGame{
         GameCharacter p = new GameCharacter(playerName, playerType, 0, 0, 100);
 
         players.put(playerName, p);
+        playerNameList.add(playerName);
 
         // if 2 players set the turn
         // TODO: It might not be the first player joined due to hashmap
@@ -230,6 +238,11 @@ public class KrumGame{
             renderingCommands.add(j);
             return new RenderingPackage(gameMetadata(), renderingCommands);
         }
+        else if (content.getString("achievement") != null) {
+            int playerIndex = content.getInteger("player");
+            String userName = this.playerNameList.get(playerIndex);
+            achievementHandler.unlockAchievement(userName, content.getString("achievement"));
+        }    
         else {
             int pindex;
             try {

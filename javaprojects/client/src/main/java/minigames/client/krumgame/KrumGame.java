@@ -404,6 +404,13 @@ public class KrumGame {
                 if (p.projectile != null) {
                     int n = p.projectile.playerCollisionCheck(players, p.playerIndex);
                     if (n >= 0) {
+                        // test for longRangeBazooka achievement
+                        if (KrumHelpers.distanceBetween(players[n].xpos, players[n].ypos, p.projectile.startX, p.projectile.startY) > 500) {
+                            if (p.playerIndex == myPlayerIndex) {
+                                unlockAchievement("Long Range Bazooka");
+                            }                            
+                        }
+
                         KrumSound.playSound("explode2");
                         ExplosionDetails.explode((int)p.projectile.x, (int)p.projectile.y, p.projectile.explosionRadius, 
                             KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
@@ -426,6 +433,9 @@ public class KrumGame {
                         double distance = KrumHelpers.distanceBetween(p.grenade.centre()[0], p.grenade.centre()[1], pl.playerCentre().x, pl.playerCentre().y);
                         if (distance <= p.grenade.damageRadius) {
                             pl.hit(p.grenade.maxDamage, distance, p.grenade.damageRadius);
+                            if (pl.playerIndex != myPlayerIndex && !p.grenade.hasBounced) {
+                                unlockAchievement("Grenade Direct Hit");
+                            }
                         }
                     }
                     KrumSound.playSound("explode2");
@@ -926,6 +936,14 @@ public class KrumGame {
      */
     public void sendQuitCommand() {        
         JsonObject j = new JsonObject().put("quit", myPlayerIndex);
+        mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(j)));
+    }
+
+    /**
+     * tell the server we have unlocked an achievement
+     */
+    public void unlockAchievement(String achievementName) {
+        JsonObject j = new JsonObject().put("achievement", achievementName).put("player", myPlayerIndex);
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(j)));
     }
 

@@ -15,12 +15,12 @@ public class KrumMenu {
     final static Rectangle[] buttonBounds = {   new Rectangle(485, 350, 277, 87),      // newgame (x, y, width, height)
                                                 new Rectangle(50, 60, 142, 42),         // instructions (x, y, width, height)
                                                 new Rectangle(200, 59, 200, 43),        // achievements (x, y, width, height)
-                                                new Rectangle(100, 416, 293, 87),      // quickplay (x, y, width, height)
-                                                new Rectangle(400, 416, 293, 87)   };  // options (x, y, width, height)
+                                                new Rectangle(104, 408, 293, 87),      // quickplay (x, y, width, height)
+                                                new Rectangle(404, 408, 293, 87)   };  // options (x, y, width, height)
 
     // nameFieldBounds can be changed to move or resize the name input field
     final public static Rectangle nameFieldBoundsDefault = new Rectangle(373, 10, 54, 30); // x, y, width, height
-    final public static Rectangle nameFieldBoundsTitle = new Rectangle(391, 518, 212, 27); // x, y, width, height
+    final public static Rectangle nameFieldBoundsTitle = new Rectangle(398, 518, 212, 27); // x, y, width, height
     final public static Rectangle nameFieldBoundsInstructions = new Rectangle(507, 484, 239, 35); // x, y, width, height
     
     // these can be changed to tweak the open game buttons, i.e. the clickable names that join a specific game
@@ -60,6 +60,7 @@ public class KrumMenu {
     }
 
     public static void initialise() {
+        KrumSound.playSound("titletune");
         screens = new HashMap<String, BufferedImage>();
         for (String n : screenNames) {
             screens.put(n, KrumHelpers.readSprite("TitlePages/" + n + ".png"));
