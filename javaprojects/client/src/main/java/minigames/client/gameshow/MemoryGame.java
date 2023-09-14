@@ -13,87 +13,87 @@ import javax.imageio.ImageIO;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/*
+This class creates a game called Memory Game
+*Step 1 present 6 pictures on the screen and start the timer
+*Step 2 hide those pictures when the timer is up
+*Step 3 Show one image at the top and ask the player were was that image
+
+ */
 public class MemoryGame {
-    private static boolean listeningForClicks = true;
+    private static boolean listeningForClicks = true; //When we click it changes to false. the stops event listeners so that the player does not keep clicking and answers are revealed
     private static boolean startGame = false;
     private static JPanel panel; // Declare panel as a class variable
-    private static JLabel instruction;
+    private static JLabel instruction; //A panel that has instruction on what a player should do next as they are playing
 
     private static int currentRound = 1;
     private static final int TOTAL_ROUNDS = 3;
 
-    private final static String dir = "./src/main/resources/images/memory_game_pics/";
-    private final static String covers = "./src/main/resources/images/hiding_cards/";
-    private final static String correct = "./src/main/resources/images/result/Correct.jpg";
-    private final static String incorrect = "./src/main/resources/images/result/Inccorrect.jpg";
+    private static int imagesToDisplay=6;
+
+    private final static String dir = "./src/main/resources/images/memory_game_pics/"; //Folder that contains the pictures used in the memory game
+    private final static String covers = "./src/main/resources/images/hiding_cards/"; //Folder that contains pictures that will be used to hide the cards
+    private final static String correct = "./src/main/resources/images/result/Correct.jpg"; //An image that that shows a tick used when the player guesses correctly
+    private final static String incorrect = "./src/main/resources/images/result/Inccorrect.jpg"; //An image that that shows an X used when the player guesses incorrectly
 
     public static void main(GameShow main) {
-        // Provide the correct path using forward slashes
-        File folder = new File(dir);
+        GameShowUI.gameContainer.removeAll(); // remove all the components that are currently added to the gameContainer
+        File folder = new File(dir); //dir is the file path
+       //  only add to the array those with names ending in ".jpg" or ".png".
         File[] files = folder
                 .listFiles((dir, name) -> name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png"));
 
+       //Create an ArrayList called imageFiles from an array above called files. It is easier to manipulate an ArrayList than Array
         if (files != null && files.length > 0) {
-            // Create a list of image files
             List<File> imageFiles = new ArrayList<>();
             for (File file : files) {
                 imageFiles.add(file);
             }
 
-            JFrame frame = new JFrame("Memory Game");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(800, 600); // Set the window size
-            instruction = new JLabel("Memorise Images");
-            JPanel instructionPanel = new JPanel();
+            instruction = new JLabel("Memorise Images"); //Tell players what to do
+            JPanel instructionPanel = new JPanel(); //create a panel where we store instructions for players. It will on the top of the page
             instructionPanel.setPreferredSize(new Dimension(700, 100));
             instructionPanel.add(instruction);
 
-            JLabel timerLabel = new JLabel("Time Left: 10 seconds"); // Initial time, adjust as needed
+            JLabel timerLabel = new JLabel("Time Left: 10 seconds"); // Initial time that will be displays
             instructionPanel.add(timerLabel);
 
-            JPanel panel = new JPanel(new GridLayout(2, 3));
-            panel.setPreferredSize(new Dimension(800, 500));
+            JPanel imagePanel = new JPanel(new GridLayout(2, 3));//create a panel that will contain images where the player will make guesses
+            imagePanel.setPreferredSize(new Dimension(800, 500));
 
             // Define the desired image width and height
             int desiredWidth = 150;
             int desiredHeight = 100;
 
-            List<File> imageList = new ArrayList<>();
-            // Display multiple images (adjust the number as needed)
-            for (int i = 0; i < 6; i++) {
-                int randomIndex = (int) (Math.random() * imageFiles.size());
-                File randomImage = imageFiles.get(randomIndex);
-                imageFiles.remove(randomIndex); // Remove the used image from the list
-
-                // Resize the image to the desired dimensions
-                ImageIcon imageIcon = resizeImage(randomImage, desiredWidth, desiredHeight);
-                // Create a JLabel for the image
-                imageList.add(randomImage);
-                JLabel label = new JLabel(imageIcon);
-                panel.add(label);
+            //randomImageList will contain images chosen randomly from imageFiles.
+            List<File> randomImageList = new ArrayList<>();
+            for (int i = 0; i < imagesToDisplay; i++) {
+                int randomIndex = (int) (Math.random() * imageFiles.size()); //random number generation based on the size of the file
+                File randomImage = imageFiles.get(randomIndex); //random number use as index to fetch the image from imageFiles
+                imageFiles.remove(randomIndex); // Remove the used image from the imageFiles so that it is not chosen more than twice
+                ImageIcon imageIcon = resizeImage(randomImage, desiredWidth, desiredHeight);   // Resize the image to the desired dimensions
+                randomImageList.add(randomImage);
+                JLabel label = new JLabel(imageIcon);  // Create a JLabel for the image
+                imagePanel.add(label);
             }
-
-            int randomIndexF = (int) (Math.random() * imageList.size());
-            File randomImageF = imageList.get(randomIndexF);
+            //generate a random number based randomImageList size so that we can randomly choose the picture that we want to unhide
+            int randomIndexF = (int) (Math.random() * randomImageList.size());
+            File randomImageF = randomImageList.get(randomIndexF); //that random number will be used to fetch the image
             ImageIcon imageIconF = resizeImage(randomImageF, desiredWidth, desiredHeight);
-            JLabel labeF = new JLabel(imageIconF);
-            System.out.println("Random number is " + randomIndexF);
+            JLabel targetImage = new JLabel(imageIconF); //image that will be shown to the player so that he can guesse where it was
 
-            JPanel allEntries = new JPanel();
-            allEntries.setLayout(new GridLayout(2, 1));
+
+            JPanel allEntries = new JPanel(); //create a panel that will have all the panels we have create
+            allEntries.setLayout(new BoxLayout(allEntries, BoxLayout.Y_AXIS));
             allEntries.add(instructionPanel);
-            allEntries.add(panel);
+            allEntries.add(imagePanel);
 
             // Add the panel to the frame
-            frame.add(allEntries);
-
-            // Center the frame on the screen
-            frame.setLocationRelativeTo(null);
-
-            // Make the window visible
-            frame.setVisible(true);
+            GameShowUI.gameContainer.add(allEntries); //add to the gameContainer, which is a panel that will be show to the player
 
             final int[] remainingTimeInSeconds = { 10 }; // Initial time, adjust as needed
+
+            //Create events around the timer. Therefore, after 10 seconds replace all the images in ImagePanel with images that covers
             Timer timer = new Timer(1000, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -103,32 +103,31 @@ public class MemoryGame {
                     } else {
                         ((Timer) e.getSource()).stop();
                         timerLabel.setText("Time's up!");
-                        replaceImages(panel, randomIndexF);
-                        updateInstructionText("Where was it");
-                        instructionPanel.add(labeF);
+                        replaceImages(imagePanel, randomIndexF);// when times is up, cover the images by replacing them with new images using a method called  replaceImages
+                        updateInstructionText("Where was it"); //update instructions using a method called updateInstructionText
+                        instructionPanel.add(targetImage);
 
-                        // Add game-over logic here if needed
                     }
 
                 }
             });
-
-            frame.addWindowListener(new java.awt.event.WindowAdapter() {
-                @Override
-                public void windowOpened(java.awt.event.WindowEvent windowEvent) {
-                    timer.start();
-                }
-            });
-
+            timer.start(); //start the tim
         }
 
         else {
             System.out.println("No image files found in the folder.");
         }
-
-        System.out.println("test");
+        GameShowUI.gameContainer.validate();
+        GameShowUI.gameContainer.repaint();
     }
 
+    /**
+     *
+     * @param imageFile
+     * @param width d
+     * @param height
+     * @return an ImageIcon with the right size
+     */
     // Method to resize an image to the desired dimensions
     private static ImageIcon resizeImage(File imageFile, int width, int height) {
         try {
@@ -141,21 +140,30 @@ public class MemoryGame {
         }
     }
 
+
+    /**
+     * a method that replaces images when the time is up and over cover those images so a player can guesse where the image was
+     * the method is used to detect whether the player has guessed correctly
+     * @param panel that contains the images
+     * @param correctNumber that is the index number of the correct image chosen as the challenge where the player has guess where the image is among the picture
+     */
+
     public static void replaceImages(JPanel panel, int correctNumber) {
 
-        panel.removeAll(); // Remove existing components from the panel
-        File folderCover = new File(covers);
+        panel.removeAll(); // Remove existing images/components from the panel
+        File folderCover = new File(covers); //covers is the file path to were image covers are stored
         File[] filesCover = folderCover
                 .listFiles((dir, name) -> name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png"));
 
-        List<File> imageFilesCover = new ArrayList<>();
+
         List<JLabel> imageLabels = new ArrayList<>();
         int desiredWidth = 150;
         int desiredHeight = 100;
         JLabel correctImage = null;
 
+        //Create an ArrayList called imageLabels from an array above called folderCover. It is easier to manipulate an ArrayList than Array
+        List<File> imageFilesCover = new ArrayList<>();
         if (filesCover != null && filesCover.length > 0) {
-            // Create a list of image files
             for (File file : filesCover) {
                 imageFilesCover.add(file);
             }
@@ -166,30 +174,23 @@ public class MemoryGame {
                     File imageIcon = imageFilesCover.get(i);
                     int imageCovernumber = i;
                     ImageIcon imageIconCover = resizeImage(imageIcon, desiredWidth, desiredHeight);
-                    if (i == correctNumber) {
-                        correctImage = new JLabel(imageIconCover);
-                    }
-
                     JLabel label = new JLabel(imageIconCover);
                     panel.add(label);
                     imageLabels.add(label);
 
-                    // Add a mouse listener to the label to handle mouse click events
-                    JLabel finalCorrectImage = correctImage;
-                    label.addMouseListener(new MouseListener() {
-                        private final boolean clicksEnabled = listeningForClicks;
 
+                    //add an action listener to each image. Whatever image is clicked it will either be replaced
+                    //by "correct" image or "incorrect" image. therefore you need to update the panel
+                    label.addMouseListener(new MouseListener() {
                         @Override
                         public void mouseClicked(MouseEvent e) {
-                            // Handle the mouse click event for the image here
-                            // For example, you can display a message or perform an action
                             if (listeningForClicks) {
-                                if (correctNumber == imageCovernumber) {
+                                if (correctNumber == imageCovernumber) { //If the image cover index is the same as the correctNumber then the player has clicked the right image
                                     System.out.println("Correct Image.");
                                     System.out.println("Icon nummer is " + imageCovernumber);
                                     panel.remove(imageLabels.get(correctNumber));
                                     File newImageFile = new File(
-                                            correct);
+                                            correct); //show the image that says correct
                                     ImageIcon newImageIcon = resizeImage(newImageFile, desiredWidth, desiredHeight);
                                     // Create a new JLabel with the replacement image
                                     JLabel newLabel = new JLabel(newImageIcon);
@@ -249,7 +250,18 @@ public class MemoryGame {
         // panel.repaint();
     }
 
+    /**
+     * Method to update the instructions
+     * @param newText a string with desired instructions
+     */
     private static void updateInstructionText(String newText) {
         instruction.setText(newText);
     }
+
+    private static void clearGameContainer() {
+        GameShowUI.gameContainer.removeAll();
+        GameShowUI.gameContainer.validate();
+        GameShowUI.gameContainer.repaint();
+    }
 }
+
