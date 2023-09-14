@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 /*
  *  A class to implement the server for the Word Scramble game
  */
-public class WordScramble {
+public class WordScramble implements GameShowMiniGame {
 
     private String chosenWord;
     
@@ -60,7 +60,7 @@ public class WordScramble {
     }
 
     // Check if a guess is correct
-    public boolean guess(String guess) {
+    public boolean guessIsCorrect(String guess) {
         return guess.toUpperCase().equals(this.chosenWord);
     }
 
