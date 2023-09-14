@@ -7,9 +7,10 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+
 public class KrumSound {
 
-    static String[] soundNames = {"wahwah","applause","intro2","gunclick2", "grenadeclick3","laser1","ow","bazookaexplode","metal", "explode2", "fall","punch","bazooka", "grenadethrow","rope", "transition", "boing2", "rope2", "jump", "joeygiggle"};
+    static String[] soundNames = {"titletune","joeypop","wahwah","applause","intro2","gunclick2", "grenadeclick3","laser1","ow","bazookaexplode","metal", "explode2", "fall","punch","bazooka", "grenadethrow","rope", "transition", "boing2", "rope2", "jump", "joeygiggle"};
 
     static HashMap<String, Clip> sounds;
 
@@ -67,6 +68,7 @@ public class KrumSound {
         // play
         sounds.get(soundName).start();
     }
+
 }
     
 
