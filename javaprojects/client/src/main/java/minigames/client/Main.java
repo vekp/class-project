@@ -7,6 +7,7 @@ import minigames.client.muddletext.MuddleText;
 import minigames.client.gameshow.FadePanel;
 import minigames.client.gameshow.GameShow;
 import minigames.client.peggle.PeggleUI;
+import minigames.client.TicTacToe.TicTacToeClient;
 import minigames.client.spacemaze.SpaceMaze;
 import minigames.client.telepathy.Telepathy;
 import minigames.client.snake.SnakeGameText;
@@ -41,6 +42,7 @@ public class Main extends AbstractVerticle {
         clientRegistry.registerGameClient("GameShow", new GameShow());
         clientRegistry.registerGameClient("Snake", new SnakeGameText());
         clientRegistry.registerGameClient("Peggle", new PeggleUI());
+        clientRegistry.registerGameClient("Tic Tac Toe", new TicTacToeClient());
     }
 
     public static void main(String... args) {

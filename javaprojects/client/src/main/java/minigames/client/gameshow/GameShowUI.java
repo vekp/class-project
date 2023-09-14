@@ -18,14 +18,17 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.OverlayLayout;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
+import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import minigames.client.Main;
+import minigames.client.MinigameNetworkClient;
 import minigames.commands.CommandPackage;
 
 import java.awt.event.ActionEvent;
@@ -308,6 +311,8 @@ public class GameShowUI {
 
                 JPanel testingButtons = new JPanel(new BorderLayout(100, 10));
 
+                JPanel testingButtons = new JPanel(new BorderLayout(0, 10));
+
                 wordScramble = new JButton("Word Scramble");
                 // wordScramble.setAlignmentX(Component.CENTER_ALIGNMENT);
                 wordScramble.addActionListener((evt) -> WordScramble.welcome(GameShow.Main));
@@ -319,13 +324,15 @@ public class GameShowUI {
                                 (evt) -> gameShow.sendCommand(new JsonObject().put("command", "imageGuesser")));
                 testingButtons.add(imageGuesserStart, BorderLayout.CENTER);
 
-                JButton memoryGameStart = new JButton("Memory Game");
-                testingButtons.add(memoryGameStart, BorderLayout.PAGE_END);
+                JButton memoryButton = new JButton("Memory Game");
+                memoryButton.addActionListener((evt) -> MemoryGame.main(gameShow));
+                testingButtons.add(memoryButton, BorderLayout.PAGE_END);
 
                 miniMiniGame.add(testingButtons, BorderLayout.PAGE_START);
                 miniMiniGame.add(startGame, BorderLayout.PAGE_END);
 
-                players = new JTextArea("Players in lobby: " + "", 18, 20);// TODO: get names of players
+                players = new JTextArea("Players in lobby: \n" + gameShow.player, 18, 20);// TODO: get names of
+                                                                                          // players
                 players.setEditable(false);
                 players.setFont(pixelFont.deriveFont(15f));
                 JScrollPane scrollableTextArea = new JScrollPane(players);
@@ -337,6 +344,13 @@ public class GameShowUI {
                 lobbyPanel.add(miniMiniGame, BorderLayout.LINE_END);
 
                 return lobbyPanel;
+        }
+
+        public static void playersNames(MinigameNetworkClient mg) {
+
+                Future<String> playersNames = mg.getPlayerNames();
+                System.out.println(playersNames);
+
         }
 
         public static JPanel generateConsistentPanel(GameShow gameShow) {
@@ -381,7 +395,6 @@ public class GameShowUI {
                 playersScore.setFont(pixelFont.deriveFont(40f));
                 playersScore.setBorder(compound);
                 playersScore.setHorizontalAlignment(JTextField.CENTER);
-                playersScore.setEditable(false);
                 playersScorePanel = new JPanel(new BorderLayout());
                 playersScorePanel.setBackground(Color.ORANGE);
                 playersScorePanel.setBorder(new EmptyBorder(0, 0, 0, 30));
