@@ -3,8 +3,10 @@ package minigames.client.hangman;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.util.Collections;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
@@ -26,12 +28,15 @@ public class HangmanClient implements GameClient {
     /** Player name */
     String player;
 
-
-
     /**Buttons, JLabels and JPanels */
     JButton start, score, help, back, back1, exit, newGameButton, stopGameButton, exitButton;
     JLabel headerText, footerText, helpText, helpText1, helpText2, controlText, highScore, playerName, scoreText, playerNumber;
     JPanel headerPanel, footerPanel, mainMenuPanel, buttonPanel, helpPanel, scorePanel;
+    HangmanPanel gameArea;
+    private JLabel[] pointInses;
+    private JLabel[] pointLabels;
+
+    private static final String[] playerString = { "Player Name:" };
 
     Dimension buttonDimension;    //Maximum and preferred dimension of button
 
@@ -283,9 +288,11 @@ public class HangmanClient implements GameClient {
             case "howToPlay" -> displayHelpPanel();
             case "backToMenu" -> displayMainMenu();
             case "game" -> displayHangmanGame();
-            case "exit" -> closeGame();
+            case "play" -> logger.info("PLAY MUSIC");
+            case "stop" -> logger.info("STOP MUSIC");
+            case "exit" -> logger.info("Exit");
 
-        }
+        };
 
         // We should only be receiving messages that our game understands
         // Note that this uses the -> version of case statements, not the : version
@@ -296,7 +303,7 @@ public class HangmanClient implements GameClient {
 
     @Override
     public void closeGame() {
-        // Nothing to do
+        displayGamePanel().requestFocusInWindow();
     }
 
     public void displayHelpPanel(){
@@ -325,103 +332,104 @@ public class HangmanClient implements GameClient {
 
     public void displayHangmanGame(){
         mnClient.getMainWindow().clearAll();
-        mnClient.getMainWindow().addCenter(displayGame());
+        mnClient.getMainWindow().addCenter(displayGamePanel());
         mnClient.getMainWindow().addNorth(headerPanel);
         mnClient.getMainWindow().addSouth(footerPanel);
         mnClient.getMainWindow().pack();
+        gameArea.setFocusOnPanel();
     }
 
     public JPanel displayGame(){
         mnClient.getMainWindow().clearAll();
 
-        JPanel gameArea = new HangmanPanel();
-        gameArea.setPreferredSize(new Dimension(800, 570));
+        gameArea = new HangmanPanel();
+        gameArea.setAlignmentX(Component.CENTER_ALIGNMENT);
+        gameArea.setPreferredSize(new Dimension(800, 580));
         gameArea.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, borderColour));
-
-        newGameButton = new JButton("Play!");
+        
 
         return gameArea;
         
-
-        
-        
     }
  
-    // public JPanel displayGame(){
-    //     mnClient.getMainWindow().clearAll(); 
+    public JPanel displayGamePanel(){
+        mnClient.getMainWindow().clearAll(); 
 
-    //     JPanel mainPanel = new JPanel();
-    //     mainPanel.setPreferredSize(new Dimension(800, 700));
-    //     mainPanel.setBackground(Color.BLACK);
-    //     mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
+        JPanel mainPanel = new JPanel();
+        mainPanel.setPreferredSize(new Dimension(800, 580));
+        mainPanel.setBackground(Color.GRAY);
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
+
+        
+        JPanel gamePanel = new JPanel();
+        gamePanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		gamePanel.setLayout(new BoxLayout(gamePanel, BoxLayout.Y_AXIS));
+        gamePanel.setPreferredSize(new Dimension(250, 800));
+        gamePanel.setBackground(Color.GRAY);
+        gamePanel.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+
+        mainPanel.add(gamePanel);
+        mainPanel.add(displayGame());
 
         
 
-    //     JPanel gamePanel = new JPanel();
-    //     gamePanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-	// 	gamePanel.setLayout(new BoxLayout(gamePanel, BoxLayout.Y_AXIS));
-    //     gamePanel.setPreferredSize(new Dimension(200, 650));
-    //     gamePanel.setBackground(Color.GRAY);
-    //     gamePanel.setAlignmentY(Component.LEFT_ALIGNMENT);
+        playerNumber = new JLabel("Start your game.");
+        playerNumber.setBorder(new EmptyBorder(2, 5, 5, 5));
+		playerNumber.setFont(new Font("TimesRoman", Font.PLAIN, 16));
+		playerNumber.setForeground(Color.BLUE);
+		gamePanel.add(playerNumber);
 
-    //     mainPanel.add(gamePanel);
+        playerNumber.add(Box.createVerticalGlue());
 
-        
+        JLabel pointIns = new JLabel("Point of player:");
+		pointIns.setFont(new Font("TimesRoman", Font.BOLD, 16));
+		playerNumber.add(pointIns);
 
-    //     playerNumber = new JLabel("Start your game.");
-    //     playerNumber.setBorder(new EmptyBorder(10, 10, 10, 10));
-	// 	playerNumber.setFont(new Font("TimesRoman", Font.PLAIN, 16));
-	// 	playerNumber.setForeground(Color.BLUE);
-	// 	gamePanel.add(playerNumber);
+        Font fontPlain = new Font("TimesRoman", Font.PLAIN, 14);
+		Font fontBold = new Font("TimesRoman", Font.BOLD, 14);
+		pointInses = new JLabel[1];
+		pointLabels = new JLabel[1];
+        for (int i = 0; i < 1; i++) {
+			pointIns = new JLabel(playerString[i] + " "+ player);
+			pointIns.setFont(fontPlain);
+            pointIns.setForeground(Color.BLACK);
+			pointInses[i] = pointIns;
 
-    //     playerNumber.add(Box.createVerticalGlue());
+			JLabel point = new JLabel("Score: " + "0");
+            point.setBorder(new EmptyBorder(5, 5, 5, 5));
+			point.setFont(fontBold);
+            point.setForeground(Color.BLACK);
+			pointLabels[i] = point;
 
-    //     JLabel pointIns = new JLabel("Point of snakes:");
-	// 	pointIns.setFont(new Font("TimesRoman", Font.BOLD, 16));
-	// 	playerNumber.add(pointIns);
+			gamePanel.add(pointIns);
+			gamePanel.add(point);
+		}
 
-    //     Font fontPlain = new Font("TimesRoman", Font.PLAIN, 14);
-	// 	Font fontBold = new Font("TimesRoman", Font.BOLD, 14);
-	// 	pointInses = new JLabel[1];
-	// 	pointLabels = new JLabel[1];
-    //     for (int i = 0; i < 1; i++) {
-	// 		pointIns = new JLabel(snakePlayerStrs[i] + " "+ player);
-	// 		pointIns.setFont(fontPlain);
-    //         pointIns.setForeground(Color.BLACK);
-	// 		pointInses[i] = pointIns;
+        gamePanel.add(Box.createVerticalGlue());
 
-	// 		JLabel point = new JLabel("0");
-    //         point.setBorder(new EmptyBorder(5, 5, 5, 5));
-	// 		point.setFont(fontBold);
-    //         point.setForeground(Color.BLACK);
-	// 		pointLabels[i] = point;
+        Font btnFont = new Font("TimesRoman", Font.PLAIN, 14);
+		newGameButton = new JButton("Play music");
+		newGameButton.setFont(btnFont);
+        newGameButton.addActionListener((evt) -> sendCommand("PLAY"));
+		gamePanel.add(newGameButton);
+		gamePanel.add(Box.createVerticalGlue());
 
-	// 		gamePanel.add(pointIns);
-	// 		gamePanel.add(point);
-	// 	}
+        stopGameButton = new JButton("Stop music");
+		stopGameButton.setFont(btnFont);
+		stopGameButton.addActionListener((evt) -> sendCommand("STOP"));
+		gamePanel.add(stopGameButton);
+		gamePanel.add(Box.createVerticalGlue());
 
-    //     gamePanel.add(Box.createVerticalGlue());
+        exitButton = new JButton("Exit");
+		exitButton.setFont(btnFont);
+		exitButton.addActionListener((evt) -> sendCommand("EXIT"));
+		gamePanel.add(exitButton);
+		gamePanel.add(Box.createVerticalGlue());
 
-    //     Font btnFont = new Font("TimesRoman", Font.PLAIN, 14);
-	// 	newGameButton = new JButton("New game");
-	// 	newGameButton.setFont(btnFont);
-    //     newGameButton.addActionListener((evt) -> sendCommand("NEW"));
-	// 	gamePanel.add(newGameButton);
-	// 	gamePanel.add(Box.createVerticalGlue());
+		return mainPanel; 
 
-    //     stopGameButton = new JButton("Stop game");
-	// 	stopGameButton.setFont(btnFont);
-	// 	stopGameButton.addActionListener((evt) -> sendCommand("STOP"));
-	// 	gamePanel.add(stopGameButton);
-	// 	gamePanel.add(Box.createVerticalGlue());
+    }
 
-    //     exitButton = new JButton("Exit");
-	// 	exitButton.setFont(btnFont);
-	// 	exitButton.addActionListener((evt) -> sendCommand("EXIT"));
-	// 	gamePanel.add(exitButton);
-	// 	gamePanel.add(Box.createVerticalGlue());
-
-	// 	return mainPanel; 
-
-    // }
+   
+   
 }

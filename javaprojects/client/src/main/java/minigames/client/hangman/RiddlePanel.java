@@ -7,6 +7,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+
 public class RiddlePanel extends JPanel {
     boolean gameLost = false;
     boolean gameWon = true;

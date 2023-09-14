@@ -1,10 +1,6 @@
 package minigames.server.hangman;
 
-import static minigames.server.hangman.HangmanGameAchievement.*;
-
 import java.util.*;
-
-import minigames.server.achievements.AchievementHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.core.json.JsonObject;
@@ -21,28 +17,25 @@ public class HangmanGame {
     /** A logger for logging output */
     private static final Logger logger = LogManager.getLogger(HangmanGame.class);
 
-    static int WIDTH = 2;
-    static int HEIGHT = 2;
+    record HangmanPlayer(String name, int x, int y, List<String> inventory) {}
 
-    record HangmanPlayer(
-        String name,
-        int x, int y,
-        List<String> inventory
-    ) {    
+    String[][] status = new String[][]{
+        {"Hangman server demo"},
+    };
+
+    HashMap<String, HangmanPlayer> players = new HashMap<>();
+
+    public HangmanGame(String name) { 
+        this.name = name;   
     }
 
     /** Uniquely identifies this game */
     String name;
-    AchievementHandler achievementHandler;
     String playerName;
 
     public HangmanGame(String name, String playerName) {
         this.name = name;
         this.playerName = playerName;
-        this.achievementHandler = new AchievementHandler(HangmanGameServer.class);
-
-        // Unlock Muddler achievement for starting a new game
-        achievementHandler.unlockAchievement(playerName, MUDDLER.toString());
     }
 
     String[][] rooms = new String[][] {
@@ -51,7 +44,7 @@ public class HangmanGame {
         }
     };
 
-    HashMap<String, HangmanPlayer> players = new HashMap<>();
+   
 
     /** The players currently playing this game */
     public String[] getPlayerNames() {
@@ -73,22 +66,13 @@ public class HangmanGame {
         return sb.toString();
     }
 
-    private String directions(int x, int y) {
-        String d = "";
-        if (x > 0) d += "W";
-        if (y > 0) d += "N";
-        if (x < WIDTH - 1) d += "E";
-        if (x < HEIGHT - 1) d += "S";
-
-        return d;
-    }
-
-
+    
     public RenderingPackage runCommands(CommandPackage cp) {   
         logger.info("Received command package {}", cp);     
         HangmanPlayer p = players.get(cp.player());
 
         // FIXME: Need to actually run the commands!
+
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         String commandString = String.valueOf(cp.commands().get(0).getValue("command"));
 
@@ -99,9 +83,9 @@ public class HangmanGame {
             case "BACK" -> renderingCommands.add(new JsonObject().put("command", "backToMenu"));
             case "GAME" -> renderingCommands.add(new JsonObject().put("command", "game"));
             case "NEW" -> renderingCommands.add(new JsonObject().put("command", "new"));
-            case "EXIT" -> {
-                
-                }
+            case "PLAY" -> renderingCommands.add(new JsonObject().put("command", "play"));
+            case "STOP" -> renderingCommands.add(new JsonObject().put("command", "stop"));
+            case "EXIT" -> renderingCommands.add(new JsonObject().put("command", "exit"));
         }
         
     
@@ -123,10 +107,7 @@ public class HangmanGame {
 
             ArrayList<JsonObject> renderingCommands = new ArrayList<>();
             renderingCommands.add(new LoadClient("Hangman", "Hangman", name, playerName).toJson());
-            renderingCommands.add(new JsonObject().put("NEW", "new"));
-            renderingCommands.add(new JsonObject().put("command", "appendText").put("text", describeState(p)));
-            renderingCommands.add(new JsonObject().put("command", "setDirections").put("directions", directions(p.x(), p.y())));
-
+            
             return new RenderingPackage(gameMetadata(), renderingCommands);
         }
 

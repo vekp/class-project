@@ -9,6 +9,7 @@ import javax.swing.*;
 
 public class ImagePanel extends JPanel {
     final BufferedImage[] hangman = new BufferedImage[5];
+    final BufferedImage[] background = new BufferedImage[5];
     int errors;
 
     ImagePanel() {
@@ -22,14 +23,19 @@ public class ImagePanel extends JPanel {
      */
     void loadImages() {
         URL[] hangmanImage = new URL[5];
+        URL[] backgroundImage = new URL[5];
         try {
-            for (int i = 0; i < 5; i++) {
-                
+            for (int i = 0; i < 5; i++){
+                backgroundImage[i] = this.getClass().getResource("/images/backgrounds/hangman/back%d.png".formatted(i + 1));
+                assert backgroundImage[i] != null;
+                this.background[i] = ImageIO.read(backgroundImage[i]);
+
                 hangmanImage[i] =
                         this.getClass()
                                 .getResource("/images/hangman/hangman%d.jpg".formatted(i + 1));
                 assert hangmanImage[i] != null;
                 this.hangman[i] = ImageIO.read(hangmanImage[i]);
+
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -48,11 +54,13 @@ public class ImagePanel extends JPanel {
 
     @Override
     protected void paintComponent(Graphics g) {
+        int backgroundIndex = (int) Math.ceil((double) errors /2);
         int hangmanIndex = (int) Math.floor((double) errors / 2);
         if (errors == 8) {
             hangmanIndex = 4;
         }
-        if (errors <= 7) {
+        if (errors <= 8) {
+            g.drawImage(background[backgroundIndex], 0,0, getWidth(), getHeight(), null);
             g.drawImage(
                     hangman[hangmanIndex],
                     getWidth() / 2 - hangman[hangmanIndex].getWidth() / 6,
@@ -63,6 +71,6 @@ public class ImagePanel extends JPanel {
         }
         g.setFont(new Font("Monospaced", Font.BOLD, 18));
         g.setColor(Color.BLACK);
-        g.drawString("Lives Remaining: " + (8 - errors), 340, 30);
+        g.drawString("Lives Remaining: " + (8 - errors), 50, 30);
     }
 }

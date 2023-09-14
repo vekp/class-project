@@ -43,39 +43,37 @@ public class HangmanPanel extends JPanel {
     boolean gameLost = false;
     boolean gameWon = false;
     Color borderColour = new Color(146, 106, 61);
-    private int score = 0;
+    int score = 0;
     public static final Logger logger = LogManager.getLogger(HangmanPanel.class);
 
     public HangmanPanel() {
         addKeyListener(
-                new KeyAdapter() {
-                    @Override
-                    public void keyPressed(KeyEvent evt) {
-                        keyboard(evt);
-                    }
-                });
+            new KeyAdapter() {
+                @Override
+                public void keyPressed(KeyEvent e){
+                    keyboard(e);
+                }
+        });
         // Initialise or reset game
         reset(getRandomWord());
-        setPreferredSize(new Dimension(200, 300));
-
-        imagePanel.setBorder(BorderFactory.createMatteBorder(10, 10, 10, 10, borderColour));
-
+        setPreferredSize(new Dimension(800, 800));
+        imagePanel.setBorder(BorderFactory.createMatteBorder(5, 5, 5, 5, borderColour));
         setupLayout();
         setFocusable(true);
     }
 
     /**
      * The setupLayout function sets up the layout of the puzzle. It sets up a GridBagLayout for
-     * this JPanel
+     * this JPanel\
      */
     void setupLayout() {
         setLayout((new GridBagLayout()));
-        setPreferredSize(new Dimension(800, 900));
+        setPreferredSize(new Dimension(500, 600));
 
         GridBagConstraints hangmanConstraints = new GridBagConstraints();
         hangmanConstraints.fill = GridBagConstraints.BOTH;
-        hangmanConstraints.weightx = 0.8;
-        hangmanConstraints.weighty = 0.8;
+        hangmanConstraints.weightx = 1.5;
+        hangmanConstraints.weighty = 1.5;
         hangmanConstraints.gridx = 0;
         hangmanConstraints.gridy = 0;
         hangmanConstraints.gridwidth = 1;
@@ -83,8 +81,8 @@ public class HangmanPanel extends JPanel {
 
         GridBagConstraints keyboardConstraints = new GridBagConstraints();
         keyboardConstraints.fill = GridBagConstraints.BOTH;
-        keyboardConstraints.weightx = 0.2;
-        keyboardConstraints.weighty = 0.2;
+        keyboardConstraints.weightx = 0.3;
+        keyboardConstraints.weighty = 0.3;
         keyboardConstraints.gridx = 1;
         keyboardConstraints.gridy = 0;
         keyboardConstraints.gridwidth = 1;
@@ -92,7 +90,7 @@ public class HangmanPanel extends JPanel {
 
         GridBagConstraints riddleConstraints = new GridBagConstraints();
         riddleConstraints.fill = GridBagConstraints.BOTH;
-        riddleConstraints.weightx = 1;
+        riddleConstraints.weightx = 0.5;
         riddleConstraints.weighty = 0.2;
         riddleConstraints.gridx = 0;
         riddleConstraints.gridy = 1;
@@ -160,7 +158,7 @@ public class HangmanPanel extends JPanel {
 
         if (solution.toUpperCase().indexOf(letter) == -1) errors++;
         imagePanel.setErrors(errors);
-        if (errors >= 7) {
+        if (errors >= 8) {
             gameLost = true;
             riddlePanel.setLabelText(solution);
             riddlePanel.setLabelColour(Color.RED);
@@ -178,19 +176,20 @@ public class HangmanPanel extends JPanel {
         if (gameLost) {
             JOptionPane.showMessageDialog(
                     playAgainFrame,
-                    "Oh no! The word was " + solution + ".\nWould you like to play again?");
+                    "Opps! The word was " + solution + ".\n Would you like to play again?");
         } else {
             score++;
             userSubmitScore("Hangman", score);
             JOptionPane.showMessageDialog(
                     playAgainFrame,
-                    "Congratulations! The word was "+ solution+ ".\nWould you like to play again?");
+                    "Congratulations! You made it" + "\nWould you like to play again?");
         }
     }
 
     
     void userSubmitScore(String gameId, int highScore) {
         logger.info("Score submitted");
+        logger.info("Score: ", highScore);
     }
 
     /**
@@ -199,8 +198,8 @@ public class HangmanPanel extends JPanel {
      *
      * @param evt the keyboard event
      */
-    void keyboard(KeyEvent evt) {
-        char key = evt.getKeyChar();
+    void keyboard(KeyEvent e) {
+        char key = e.getKeyChar();
         if (key >= 'a' && key <= 'z' || key >= 'A' && key <= 'Z') {
             key = Character.toUpperCase(key);
             handleLetterPress(key);
@@ -219,5 +218,11 @@ public class HangmanPanel extends JPanel {
      */
     public String getRandomWord() {
         return Tools.toTitleCase(lines.get(random.nextInt(lines.size())));
+    }
+
+    public void setFocusOnPanel(){
+        this.setFocusable(true);
+        this.requestFocusInWindow();
+
     }
 }

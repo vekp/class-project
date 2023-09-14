@@ -1,14 +1,13 @@
 package minigames.server.hangman;
 
 import io.vertx.core.Future;
+import io.vertx.core.json.JsonObject;
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.GameServerDetails;
 import minigames.rendering.RenderingPackage;
 import minigames.server.ClientType;
 import minigames.server.GameServer;
-import minigames.server.achievements.AchievementHandler;
-
 import java.util.HashMap;
 import java.util.Random;
 
@@ -19,7 +18,8 @@ import java.util.Random;
 public class HangmanGameServer implements GameServer {
 
     static final String chars = "abcdefghijklmopqrstuvwxyz";
-    AchievementHandler achievementHandler;
+    HashMap<String, HangmanGame> games = new HashMap<>();
+
 
     /** A random name. We could do with something more memorable, like Docker has */
     static String randomName() {
@@ -32,18 +32,10 @@ public class HangmanGameServer implements GameServer {
     }
 
     /** Holds the games in progress in memory (no db) */
-    HashMap<String, HangmanGame> games = new HashMap<>();
 
-    public HangmanGameServer() {
-        achievementHandler = new AchievementHandler(HangmanGameServer.class);
-        // Register all achievements with handler
-        for (HangmanGameAchievement a : HangmanGameAchievement.values()) {
-            achievementHandler.registerAchievement(a.achievement);
-        }
-    }
     @Override
     public GameServerDetails getDetails() {
-        return new GameServerDetails("Hangman", "It would be a HGM, but it's not really written yet");
+        return new GameServerDetails("Hangman", "Fun Puzzle Game");
     }
 
     @Override
@@ -74,7 +66,17 @@ public class HangmanGameServer implements GameServer {
     @Override
     public Future<RenderingPackage> callGame(CommandPackage cp) {
         HangmanGame g = games.get(cp.gameId());
+        JsonObject cmd = cp.commands().get(0);
+        switch(cmd.getString("command")){
+            case "exit" -> {
+                exitServer(cp.gameId());
+            }
+        }
         return Future.succeededFuture(g.runCommands(cp));
+    }
+
+    private void exitServer(String g){
+        games.remove(g);
     }
 
 }

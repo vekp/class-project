@@ -53,7 +53,7 @@ public class Tools {
     }
 
     /**
-     * Generates a random name made of an adjective and an animal. E.g.: Flowery_Chimpanzee
+     * Generates a random name made of an adjective and an animal. 
      *
      */
     public static String generateRandomName() {
@@ -99,7 +99,7 @@ public class Tools {
      * @param width int size
      * @param height int size
      * @return BufferedImage scaled
-     * @author Lucas Fonseca Martins
+     * 
      */
     public static BufferedImage scaleImage(BufferedImage bufferedImage, int width, int height)
             throws NullPointerException {
@@ -117,7 +117,7 @@ public class Tools {
      * @param bufferedImage BufferedImage to be rotated
      * @param radians int number of degrees to rotate. E.g.: 45
      * @return BufferedImage image rotated
-     * @author Lucas Fonseca Martins
+     *
      */
     public static BufferedImage rotateImage(BufferedImage bufferedImage, int radians) {
         double rotationRequired = Math.toRadians(radians);
@@ -132,7 +132,6 @@ public class Tools {
     /**
      * Count the number of files of a type in a directory.
      *
-     * @author Lucas Fonseca Martins
      * @param dirPath String the path of dir to be checked
      * @param fileType String the file type E.g.: png
      * @return int the number of files
@@ -155,8 +154,6 @@ public class Tools {
 
     /**
      * Count the total number of files in a dir
-     *
-     * @author Lucas Fonseca Martins
      * @param dirPath String the dir path
      * @return int the number of all files in a dir
      */
@@ -167,13 +164,11 @@ public class Tools {
     /**
      * Helper function that returns 2d array in string. Helps during debugging.
      *
-     * @author Bijaya Shrestha
      * @param arrayvar array
      * @return String formatted array
      */
     public static String array2dToString(int[][] arrayvar) {
         String printString = "";
-
         int rows = arrayvar.length;
         int columns = arrayvar[0].length;
 
@@ -195,7 +190,6 @@ public class Tools {
     /**
      * Get a URI from path, OS independet.
      *
-     * @author Lucas Fonseca Martins
      * @param filePath
      * @return URI file
      */
@@ -219,8 +213,6 @@ public class Tools {
 
     /**
      * Get Rectangle object from comma separated string
-     *
-     * @author Bijaya Shrestha
      * @param rectString
      * @return Rectangle
      */
@@ -239,7 +231,6 @@ public class Tools {
     /**
      * Get Point object from comma separated string
      *
-     * @author Bijaya Shrestha
      * @param pointString
      * @return Rectangle
      */
@@ -252,7 +243,6 @@ public class Tools {
 
     /**
      * Check if two rectangles are overlapping on a 2D pane
-     *
      * @param r1 Rectangle
      * @param r2 Rectangle
      * @return boolean true if they are overlaping, false otherwise
@@ -270,15 +260,9 @@ public class Tools {
     }
 
     /**
-     * The getImageIcon function takes a String iconPath as an argument and returns an ImageIcon
-     * object. The function first tries to read the image from the file system using the FileIO
-     * class's getFileURI method, which converts a pathname into a URI. If that fails, it throws an
-     * exception. Otherwise, it uses Java's ImageIO class to read in the image from disk and then
-     * creates an ImageIcon object with that image data.
      *
      * @param iconPath Specify the path to the icon file
      * @return An ImageIcon object
-     * @author Lucas Fonseca Martins, Jayden Ramm
      */
     public static ImageIcon getImageIcon(String iconPath) {
         ImageIcon icon;
