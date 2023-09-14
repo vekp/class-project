@@ -132,11 +132,13 @@ public class Memory implements GameClient, ActionListener, Tickable { // , Mouse
         playerName.setFont(new Font("Arial", Font.BOLD, 14));
         playerName.setHorizontalAlignment(JLabel.CENTER);
 
+        /*
         difficulty = new JLabel("Difficulty: NEED TO FIX");
         difficulty.setFont(new Font("Arial", Font.BOLD, 14));
         difficulty.setHorizontalAlignment(JLabel.CENTER);
+        */
 
-        matches = new JLabel("Pairs Matched: " + matchesCounter + "/8");
+        matches = new JLabel("Pairs Matched: " + matchesCounter + "/9");
         matches.setFont(new Font("Arial", Font.BOLD, 14));
         matches.setHorizontalAlignment(JLabel.CENTER);
 
@@ -147,7 +149,7 @@ public class Memory implements GameClient, ActionListener, Tickable { // , Mouse
 
         // Add the player information to the player panel
         playerPanel.add(playerName);
-        playerPanel.add(difficulty);
+        //playerPanel.add(difficulty);
         playerPanel.add(matches);
         playerPanel.add(stopwatch);
 
@@ -185,15 +187,17 @@ public class Memory implements GameClient, ActionListener, Tickable { // , Mouse
         gameOptionsPanel = new JPanel();
         gameOptionsPanel.setLayout(new GridLayout(1, 5));
 
+        /*
         newGameButton = new JButton("New Game");
         newGameButton.setFont(new Font("Arial", Font.BOLD, 16));
+        */
 
         restartLevelButton = new JButton("Restart Level");
         restartLevelButton.setFont(new Font("Arial", Font.BOLD, 16));
 
         exitButton = new JButton("Exit");
         exitButton.setFont(new Font("Arial", Font.BOLD, 16));
-        // exitButton.addActionListener(e -> mnClient.runMainMenuSequence());
+        //exitButton.addActionListener(e -> mnClient.runMainMenuSequence());
 
         // Create a JComboBox to select difficulty level. This updates the
         // cardGridPanel.
@@ -205,13 +209,12 @@ public class Memory implements GameClient, ActionListener, Tickable { // , Mouse
         // Create achievements button that talks to the API
         achievementsButton = new JButton("Achievements");
         achievementsButton.setFont(new Font("Arial", Font.BOLD, 16));
-        // achievementsButton.addActionListener(e ->
-        // mnClient.getGameAchievements(player, gm.gameServer()));
+        achievementsButton.addActionListener(e -> mnClient.getGameAchievements(player, gm.gameServer()));
 
         // Add game options to gameOptionsPanel
         // gameOptionsPanel.add(difficultyComboBox);
         gameOptionsPanel.add(achievementsButton);
-        gameOptionsPanel.add(newGameButton);
+        //gameOptionsPanel.add(newGameButton);
         gameOptionsPanel.add(restartLevelButton);
         gameOptionsPanel.add(exitButton);
     }
@@ -467,6 +470,10 @@ public class Memory implements GameClient, ActionListener, Tickable { // , Mouse
         updateStopwatch(); // Update the display
     }
 
+    private void resetScore() {
+        matches.setText("Pairs Matched: 0/9");
+    }
+
     public void startTimer() {
         timer = new Timer(1000, new TimerListener());
         timer.start();
@@ -474,9 +481,9 @@ public class Memory implements GameClient, ActionListener, Tickable { // , Mouse
     }
 
     public void updateScore() {
-        // matches = new JLabel("Pairs Matched: " + matchesCounter + "/8");
+        // matches = new JLabel("Pairs Matched: " + matchesCounter + "/9");
         matchesCounter++;
-        matches.setText(String.format("Pairs Matched: %d/8", matchesCounter));
+        matches.setText(String.format("Pairs Matched: %d/9", matchesCounter));
         // matches.revalidate();
     }
 
@@ -587,26 +594,32 @@ public class Memory implements GameClient, ActionListener, Tickable { // , Mouse
         playerName.setText("Player: " + player);
         // Exit button to return to main game menu - Working
 
+        /*
         newGameButton.addActionListener(e -> {
             timer.stop();
             resetTimer();
-            sendCommand("resetCards");
+            sendCommand("resetToCardBacks");
             sendCommand("newGame");
             gameStarted = false;
             newGame = true;
         });
+        */
 
         restartLevelButton.addActionListener(e -> {
             timer.stop();
             resetTimer();
-            sendCommand("resetCards");
+            resetScore();
+            sendCommand("resetToCardBacks");
             gameStarted = false;
         });
 
         exitButton.addActionListener(e -> {
-            timer.stop();
+            if (gameStarted == true) {
+                timer.stop();
+            }
             resetTimer();
-            sendCommand("resetCards");
+            resetScore();
+            sendCommand("resetToCardBacks");
             gameStarted = false;
             closeGame();
             mnClient.runMainMenuSequence();
@@ -765,6 +778,27 @@ public class Memory implements GameClient, ActionListener, Tickable { // , Mouse
                 // btn16.setIcon(image);
                 // btn17.setIcon(image);
                 // btn18.setIcon(image);
+            }
+            case "resetToCardBacks" -> {
+                ImageIcon image = resizeImageIcon(cardBackImage, -1, btnContainerHeight / rows - 5);
+                btn1.setIcon(image);
+                btn2.setIcon(image);
+                btn3.setIcon(image);
+                btn4.setIcon(image);
+                btn5.setIcon(image);
+                btn6.setIcon(image);
+                btn7.setIcon(image);
+                btn8.setIcon(image);
+                btn9.setIcon(image);
+                btn10.setIcon(image);
+                btn11.setIcon(image);
+                btn12.setIcon(image);
+                btn13.setIcon(image);
+                btn14.setIcon(image);
+                btn15.setIcon(image);
+                btn16.setIcon(image);
+                btn17.setIcon(image);
+                btn18.setIcon(image);
             }
         }
     }

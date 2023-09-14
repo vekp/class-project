@@ -147,6 +147,9 @@ public class MemoryGame {
             case "resetCards" -> {
                 renderingCommands.add(new JsonObject().put("command", "resetCards"));
             }
+            case "resetToCardBacks" -> {
+                renderingCommands.add(new JsonObject().put("command", "resetToCardBacks"));
+            }
             case "Flip_Card_1" -> {
                 if(check(0)){
                     renderingCommands.add(new JsonObject().put("command", "updateScore"));            
