@@ -433,6 +433,9 @@ public class KrumGame {
                         double distance = KrumHelpers.distanceBetween(p.grenade.centre()[0], p.grenade.centre()[1], pl.playerCentre().x, pl.playerCentre().y);
                         if (distance <= p.grenade.damageRadius) {
                             pl.hit(p.grenade.maxDamage, distance, p.grenade.damageRadius);
+                            if (pl.playerIndex != myPlayerIndex && !p.grenade.hasBounced) {
+                                unlockAchievement("Grenade Direct Hit");
+                            }
                         }
                     }
                     KrumSound.playSound("explode2");
