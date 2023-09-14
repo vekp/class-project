@@ -6,16 +6,19 @@ import minigames.server.database.DerbyDatabase;
 import minigames.server.battleship.BattleshipServer;
 import minigames.server.highscore.*;
 import minigames.server.muddle.MuddleServer;
+import minigames.server.snake.SnakeServer;
+import minigames.server.peggle.PeggleServer;
 import minigames.server.spacemaze.SpaceMazeServer;
 import minigames.server.telepathy.TelepathyServer;
+import minigames.server.tictactoe.TicTacToeServer;
+import minigames.server.noughtsandcrosses.NoughtsAndCrossesServer;
+import minigames.server.krumgame.KrumGameServer;
 import io.vertx.core.Launcher;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -81,6 +84,10 @@ public class Main extends AbstractVerticle {
         gameRegistry.registerGameServer("SpaceMaze", new SpaceMazeServer());
         gameRegistry.registerGameServer("Battleship", new BattleshipServer());
         gameRegistry.registerGameServer("Telepathy", new TelepathyServer());
+        gameRegistry.registerGameServer("Snake", new SnakeServer());
+        gameRegistry.registerGameServer("Peggle", new PeggleServer());
+        gameRegistry.registerGameServer("TicTacToe", new TicTacToeServer());
+        gameRegistry.registerGameServer("NoughtsAndCrosses", new NoughtsAndCrossesServer());
 
         // Initialise the HighScoreAPI
         highScoreAPI = new HighScoreAPI();
@@ -92,6 +99,11 @@ public class Main extends AbstractVerticle {
         players.add("Amy");
         players.add("Robert");
         players.add("Georgia");
+        players.add("Sushil");
+        players.add("Bikash");
+        players.add("Sabin");
+        players.add("Anil");
+        gameRegistry.registerGameServer("KrumGame", new KrumGameServer());
     }
 
     public static void main(String... args) {

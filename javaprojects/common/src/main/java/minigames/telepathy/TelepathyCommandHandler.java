@@ -9,9 +9,7 @@ import io.vertx.core.json.JsonObject;
 /**
  * A series of methods available to help parse and deal with TelepathyCommands
  */
-public class TelepathyCommandHandler {
-    
-
+public final class TelepathyCommandHandler {
     /**
      * Get a List of the attributes stored in a JsonObject command.
      * @param jsonCommand: The JSON portion of a network package with attributes
@@ -57,7 +55,6 @@ public class TelepathyCommandHandler {
             JsonArray attributeArray = new JsonArray(Arrays.asList(attributes));
             jsonObject.put("attributes", attributeArray);
         }
-        System.out.println("Made command: " + jsonObject.toString());
         return jsonObject;
     }
 }
