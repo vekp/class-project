@@ -48,6 +48,31 @@ public class Tile{
 
     public Symbols getTileSymbol() {return tileSymbol;};
 
-  
+    //boolean Method
+    /**
+     * compares chosentile against a real tile elements
+     * @param tile a Tile object representing a tile
+     * @return true if the tile features does not completely match this chosen tile elements
+     */
+    public boolean isPartialMatch(Tile tile) {
+        if(this.getHorizontalPos().equals(tile.getHorizontalPos())) return true;
+        if(this.getVerticalPos().equals(tile.getVerticalPos())) return true;
+        if(this.getTileColour().equals(tile.getTileColour())) return true;
+        if(this.getTileSymbol().equals(tile.getTileSymbol())) return true;
+        return false;
+    }
+
+    /**
+     * compares chosentile against a real tile elements
+     * @param tile a Tile object representing a tile
+     * @return true if the tile features completely match the chosentile elements
+     */
+    public boolean isFullMatch(Tile tile) {
+        if(!this.getHorizontalPos().equals(tile.getHorizontalPos())) return false;
+        if(!this.getVerticalPos().equals(tile.getVerticalPos())) return false;
+        if(!this.getTileColour().equals(tile.getTileColour())) return false;
+        if(!this.getTileSymbol().equals(tile.getTileSymbol())) return false;
+        return true;
+    }   
 
 }
