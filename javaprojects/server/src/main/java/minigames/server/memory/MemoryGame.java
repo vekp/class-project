@@ -39,6 +39,7 @@ public class MemoryGame {
     int previousCardIndex = -1;
     int playerScore = 0;
     int [] selectedCards = new int [2];
+    boolean[] solvedCards = new boolean[18];
 
     public MemoryGame(String name, String playerName) {
         this.name = name;
@@ -80,26 +81,32 @@ public class MemoryGame {
      * Originally I stored a copy of the card that had been flipped, but this allowed a card to match with itself. 
      * Now we can only match on card objects that are equal but also at different array indexes. 
      */
-    public void check(int cardIndex) {
+    public boolean check(int cardIndex) {
+        if(solvedCards[cardIndex] == true){
+            System.out.println("You have already solved this card!");
+            return false;
+        }
         if(previousCardIndex == cardIndex){
             System.out.println("Please flip a new card!");
-            return;
+            return false;
         }
         if (previousCardIndex != -1) {
             if (playingCards[previousCardIndex].equals(playingCards[cardIndex])) {
                 playerScore++;
                 System.out.println("These cards match!");
                 System.out.println(playerScore);
+                solvedCards[cardIndex] = true;
+                solvedCards[previousCardIndex] = true;
                 previousCardIndex = -1;
-                return;
+                return true;
             } else {
                 previousCardIndex = -1;
                 System.out.println("These cards do not match");
-                return;
+                return false;
             }
         } else {
             previousCardIndex = cardIndex;
-            return;
+            return false;
         }
     }
 
@@ -141,100 +148,208 @@ public class MemoryGame {
                 renderingCommands.add(new JsonObject().put("command", "resetCards"));
             }
             case "Flip_Card_1" -> {
-                check(0);
+                if(check(0)){
+                    renderingCommands.add(new JsonObject().put("command", "updateScore"));            
+                } else {
+                    if(previousCardIndex != -1){
+                        renderingCommands.add(new JsonObject().put("command", "resetCards").put("solved", solvedCards));
+                    }
+                }
                 JsonObject result = new JsonObject();
                 result.put("command", "Flip_Card_1");
                 result.put("update", "true");
                 renderingCommands.add(result);
+                
 
-
-                System.out.println(playingCards[0].getValue() + " of " + playingCards[0].getSuit());
+                // System.out.println(playingCards[0].getValue() + " of " + playingCards[0].getSuit());
             }
             case "Flip_Card_2" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_2"));
-                System.out.println(playingCards[1].getValue() + " of " + playingCards[1].getSuit());
-                check(1);
-                renderingCommands.add(new JsonObject().put("command", "updateScore"));            
+                // System.out.println(playingCards[1].getValue() + " of " + playingCards[1].getSuit());
+                if(check(1)){
+                    renderingCommands.add(new JsonObject().put("command", "updateScore"));            
+                }
+                else {
+                    if(previousCardIndex != -1){
+                        renderingCommands.add(new JsonObject().put("command", "resetCards").put("solved", solvedCards));
+                    }
+                }
             }
             case "Flip_Card_3" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_3"));
-                System.out.println(playingCards[2].getValue() + " of " + playingCards[2].getSuit());
-                check(2);
+                // System.out.println(playingCards[2].getValue() + " of " + playingCards[2].getSuit());
+                if(check(2)){
+                    renderingCommands.add(new JsonObject().put("command", "updateScore"));
+                }else {
+                    if(previousCardIndex != -1){
+                        renderingCommands.add(new JsonObject().put("command", "resetCards").put("solved", solvedCards));
+                    }
+                }
             }
             case "Flip_Card_4" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_4"));
-                System.out.println(playingCards[3].getValue() + " of " + playingCards[3].getSuit());
-                check(3);
+                // System.out.println(playingCards[3].getValue() + " of " + playingCards[3].getSuit());
+                if(check(3)){
+                    renderingCommands.add(new JsonObject().put("command", "updateScore"));
+                }else {
+                    if(previousCardIndex != -1){
+                        renderingCommands.add(new JsonObject().put("command", "resetCards").put("solved", solvedCards));
+                    }
+                }
             }
             case "Flip_Card_5" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_5"));
-                System.out.println(playingCards[4].getValue() + " of " + playingCards[4].getSuit());
-                check(4);
+                // System.out.println(playingCards[4].getValue() + " of " + playingCards[4].getSuit());
+                if(check(4)){
+                    renderingCommands.add(new JsonObject().put("command", "updateScore"));
+                }else {
+                    if(previousCardIndex != -1){
+                        renderingCommands.add(new JsonObject().put("command", "resetCards").put("solved", solvedCards));
+                    }
+                }
             }
             case "Flip_Card_6" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_6"));
-                System.out.println(playingCards[5].getValue() + " of " + playingCards[5].getSuit());
-                check(5);
+                // System.out.println(playingCards[5].getValue() + " of " + playingCards[5].getSuit());
+                if(check(5)){
+                    renderingCommands.add(new JsonObject().put("command", "updateScore"));
+                }else {
+                    if(previousCardIndex != -1){
+                        renderingCommands.add(new JsonObject().put("command", "resetCards").put("solved", solvedCards));
+                    }
+                }
             }
             case "Flip_Card_7" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_7"));
-                System.out.println(playingCards[6].getValue() + " of " + playingCards[6].getSuit());
-                check(6);
+                // System.out.println(playingCards[6].getValue() + " of " + playingCards[6].getSuit());
+                if(check(6)){
+                    renderingCommands.add(new JsonObject().put("command", "updateScore"));
+                }else {
+                    if(previousCardIndex != -1){
+                        renderingCommands.add(new JsonObject().put("command", "resetCards").put("solved", solvedCards));
+                    }
+                }
             }
             case "Flip_Card_8" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_8"));
-                System.out.println(playingCards[7].getValue() + " of " + playingCards[7].getSuit());
-                check(7);
+                // System.out.println(playingCards[7].getValue() + " of " + playingCards[7].getSuit());
+                if(check(7)){
+                    renderingCommands.add(new JsonObject().put("command", "updateScore"));
+                }else {
+                    if(previousCardIndex != -1){
+                        renderingCommands.add(new JsonObject().put("command", "resetCards").put("solved", solvedCards));
+                    }
+                }
             }
             case "Flip_Card_9" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_9"));
-                System.out.println(playingCards[8].getValue() + " of " + playingCards[8].getSuit());
-                check(8);
+                // System.out.println(playingCards[8].getValue() + " of " + playingCards[8].getSuit());
+                if(check(8)){
+                    renderingCommands.add(new JsonObject().put("command", "updateScore"));
+                }else {
+                    if(previousCardIndex != -1){
+                        renderingCommands.add(new JsonObject().put("command", "resetCards").put("solved", solvedCards));
+                    }
+                }
             }
             case "Flip_Card_10" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_10"));
-                System.out.println(playingCards[9].getValue() + " of " + playingCards[9].getSuit());
-                check(9);
+                // System.out.println(playingCards[9].getValue() + " of " + playingCards[9].getSuit());
+                if(check(9)){
+                    renderingCommands.add(new JsonObject().put("command", "updateScore"));
+                }else {
+                    if(previousCardIndex != -1){
+                        renderingCommands.add(new JsonObject().put("command", "resetCards").put("solved", solvedCards));
+                    }
+                }
             }
             case "Flip_Card_11" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_11"));
-                System.out.println(playingCards[10].getValue() + " of " + playingCards[10].getSuit());
-                check(10);
+                // System.out.println(playingCards[10].getValue() + " of " + playingCards[10].getSuit());
+                if(check(10)){
+                    renderingCommands.add(new JsonObject().put("command", "updateScore"));
+                }else {
+                    if(previousCardIndex != -1){
+                        renderingCommands.add(new JsonObject().put("command", "resetCards").put("solved", solvedCards));
+                    }
+                }
             }
             case "Flip_Card_12" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_12"));
-                System.out.println(playingCards[11].getValue() + " of " + playingCards[11].getSuit());
-                check(11);
+                // System.out.println(playingCards[11].getValue() + " of " + playingCards[11].getSuit());
+                if(check(11)){
+                    renderingCommands.add(new JsonObject().put("command", "updateScore"));
+                }else {
+                    if(previousCardIndex != -1){
+                        renderingCommands.add(new JsonObject().put("command", "resetCards").put("solved", solvedCards));
+                    }
+                }
             }
             case "Flip_Card_13" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_13"));
-                System.out.println(playingCards[12].getValue() + " of " + playingCards[12].getSuit());
-                check(12);
+                // System.out.println(playingCards[12].getValue() + " of " + playingCards[12].getSuit());
+                if(check(12)){
+                    renderingCommands.add(new JsonObject().put("command", "updateScore"));
+                }else {
+                    if(previousCardIndex != -1){
+                        renderingCommands.add(new JsonObject().put("command", "resetCards").put("solved", solvedCards));
+                    }
+                }
             }
             case "Flip_Card_14" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_14"));
-                System.out.println(playingCards[13].getValue() + " of " + playingCards[13].getSuit());
-                check(13);
+                // System.out.println(playingCards[13].getValue() + " of " + playingCards[13].getSuit());
+                if(check(13)){
+                    renderingCommands.add(new JsonObject().put("command", "updateScore"));
+                }else {
+                    if(previousCardIndex != -1){
+                        renderingCommands.add(new JsonObject().put("command", "resetCards").put("solved", solvedCards));
+                    }
+                }
             }
             case "Flip_Card_15" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_15"));
-                System.out.println(playingCards[14].getValue() + " of " + playingCards[14].getSuit());
-                check(14);
+                // System.out.println(playingCards[14].getValue() + " of " + playingCards[14].getSuit());
+                if(check(14)){
+                    renderingCommands.add(new JsonObject().put("command", "updateScore"));
+                }else {
+                    if(previousCardIndex != -1){
+                        renderingCommands.add(new JsonObject().put("command", "resetCards").put("solved", solvedCards));
+                    }
+                }
             }
             case "Flip_Card_16" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_16"));
-                System.out.println(playingCards[15].getValue() + " of " + playingCards[15].getSuit());
-                check(15);
+                // System.out.println(playingCards[15].getValue() + " of " + playingCards[15].getSuit());
+                if(check(15)){
+                    renderingCommands.add(new JsonObject().put("command", "updateScore"));
+                }else {
+                    if(previousCardIndex != -1){
+                        renderingCommands.add(new JsonObject().put("command", "resetCards").put("solved", solvedCards));
+                    }
+                }
             }
             case "Flip_Card_17" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_17"));
-                System.out.println(playingCards[16].getValue() + " of " + playingCards[16].getSuit());
-                check(16);
+                // System.out.println(playingCards[16].getValue() + " of " + playingCards[16].getSuit());
+                if(check(16)){
+                    renderingCommands.add(new JsonObject().put("command", "updateScore"));
+                }else {
+                    if(previousCardIndex != -1){
+                        renderingCommands.add(new JsonObject().put("command", "resetCards").put("solved", solvedCards));
+                    }
+                }
             }
             case "Flip_Card_18" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_18"));
-                System.out.println(playingCards[17].getValue() + " of " + playingCards[17].getSuit());
-                check(17);
+                // System.out.println(playingCards[17].getValue() + " of " + playingCards[17].getSuit());
+                if(check(17)){
+                    renderingCommands.add(new JsonObject().put("command", "updateScore"));
+                }else {
+                    if(previousCardIndex != -1){
+                        renderingCommands.add(new JsonObject().put("command", "resetCards").put("solved", solvedCards));
+                    }
+                }
             }
         }
 
