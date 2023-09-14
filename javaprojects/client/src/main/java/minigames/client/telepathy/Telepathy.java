@@ -290,6 +290,8 @@ public class Telepathy implements GameClient, Tickable{
         for (int row = 0; row < this.buttonGrid.length; row++) {
             for (int col = 0; col < this.buttonGrid[row].length; col++) {
                 this.buttonGrid[col][row].setEnabled(true);
+              
+                
             }
         }
 
@@ -337,7 +339,7 @@ public class Telepathy implements GameClient, Tickable{
 
         // Main text for the popup
         JTextPane descriptionTextPane = new JTextPane();
-        descriptionTextPane.setText("\n\n\n" + descriptionString);
+        descriptionTextPane.setText("\n" + descriptionString);
         descriptionTextPane.setEditable(false);
         descriptionTextPane.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -410,7 +412,13 @@ public class Telepathy implements GameClient, Tickable{
         JPanel welcomePanel = makeMessagePopup(
                 "Telepathy",
                 "are you telepathic " + player + "? ",
-                "Currently waiting for all players to join and show they are ready.\n\n\n       Once you are ready to begin playing, press the ready button!\n");
+                "  Can you deduce your opponent's secret tile?!" +
+                "\n\nGame Play" + "\nAsk questions by selecting a tile from the board and find out if" +
+                " the coordinates, colour OR symbol match your opponent's tile." +
+                "\nIF you've scored a match, the tile will be highlighted! This information will help you ask" +
+                " another question. ELSE, no matches :( " +
+                "\nKeep asking questions till you're SURE you KNOW your opponent's tile!" +
+                "\n\nWhen you're ready, select the READY button." + "    Wait for the other player to join :D\n");
 
         //welcomeMessage = popupWelcomeMessage();
         telepathyNotificationManager.showMessageDialog("Telepathy", welcomePanel);
@@ -421,9 +429,13 @@ public class Telepathy implements GameClient, Tickable{
      */
     private void activateTileSelectMessage() {
         JPanel tileSelectPanel = makeMessagePopup(
-                "Tile Selection",
+                "Secret Tile Selection",
                 "",
-                "Time to choose a tile for your opponent to guess!");
+                "\nNotice how each tile on the board has a set of coordinates, a colour and a symbol..." +
+                "\n\nThe list of colours and symbols at the side will help you track your guesses." +
+                "\nWhen your question has no matches, the tile's row, column, colour, symbol will grey out." +
+                "\n\n\nNow it's time to choose your secret tile for your opponent to guess!"
+                );
 
         telepathyNotificationManager.showMessageDialog("Telepathy", tileSelectPanel);
     }
@@ -435,7 +447,12 @@ public class Telepathy implements GameClient, Tickable{
         JPanel gameRunningPanel = makeMessagePopup(
             "Time to play", 
             "", 
-                "The game has started! \nWhen it is your turn the board will activate and you can start asking questions to try and find out what your opponent's chosen tile is...");
+            "\n                   The game has started!" +
+            "\n\n\nWhen it is your turn, the board will activate and you can ask a question" +
+            " by selecting a tile." + 
+            "\n\n\n                        Good luck!" +
+            "\n\nREMEMBER: the game ends with a player's final guess..."
+            );
 
         telepathyNotificationManager.showMessageDialog("Telepathy", gameRunningPanel);
     }
@@ -501,7 +518,7 @@ public class Telepathy implements GameClient, Tickable{
 
         // Create the JPanel to display in the notification
         JPanel confirmTargetTile = makeChoicePopup(
-            "Is this your chosen target tile?",
+            "Is this your secret tile?",
             "Select 'Yes' to continue or 'No' to make another choice",
             "Yes",
             "No",
