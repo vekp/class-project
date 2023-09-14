@@ -309,8 +309,6 @@ public class GameShowUI {
                 startGame.setBorderPainted(false);
                 startGame.addActionListener((evt) -> gameShow.sendCommand(new JsonObject().put("command", "ready")));
 
-                JPanel testingButtons = new JPanel(new BorderLayout(100, 10));
-
                 JPanel testingButtons = new JPanel(new BorderLayout(0, 10));
 
                 wordScramble = new JButton("Word Scramble");
