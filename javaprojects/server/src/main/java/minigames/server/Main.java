@@ -11,6 +11,7 @@ import minigames.server.spacemaze.SpaceMazeServer;
 import minigames.server.telepathy.TelepathyServer;
 import minigames.server.tictactoe.TicTacToeServer;
 import minigames.server.noughtsandcrosses.NoughtsAndCrossesServer;
+import minigames.server.krumgame.KrumGameServer;
 import io.vertx.core.Launcher;
 
 import org.apache.logging.log4j.LogManager;
@@ -94,6 +95,7 @@ public class Main extends AbstractVerticle {
         players.add("Bikash");
         players.add("Sabin");
         players.add("Anil");
+        gameRegistry.registerGameServer("KrumGame", new KrumGameServer());
     }
 
     public static void main(String... args) {
