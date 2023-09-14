@@ -1,5 +1,6 @@
 package minigames.server.memory;
 
+import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import java.util.*;
 
@@ -142,7 +143,8 @@ public class MemoryGame {
             case "Flip_Card_2" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_2"));
                 System.out.println(playingCards[1].getValue() + " of " + playingCards[1].getSuit());
-                check(1);            
+                check(1);
+                renderingCommands.add(new JsonObject().put("command", "updateScore"));            
             }
             case "Flip_Card_3" -> {
                 renderingCommands.add(new JsonObject().put("command", "Flip_Card_3"));
