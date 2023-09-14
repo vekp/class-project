@@ -144,9 +144,13 @@ public class GameShow {
                 if (allPlayersReady()) { // Log (for testing purposes)
                     logger.info("All players in game '{}' are ready", this.name);
                     this.inProgress = true;
-                    renderingCommands.add(nextRound(0));
                 } else { // Log (for testing purposes)
                     logger.info("There are players in game '{}' who are not yet ready", this.name);
+                }
+            }
+            case "allReady" -> {
+                if (allPlayersReady()) {
+                    renderingCommands.add(nextRound(0));
                 }
             }
             case "nextRound" -> renderingCommands.add(nextRound(cp.commands().get(0).getInteger("round")));

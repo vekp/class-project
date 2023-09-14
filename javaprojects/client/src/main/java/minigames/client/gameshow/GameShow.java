@@ -4,6 +4,8 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.util.Collections;
 
+import minigames.client.Animator;
+import minigames.client.Tickable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,7 +29,7 @@ import minigames.commands.CommandPackage;
  * (e.g. { "command": "setDirections", "directions": "NS" } would enable only N
  * and S)
  */
-public class GameShow implements GameClient {
+public class GameShow implements GameClient, Tickable {
     private static final Logger logger = LogManager.getLogger(GameShow.class);
 
     static MinigameNetworkClient mnClient;
@@ -45,6 +47,10 @@ public class GameShow implements GameClient {
     JPanel inputPanel;
     JPanel outcomeContainer;
 
+    /** Whether the game has started */
+    private boolean started;
+    /** When the last server poll occurred */
+    private long lastPoll;
     /** The current round for this player, zero-indexed */
     protected int round;
     JPanel gamePanel;
@@ -56,6 +62,8 @@ public class GameShow implements GameClient {
 
     public GameShow() {
         Main = this;
+        this.lastPoll = System.nanoTime();
+        this.started = false;
     }
 
     public static JButton quit() {
@@ -101,8 +109,9 @@ public class GameShow implements GameClient {
         homeScreen = GameShowUI.generateIntroPanel(this);
         mnClient.getMainWindow().addCenter(homeScreen);
         mnClient.getMainWindow().pack();
-
         // mnClient.getMainWindow().setVisible(true)
+
+        mnClient.getAnimator().requestTick(this); // Start receiving ticks
 
         logger.info("Joined GameShow '{}' as '{}'", new Object[] { game.name(), player });
 
@@ -116,6 +125,7 @@ public class GameShow implements GameClient {
         switch (command.getString("command")) {
             case "nextRound" -> {
                 logger.info("Starting minigame {}", command.getString("minigame"));
+                this.started = true;
                 this.round = command.getInteger("round");
                 switch (command.getString("minigame")) {
                     case "ImageGuesser" -> {
@@ -168,6 +178,19 @@ public class GameShow implements GameClient {
     @Override
     public void closeGame() {
         logger.info("Exited GameShow '{}' as '{}'", new Object[] { this.gm.name(), this.player });
+    }
+
+    /** The client polls the server once per second in order to detect when the game has started */
+    @Override
+    public void tick(Animator al, long now, long delta) {
+        if (!this.started) {
+            if (now - this.lastPoll > 1000000) {
+                this.lastPoll = now;
+                sendCommand(new JsonObject().put("command", "allReady"));
+            }
+
+            al.requestTick(this);
+        }
     }
 
 }
