@@ -307,7 +307,9 @@ public class GameShowUI {
                 startGame.setContentAreaFilled(false);
                 startGame.setFocusPainted(false);
                 startGame.setBorderPainted(false);
-                // TODO: add action listener
+                startGame.addActionListener((evt) -> gameShow.sendCommand(new JsonObject().put("command", "ready")));
+
+                JPanel testingButtons = new JPanel(new BorderLayout(100, 10));
 
                 JPanel testingButtons = new JPanel(new BorderLayout(0, 10));
 

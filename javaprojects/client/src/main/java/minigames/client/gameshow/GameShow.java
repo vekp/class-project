@@ -1,16 +1,15 @@
 package minigames.client.gameshow;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.util.Collections;
-import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import minigames.client.Animator;
+import minigames.client.Tickable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
@@ -30,8 +29,8 @@ import minigames.commands.CommandPackage;
  * (e.g. { "command": "setDirections", "directions": "NS" } would enable only N
  * and S)
  */
-public class GameShow implements GameClient {
-    private static final Logger logger = Logger.getLogger(GameShow.class.getName());
+public class GameShow implements GameClient, Tickable {
+    private static final Logger logger = LogManager.getLogger(GameShow.class);
 
     static MinigameNetworkClient mnClient;
 
@@ -48,7 +47,12 @@ public class GameShow implements GameClient {
     JPanel inputPanel;
     JPanel outcomeContainer;
 
-    int gameId;
+    /** Whether the game has started */
+    private boolean started;
+    /** When the last server poll occurred */
+    private long lastPoll;
+    /** The current round for this player, zero-indexed */
+    protected int round;
     JPanel gamePanel;
     GameTimer gameTimer;
     private final static String dir = "./src/main/java/minigames/client/gameshow/GameShowImages/";
@@ -58,6 +62,8 @@ public class GameShow implements GameClient {
 
     public GameShow() {
         Main = this;
+        this.lastPoll = System.nanoTime();
+        this.started = false;
     }
 
     public static JButton quit() {
@@ -84,7 +90,7 @@ public class GameShow implements GameClient {
     public void sendCommand(JsonObject json) {
         // Collections.singletonList() is a quick way of getting a "list of one item"
         // logger.log(Level.INFO, "sendCommand called with command: {0}", command);
-        logger.log(Level.INFO, "Sending JSON: {0}", json.toString());
+        logger.info("Sending JSON: {}", json.toString());
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), this.player, Collections.singletonList(json)));
     }
 
@@ -103,26 +109,43 @@ public class GameShow implements GameClient {
         homeScreen = GameShowUI.generateIntroPanel(this);
         mnClient.getMainWindow().addCenter(homeScreen);
         mnClient.getMainWindow().pack();
-
         // mnClient.getMainWindow().setVisible(true)
 
-        logger.log(Level.INFO, "load executed for player: {0}, game: {1}", new Object[] { player, game.name() });
+        mnClient.getAnimator().requestTick(this); // Start receiving ticks
+
+        logger.info("Joined GameShow '{}' as '{}'", new Object[] { game.name(), player });
 
     }
 
     @Override
     public void execute(GameMetadata game, JsonObject command) {
         this.gm = game;
-        logger.log(Level.INFO, "execute called with command: {0}", command.getString("command"));
+        logger.info("execute called with command: {}", command.getString("command"));
 
         switch (command.getString("command")) {
+            case "nextRound" -> {
+                logger.info("Starting minigame {}", command.getString("minigame"));
+                this.started = true;
+                this.round = command.getInteger("round");
+                switch (command.getString("minigame")) {
+                    case "ImageGuesser" -> {
+                        this.gameTimer = new GameTimer(130000);
+                        ImageGuesser.startImageGuesser(this, command.getString("imageFilePath"));
+                        this.gameTimer.start();
+                    }
+                    case "WordScramble" -> {
+                        this.gameTimer = new GameTimer(130000);
+                        WordScramble.startGame(this, command.getString("letters"));
+                        this.gameTimer.start();
+                    }
+                }
+            }
             case "startGame" -> {
                 switch (command.getString("game")) {
                     case "wordScramble" -> {
                         WordScramble.startGame(
                                 this,
-                                command.getString("letters"),
-                                (int) command.getInteger("gameId"));
+                                command.getString("letters"));
                     }
                 }
             }
@@ -137,19 +160,37 @@ public class GameShow implements GameClient {
             }
             case "startImageGuesser" -> {
                 this.gameTimer = new GameTimer(130000);
-                ImageGuesser.startImageGuesser(this, command.getString("imageFilePath"),
-                        (int) command.getInteger("gameId"));
+                ImageGuesser.startImageGuesser(this, command.getString("imageFilePath"));
                 this.gameTimer.start();
             }
             case "guessImageOutcome" -> {
                 ImageGuesser.guess(this, command.getBoolean("outcome"));
+            }
+            case "ready" -> { // Log the ready state (for testing purposes)
+                logger.info(
+                        "Player '{}' is now ready: {}",
+                        new Object[] { player, command.getBoolean("state")}
+                );
             }
         }
     }
 
     @Override
     public void closeGame() {
-        // Nothing to do
+        logger.info("Exited GameShow '{}' as '{}'", new Object[] { this.gm.name(), this.player });
+    }
+
+    /** The client polls the server once per second in order to detect when the game has started */
+    @Override
+    public void tick(Animator al, long now, long delta) {
+        if (!this.started) {
+            if (now - this.lastPoll > 1000000) {
+                this.lastPoll = now;
+                sendCommand(new JsonObject().put("command", "allReady"));
+            }
+
+            al.requestTick(this);
+        }
     }
 
 }

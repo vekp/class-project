@@ -3,6 +3,7 @@ package minigames.client.gameshow;
 import java.awt.*;
 import javax.swing.*;
 
+import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 
 public class WordScramble {
@@ -123,7 +124,7 @@ public class WordScramble {
         /**
          * Starts a game
          */
-        public static void startGame(GameShow gs, String letters, int gameId) {
+        public static void startGame(GameShow gs, String letters) {
                 GameShowUI.gameContainer.removeAll();
 
                 ImageIcon imageIcon = new ImageIcon(backBackground.getImage().getScaledInstance(600, 290,
@@ -159,7 +160,7 @@ public class WordScramble {
                 guessBox.setFont(pixelFont.deriveFont(18f));
                 guessBox.setColumns(20);
                 // guessBox.setHorizontalAlignment(SwingConstants.CENTER);
-                guessBox.addActionListener((evt) -> sendGuess(gs, guessBox.getText(), gameId));
+                guessBox.addActionListener((evt) -> sendGuess(gs, guessBox.getText(), 1));
 
                 // gbc.insets = new Insets(20, 20, 20, 20);
                 gbc.anchor = GridBagConstraints.LINE_START;
@@ -175,7 +176,7 @@ public class WordScramble {
                 submitButton.setContentAreaFilled(false);
                 submitButton.setFocusPainted(false);
                 submitButton.setBorderPainted(false);
-                submitButton.addActionListener((evt) -> sendGuess(gs, guessBox.getText(), gameId));
+                submitButton.addActionListener((evt) -> sendGuess(gs, guessBox.getText(), gs.round));
 
                 gbc.insets = new Insets(0, 80, 0, 30);
                 gbc.anchor = GridBagConstraints.LINE_END;
@@ -228,8 +229,14 @@ public class WordScramble {
                         gbc.gridx = 0;
                         gbc.gridy = 0;
                         gs.gamePanel.add(correctGuess, gbc);
-                        gs.gamePanel.validate();
-                        gs.gamePanel.repaint();
+
+                        JButton nextRoundButton = new JButton("Next round ->");
+                        nextRoundButton.addActionListener((evt) -> {
+                                gs.sendCommand(new JsonObject().put("command", "nextRound").put("round", gs.round + 1));
+                        });
+                        gbc.gridx = 0;
+                        gbc.gridy = 1;
+                        gs.gamePanel.add(nextRoundButton, gbc);
                 }
 
                 backGround.validate();
@@ -244,6 +251,6 @@ public class WordScramble {
                                 .put("command", "guess")
                                 .put("game", "wordScramble")
                                 .put("guess", guess)
-                                .put("gameId", gameId));
+                                .put("round", gs.round));
         }
 }
