@@ -1,6 +1,7 @@
 package minigames.client;
 
 import javax.swing.*;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 import java.awt.event.ActionListener;
 
@@ -42,9 +43,31 @@ public class MinigameNetworkClientWindow {
     JTextField nameField;
 
     public MinigameNetworkClientWindow(MinigameNetworkClient networkClient) {
+        // Use LookandFeel to change the SwingUI theme
+        try {
+            for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    UIManager.put("nimbusBase", Color.BLACK); // Set base color
+                    UIManager.put("nimbusBlueGrey", Color.BLACK); // Set blue/grey color
+                    UIManager.put("control", Color.BLACK); // Set control background color
+                    UIManager.put("text", Color.WHITE); // Set text color
+                    UIManager.put("List.background", Color.BLACK); // Set list background
+                    UIManager.put("TextField.textForeground", Color.BLACK); // Set text field text color
+                    UIManager.put("List.foreground", Color.BLACK); // Set JList text color
+                    UIManager.put("ComboBox.foreground", Color.BLACK); // Set JComboBox text color
+                    break;
+                }
+            }
+        } catch (Exception e) {
+
+        }
+
         this.networkClient = networkClient;
 
         frame = new JFrame();
+        //frame.setUndecorated(true); // removes the frame around the window.
+        frame.getContentPane().setBackground(Color.BLACK);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         this.achievementPopups = new AchievementNotificationHandler(networkClient);
@@ -67,6 +90,9 @@ public class MinigameNetworkClientWindow {
 
         nameField = new JTextField(20);
         nameField.setText("Algernon");
+
+        frame.setLocationRelativeTo(null);
+
     }
 
     /**
@@ -169,34 +195,55 @@ public class MinigameNetworkClientWindow {
      *
      * @param servers
      */
+    /**
+     * Shows a list of GameServers to pick from
+     * <p>
+     * TODO: Prettify!
+     *
+     * @param servers
+     */
     public void showGameServers(List<GameServerDetails> servers) {
         frame.setTitle("COSC220 2023 Minigame Collection");
         clearAll();
         networkClient.getNotificationManager().resetToDefaultSettings();
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        List<JPanel> serverPanels = servers.stream().map((gsd) -> {
-            JPanel p = new JPanel(new BorderLayout());
-            JLabel l = new JLabel(String.format("<html><h1>%s</h1><p>%s</p></html>", gsd.name(), gsd.description()));
-            JButton newG = new JButton("Open games");
+        // Add the nameField to the north panel
+        JPanel namePanel = new JPanel();
+        JLabel nameLabel = new JLabel("Your name");
+        namePanel.add(nameLabel);
+        namePanel.add(nameField);
+        north.add(namePanel);
+
+        // Create a panel for the buttons and arrow buttons
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BorderLayout());
+
+        JPanel serverButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10)); // FlowLayout with spacing
+        serverButtonPanel.setBackground(Color.BLACK); // Set background color to black
+
+        for (GameServerDetails gsd : servers) {
+            JButton newG = new JButton(
+                    String.format("<html><h1>%s</h1><p>%s</p></html>", gsd.name(), gsd.description())
+            );
+
+            // Set button styles
+            newG.setPreferredSize(new Dimension(150, 250)); // Adjust the preferred size as needed
+            newG.setBorderPainted(false); // Remove button borders
+            newG.setFocusPainted(false); // Remove focus border
 
             newG.addActionListener((evt) -> {
                 networkClient.getGameMetadata(gsd.name())
                         .onSuccess((list) -> showGames(gsd.name(), list));
             });
-            p.add(l);
-            p.add(newG, BorderLayout.EAST);
-            return p;
-        }).toList();
 
-        for (JPanel serverPanel : serverPanels) {
-            panel.add(serverPanel);
+            serverButtonPanel.add(newG);
         }
 
-        center.add(panel);
+        buttonPanel.add(serverButtonPanel, BorderLayout.CENTER);
 
-        // Create a button for the Achievement UI.
+        center.setLayout(new BorderLayout());
+        center.add(buttonPanel, BorderLayout.CENTER);
+
         JButton achievementsButton = new JButton("Achievements");
         achievementsButton.addActionListener(e -> {
             AchievementUI achievements = new AchievementUI(networkClient);
@@ -228,12 +275,9 @@ public class MinigameNetworkClientWindow {
     public void showGames(String gameServer, List<GameMetadata> inProgress) {
         clearAll();
 
-        JPanel namePanel = new JPanel();
-        JLabel nameLabel = new JLabel("Your name");
-        namePanel.add(nameLabel);
-        namePanel.add(nameField);
-        north.add(namePanel);
-
+        // Remove the nameField from the north panel
+        north.removeAll();
+        north.revalidate(); // This is needed to update the UI
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -259,15 +303,32 @@ public class MinigameNetworkClientWindow {
             // FIXME: We've got a hardcoded player name here
             networkClient.newGame(gameServer, nameField.getText());
         });
-        panel.add(newG);
+
+        JButton returnToMainMenu = new JButton("Return to Main Menu");
+        // TODO
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+        buttonPanel.add(newG);
+        buttonPanel.add(returnToMainMenu);
+
+        // Create a main panel with BorderLayout
+        JPanel mainPanel = new JPanel(new BorderLayout());
 
         JScrollPane scrollPane = new JScrollPane(panel);
         scrollPane.setPreferredSize(new Dimension(800, 600));
 
-        center.add(scrollPane);
+        // Add the scroll pane to the center of the main panel
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+
+        // Add the button panel to the west of the main panel
+        mainPanel.add(buttonPanel, BorderLayout.WEST);
+
+        center.add(mainPanel);
         pack();
         parent.repaint();
     }
+
 
     /**
      * Return a reference to this window's frame

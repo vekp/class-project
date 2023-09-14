@@ -129,7 +129,17 @@ public class MemoryGame {
             // case "updateCards" ->{
             //     renderingCommands.add(new JsonObject().put("comand", "updateCards").put("deck", playingCards));
             // }
-
+            case "newGame" -> {
+                this.playingCards = new DeckOfCards(18, true).getCards();
+                ShufflingFramework.shuffle(playingCards);
+                JsonObject newCommands = new JsonObject();
+                newCommands.put("command", "deckOfCards");
+                newCommands.put("cards", playingCards);
+                renderingCommands.add(newCommands);
+            }
+            case "resetCards" -> {
+                renderingCommands.add(new JsonObject().put("command", "resetCards"));
+            }
             case "Flip_Card_1" -> {
                 check(0);
                 JsonObject result = new JsonObject();
