@@ -10,6 +10,9 @@ public class Tile{
     private int horizontalPosition;
     private int verticalPosition;
 
+    private boolean eliminated;
+    private boolean guessed;
+
     /**
      * constructor takes parameters to initialse a tile object
      * 
@@ -24,6 +27,10 @@ public class Tile{
         this.verticalPosition = verticalPosition;
         this.tileColour = tileColour;
         this.tileSymbol = tileSymbol;
+
+        // Tiles start as not eliminated and not guessed
+        this.eliminated = false;
+        this.guessed = false; 
     }
 
     /**
@@ -37,17 +44,28 @@ public class Tile{
         return outString;
     }
 
+    // Set the eliminated and guessed fields - can never be unset
+    /**
+     * Eliminate this Tile from possible future guesses. Used when a no response
+     * is the result from a 'question'.
+     */
+    public void eliminate(){
+        this.eliminated = false;
+    }
 
     //getters
 
-    public int getHorizontalPos() {return horizontalPosition;};
+    public int getHorizontalPos() {return horizontalPosition;}
 
-    public int getVerticalPos() {return verticalPosition;};
+    public int getVerticalPos() {return verticalPosition;}
 
-    public Colours getTileColour() {return tileColour;};
+    public Colours getTileColour() {return tileColour;}
 
-    public Symbols getTileSymbol() {return tileSymbol;};
+    public Symbols getTileSymbol() {return tileSymbol;}
 
+    public boolean isEliminated() { return this.eliminated; }
+
+    public boolean hasBeenGuessed() { return this.guessed; }
   
 
 }

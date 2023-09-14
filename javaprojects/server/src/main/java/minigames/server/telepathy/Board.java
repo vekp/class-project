@@ -62,6 +62,51 @@ public class Board{
     }
 
     /**
+     * Update the Tiles of a Player's board by 'eliminating' Tiles based on the 
+     * specified 'question' Tile that is used.
+     * 
+     * Any Tile on the board that matches any attributes of the questionTile can be
+     * set to eliminated. Any Tiles that have been eliminated are then returned so
+     * that the player can be updated with the latest state of the board. 
+     * @param questionTile: The Tile to use to determine what Tiles from the board
+     *      can be eliminated. 
+     * @return An ArrayList of the Tiles that have been eliminated due to this 
+     *  question.
+     */
+    public ArrayList<Tile> eliminateTiles(Tile questionTile){
+    
+        ArrayList<Tile> eliminatedTiles = new ArrayList<>();
+        // Tiles that can be eliminated need to be updated
+        for(int row = 0; row < this.ROWS; row++){
+            for(int col = 0; col < this.COLS; col++){
+                boolean eliminateTile = false;
+                // Compare each tile with each attribute of the questionTile
+                if(this.board[row][col].getHorizontalPos() == questionTile.getHorizontalPos()){
+                    eliminateTile = true;
+                }
+
+                if(this.board[row][col].getVerticalPos() == questionTile.getVerticalPos()){
+                    eliminateTile = true;
+                }
+
+                if(this.board[row][col].getTileColour().equals(questionTile.getTileColour())){
+                    eliminateTile = true;
+                }
+
+                if(this.board[row][col].getTileSymbol().equals(questionTile.getTileSymbol())){
+                    eliminateTile = true;
+                }
+
+                if(eliminateTile){
+                    this.board[row][col].eliminate();
+                    eliminatedTiles.add(this.board[row][col]);
+                }
+            }
+        }
+        return eliminatedTiles;
+    }
+
+    /**
      * Get a Tile at a specific coordinate of this Board.
      * @param column The column of the desired Tile.
      * @param row The row of the desired Tile.
