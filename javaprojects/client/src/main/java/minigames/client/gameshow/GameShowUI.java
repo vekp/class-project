@@ -200,7 +200,7 @@ public class GameShowUI {
                                 new ImageIcon(memoryIcon.getImage().getScaledInstance(600, 100,
                                                 Image.SCALE_DEFAULT)));
 
-                memoryInstructions = new JTextField("add memory instructions");
+                memoryInstructions = new JTextField("Find the hidden image");
                 memoryInstructions.setEditable(false);
                 memoryInstructions.setHorizontalAlignment(JTextField.CENTER);
                 memoryInstructions.setBackground(Color.ORANGE);
@@ -229,7 +229,7 @@ public class GameShowUI {
                                 new ImageIcon(scrambleIcon.getImage().getScaledInstance(600, 100,
                                                 Image.SCALE_DEFAULT)));
 
-                scrambleInstructions = new JTextField("add scramble instructions");
+                scrambleInstructions = new JTextField("Unscramble the word");
                 scrambleInstructions.setEditable(false);
                 scrambleInstructions.setHorizontalAlignment(JTextField.CENTER);
                 scrambleInstructions.setBackground(Color.ORANGE);
@@ -258,7 +258,7 @@ public class GameShowUI {
                                 new ImageIcon(revealIcon.getImage().getScaledInstance(600, 100,
                                                 Image.SCALE_DEFAULT)));
 
-                revealInstructions = new JTextField("add reveal instructions");
+                revealInstructions = new JTextField("Guess the image");
                 revealInstructions.setEditable(false);
                 revealInstructions.setHorizontalAlignment(JTextField.CENTER);
                 revealInstructions.setBackground(Color.ORANGE);
