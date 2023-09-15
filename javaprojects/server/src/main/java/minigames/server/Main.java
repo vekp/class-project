@@ -2,6 +2,7 @@ package minigames.server;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
+import minigames.server.database.DerbyDatabase;
 import minigames.server.battleship.BattleshipServer;
 import minigames.server.highscore.*;
 import minigames.server.muddle.MuddleServer;
@@ -48,9 +49,16 @@ public class Main extends AbstractVerticle {
     public static final GameRegistry gameRegistry = new GameRegistry();
 
     /**
-     * HighScoreAPI static reference (INCOMPLETE don't try to use yet)
-     * Provides access to high-score management and retrieval functionalities
-     * for all game components via `Main.highScoreAPI`.
+     * Represents the application's (current) primary database, utilising the Derby embedded database system.
+     * This instance provides pooled connections and should be initialised during application startup.
+     * Resources and connections associated with this database will be released during application shutdown.
+     */
+    public static DerbyDatabase derbyDatabase;
+
+    /**
+     * Provides a set of APIs to manage and retrieve high scores from the database.
+     * This instance interacts directly with the DerbyDatabase to execute database operations.
+     * High scores from all game components can be accessed via this API.
      */
     public static HighScoreAPI highScoreAPI;
 
@@ -68,6 +76,9 @@ public class Main extends AbstractVerticle {
      * GameRegistry, etc.
      */
     private static void doWiring() {
+        // Initialise the Derby Database singleton.
+        derbyDatabase = DerbyDatabase.getInstance();
+
         // Register our first demo game
         gameRegistry.registerGameServer("Muddle", new MuddleServer());
         gameRegistry.registerGameServer("SpaceMaze", new SpaceMazeServer());
@@ -78,11 +89,8 @@ public class Main extends AbstractVerticle {
         gameRegistry.registerGameServer("TicTacToe", new TicTacToeServer());
         gameRegistry.registerGameServer("NoughtsAndCrosses", new NoughtsAndCrossesServer());
 
-        // Initialize the HighScoreAPI
-        HighScoreStorage highScoreStorage = new StubHighScoreStorage();
-        HighScoreManager highScoreManager = new HighScoreManager(highScoreStorage);
-        GlobalLeaderboard globalLeaderboard = new GlobalLeaderboard(highScoreStorage);
-        highScoreAPI = new HighScoreAPI(highScoreManager, globalLeaderboard);
+        // Initialise the HighScoreAPI
+        highScoreAPI = new HighScoreAPI();
 
         //adding some dummy/default names to the player list
         players.add("James");
