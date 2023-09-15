@@ -1,6 +1,7 @@
 package minigames.client.survey;
 
 import minigames.client.MinigameNetworkClient;
+import minigames.client.survey.SurveyResults;
 
 import io.vertx.core.json.JsonObject;
 
@@ -19,7 +20,7 @@ import java.util.*;
 public class Survey extends JPanel implements ActionListener {
 
     // (labels and buttons need to be registered here)
-    private JPanel titlePanel, counterPanel, backPanel, gameNamePanel, surveyQuestionsPanelGroup, surveyQuestionsPanelLeft, surveyQuestionsPanelRight, feedbackPanel, submitPanel, footerPanel, uiRatingPanel, enjoymentPanel, functionalityPanel, difficultyPanel, overallRatingPanel, resultsPanel; 
+    private JPanel titlePanel, backPanel, gameNamePanel, surveyQuestionsPanelGroup, surveyQuestionsPanelLeft, surveyQuestionsPanelRight, feedbackPanel, submitPanel, footerPanel, uiRatingPanel, enjoymentPanel, functionalityPanel, difficultyPanel, overallRatingPanel, resultsPanel; 
     private JLabel counterLabel, headingLabel, testLabel, gameNameLabel, blankLabel, feedbackLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, difficultyLabel,overallRatingLabel, gameNameTextLabel, helpLabel;
     private JButton backButton, submitButton, resultsButton;
     private JTextArea feedbackText;
@@ -328,7 +329,13 @@ public class Survey extends JPanel implements ActionListener {
         resultsPanel = new JPanel();
         resultsButton = new JButton("Results");
         resultsButton.setFont(fontButton);
-        // resultsButton.addActionListener());
+        resultsButton.addActionListener(e -> {
+            this.removeAll();
+            JPanel results = new SurveyResults(mnClient, gameId);
+            // frame.setTitle(Survey.FRAME_TITLE);
+            this.add(results);
+            this.repaint();
+        });
         resultsPanel.add(resultsButton);
         
         // Footer Panel
@@ -339,7 +346,6 @@ public class Survey extends JPanel implements ActionListener {
         this.add(footerPanel, BorderLayout.SOUTH);
         
         panelColourChange(mainBgColour, fgColour);
-        // ADD REQUEST TO ENDPOINTS HERE!!!
     }
 
     // Public Functions
