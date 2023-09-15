@@ -13,8 +13,11 @@ import minigames.telepathy.TelepathyCommands;
 import minigames.telepathy.TelepathyCommandHandler;
 import minigames.telepathy.State;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.stream.Stream;
+import java.util.stream.Collectors;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -205,12 +208,10 @@ public class TelepathyGame {
             return renderingCommands;
         }
 
+        // Is a QUESTION or a FINAL GUESS
         TelepathyCommands commandValue = TelepathyCommands.valueOf(commandObject.getString("command"));
         if(commandValue == TelepathyCommands.ASKQUESTION){
-            // TODO: Tile comparison
-            // TODO: Make partial comparison between guess and chosenTile
-
-            // Check for partial match
+            renderingCommands.addAll(questionHandler(playerName, commandObject));
         } else if(commandValue == TelepathyCommands.FINALGUESS){
             this.finalGuessMade = true;
             // TODO Make full comparison between guess and chosenTile
@@ -238,6 +239,41 @@ public class TelepathyGame {
     }
 
     /**
+     * Handle question commands received from the client. Check if the question matches
+     * then update the board and client as required.
+     * @param playerName: Name of the playre asking the question.
+     * @param commandObject: JsonObject with the ASKQUESTION command.
+     * @return renderingCommand response to give the player.
+     */
+    private ArrayList<JsonObject> questionHandler(String playerName, JsonObject commandObject){
+        ArrayList<String> coordinates = TelepathyCommandHandler.getAttributes(commandObject);
+        Tile questionTile = this.players.get(playerName).getBoard().getTile(
+            Integer.parseInt(coordinates.get(0)),
+            Integer.parseInt(coordinates.get(1)));
+
+        boolean doesMatch = questionTile.isPartialMatch(this.players.get(playerName).getTargetTile());
+        
+        // Update board based on result of comparison
+        ArrayList<JsonObject> renderingCommands = new ArrayList<>();
+        if(!doesMatch){
+            // Eliminate tiles if no attributes match
+            ArrayList<Tile> eliminatedTiles = this.players.get(playerName).getBoard().eliminateTiles(questionTile);
+
+            // Get the coordinates of eliminated tiles as strings
+            ArrayList<String> eliminatedTileStrings = new ArrayList<>();
+            for(Tile t: eliminatedTiles){
+                eliminatedTileStrings.add(t.getHorizontalPos() + "," + t.getVerticalPos());
+            }
+            
+            // Update the client
+            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
+                TelepathyCommands.ELIMINATETILES, eliminatedTileStrings.toArray(new String[eliminatedTileStrings.size()])));
+        }
+
+        return renderingCommands;
+    }
+
+    /**
      * Handler for the player selecting the Tile for their opponent to guess.
      * @param commandObject: JsonObject with the CHOOSETILE command value and tile
      *      coordinates.
@@ -257,9 +293,15 @@ public class TelepathyGame {
         Tile chosenTile = this.players.get(playerName).getBoard().getTile(x, y);        
         boolean chooseSuccess = this.players.get(playerName).setChosenTile(chosenTile);
 
-        // TODO Determine how client should update to represent chosen tile
 
         if(chooseSuccess){
+            for(String p: this.players.keySet()){
+                if(!p.equals(playerName)){
+                    this.players.get(p).setTargetTile(chosenTile);
+                    break;
+                }
+            }
+
             renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
                 TelepathyCommands.POPUP,
                 "Selected tile set!"));

@@ -224,7 +224,7 @@ public class TelepathyGameTest {
         // Will just return INVALIDCOMMAND unless in correct state
         assertTrue(response.renderingCommands().get(0).getString("command").equals(TelepathyCommands.INVALIDCOMMAND.toString()));
 
-        // Check correct player turn - only take questions on your turn
+        // Check correct player turn - can only ask questions on your turn
         game = progressGameToState(State.RUNNING);
 
         

@@ -61,12 +61,13 @@ public class Board{
         return this.board;
     }
 
+
     /**
      * Update the Tiles of a Player's board by 'eliminating' Tiles based on the 
      * specified 'question' Tile that is used.
      * 
-     * Any Tile on the board that matches any attributes of the questionTile can be
-     * set to eliminated. Any Tiles that have been eliminated are then returned so
+     * Any Tile on the board that matches any attributes of the questionTile is set 
+     * to eliminated. Any Tiles that have been eliminated are then returned so
      * that the player can be updated with the latest state of the board. 
      * @param questionTile: The Tile to use to determine what Tiles from the board
      *      can be eliminated. 
@@ -75,6 +76,10 @@ public class Board{
      */
     public ArrayList<Tile> eliminateTiles(Tile questionTile){
     
+        if(questionTile == null){
+            throw new IllegalArgumentException("null tile argument passed to Board.eliminateTiles()");
+        }
+
         ArrayList<Tile> eliminatedTiles = new ArrayList<>();
         // Tiles that can be eliminated need to be updated
         for(int row = 0; row < this.ROWS; row++){
