@@ -126,6 +126,9 @@ public class KrumPlayer {
 
     boolean stuck = false;
 
+    boolean playBazookaClick = false;
+    boolean playGrenadeClick = false;
+
     boolean upArrowKeyDownNextFrame;
     boolean downArrowKeyDownNextFrame;
     boolean upArrowKeyUpNextFrame;
@@ -494,7 +497,6 @@ public class KrumPlayer {
         // draw punch
         if (punching) {
             g.drawImage(punchSprite, null, (int)xpos, (int)ypos);
-            KrumSound.playSound("punch");
         }
 
         //draw hp
@@ -557,6 +559,8 @@ public class KrumPlayer {
             blowtorchAimAngle = playbackFrame.blowtorchAimAngle;
             lastAimAngle = playbackFrame.lastAimAngle;
             punchNextFrame = playbackFrame.punch;
+            playGrenadeClick = playbackFrame.playGrenadeClick;
+            playBazookaClick = playbackFrame.playBazookaClick;
             if (facingRight != playbackFrame.facingRight) {
                 facingRight = playbackFrame.facingRight;
                 spriteGun();
@@ -693,6 +697,26 @@ public class KrumPlayer {
         if (punching) {
             updatePunch();
         }
+        if (playBazookaClick) {
+            KrumSound.playSound("gunclick2");
+            playBazookaClick = false;
+            if (recordingFrame != null) {
+                recordingFrame.playBazookaClick = true;
+            }
+        }
+        else if (recordingFrame != null) {
+            recordingFrame.playBazookaClick = false;
+        }
+        if (playGrenadeClick) {
+            KrumSound.playSound("grenadeclick3");
+            playGrenadeClick = false;
+            if (recordingFrame != null) {
+                recordingFrame.playGrenadeClick = true;
+            }
+        }
+        else if (recordingFrame != null)  {
+            recordingFrame.playGrenadeClick = false;
+        }
 
         //fire weapons if at max power
         if (recordingFrame != null) {
@@ -798,8 +822,9 @@ public class KrumPlayer {
                 canShootRope = true;    
                 stuck = false;       
             }
-            if (collision && wasOnRope) {
+            else if (collision && wasOnRope && canShootRope) {
                 canShootRope = false;
+                KrumSound.playSound("mini_ouch");
             }
         }
         if (walking && (!airborne || walkedOffEdge || stuck) && !blowtorchActive) {
@@ -1389,7 +1414,7 @@ public class KrumPlayer {
 
     void startGrenadeFire(MouseEvent e) {
         if (ammo[NADE] < 1 || firedThisTurn[NADE] >= shotsPerTurn[NADE]) {
-            KrumSound.playSound("grenadeclick3");
+            playGrenadeClick = true;
             return;
         }
         firingGrenade = true;
@@ -1421,7 +1446,7 @@ public class KrumPlayer {
      */
     void startFire(MouseEvent e) {
         if (ammo[ZOOK] < 1 || firedThisTurn[ZOOK] >= shotsPerTurn[ZOOK]) {
-            KrumSound.playSound("gunclick2");
+            playBazookaClick = true;
             return;
         }
         firing = true;
