@@ -1,5 +1,11 @@
 package minigames.client.snake;
 
+import io.vertx.core.json.JsonObject;
+import minigames.client.GameClient;
+import minigames.client.MinigameNetworkClient;
+import minigames.client.MinigameNetworkClientWindow;
+import minigames.rendering.GameMetadata;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -9,16 +15,19 @@ import java.util.Objects;
 /**
  * The StartMenu class provides the initial interface for the Snake game.
  * It contains methods for creating and displaying the start menu with options
- * to either start the game or view instructions on how to play.
+ * to either start the game, view instructions on how to play, view achievements, or go back.
  */
-public class StartMenu {
+public class StartMenu implements GameClient {
 
     // Constants defining dimensions and positions for GUI elements
     private static final int BUTTON_WIDTH = 200;
     private static final int BUTTON_HEIGHT = 50;
     private static final int START_BUTTON_Y = 300;
     private static final int HOW_TO_PLAY_BUTTON_Y = 360;
-
+    private static final int ACHIEVEMENT_BUTTON_Y = 420;
+    private static final int BACK_BUTTON_Y = 480;
+    static MinigameNetworkClient mnClient;
+    static JPanel panel = new JPanel();
     /**
      * Returns the width of the start menu.
      *
@@ -51,14 +60,15 @@ public class StartMenu {
      * <p>
      * This method sets up the main panel for the start menu, which includes:
      * 1. A background image.
-     * 2. A "Start Game" button, which, when clicked, initializes a new game.
-     * 3. A "How to Play" button, which, when clicked, displays instructions for playing the game.
+     * 2. A "Start Game" button.
+     * 3. A "How to Play" button.
+     * 4. An "Achievements" button.
+     * 5. A "Back" button.
      *
      * @return Component (JPanel) containing the start menu UI.
      */
     public static Component startMenu() {
         // Initialize the main panel
-        JPanel panel = new JPanel();
 
         // Get the background image icon
         ImageIcon backgroundIcon = getImage();
@@ -80,9 +90,22 @@ public class StartMenu {
             showHowToPlayDialog(panel);  // Show game instructions when clicked
         });
 
+        // Create and set up the "Achievements" button
+        JButton achievementButton = createButton("Achievements", ACHIEVEMENT_BUTTON_Y);
+        achievementButton.addActionListener(e -> {
+            // TODO: Implement the action for displaying achievements.
+            // Example: mnClient.getGameAchievements(player, gm.gameServer());
+        });
+
+        // Create and set up the "Back" button
+        JButton backButton = createButton("Back", BACK_BUTTON_Y);
+        backButton.addActionListener(e -> mnClient.runMainMenuSequence());
+
         // Add the buttons to the background label
         backgroundLabel.add(startButton);
         backgroundLabel.add(howToPlayButton);
+        backgroundLabel.add(achievementButton);
+        backgroundLabel.add(backButton);
 
         // Add the background label (with buttons) to the main panel
         panel.add(backgroundLabel);
@@ -218,4 +241,18 @@ public class StartMenu {
         howToPlayDialog.setVisible(true);
     }
 
+    @Override
+    public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {
+
+    }
+
+    @Override
+    public void execute(GameMetadata game, JsonObject command) {
+
+    }
+
+    @Override
+    public void closeGame() {
+
+    }
 }
