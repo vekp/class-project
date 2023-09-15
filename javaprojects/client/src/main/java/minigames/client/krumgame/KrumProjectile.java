@@ -26,8 +26,9 @@ public class KrumProjectile {
     int maxDamage;
     int startX;
     int startY;
+    boolean onMoon;
     final static long maxPower = KrumC.PROJECTILES_MAX_POWER;
-    KrumProjectile(int xpos, int ypos, double xvel, double yvel, BufferedImage sprite, WritableRaster ground) {
+    KrumProjectile(int xpos, int ypos, double xvel, double yvel, BufferedImage sprite, WritableRaster ground, boolean onMoon) {
         this.x = xpos;
         this.y = ypos;
         this.startX = xpos;
@@ -43,6 +44,7 @@ public class KrumProjectile {
         explosionRadius = 20;
         maxDamage = 30;
         damageRadius = explosionRadius + 20;
+        this.onMoon = onMoon;
     }
     void draw(Graphics2D g) {
         g.drawImage(sprite, null, (int)x - radius, (int)y - radius);
@@ -50,9 +52,9 @@ public class KrumProjectile {
     void update(double windX, double windY) {
         xvel += windX;
         yvel += windY;
-        yvel += KrumC.GRAVITY;
-        xvel *= KrumC.AIR_RES_FACTOR;
-        yvel *= KrumC.AIR_RES_FACTOR;
+        yvel += onMoon ? KrumC.MOON_GRAVITY : KrumC.GRAVITY;
+        xvel *= onMoon ? KrumC.MOON_AIR_RES_FACTOR : KrumC.AIR_RES_FACTOR;
+        yvel *= onMoon ? KrumC.MOON_AIR_RES_FACTOR : KrumC.AIR_RES_FACTOR;
         this.x += xvel;
         this.y += yvel;
     }
