@@ -12,6 +12,8 @@ import minigames.server.telepathy.TelepathyServer;
 import minigames.server.gameshow.GameShowServer;
 
 import minigames.server.tictactoe.TicTacToeServer;
+import minigames.server.noughtsandcrosses.NoughtsAndCrossesServer;
+import minigames.server.krumgame.KrumGameServer;
 import io.vertx.core.Launcher;
 
 import org.apache.logging.log4j.LogManager;
@@ -78,6 +80,7 @@ public class Main extends AbstractVerticle {
         gameRegistry.registerGameServer("Snake", new SnakeServer());
         gameRegistry.registerGameServer("Peggle", new PeggleServer());
         gameRegistry.registerGameServer("TicTacToe", new TicTacToeServer());
+        gameRegistry.registerGameServer("NoughtsAndCrosses", new NoughtsAndCrossesServer());
 
         // Initialize the HighScoreAPI
         HighScoreStorage highScoreStorage = new StubHighScoreStorage();
@@ -96,6 +99,7 @@ public class Main extends AbstractVerticle {
         players.add("Bikash");
         players.add("Sabin");
         players.add("Anil");
+        gameRegistry.registerGameServer("KrumGame", new KrumGameServer());
     }
 
     public static void main(String... args) {

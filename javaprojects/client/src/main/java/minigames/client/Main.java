@@ -11,6 +11,8 @@ import minigames.client.TicTacToe.TicTacToeClient;
 import minigames.client.spacemaze.SpaceMaze;
 import minigames.client.telepathy.Telepathy;
 import minigames.client.snake.SnakeGameText;
+import minigames.client.noughtsandcrosses.NoughtsAndCrosses;
+import minigames.client.krumgame.KrumGameClient;
 import io.vertx.core.Launcher;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,6 +45,9 @@ public class Main extends AbstractVerticle {
         clientRegistry.registerGameClient("Snake", new SnakeGameText());
         clientRegistry.registerGameClient("Peggle", new PeggleUI());
         clientRegistry.registerGameClient("Tic Tac Toe", new TicTacToeClient());
+        clientRegistry.registerGameClient("NoughtsAndCrosses", new NoughtsAndCrosses());
+        clientRegistry.registerGameClient("KrumGame", new KrumGameClient());
+
     }
 
     public static void main(String... args) {
