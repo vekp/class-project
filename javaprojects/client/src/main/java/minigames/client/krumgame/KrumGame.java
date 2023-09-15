@@ -411,6 +411,13 @@ public class KrumGame {
                             }                            
                         }
 
+                        // test for airshot achievement
+                        if (players[n].airborne) {
+                            if (p.playerIndex == myPlayerIndex) {
+                                unlockAchievement("Airshot!");
+                            }
+                        }
+
                         KrumSound.playSound("explode2");
                         ExplosionDetails.explode((int)p.projectile.x, (int)p.projectile.y, p.projectile.explosionRadius, 
                             KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
