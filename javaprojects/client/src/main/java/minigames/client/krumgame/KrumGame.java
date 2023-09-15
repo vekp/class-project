@@ -411,6 +411,13 @@ public class KrumGame {
                             }                            
                         }
 
+                        // test for airshot achievement
+                        if (players[n].airborne) {
+                            if (p.playerIndex == myPlayerIndex) {
+                                unlockAchievement("Airshot!");
+                            }
+                        }
+
                         KrumSound.playSound("explode2");
                         ExplosionDetails.explode((int)p.projectile.x, (int)p.projectile.y, p.projectile.explosionRadius, 
                             KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
@@ -457,6 +464,7 @@ public class KrumGame {
                         KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
                     handlePlayerKnock(p.joey); 
                     p.joey.active = false;
+                    KrumSound.playSound("joeypop");
                 }
             }
             if (turnOver && readyToStartTurn) {
@@ -669,6 +677,7 @@ public class KrumGame {
      * Main game loop
      */
     void startGame(){
+        disableInfoLogging();
         panel.gameActive = true;
         lastFrameTime = System.nanoTime();
         while (choosingLevel || !initialized) {
@@ -988,8 +997,7 @@ public class KrumGame {
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(panel);
         mnClient.getMainWindow().pack();
-        requestMyPlayerIndex();
-        disableInfoLogging();
+        requestMyPlayerIndex();        
     }
 
     /**
