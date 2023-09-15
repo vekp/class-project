@@ -1,12 +1,12 @@
 package minigames.client.snake;
 
+// Required imports
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.awt.*;
 import java.util.Collections;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
@@ -15,51 +15,58 @@ import minigames.commands.CommandPackage;
 import minigames.client.snake.*;
 
 /**
- * A very simple interface for a snake game.
- *
+ * The SnakeUI class provides the user interface for the snake game.
+ * It implements the GameClient interface to handle game-related functionalities.
  */
-public class SnakeGameText implements GameClient {
-    private static final Logger logger = LogManager.getLogger(SnakeGameText.class);
+public class SnakeUI implements GameClient {
 
+    // Logger for logging events and issues
+    private static final Logger logger = LogManager.getLogger(SnakeUI.class);
+
+    // Network client to communicate with the game server
     MinigameNetworkClient mnClient;
 
-    /** We hold on to this because we'll need it when sending commands to the server */
+    // Metadata about the game
     GameMetadata gm;
 
-    /** Player name */
+    // Player's name
     String player;
 
-
+    // UI components
     JPanel mainMenuPanel;
     JPanel buttonsPanel;
 
-    // Buttons
+    // UI buttons
     JButton startButton;
     JButton howToPlayButton;
 
-
+    // Constants
     private static final String[] snakePlayerStrs = { "Player Name:" };
 
-
-    // Menu
-    public SnakeGameText() {
+    /**
+     * Default constructor for SnakeUI.
+     */
+    public SnakeUI() {
+        // TODO: Initialization logic (if any)
     }
 
     /**
-     * Sends a command to the game at the server.
-     * This being a text adventure, all our commands are just plain text strings our gameserver will interpret.
-     * We're sending these as
-     * { "command": command }
+     * Sends a command to the game server.
+     * Commands are JSON objects with the structure: { "command": command }
+     *
+     * @param command The command to be sent to the server.
      */
     public void sendCommand(String command) {
         JsonObject json = new JsonObject().put("command", command);
-        // Collections.singletonList() is a quick way of getting a "list of one item"
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
     }
 
-
     /**
-     * What we do when our client is loaded into the main screen
+     * Handles the actions to be taken when the client is loaded into the main screen.
+     *
+     * @param mnClient The network client for communication.
+     * @param game Game's metadata.
+     * @param player Player's name.
      */
     @Override
     public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {
@@ -67,24 +74,29 @@ public class SnakeGameText implements GameClient {
         this.gm = game;
         this.player = player;
 
-
-        // We're now passing the component into the addCenter method of the getMainWindow() method of the MinigameNetworkClient
-        // On the right track but new window still opening up.
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(StartMenu.startMenu());
         mnClient.getMainWindow().pack();
-
     }
 
+    /**
+     * Executes a command.
+     *
+     * @param game Game's metadata.
+     * @param command The command to be executed.
+     */
     @Override
     public void execute(GameMetadata game, JsonObject command) {
         this.gm = game;
-
+        // TODO: Execution logic
     }
 
+    /**
+     * Handles the actions to be taken when closing the game.
+     */
     @Override
     public void closeGame() {
-        // Nothing to do
+        // Nothing to do for now
     }
 
 }
