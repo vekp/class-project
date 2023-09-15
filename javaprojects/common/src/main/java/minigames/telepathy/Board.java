@@ -1,4 +1,4 @@
-package minigames.server.telepathy;
+package minigames.telepathy;
 
 import java.util.ArrayList;
 import java.util.List;

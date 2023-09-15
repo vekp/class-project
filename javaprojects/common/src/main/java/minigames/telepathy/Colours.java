@@ -1,4 +1,4 @@
-package minigames.server.telepathy;
+package minigames.telepathy;
 
 /**
  * Colour enum, a list of constants repesenting tile colours

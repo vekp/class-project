@@ -1,4 +1,4 @@
-package minigames.server.telepathy;
+package minigames.telepathy;
 
 /**
  * A class representing a tile in the Telepathy board.

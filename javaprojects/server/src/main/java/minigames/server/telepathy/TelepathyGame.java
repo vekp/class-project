@@ -4,15 +4,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import io.vertx.core.json.JsonObject;
+
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.NativeCommands;
 import minigames.rendering.RenderingPackage;
+
 import minigames.telepathy.TelepathyCommandException;
 import minigames.telepathy.TelepathyCommands;
 import minigames.telepathy.TelepathyCommandHandler;
 import minigames.telepathy.State;
-
+import minigames.telepathy.Tile;
+import minigames.telepathy.Board;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -213,14 +216,7 @@ public class TelepathyGame {
         if(commandValue == TelepathyCommands.ASKQUESTION){
             renderingCommands.addAll(questionHandler(playerName, commandObject));
         } else if(commandValue == TelepathyCommands.FINALGUESS){
-            this.finalGuessMade = true;
-            // TODO Make full comparison between guess and chosenTile
-            
-            // Check for exact match
-
-            // If true - asking player wins, otherwise other player wins
-            // Going to GAMEOVER then skip rest of this method
-            transitionToGameOver();
+            finalQuestionHandler(playerName, commandObject);
             return renderingCommands;
         }
         this.players.get(playerName).incrementTurns();
@@ -245,32 +241,57 @@ public class TelepathyGame {
      * @param commandObject: JsonObject with the ASKQUESTION command.
      * @return renderingCommand response to give the player.
      */
-    private ArrayList<JsonObject> questionHandler(String playerName, JsonObject commandObject){
+    private ArrayList<JsonObject> questionHandler(String playerName, JsonObject commandObject) {
         ArrayList<String> coordinates = TelepathyCommandHandler.getAttributes(commandObject);
         Tile questionTile = this.players.get(playerName).getBoard().getTile(
-            Integer.parseInt(coordinates.get(0)),
-            Integer.parseInt(coordinates.get(1)));
+                Integer.parseInt(coordinates.get(0)),
+                Integer.parseInt(coordinates.get(1)));
 
         boolean doesMatch = questionTile.isPartialMatch(this.players.get(playerName).getTargetTile());
-        
+
         // Update board based on result of comparison
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
-        if(!doesMatch){
+        if (!doesMatch) {
             // Eliminate tiles if no attributes match
             ArrayList<Tile> eliminatedTiles = this.players.get(playerName).getBoard().eliminateTiles(questionTile);
 
             // Get the coordinates of eliminated tiles as strings
             ArrayList<String> eliminatedTileStrings = new ArrayList<>();
-            for(Tile t: eliminatedTiles){
+            for (Tile t : eliminatedTiles) {
                 eliminatedTileStrings.add(t.getHorizontalPos() + "," + t.getVerticalPos());
             }
-            
+
             // Update the client
             renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
-                TelepathyCommands.ELIMINATETILES, eliminatedTileStrings.toArray(new String[eliminatedTileStrings.size()])));
+                    TelepathyCommands.ELIMINATETILES,
+                    eliminatedTileStrings.toArray(new String[eliminatedTileStrings.size()])));
         }
 
         return renderingCommands;
+    }
+    
+    private void finalQuestionHandler(String playerName, JsonObject commandObject) {
+        this.finalGuessMade = true;
+
+        // Get the Tile object referred to by the question
+        Tile questionTile = TelepathyCommandHandler.getTilesFromCommand(commandObject,
+                this.players.get(playerName).getBoard()).get(0);
+
+        // Check for a full comparison
+        boolean result = questionTile.isFullMatch(this.players.get(playerName).getTargetTile());
+        // If true - asking player wins, otherwise other player wins
+        if (result) {
+            this.winner = playerName;
+        } else {
+            ////// TODO: This pattern (searching for other player) repeats - needs a look
+            for (String p : this.players.keySet()) {
+                if (!p.equals(playerName)) {
+                    this.winner = p;
+                    break;
+                }
+            }
+        }        
+        transitionToGameOver();
     }
 
     /**
@@ -487,7 +508,8 @@ public class TelepathyGame {
 
         updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(
             TelepathyCommands.POPUP,
-            "gameOver"));
+            "gameOver",
+            this.winner));
         updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(
             TelepathyCommands.BUTTONUPDATE,
             "board",

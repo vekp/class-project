@@ -4,6 +4,8 @@ import io.vertx.core.json.JsonObject;
 import minigames.telepathy.TelepathyCommandException;
 import minigames.telepathy.TelepathyCommandHandler;
 import minigames.telepathy.TelepathyCommands;
+import minigames.telepathy.Tile;
+import minigames.telepathy.Board;
 
 import java.util.ArrayList;
 

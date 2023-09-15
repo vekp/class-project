@@ -57,4 +57,24 @@ public final class TelepathyCommandHandler {
         }
         return jsonObject;
     }
+
+    public static ArrayList<Tile> getTilesFromCommand(JsonObject command, Board board) {
+        ArrayList<String> attributes = getAttributes(command);
+        
+        // There must be an even number of attributes
+        if (attributes.size() % 2 != 0) {
+            throw new TelepathyAttributeException(attributes.toString(),
+                    "This command does not have the correct attributes to represent a Tile object on the board");
+        }
+
+        // Get each Tile
+        ArrayList<Tile> tiles = new ArrayList<>();
+        for (int i = 0; i < attributes.size() / 2; i++) {
+            int x = Integer.parseInt(attributes.get(i));
+            int y = Integer.parseInt(attributes.get(i + 1));
+            tiles.add(board.getTile(x, y));
+        }
+        return tiles;
+    }
+
 }
