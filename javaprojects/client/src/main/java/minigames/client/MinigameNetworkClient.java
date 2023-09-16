@@ -21,7 +21,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
 
 import minigames.commands.CommandPackage;
-import minigames.commands.UserCommand;
+import minigames.commands.UserCommandPackage;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.GameServerDetails;
 import minigames.rendering.NativeCommands.LoadClient;
@@ -244,18 +244,20 @@ public class MinigameNetworkClient {
     }
 
     /**
-     * Sends username to the server, retrieves active status
+     * Sends username to the server, retrieves active status/checks it's in active list.
      */
     public Future<String> userName(String userName) {
-        return webClient.post(port, host, "/user/")
+        return webClient.post(port, host, "/user")
                 .sendBuffer(Buffer.buffer(userName))
                 .onSuccess((resp) -> {
                     logger.info(resp.bodyAsString());
                 })
                 .map((resp) -> {
                     JsonObject rpj = resp.bodyAsJsonObject();
+                    logger.info(rpj);
                     return rpj.toString();
                 })
+                //.onSuccess((rp) -> runRenderingPackage(rp))
                 .onFailure((resp) -> {
                     logger.error("Failed: {} ", resp.getMessage());
                 });
@@ -314,6 +316,24 @@ public class MinigameNetworkClient {
                     return RenderingPackage.fromJson(rpj);
                 })
                 .onSuccess((rp) -> runRenderingPackage(rp))
+                .onFailure((resp) -> {
+                    logger.error("Failed: {} ", resp.getMessage());
+                });
+    }
+
+    /**
+     * Sends a UserCommandPackage to the server, running any commands that come back
+     */
+    public Future<String> send(String userName) {
+        return webClient.post(port, host, "/user")
+                .sendBuffer(Buffer.buffer(userName))
+                .onSuccess((resp) -> {
+                    logger.info(resp.bodyAsString());
+                })
+                .map((resp) -> {
+                    String rpj = resp.bodyAsString();
+                    return rpj;
+                })
                 .onFailure((resp) -> {
                     logger.error("Failed: {} ", resp.getMessage());
                 });

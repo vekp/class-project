@@ -6,9 +6,11 @@ import java.awt.event.*;
 import java.util.*;
 import java.io.File;
 import minigames.client.useraccount.FileHandler.*;
+import minigames.client.MinigameNetworkClient;
 import java.io.IOException;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
+import io.vertx.core.json.JsonObject;
 
 public class UserAccountFrame extends JFrame implements ActionListener {
 
@@ -16,14 +18,16 @@ public class UserAccountFrame extends JFrame implements ActionListener {
         private JPasswordField pinField;
         private JButton enterButton;
         private JButton skipButton;
+        private MinigameNetworkClient userClient;
         
-        public void userLogin(){
+        public void userLogin(MinigameNetworkClient client){
                 //set up the frame
                 setTitle("Login");
                 setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 setSize(300,150);
                 setResizable(false);
                 setLocationRelativeTo(null);
+                userClient = client;
 
                 //initialise components required for the window
                 JLabel emailLabel = new JLabel("Email: ");
@@ -70,8 +74,9 @@ public class UserAccountFrame extends JFrame implements ActionListener {
                         }else{
                                 user.generateUser(emailInput, pinInput);                                
                         }
+                        userClient.send(username);
                         this.dispose();
                 } else { System.out.println("Please enter a valid email address."); }
-        }     
+        }   
 }
 

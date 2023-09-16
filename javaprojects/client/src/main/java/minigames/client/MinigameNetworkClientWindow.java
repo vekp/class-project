@@ -226,7 +226,7 @@ public class MinigameNetworkClientWindow {
         userAccountButton.addActionListener(e -> {
             // TODO implement properly. tests to run the UI on init.
             UserAccountFrame login = new UserAccountFrame();
-            login.userLogin();
+            login.userLogin(networkClient);
             login.setVisible(true);
         });
         south.add(userAccountButton);

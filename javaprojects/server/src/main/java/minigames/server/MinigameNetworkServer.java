@@ -16,7 +16,6 @@ import minigames.achievements.*;
 import minigames.server.achievements.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import minigames.server.useraccount.User;
 
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
@@ -152,6 +151,19 @@ public class MinigameNetworkServer {
                 promise.complete(r);
             }));
             return resp;
+        });
+
+        // Receives name of Active User, returns whether user is active/added to active list.
+        router.post("/user").respond((ctx) -> {
+            String userName = ctx.body().asString();
+            logger.info(userName);
+            //if the player list didn't already have this name, add it
+            //todo add to player account feature when implemented
+            if (!Main.players.contains(userName)) {
+                Main.players.add(userName);
+            }
+            Main.activePlayer = userName;
+            return Future.succeededFuture(userName);
         });
 
         // Starts a new game on the server

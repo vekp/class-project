@@ -57,7 +57,7 @@ public class Main extends AbstractVerticle {
      * window). THIS SHOULD BE REPLACED WITH THE USER PROFILE SYSTEM WHEN READY
      */
     public static Set<String> players = new HashSet<>();
-
+    public static String activePlayer = "";
 
     /**
      * A place for groups to put code that registers their GameServer with the
@@ -74,6 +74,8 @@ public class Main extends AbstractVerticle {
         HighScoreManager highScoreManager = new HighScoreManager(highScoreStorage);
         GlobalLeaderboard globalLeaderboard = new GlobalLeaderboard(highScoreStorage);
         highScoreAPI = new HighScoreAPI(highScoreManager, globalLeaderboard);
+        
+        
 
         //adding some dummy/default names to the player list
         players.add("James");
