@@ -10,6 +10,7 @@ public class GameTimer extends JPanel {
     private long timeLimit;
     private boolean isRunning;
     private Timer timer;
+    private long remainingTime;
 
     public GameTimer(long timeLimit) {
         this.timeLimit = timeLimit;
@@ -40,7 +41,7 @@ public class GameTimer extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        long remainingTime = getRemainingTime();
+        remainingTime = getRemainingTime();
         int score = calculateScore();
 
         // Draw the remaining time and score on the JPanel
@@ -71,12 +72,12 @@ public class GameTimer extends JPanel {
             long elapsedTime = System.currentTimeMillis() - startTime;
             return Math.max(timeLimit - elapsedTime, 0);
         } else {
-            return 0;
+            return remainingTime;
         }
     }
 
     public int calculateScore() {
-        long remainingTime = getRemainingTime();
+        remainingTime = getRemainingTime();
         int score = (int) (remainingTime / 1000); // Convert milliseconds to seconds
         return score;
     }
