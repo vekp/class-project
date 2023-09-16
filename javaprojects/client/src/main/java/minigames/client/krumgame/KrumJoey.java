@@ -48,13 +48,16 @@ public class KrumJoey extends KrumProjectile {
     boolean active;    
     boolean flash;
     long currentTick;
-    KrumJoey(int xpos, int ypos, double xvel, double yvel, int seconds, BufferedImage sprite, WritableRaster ground, long tick, boolean onMoon) {
+    final int[][] HELMET_OFFSETS = {{4, -3}, {0, -3}};
+    BufferedImage helmetSprite;
+    KrumJoey(int xpos, int ypos, double xvel, double yvel, int seconds, BufferedImage sprite, WritableRaster ground, long tick, boolean onMoon, BufferedImage helmetSprite) {
         super(xpos, ypos, xvel, yvel, sprite, ground, onMoon);
         maxDamage = MAX_DAMAGE;
         this.flash = false;
         this.facingRight = true;
         this.xpos = xpos;
         this.ypos = ypos;
+        this.helmetSprite = helmetSprite;
         knockbackDistance = KNOCKBACK_DISTANCE;
         knockbackPower = KNOCKBACK_POWER;
         explosionRadius = EXPLOSION_RADIUS; 
@@ -255,6 +258,10 @@ public class KrumJoey extends KrumProjectile {
     void draw(Graphics2D g) {
         if (!flash || currentTick % 4 < 2) {
             g.drawImage(sprite, null, (int)xpos, (int)ypos);
+            if (onMoon) {
+                int i = facingRight ? 0 : 1;
+                g.drawImage(helmetSprite, null, (int)xpos + HELMET_OFFSETS[i][0], (int)ypos + HELMET_OFFSETS[i][1]);
+            }
         }        
     }
 

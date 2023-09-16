@@ -254,8 +254,9 @@ public class KrumPlayer {
         this.onMoon = onMoon;
 
         BufferedImage joeySprite = KrumHelpers.readSprite("joey.png");
+        BufferedImage joeyHelmetSprite = KrumHelpers.readSprite("helmet_small.png");
 
-        joey = new KrumJoey(0,0,0,0,8,joeySprite,level,0,onMoon);
+        joey = new KrumJoey(0,0,0,0,8,joeySprite,level,0,onMoon,joeyHelmetSprite);
         
         // Reading sprites
         projectileSprite = KrumHelpers.readSprite("carrot_s.png");
