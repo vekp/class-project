@@ -36,6 +36,7 @@ public class ImageGuesser {
     private static final ImageIcon submitButtonButton = new ImageIcon(dir + "submit-button.png");
     private static GridPanel gridPanel;
     private static JTextField guessField;
+    private static boolean gameRunning = true;
 
     public static void startImageGuesser(GameShow gs, String imageFileName) {
         clearGameContainer();
@@ -60,16 +61,29 @@ public class ImageGuesser {
         GameShowUI.gameContainer.add(gridPanel, BorderLayout.CENTER);
     }
 
+    private static void showWholeImage() {
+        for (int x = 0; x < 10; x++) {
+            for (int y = 0; y < 10; y++) {
+                if (!gridPanel.isCellVisible(x, y)) {
+                    gridPanel.setFadeCell(x, y);
+                }
+            }
+        }
+    }
+
     private static void startCellVisibilityTimer() {
+        gameRunning = true;
         Timer timer = new Timer(1000, e -> {
-            boolean cellVisible = true;
-            while (cellVisible) {
-                Random random = new Random();
-                int randomX = random.nextInt(10);
-                int randomY = random.nextInt(10);
-                if (!gridPanel.isCellVisible(randomX, randomY)) {
-                    gridPanel.setFadeCell(randomX, randomY);
-                    cellVisible = false;
+            if (gameRunning) {
+                boolean cellVisible = true;
+                while (cellVisible) {
+                    Random random = new Random();
+                    int randomX = random.nextInt(10);
+                    int randomY = random.nextInt(10);
+                    if (!gridPanel.isCellVisible(randomX, randomY)) {
+                        gridPanel.setFadeCell(randomX, randomY);
+                        cellVisible = false;
+                    }
                 }
             }
         });
@@ -155,6 +169,8 @@ public class ImageGuesser {
 
     private static void handleCorrectGuess(GameShow gs) {
         gs.gameTimer.stop();
+        gameRunning = false;
+        showWholeImage();
         int remainingTime = gs.gameTimer.calculateScore();
         logger.log(Level.INFO, "Remaining Time: " + remainingTime);
         JLabel congrats = new JLabel("Congratulations! You Win :)",
