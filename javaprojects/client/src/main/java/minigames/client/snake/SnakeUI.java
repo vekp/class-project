@@ -122,6 +122,9 @@ public class SnakeUI implements GameClient {
 
         // Create specific buttons for each screen
         JButton mainMenuButton = new JButton("Main Menu");
+        JButton navigateButton = ButtonFactory.createButton("Main Menu", 50,
+                50, 200, 50, e -> {showPanel("Main Menu");});
+
         JButton gameViewButton = new JButton("Game View");
         JButton helpMenuButton = new JButton("Help Menu");
         JButton aboutMeButton = new JButton("About Me");
@@ -147,6 +150,7 @@ public class SnakeUI implements GameClient {
 
         // Add mainPanel and buttonsPanel to containerPanel
         containerPanel.add(mainPanel, BorderLayout.CENTER);
+        containerPanel.add(navigateButton, BorderLayout.NORTH);
         containerPanel.add(buttonsPanel, BorderLayout.SOUTH);
     }
 
