@@ -21,6 +21,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
 
 import minigames.commands.CommandPackage;
+import minigames.commands.UserCommand;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.GameServerDetails;
 import minigames.rendering.NativeCommands.LoadClient;
@@ -237,6 +238,24 @@ public class MinigameNetworkClient {
                 .onSuccess((resp) -> {
                     logger.info(resp.bodyAsString());
                 }).map((resp) -> resp.bodyAsString())
+                .onFailure((resp) -> {
+                    logger.error("Failed: {} ", resp.getMessage());
+                });
+    }
+
+    /**
+     * Sends username to the server, retrieves active status
+     */
+    public Future<String> userName(String userName) {
+        return webClient.post(port, host, "/user/")
+                .sendBuffer(Buffer.buffer(userName))
+                .onSuccess((resp) -> {
+                    logger.info(resp.bodyAsString());
+                })
+                .map((resp) -> {
+                    JsonObject rpj = resp.bodyAsJsonObject();
+                    return rpj.toString();
+                })
                 .onFailure((resp) -> {
                     logger.error("Failed: {} ", resp.getMessage());
                 });

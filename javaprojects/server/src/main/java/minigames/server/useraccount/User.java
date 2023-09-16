@@ -1,5 +1,7 @@
 package minigames.server.useraccount;
 
+import java.util.HashMap;
+
 // represents actual user objects
 public class User {
 
@@ -7,7 +9,7 @@ public class User {
     private String currentGame; 
     private boolean active;
     private int score;
-    private HashMap<String, int> gameScores = new HashMap<>();
+    private HashMap<String, Integer> gameScores = new HashMap<>();
 
     /*
      * constructor for User objects
@@ -30,12 +32,12 @@ public class User {
     }
 
     // setter for active status, can be toggled on/off by user potentially?
-    public toggleActive() {
+    public void toggleActive() {
         this.active = !this.active;
     }
 
     // overrides existing high score saved to user account, uses game name Strings as a key.
-    public addGameScore(String game, int score) {
+    public void addGameScore(String game, int score) {
         this.gameScores.put(game, score);
     } 
 }

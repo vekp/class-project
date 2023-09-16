@@ -16,6 +16,7 @@ import minigames.achievements.*;
 import minigames.server.achievements.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import minigames.server.useraccount.User;
 
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;

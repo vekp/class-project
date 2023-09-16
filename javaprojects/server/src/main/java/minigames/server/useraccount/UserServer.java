@@ -19,7 +19,7 @@ public class UserServer {
         this.activeUsers = activeUsers;
     }
 
-    public addActiveUser(String userName, User user) {
+    public void addActiveUser(String userName, User user) {
         this.activeUsers.put(userName, user);
     }
 
