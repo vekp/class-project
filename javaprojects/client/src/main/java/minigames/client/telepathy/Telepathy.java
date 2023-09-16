@@ -453,7 +453,7 @@ public class Telepathy implements GameClient, Tickable{
             "\n\n\nWhen it is your turn, the board will activate and you can ask a question" +
             " by selecting a tile." + 
             "\n\n\n                        Good luck!" +
-            "\n\nREMEMBER: the game is won with a player's                final guess..."
+            "\n\n\n  REMEMBER: the game is won with a player's\n                      final guess..."
             );
 
         telepathyNotificationManager.showMessageDialog("Telepathy", gameRunningPanel);
