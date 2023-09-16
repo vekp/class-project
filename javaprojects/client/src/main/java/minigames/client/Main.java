@@ -5,7 +5,7 @@ import io.vertx.core.Promise;
 import minigames.client.battleship.Battleship;
 import minigames.client.muddletext.MuddleText;
 import minigames.client.peggle.PeggleUI;
-import minigames.client.TicTacToe.TicTacToeClient;
+import minigames.client.tictactoe.TicTacToeClient;
 import minigames.client.spacemaze.SpaceMaze;
 import minigames.client.telepathy.Telepathy;
 import minigames.client.snake.SnakeGameText;
