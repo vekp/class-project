@@ -9,6 +9,7 @@ import minigames.rendering.GameServerDetails;
 import minigames.rendering.RenderingPackage;
 import minigames.server.ClientType;
 import minigames.server.GameServer;
+import minigames.server.achievements.AchievementHandler;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,7 +22,23 @@ import java.util.Set;
  */
 public class GameShowServer implements GameServer {
 
+    AchievementHandler achievementHandler;
     static final String chars = "abcdefghijklmopqrstuvwxyz";
+
+    public GameShowServer() {
+        achievementHandler = new AchievementHandler(GameShowServer.class);
+       // Create the achievements and give them to the handler
+        achievementHandler.registerAchievement(new Achievement(achievements.WORD_SCRAMBLE.toString(),
+        "Play your first Word Scramble game.", 25, "", false));
+        achievementHandler.registerAchievement(new Achievement(achievements.IMAGE_GUESSER.toString(),
+        "Play your first word Image Guesser game.", 25, "", false));
+        achievementHandler.registerAchievement(new Achievement(achievements.FIRST_CORRECT.toString(),
+        "Get something right.", 10, "", true));
+        achievementHandler.registerAchievement(new Achievement(achievements.FIRST_INCORRECT.toString(),
+        "Don't get something right.", 10, "", true));
+        achievementHandler.registerAchievement(new Achievement(achievements.MEMORY.toString(),
+        "Play your first word Memory game.", 50, "", true));
+    }
 
     /** A random name. We could do with something more memorable, like Docker has */
     static String randomName() {

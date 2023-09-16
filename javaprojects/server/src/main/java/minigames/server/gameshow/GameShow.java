@@ -9,6 +9,7 @@ import io.vertx.core.json.JsonObject;
 import minigames.commands.CommandPackage;
 import minigames.rendering.*;
 import minigames.rendering.NativeCommands.LoadClient;
+import minigames.server.achievements.AchievementHandler;
 
 /**
  * Represents an actual GameShow game in progress
@@ -57,11 +58,13 @@ public class GameShow {
 
     /** Has the game started? */
     private boolean inProgress;
+    private AchievementHandler myHandler;
 
     public GameShow(String name) {
         this.name = name;
         this.inProgress = false;
         this.initialiseGames();
+        this.myHandler = new AchievementHandler(GameShowServer.class);
     }
 
     HashMap<String, GameShowPlayer> players = new HashMap<>();
@@ -170,6 +173,9 @@ public class GameShow {
                                 .put("game", "WordScramble")
                                 .put("letters", letters)
                                 .put("gameId", gameId));
+
+                        myHandler.unlockAchievement(cp.player(), achievements.WORD_SCRAMBLE.toString());
+
                     }
                     case "ImageGuesser" -> {
                         imageGuesserGames.add(new ImageGuesser());
@@ -185,16 +191,19 @@ public class GameShow {
                                 .put("image", image)
                                 .put("imageFilePath", imageFilePath)
                                 .put("gameId", gameId));
+                        myHandler.unlockAchievement(cp.player(), achievements.IMAGE_GUESSER.toString());
                     }
                 }
 
             }
             case "guess" -> {
                 String guess = msg.getString("guess");
-
                 switch (msg.getString("game")) {
                     case "WordScramble" -> {
                         boolean correct = games.get(msg.getInteger("round")).guessIsCorrect(guess);
+                        achievementUnlocker(correct, cp);
+
+
                         renderingCommands.
                             add(new JsonObject()
                                 .put("command", "guessOutcome")
@@ -203,6 +212,7 @@ public class GameShow {
                     }
                     case "ImageGuesser" -> {
                         boolean correct = games.get(msg.getInteger("round")).guessIsCorrect(guess);
+                        achievementUnlocker(correct, cp);
                         renderingCommands.
                             add(new JsonObject()
                                 .put("command", "guessOutcome")
@@ -254,6 +264,14 @@ public class GameShow {
             return new RenderingPackage(gameMetadata(), renderingCommands);
         }
 
+    }
+
+    private void achievementUnlocker(boolean correct, CommandPackage cp) {
+        if (correct) {
+            myHandler.unlockAchievement(cp.player(), achievements.FIRST_CORRECT.toString());
+        } else {
+            myHandler.unlockAchievement(cp.player(), achievements.FIRST_INCORRECT.toString());
+        }
     }
 
 }
