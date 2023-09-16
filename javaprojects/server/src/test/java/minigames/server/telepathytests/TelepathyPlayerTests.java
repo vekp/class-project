@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import io.vertx.core.json.JsonObject;
 import minigames.server.telepathy.Colours;
 import minigames.server.telepathy.Player;
-import minigames.server.telepathy.Symbols;
+import minigames.telepathy.Symbols;
 import minigames.telepathy.TelepathyCommandException;
 
 import minigames.server.telepathy.Tile;

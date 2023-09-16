@@ -1,6 +1,7 @@
 package minigames.server.telepathytests;
 
 import minigames.server.telepathy.*;
+import minigames.telepathy.Symbols;
 
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -116,7 +117,7 @@ public class TelepathyBoardTests{
         expectedList.add(Symbols.MOONS);
         expectedList.add(Symbols.CIRCLES);
         expectedList.add(Symbols.QUESTION_MARKS);
-        expectedList.add(Symbols.EXCALAMATION_MARKS);
+        expectedList.add(Symbols.EXCLAMATION_MARKS);
 
         ArrayList<Object> actualList = board.generateSymbols();
         
