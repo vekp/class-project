@@ -3,6 +3,9 @@ package minigames.client.gameshow;
 import java.awt.Image;
 import java.awt.Insets;
 import java.util.Collections;
+import java.util.Map;
+import java.util.HashMap;
+
 
 import minigames.client.Animator;
 import minigames.client.Tickable;
@@ -122,58 +125,80 @@ public class GameShow implements GameClient, Tickable {
         this.gm = game;
         logger.info("execute called with command: {}", command.getString("command"));
 
-        switch (command.getString("command")) {
-            case "nextRound" -> {
-                logger.info("Starting minigame {}", command.getString("minigame"));
-                this.started = true;
-                this.round = command.getInteger("round");
-                switch (command.getString("minigame")) {
-                    case "ImageGuesser" -> {
-                        this.gameTimer = new GameTimer(130000);
-                        ImageGuesser.startImageGuesser(this, command.getString("imageFilePath"));
-                        this.gameTimer.start();
-                    }
-                    case "WordScramble" -> {
-                        this.gameTimer = new GameTimer(130000);
-                        WordScramble.startGame(this, command.getString("letters"));
-                        this.gameTimer.start();
-                    }
-                }
-            }
-            case "startGame" -> {
-                switch (command.getString("game")) {
-                    case "wordScramble" -> {
-                        WordScramble.startGame(
-                                this,
-                                command.getString("letters"));
-                    }
-                }
-            }
-            case "guessOutcome" -> {
-                switch (command.getString("game")) {
-                    case "wordScramble" -> {
-                        WordScramble.processGuess(
-                                this,
-                                command.getBoolean("correct"));
-                    }
-                }
-            }
-            case "startImageGuesser" -> {
+        Map<String, Runnable> commandHandlers = new HashMap<>();
+        commandHandlers.put("nextRound", () -> startNextRound(command));
+        commandHandlers.put("startGame", () -> startGame(command));
+        commandHandlers.put("guessOutcome", () -> processGuessOutcome(command));
+        commandHandlers.put("ready", () -> logReadyState(command));
+
+        String commandString = command.getString("command");
+        if (commandHandlers.containsKey(commandString)) {
+            commandHandlers.get(commandString).run();
+        } else {
+            logger.warn("Unknown command: {}", commandString);
+        }
+    }
+
+    private void startNextRound(JsonObject command) {
+        logger.info("Starting minigame {}", command.getString("game"));
+        logger.info("Starting round {}", command.getInteger("round"));
+        this.started = true;
+        this.round = command.getInteger("round");
+        String game = command.getString("game");
+        this.gameTimer = new GameTimer(130000);
+
+        switch (game) {
+            case "ImageGuesser":
+                startGame(command);
+            case "WordScramble":
+                startGame(command);
+                break;
+            default:
+                logger.warn("Unknown game: {}", game);
+        }
+
+        this.gameTimer.start();
+    }
+
+    private void startGame(JsonObject command) {
+        // String game = command.getString("game");
+        String game = command.getString("game");
+        this.started = true;
+        switch (game) {
+            case "WordScramble":
+                WordScramble.startGame(this, command.getString("letters"));
+                break;
+            case "ImageGuesser":
                 this.gameTimer = new GameTimer(130000);
                 ImageGuesser.startImageGuesser(this, command.getString("imageFilePath"));
                 this.gameTimer.start();
-            }
-            case "guessImageOutcome" -> {
-                ImageGuesser.guess(this, command.getBoolean("outcome"));
-            }
-            case "ready" -> { // Log the ready state (for testing purposes)
-                logger.info(
-                        "Player '{}' is now ready: {}",
-                        new Object[] { player, command.getBoolean("state")}
-                );
-            }
+                break;
+            default:
+                logger.warn("Unknown game: {}", game);
         }
     }
+
+    private void processGuessOutcome(JsonObject command) {
+        String game = command.getString("game");
+        switch (game) {
+            case "WordScramble":
+                WordScramble.processGuess(this, command.getBoolean("correct"));
+                break;
+            case "ImageGuesser":
+                ImageGuesser.guess(this, command.getBoolean("correct"));
+                break;
+            default:
+                logger.warn("Unknown game: {}", game);
+        }
+    }
+
+    private void logReadyState(JsonObject command) {
+        logger.info(
+                "Player '{}' is now ready: {}",
+                new Object[] { player, command.getBoolean("state")}
+        );
+    }
+
 
     @Override
     public void closeGame() {
@@ -184,7 +209,7 @@ public class GameShow implements GameClient, Tickable {
     @Override
     public void tick(Animator al, long now, long delta) {
         if (!this.started) {
-            if (now - this.lastPoll > 1000000) {
+            if (now - this.lastPoll > 1000000000) {
                 this.lastPoll = now;
                 sendCommand(new JsonObject().put("command", "allReady"));
             }

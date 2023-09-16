@@ -110,7 +110,7 @@ public class GameShow {
         JsonObject commands = new JsonObject();
         String minigameName = this.games.get(round).getClass().getSimpleName();
 
-        commands.put("command", "nextRound").put("minigame", minigameName);
+        commands.put("command", "nextRound").put("game", minigameName);
 
         switch (minigameName) {
             case "ImageGuesser" -> {
@@ -156,7 +156,7 @@ public class GameShow {
             case "nextRound" -> renderingCommands.add(nextRound(cp.commands().get(0).getInteger("round")));
             case "startGame" -> {
                 switch (msg.getString("game")) {
-                    case "wordScramble" -> {
+                    case "WordScramble" -> {
                         String fileName = "words_"
                             + cp.commands().get(0).getString("difficulty")
                             + ".txt";
@@ -167,51 +167,49 @@ public class GameShow {
                         renderingCommands.
                             add(new JsonObject()
                                 .put("command", "startGame")
-                                .put("game", "wordScramble")
+                                .put("game", "WordScramble")
                                 .put("letters", letters)
                                 .put("gameId", gameId));
                     }
-                }
-                
-            }
-            case "imageGuesser" -> {
-                imageGuesserGames.add(new ImageGuesser());
-                int gameId = imageGuesserGames.size() - 1;
+                    case "ImageGuesser" -> {
+                        imageGuesserGames.add(new ImageGuesser());
+                        int gameId = imageGuesserGames.size() - 1;
 
-                String image = imageGuesserGames.get(gameId).getImageName();
-                String imageFilePath = imageGuesserGames
-                    .get(gameId).getImageFileName();
-                renderingCommands.
-                    add(new JsonObject()
-                        .put("command", "startImageGuesser")
-                        .put("image", image)
-                        .put("imageFilePath", imageFilePath)
-                        .put("gameId", gameId));
+                        String image = imageGuesserGames.get(gameId).getImageName();
+                        String imageFilePath = imageGuesserGames
+                            .get(gameId).getImageFileName();
+                        renderingCommands.
+                            add(new JsonObject()
+                                .put("command", "startGame")
+                                .put("game", "ImageGuesser")
+                                .put("image", image)
+                                .put("imageFilePath", imageFilePath)
+                                .put("gameId", gameId));
+                    }
+                }
+
             }
             case "guess" -> {
                 String guess = msg.getString("guess");
 
                 switch (msg.getString("game")) {
-                    case "wordScramble" -> {
+                    case "WordScramble" -> {
                         boolean correct = games.get(msg.getInteger("round")).guessIsCorrect(guess);
                         renderingCommands.
                             add(new JsonObject()
                                 .put("command", "guessOutcome")
-                                .put("game", "wordScramble")
+                                .put("game", "WordScramble")
+                                .put("correct", correct));
+                    }
+                    case "ImageGuesser" -> {
+                        boolean correct = games.get(msg.getInteger("round")).guessIsCorrect(guess);
+                        renderingCommands.
+                            add(new JsonObject()
+                                .put("command", "guessOutcome")
+                                .put("game", "ImageGuesser")
                                 .put("correct", correct));
                     }
                 }
-            }
-            case "guessImage" -> {
-                String guess = cp.commands().get(0).getString("guess");
-                logger.info("Processing Image Guesser guess '{}' at Round {}", new Object[] {
-                        guess, cp.commands().get(0).getInteger("round")
-                });
-                boolean outcome = this.games.get(cp.commands().get(0).getInteger("round")).guessIsCorrect(guess);
-                renderingCommands.
-                    add(new JsonObject()
-                        .put("command", "guessImageOutcome")
-                        .put("outcome", outcome));
             }
             case "quit" -> {
                 players.remove(cp.player());
