@@ -261,7 +261,7 @@ public class TelepathyGame {
                 eliminatedTileStrings.add(t.getHorizontalPos() + "," + t.getVerticalPos());
             }
 
-            // Update the client
+            // Add the updates to the response
             renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
                     TelepathyCommands.ELIMINATETILES,
                     eliminatedTileStrings.toArray(new String[eliminatedTileStrings.size()])));
@@ -270,6 +270,12 @@ public class TelepathyGame {
         return renderingCommands;
     }
     
+    /**
+     * Handle a player's FINALGUESS. Compare the questionTile with their opponent's
+     * targetTile and determine the outcome of the game.
+     * @param playerName: Name of the player making their final guess.
+     * @param commandObject: The command sent by the client containing the Tile coords.
+     */
     private void finalQuestionHandler(String playerName, JsonObject commandObject) {
         this.finalGuessMade = true;
 
@@ -277,12 +283,15 @@ public class TelepathyGame {
         Tile questionTile = TelepathyCommandHandler.getTilesFromCommand(commandObject,
                 this.players.get(playerName).getBoard()).get(0);
 
+        String gameOverCause = "";
         // Check for a full comparison
         boolean result = questionTile.isFullMatch(this.players.get(playerName).getTargetTile());
         // If true - asking player wins, otherwise other player wins
         if (result) {
+            gameOverCause = "correctGuess";
             this.winner = playerName;
         } else {
+            gameOverCause = "incorrectGuess";
             ////// TODO: This pattern (searching for other player) repeats - needs a look
             for (String p : this.players.keySet()) {
                 if (!p.equals(playerName)) {
@@ -291,7 +300,7 @@ public class TelepathyGame {
                 }
             }
         }        
-        transitionToGameOver();
+        transitionToGameOver(gameOverCause);
     }
 
     /**
@@ -494,37 +503,66 @@ public class TelepathyGame {
      *  The GAMEOVER state should keep the game running until all players leave on
      *  their own volition. 
      *  The CLIENTUPDATE packets in GAMEOVER state should show who has won, who lost, etc...
+     *
+     * @param cause: The cause for the game ending.
+     * 
      */
-    private void transitionToGameOver(){
+    private void transitionToGameOver(String cause){
         // Check for game over conditions
         if(!checkGameOverCondition()){ return; }
-
-        // If player gets correct final guess
-        // If player gets incorrect final guess
 
         logger.info("\n\n*******Game has ended!*********\n");
 
         this.state = State.GAMEOVER;
 
-        updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(
-            TelepathyCommands.POPUP,
-            "gameOver",
-            this.winner));
+        makeGameOverStrings(cause);
         updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(
             TelepathyCommands.BUTTONUPDATE,
             "board",
             "disableAll"));
-        // 
-        //for(String p : this.players.keySet()){
-          //  this.players.get(p).addUpdate(TelepathyCommandHandler.makeJsonCommand(
-            //    TelepathyCommands.GAMEOVER, 
-              //  this.winner));
-        //}
     }
 
     /* *********************************
      * Helper methods
      * *********************************/
+
+    /**
+     * Create the game over string to be displayed for each player and add
+     * the POPUP command to player update queues.
+     * @param cause: The reason for the game ending.
+     */
+    private void makeGameOverStrings(String cause){
+        for(String p: this.players.keySet()){
+            // Make the string
+            String gameOverText = "";
+            if(cause.equals("playerLeave")){
+                this.winner = p;
+                gameOverText = "The other player left the game...";
+            } else if(this.winner.equals(p)){
+                if(cause.equals("correctGuess")){
+                    gameOverText = "You guessed correctly!";
+                } else if(cause.equals("incorrectGuess")){
+                    gameOverText = "Your opponent guessed wrong!";
+                }
+            } else{
+                if(cause.equals("correctGuess")){
+                    gameOverText = "Your opponent guessed your tile!";
+                } else if(cause.equals("incorrectGuess")){
+                    gameOverText = "You guessed incorrectly";
+                }
+            }
+
+            // Update each player of game over
+            this.players.get(p).addUpdate(
+                TelepathyCommandHandler.makeJsonCommand(
+                    TelepathyCommands.POPUP,
+                    "gameOver",
+                    gameOverText,
+                    this.winner
+                    )
+            );
+        }
+    }
 
     /**
      * Inform a player that it is their turn, update their client to allow 
@@ -617,7 +655,7 @@ public class TelepathyGame {
         updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.MODIFYPLAYER, name, "leaving"));
 
         // End the game if a player leaves while game is RUNNING
-        transitionToGameOver();
+        transitionToGameOver("playerLeave");
     }
 
     /**

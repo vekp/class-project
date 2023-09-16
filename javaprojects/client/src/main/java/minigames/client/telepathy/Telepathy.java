@@ -445,11 +445,19 @@ public class Telepathy implements GameClient, Tickable{
      * @param winLose: String received from the server with the name of the winner
      *  of this game of Telepathy.
      */
-    private void activateGameOverMessage(String winLose) {
+    private void activateGameOverMessage(String gameOverText, String gameWinner) {
+        
+        String winLose = "";
+        if(gameWinner.equals(this.player)){
+            winLose = "You win!";
+        } else{
+            winLose = "You lose!";
+        }
+        
         JPanel gameOverPanel = makeMessagePopup(
             "Game Over",
             winLose, 
-                "Thanks for playing!");
+                gameOverText + "\nThanks for playing!");
         telepathyNotificationManager.showMessageDialog("Telepathy", gameOverPanel);
     }
 
@@ -710,8 +718,8 @@ public class Telepathy implements GameClient, Tickable{
 
         if(popups.get(0).equals("gameOver")){
             // TODO: Add winner/loser message based on attributes received
-
-            activateGameOverMessage("Placeholder winner");
+            
+            activateGameOverMessage(popups.get(1), popups.get(2));
             this.serverState = State.GAMEOVER;
         }
     }
