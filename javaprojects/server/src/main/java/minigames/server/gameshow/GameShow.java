@@ -58,13 +58,13 @@ public class GameShow {
 
     /** Has the game started? */
     private boolean inProgress;
-    private AchievementHandler myHandler;
+    private AchievementHandler achievementHandler;
 
     public GameShow(String name) {
         this.name = name;
         this.inProgress = false;
         this.initialiseGames();
-        this.myHandler = new AchievementHandler(GameShowServer.class);
+        this.achievementHandler = new AchievementHandler(GameShowServer.class);
     }
 
     HashMap<String, GameShowPlayer> players = new HashMap<>();
@@ -174,7 +174,7 @@ public class GameShow {
                                 .put("letters", letters)
                                 .put("gameId", gameId));
 
-                        myHandler.unlockAchievement(cp.player(), achievements.WORD_SCRAMBLE.toString());
+                        achievementHandler.unlockAchievement(cp.player(), achievements.WORD_SCRAMBLE.toString());
 
                     }
                     case "ImageGuesser" -> {
@@ -191,7 +191,7 @@ public class GameShow {
                                 .put("image", image)
                                 .put("imageFilePath", imageFilePath)
                                 .put("gameId", gameId));
-                        myHandler.unlockAchievement(cp.player(), achievements.IMAGE_GUESSER.toString());
+                        achievementHandler.unlockAchievement(cp.player(), achievements.IMAGE_GUESSER.toString());
                     }
                 }
 
@@ -268,9 +268,9 @@ public class GameShow {
 
     private void achievementUnlocker(boolean correct, CommandPackage cp) {
         if (correct) {
-            myHandler.unlockAchievement(cp.player(), achievements.FIRST_CORRECT.toString());
+            achievementHandler.unlockAchievement(cp.player(), achievements.FIRST_CORRECT.toString());
         } else {
-            myHandler.unlockAchievement(cp.player(), achievements.FIRST_INCORRECT.toString());
+            achievementHandler.unlockAchievement(cp.player(), achievements.FIRST_INCORRECT.toString());
         }
     }
 
