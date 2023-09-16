@@ -3,8 +3,9 @@ package minigames.client.telepathy;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
+
 import java.util.Collections;
-import java.util.ArrayList;
 
 import javax.swing.border.EmptyBorder;
 
@@ -29,6 +30,7 @@ import minigames.client.notifications.DialogManager;
 import minigames.telepathy.TelepathyCommandException;
 import minigames.telepathy.TelepathyCommandHandler;
 import minigames.telepathy.TelepathyCommands;
+import minigames.telepathy.Symbols;
 
 import minigames.telepathy.State;
 
@@ -79,7 +81,7 @@ public class Telepathy implements GameClient, Tickable{
     JPanel colourSymbolPanel; //  nested panel listing the colours and symbols in the gameboard
 
     ArrayList<JButton> coloursList; // list of colours used in game
-    ArrayList<JButton> symbolsList; // list of symbols used in game
+    ArrayList<JButton> buttonSymbols; // list of buttons with symbol icons used in game
     
     ArrayList<ImageIcon> allIcons; // ordered list of icons
 
@@ -580,30 +582,24 @@ public class Telepathy implements GameClient, Tickable{
    
     public JPanel symbolSideTiles(){
 
-        symbolsList = new ArrayList<>();
+        // a list to store buttons with symbol icons
+        buttonSymbols = new ArrayList<>();
         JPanel symbols = new JPanel();
         symbols.setLayout(new BoxLayout(symbols, BoxLayout.Y_AXIS));
         
-        JButton hearts = new JButton("!!");
-        symbolsList.add(hearts);
-        JButton stars = new JButton("<3");
-        symbolsList.add(stars);
-        JButton diamonds = new JButton("??");
-        symbolsList.add(diamonds);
-        JButton spades = new JButton("*");
-        symbolsList.add(spades);
-        JButton clubs = new JButton("D");
-        symbolsList.add(clubs);
-        JButton moons = new JButton("d");
-        symbolsList.add(moons);
-        JButton circles = new JButton("s");
-        symbolsList.add(circles);
-        JButton questionMarks = new JButton("c");
-        symbolsList.add(questionMarks);
-        JButton exclamationMarks = new JButton("O");
-        symbolsList.add(exclamationMarks);
+        // a list to call symbol constants
+        ArrayList<Symbols> symbolsList = new ArrayList<>(List.of(Symbols.values()));
 
-        for(JButton button: symbolsList){
+        // creates button icons and adds to the buttonSymbols list
+        for (Symbols symbol: symbolsList){
+            String path = symbol.getPath();
+            ImageIcon icon = MinigameUtils.scaledImage(path, 20);
+            JButton iconButton = new JButton(icon);
+            buttonSymbols.add(iconButton);
+        }
+
+       // adds buttons to the JPanel
+        for(JButton button: buttonSymbols){
             symbols.add(button);
             symbols.add(Box.createRigidArea(new Dimension(0, 5)));
         }
