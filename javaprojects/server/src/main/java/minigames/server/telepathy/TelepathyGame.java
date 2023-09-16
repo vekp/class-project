@@ -217,6 +217,7 @@ public class TelepathyGame {
             
             // Check for exact match
 
+            // If true - asking player wins, otherwise other player wins
             // Going to GAMEOVER then skip rest of this method
             transitionToGameOver();
             return renderingCommands;
