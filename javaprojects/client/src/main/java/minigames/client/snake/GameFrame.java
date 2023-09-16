@@ -1,3 +1,5 @@
+// TODO this will be broken up and split into the game view panel class
+
 package minigames.client.snake;
 
 import java.awt.*;

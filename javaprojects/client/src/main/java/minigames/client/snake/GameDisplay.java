@@ -1,3 +1,5 @@
+// TODO: Rename to game logic/game mechanics and keep all game play methods here, place all relevant gui bits in their classes
+
 package minigames.client.snake;
 
 import java.awt.*;
