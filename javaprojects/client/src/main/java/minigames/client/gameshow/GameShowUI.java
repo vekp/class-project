@@ -93,7 +93,7 @@ public class GameShowUI {
 
         /**
          * method to generate the home screen
-         * 
+         *
          * @return a JPanel representing the home screen
          */
 
@@ -319,7 +319,9 @@ public class GameShowUI {
                 imageGuesserStart = new JButton("Image Guesser");
                 // imageGuesserStart.setAlignmentX(Component.CENTER_ALIGNMENT);
                 imageGuesserStart.addActionListener(
-                                (evt) -> gameShow.sendCommand(new JsonObject().put("command", "imageGuesser")));
+                                (evt) -> gameShow.sendCommand(new JsonObject()
+                                .put("command", "startGame")
+                                .put("game", "ImageGuesser")));
                 testingButtons.add(imageGuesserStart, BorderLayout.CENTER);
 
                 JButton memoryButton = new JButton("Memory Game");

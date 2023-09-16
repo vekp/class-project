@@ -122,10 +122,7 @@ public class ImageGuesser {
         submitButton.setContentAreaFilled(false);
         submitButton.setFocusPainted(false);
         submitButton.setBorderPainted(false);
-        submitButton.addActionListener((evt) -> gs.sendCommand(new JsonObject()
-                .put("command", "guessImage")
-                .put("guess", guessField.getText())
-                .put("round", gs.round)));
+        submitButton.addActionListener((evt) -> sendGuess(gs, guessField.getText()));
         return submitButton;
     }
 
@@ -191,12 +188,11 @@ public class ImageGuesser {
         gs.inputPanel.repaint();
     }
 
-    private static void sendGuess(GameShow gs, String guess, int gameId) {
+    private static void sendGuess(GameShow gs, String guess) {
         gs.sendCommand(new JsonObject()
                 .put("command", "guess")
-                .put("game", "imageGuesser")
+                .put("game", "ImageGuesser")
                 .put("guess", guess)
-                .put("gameId", gameId));
+                .put("round", gs.round));
     }
-
 }

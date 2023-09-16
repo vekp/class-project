@@ -81,7 +81,7 @@ public class WordScramble {
                 JButton easyButton = new JButton("Easy");
                 easyButton.addActionListener((evt) -> gs.sendCommand(new JsonObject()
                                 .put("command", "startGame")
-                                .put("game", "wordScramble")
+                                .put("game", "WordScramble")
                                 .put("difficulty", "easy")));
                 gbc.gridwidth = 1;
                 gbc.insets = new Insets(20, 20, 20, 20);
@@ -93,7 +93,7 @@ public class WordScramble {
                 JButton mediumButton = new JButton("Medium");
                 mediumButton.addActionListener((evt) -> gs.sendCommand(new JsonObject()
                                 .put("command", "startGame")
-                                .put("game", "wordScramble")
+                                .put("game", "WordScramble")
                                 .put("difficulty", "medium")));
                 gbc.gridx = 1;
                 gbc.gridy = 1;
@@ -103,7 +103,7 @@ public class WordScramble {
                 JButton hardButton = new JButton("Hard");
                 hardButton.addActionListener((evt) -> gs.sendCommand(new JsonObject()
                                 .put("command", "startGame")
-                                .put("game", "wordScramble")
+                                .put("game", "WordScramble")
                                 .put("difficulty", "hard")));
                 gbc.gridx = 2;
                 gbc.gridy = 1;
@@ -241,6 +241,8 @@ public class WordScramble {
 
                 backGround.validate();
                 backGround.repaint();
+                gs.gamePanel.validate();
+                gs.gamePanel.repaint();
         }
 
         /**
@@ -249,7 +251,7 @@ public class WordScramble {
         private static void sendGuess(GameShow gs, String guess, int gameId) {
                 gs.sendCommand(new JsonObject()
                                 .put("command", "guess")
-                                .put("game", "wordScramble")
+                                .put("game", "WordScramble")
                                 .put("guess", guess)
                                 .put("round", gs.round));
         }
