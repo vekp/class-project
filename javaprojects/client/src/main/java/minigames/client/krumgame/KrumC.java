@@ -15,7 +15,9 @@ public class KrumC {
     static final double OPACITY_THRESHOLD = 100;
 
     static final double GRAVITY = 0.08; // downward acceleration in pixels per frame
+    static final double MOON_GRAVITY = 0.03;
     static final double AIR_RES_FACTOR = 0.99; // movement in air of projectiles and players is multiplied by this factor every frame
+    static final double MOON_AIR_RES_FACTOR = 0.995;
     static final double ROPE_RES_FACTOR = 0.95;
 
     static final double JUMP_ANGLE = Math.PI/3.0; // angle of spacebar jump (flipped in the x-axis when facing left)

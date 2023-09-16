@@ -1,9 +1,18 @@
 package minigames.server.highscore;
 
+import minigames.server.highscore.GameMetadata;
+import minigames.server.highscore.ScoreRecord;
+
 import java.util.Collections;
 import java.util.List;
 
+@Deprecated
 public class StubHighScoreStorage implements HighScoreStorage {
+
+    @Override
+    public void registerGame(String gameName, Boolean isLowerBetter) {
+        // Do nothing for now
+    }
 
     @Override
     public void storeScore(ScoreRecord record) {
@@ -11,7 +20,7 @@ public class StubHighScoreStorage implements HighScoreStorage {
     }
 
     @Override
-    public List<ScoreRecord> retrieveTopScores(String gameName, int limit) {
+    public List<ScoreRecord> retrieveTopScores(String gameName) {
         return Collections.emptyList();  // Return an empty list
     }
 

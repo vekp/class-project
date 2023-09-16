@@ -1,7 +1,7 @@
-package minigames.client.krumgame;
+package minigames.krumgame;
 
 enum achievements{
-    SUICIDE_5, BAZOOKA_5, TARZAN_DEATH, LASER_DEATH, MAP_SLAP, JOEY_SUICIDE, DIRECT_HIT, LONG_RANGE;
+    SUICIDE_5, BAZOOKA_5, TARZAN_DEATH, LASER_DEATH, MAP_SLAP, JOEY_SUICIDE, DIRECT_HIT, LONG_RANGE, FROM_THE_SKY;
 
     @Override
     public String toString(){
@@ -14,6 +14,7 @@ enum achievements{
             case JOEY_SUICIDE:   return "Joey Suicide"; // Kill yourself with a Joey
             case DIRECT_HIT:     return "Direct Hit with Grenade"; //Achievement for a Direct hit with a grenade, no bounce
             case LONG_RANGE:     return "Long Range Bazooka"; //Shot with a Bazooka over 600 pixels away
+            case FROM_THE_SKY:   return "Shot out of the sky"; //Shoot an opponent while they are in mid air
             default:             return "Unknown Achievement";
         }
     }
