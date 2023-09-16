@@ -2,6 +2,7 @@ package minigames.server.telepathytests;
 
 import minigames.server.telepathy.*;
 import minigames.telepathy.Symbols;
+import minigames.telepathy.Colours;
 
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;

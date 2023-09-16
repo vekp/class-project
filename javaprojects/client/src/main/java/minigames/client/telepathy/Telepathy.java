@@ -31,6 +31,7 @@ import minigames.telepathy.TelepathyCommandException;
 import minigames.telepathy.TelepathyCommandHandler;
 import minigames.telepathy.TelepathyCommands;
 import minigames.telepathy.Symbols;
+import minigames.telepathy.Colours;
 
 import minigames.telepathy.State;
 
@@ -80,7 +81,7 @@ public class Telepathy implements GameClient, Tickable{
     JPanel sidePanel; // board game side panel
     JPanel colourSymbolPanel; //  nested panel listing the colours and symbols in the gameboard
 
-    ArrayList<JButton> coloursList; // list of colours used in game
+    ArrayList<JButton> buttonColour; // list of colours used in game
     ArrayList<JButton> buttonSymbols; // list of buttons with symbol icons used in game
     
     ArrayList<ImageIcon> allIcons; // ordered list of icons
@@ -89,7 +90,7 @@ public class Telepathy implements GameClient, Tickable{
 
     
     JButton startGame; // Button to initialise game
-    //int buttonClicks = 0; // an int to track button clicks
+   
 
     int ROWS = 9; // adjustable variable for grid size
     int COLS = 9; // adjustable variable for grid size
@@ -153,8 +154,6 @@ public class Telepathy implements GameClient, Tickable{
             //TODO: Make own method
             telepathyNotificationManager.dismissCurrentNotification();
             startGame.setEnabled(true);
-            //int resetButtonCLicks = 0;
-            //buttonClicks = resetButtonCLicks;
             clearButtonBackgrounds();
             enableButtonGrid();
             sendCommand(TelepathyCommands.QUIT);
@@ -166,11 +165,11 @@ public class Telepathy implements GameClient, Tickable{
             sendCommand(TelepathyCommands.TOGGLEREADY);
         });
         this.componentList.put("readyButton", readyButton);
-        
+
 
         // Button to start game
-       startGame = new JButton("Start a Game!");
-       startGame.setPreferredSize(new Dimension(20, 40));
+        startGame = new JButton("Start a Game!");
+        startGame.setPreferredSize(new Dimension(20, 40));
         //startGame.addActionListener(e -> {
             //activateWelcomeMessage();
           //  startGame.setEnabled(false);
@@ -182,6 +181,7 @@ public class Telepathy implements GameClient, Tickable{
         buttonPanel.add(readyButton);
         buttonPanel.add(backButton);
         buttonPanel.add(startGame);
+    
 
          //a panel for the 2D button array
         board = new JPanel();
@@ -415,11 +415,11 @@ public class Telepathy implements GameClient, Tickable{
                 "Telepathy",
                 "are you telepathic " + player + "? ",
                 "  Can you deduce your opponent's secret tile?!" +
-                "\n\nGame Play" + "\nAsk questions by selecting a tile from the board and find out if" +
-                " the coordinates, colour OR symbol match your opponent's tile." +
-                "\nIF you've scored a match, the tile will be highlighted! This information will help you ask" +
-                " another question. ELSE, no matches :( " +
-                "\nKeep asking questions till you're SURE you KNOW your opponent's tile!" +
+                "\n\nGame Play" + "\nQuestions are asked by selecting a tile from the board. Then you will find out if" +
+                " the coordinates, colour AND/OR symbol match your opponent's tile." +
+                " IF you've scored a match, the tile will be highlighted! \nUse this information to help you ask" +
+                " the next question." +
+                " Keep asking questions till you're SURE you KNOW your opponent's tile!" +
                 "\n\nWhen you're ready, select the READY button." + "    Wait for the other player to join :D\n");
 
         //welcomeMessage = popupWelcomeMessage();
@@ -434,8 +434,8 @@ public class Telepathy implements GameClient, Tickable{
                 "Secret Tile Selection",
                 "",
                 "\nNotice how each tile on the board has a set of coordinates, a colour and a symbol..." +
-                "\n\nThe list of colours and symbols at the side will help you track your guesses." +
-                "\nWhen your question has no matches, the tile's row, column, colour, symbol will grey out." +
+                "\n\n\nThe list of colours and symbols at the side will help you track your guesses." +
+                " When your question has no matches, the tile's row, column, colour and symbol will be eliminated." +
                 "\n\n\nNow it's time to choose your secret tile for your opponent to guess!"
                 );
 
@@ -453,7 +453,7 @@ public class Telepathy implements GameClient, Tickable{
             "\n\n\nWhen it is your turn, the board will activate and you can ask a question" +
             " by selecting a tile." + 
             "\n\n\n                        Good luck!" +
-            "\n\nREMEMBER: the game ends with a player's final guess..."
+            "\n\nREMEMBER: the game is won with a player's                final guess..."
             );
 
         telepathyNotificationManager.showMessageDialog("Telepathy", gameRunningPanel);
@@ -535,39 +535,25 @@ public class Telepathy implements GameClient, Tickable{
    
     public JPanel colourSideTiles(){
 
-        coloursList = new ArrayList<>();
+        // a list to store buttons with coloured backgrounds
+        buttonColour = new ArrayList<>();
         JPanel colours = new JPanel();
         colours.setLayout(new BoxLayout(colours, BoxLayout.Y_AXIS));
+
+        // a list to call colour constants
+        ArrayList<Colours> coloursList = new ArrayList<>(List.of(Colours.values()));
         
-        JButton red = new JButton("Red");
-        setButtonBorder(red, Color.RED);
-        coloursList.add(red);
-        JButton green = new JButton("Green");
-        setButtonBorder(green, Color.GREEN);
-        coloursList.add(green);
-        JButton pink = new JButton("Pink");
-        setButtonBorder(pink, Color.PINK);
-        coloursList.add(pink);
-        JButton blue = new JButton("Blue");
-        setButtonBorder(blue, Color.BLUE);
-        coloursList.add(blue);
-        JButton grey = new JButton("Grey");
-        setButtonBorder(grey, Color.GRAY);
-        coloursList.add(grey);
-        JButton yellow = new JButton("Yellow");
-        setButtonBorder(yellow, Color.YELLOW);
-        coloursList.add(yellow);
-        JButton cyan = new JButton("Cyan");
-        setButtonBorder(cyan, Color.CYAN);
-        coloursList.add(cyan);
-        JButton magenta = new JButton("Magenta");
-        setButtonBorder(magenta, Color.MAGENTA);
-        coloursList.add(magenta);
-        JButton orange = new JButton("Orange");
-        setButtonBorder(orange, Color.ORANGE);
-        coloursList.add(orange);
+         // creates colour buttons and adds to the buttonColour list
+        for (Colours colour: coloursList){
+            Color color = colour.getColor();
+            String buttonLabel = colour.toString();
+            JButton colourButton = new JButton(buttonLabel);
+            setButtonBorder(colourButton, color);
+            buttonColour.add(colourButton);
+        }
        
-        for(JButton button: coloursList){
+       // adds buttons to the JPanel
+        for(JButton button: buttonColour){
             colours.add(button);
             colours.add(Box.createRigidArea(new Dimension(0, 5)));
         }
@@ -577,7 +563,6 @@ public class Telepathy implements GameClient, Tickable{
     
     /**
      * a method that generates a panel of buttons displaying game symbols
-     * TODO: update to tile icons
      */
    
     public JPanel symbolSideTiles(){

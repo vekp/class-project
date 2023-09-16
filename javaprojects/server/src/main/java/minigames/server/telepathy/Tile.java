@@ -1,6 +1,7 @@
 package minigames.server.telepathy;
 
 import minigames.telepathy.Symbols; 
+import minigames.telepathy.Colours;
 
 /**
  * A class representing a tile in the Telepathy board.

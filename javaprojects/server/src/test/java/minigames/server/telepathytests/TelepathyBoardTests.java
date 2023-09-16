@@ -2,6 +2,7 @@ package minigames.server.telepathytests;
 
 import minigames.server.telepathy.*;
 import minigames.telepathy.Symbols;
+import minigames.telepathy.Colours;
 
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -85,7 +86,7 @@ public class TelepathyBoardTests{
     public void testGenerateColours(){
         Board board = new Board();
        
-        ArrayList<Object> expectedList = new ArrayList<>();
+        ArrayList<Colours> expectedList = new ArrayList<>();
         expectedList.add(Colours.RED);
         expectedList.add(Colours.PINK);
         expectedList.add(Colours.BLUE);
@@ -96,7 +97,7 @@ public class TelepathyBoardTests{
         expectedList.add(Colours.GREEN);
         expectedList.add(Colours.GREY);
 
-        ArrayList<Object> actualList = board.generateColours();
+        ArrayList<Colours> actualList = board.generateColours();
 
         assertEquals(expectedList, actualList);
       
@@ -108,7 +109,7 @@ public class TelepathyBoardTests{
     public void testGenerateSymbols(){
         Board board = new Board();
        
-        ArrayList<Object> expectedList = new ArrayList<>();
+        ArrayList<Symbols> expectedList = new ArrayList<>();
         expectedList.add(Symbols.HEARTS);
         expectedList.add(Symbols.STARS);
         expectedList.add(Symbols.DIAMONDS);
@@ -119,7 +120,7 @@ public class TelepathyBoardTests{
         expectedList.add(Symbols.QUESTION_MARKS);
         expectedList.add(Symbols.EXCLAMATION_MARKS);
 
-        ArrayList<Object> actualList = board.generateSymbols();
+        ArrayList<Symbols> actualList = board.generateSymbols();
         
 
         assertEquals(expectedList, actualList);
