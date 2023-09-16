@@ -320,8 +320,8 @@ public class GameShowUI {
                 // imageGuesserStart.setAlignmentX(Component.CENTER_ALIGNMENT);
                 imageGuesserStart.addActionListener(
                                 (evt) -> gameShow.sendCommand(new JsonObject()
-                                .put("command", "startGame")
-                                .put("game", "ImageGuesser")));
+                                                .put("command", "startGame")
+                                                .put("game", "ImageGuesser")));
                 testingButtons.add(imageGuesserStart, BorderLayout.CENTER);
 
                 JButton memoryButton = new JButton("Memory Game");
