@@ -97,6 +97,7 @@ public class Survey extends JPanel implements ActionListener {
         gameNameLabel.setText("Game Name: ");
         gameNameLabel.setFont(fontLabel);
         gameNameLabel.setForeground (Color.WHITE);
+        gameNameLabel.setHorizontalAlignment(JLabel.CENTER);
 
         // Blank Label (currently allows the grid items the correct spacing until a refactor occurs)
         blankLabel = new JLabel();
@@ -106,18 +107,21 @@ public class Survey extends JPanel implements ActionListener {
         gameNameTextLabel.setText(callingGame);
         gameNameTextLabel.setFont(fontText);
         gameNameTextLabel.setForeground (Color.WHITE);
+        gameNameTextLabel.setHorizontalAlignment(JLabel.CENTER);
 
         // rating explanation help TextLabel
         helpLabel = new JLabel();
         helpLabel.setText("<html>"+ "Using a scale of 1: Very Low to 5: Very High. Please rate the following questions." +"</html>");
         helpLabel.setFont(fontHelp);
         helpLabel.setForeground (Color.YELLOW);
+        helpLabel.setHorizontalAlignment(JLabel.CENTER);
 
         // User Interface Rating Label
         uiRatingLabel = new JLabel();
         uiRatingLabel.setText("User Interface: ");
         uiRatingLabel.setFont(fontLabel);
         uiRatingLabel.setForeground (Color.WHITE);
+        uiRatingLabel.setHorizontalAlignment(JLabel.CENTER);
 
         // User Interface Rating Panel
         uiRatingPanel = new JPanel();
@@ -148,6 +152,7 @@ public class Survey extends JPanel implements ActionListener {
         enjoymentLabel.setText("Enjoyment: ");
         enjoymentLabel.setFont(fontLabel);
         enjoymentLabel.setForeground (Color.WHITE);
+        enjoymentLabel.setHorizontalAlignment(JLabel.CENTER);
 
         // Enjoyment Rating Panel
         enjoymentPanel = new JPanel();
@@ -178,6 +183,7 @@ public class Survey extends JPanel implements ActionListener {
         functionalityLabel.setText("Functionality: ");
         functionalityLabel.setFont(fontLabel);
         functionalityLabel.setForeground (Color.WHITE);
+        functionalityLabel.setHorizontalAlignment(JLabel.CENTER);
 
         // Functionality Rating Panel
         functionalityPanel = new JPanel();
@@ -208,6 +214,7 @@ public class Survey extends JPanel implements ActionListener {
         difficultyLabel.setText("Game Difficulty: ");
         difficultyLabel.setFont(fontLabel);
         difficultyLabel.setForeground (Color.WHITE);
+        difficultyLabel.setHorizontalAlignment(JLabel.CENTER);
 
         // Game Difficulty Rating Panel
         difficultyPanel = new JPanel();
@@ -238,6 +245,7 @@ public class Survey extends JPanel implements ActionListener {
         overallRatingLabel.setText("Overall Rating: ");
         overallRatingLabel.setFont(fontLabel);
         overallRatingLabel.setForeground (Color.WHITE);
+        overallRatingLabel.setHorizontalAlignment(JLabel.CENTER);
 
         // Overall Rating Panel
         overallRatingPanel = new JPanel();
@@ -268,6 +276,7 @@ public class Survey extends JPanel implements ActionListener {
         feedbackLabel.setText("Feedback: ");
         feedbackLabel.setFont(fontLabel);
         feedbackLabel.setForeground (Color.WHITE);
+        feedbackLabel.setHorizontalAlignment(JLabel.CENTER);
 
         // feedback Panel
         feedbackPanel = new JPanel();
@@ -277,6 +286,7 @@ public class Survey extends JPanel implements ActionListener {
         feedbackText.setRows(5);
         feedbackText.setWrapStyleWord(true);
         feedbackText.setFont(fontText);
+        feedbackText.setBackground(Color.BLACK);
         feedbackText.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
         feedbackPanel.add(feedbackText);
 
@@ -345,6 +355,7 @@ public class Survey extends JPanel implements ActionListener {
         footerPanel.add(resultsPanel, BorderLayout.EAST);
         this.add(footerPanel, BorderLayout.SOUTH);
         
+        // Calling this here will override any other colour change calls
         panelColourChange(mainBgColour, fgColour);
     }
 
