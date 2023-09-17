@@ -55,7 +55,7 @@ public class MinigameNetworkClientWindow {
                     UIManager.setLookAndFeel(info.getClassName());
                     UIManager.put("nimbusBase", Color.BLACK); // Set base colour
                     UIManager.put("nimbusBlueGrey", Color.BLACK); // Set blue/grey colour
-                    //UIManager.put("control", Color.BLACK); // Set control background colour
+                    UIManager.put("control", Color.BLACK); // Set control background colour
                     UIManager.put("text", Color.WHITE); // Set text colour
                     UIManager.put("List.background", Color.BLACK); // Set list background
                     UIManager.put("TextField.textForeground", Color.BLACK); // Set text field text colour
@@ -285,7 +285,7 @@ public class MinigameNetworkClientWindow {
             showKrumTitle(inProgress);
             return;
         }
-        
+
         clearAll();
 
         // Remove the nameField from the north panel
