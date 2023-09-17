@@ -1,5 +1,5 @@
 {
-    "username": "null",
+    "username": "test",
     "pin": "1234",
     "session": [
         {
@@ -22,6 +22,28 @@
         {
             "timestamp": "Sun Sep 17 14:17:38 AEST 2023",
             "id": "2b76e030-3128-476d-8a0b-417d207204dd",
+            "isActive": false,
+            "games": [
+                {
+                    "name": "gameName",
+                    "score": "score or any random value"
+                }
+            ]
+        },
+        {
+            "timestamp": "Sun Sep 17 21:43:57 AEST 2023",
+            "id": "e7da3a28-8656-4332-ad08-1124e80c9b16",
+            "isActive": false,
+            "games": [
+                {
+                    "name": "gameName",
+                    "score": "score or any random value"
+                }
+            ]
+        },
+        {
+            "timestamp": "Sun Sep 17 21:49:45 AEST 2023",
+            "id": "e4dd8322-e950-4631-9796-082a50068aa1",
             "isActive": true,
             "games": [
                 {
