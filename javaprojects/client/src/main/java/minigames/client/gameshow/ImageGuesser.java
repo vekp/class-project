@@ -58,6 +58,7 @@ public class ImageGuesser {
         ImageIcon imageIcon = new ImageIcon(imageFolderLocation);
         JLabel imageLabel = new JLabel(imageIcon);
         gridPanel = new GridPanel(imageIcon);
+        gridPanel.setPreferredSize(new Dimension(400, 215));
         GameShowUI.gameContainer.add(gridPanel, BorderLayout.CENTER);
     }
 
