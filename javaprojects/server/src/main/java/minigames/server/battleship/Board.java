@@ -247,9 +247,14 @@ public class Board {
     /**
      * Sinks all ships on the current board, for testing achievements and game state
      */
-    public void sinkAll(){
+    public void sinkAll(String playerName){
         vessels.forEach((shipType, ship) -> {
-            ship.sink();
+            Cell[] shipParts = ship.getShipParts();
+            for(int i = 0; i < shipParts.length; i++){
+                int col = shipParts[i].getVerticalCoordInt();
+                int row = shipParts[i].getHorizontalCoord();
+                ship.updateShipStatus(col, row, playerName);
+            }
         });
     }
 

@@ -203,7 +203,7 @@ public class BattleshipGame {
                     //no other commands run here, player will continue waiting until their turn
                 }
 
-                if(opponent.getBoard().checkGameOver(opponent.getName()) || current.getBoard().checkGameOver(current.getName())){
+                if(opponent.getBoard().checkGameOver(current.getName()) || current.getBoard().checkGameOver(opponent.getName())){
                     this.gameState = GameState.GAME_OVER;
                 }
 

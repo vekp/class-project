@@ -104,12 +104,12 @@ public class BattleshipPlayer {
             //no need to check for already unlocked as handler will do that
             System.out.println("Slow Learner Achievement - Requirements met for " + getName());
             AchievementHandler handler = new AchievementHandler(BattleshipServer.class);
-            handler.unlockAchievement(getName(), SLOW_LEARNER.toString());
+            handler.unlockAchievement(this.getName(), SLOW_LEARNER.toString());
             return BattleshipTurnResult.missTarget(input);
         } else if (currentState.equals(CellType.HIT)) {
             System.out.println("You Got Him Achievement - Requirements met for " + getName());
             AchievementHandler handler = new AchievementHandler(BattleshipServer.class);
-            handler.unlockAchievement(getName(), YOU_GOT_HIM.toString());
+            handler.unlockAchievement(this.getName(), YOU_GOT_HIM.toString());
             return BattleshipTurnResult.alreadyHitCell(input);
         } else {
             // If the cell is not an ocean, miss, or hit cell, set the cell to a "hit"
@@ -121,7 +121,7 @@ public class BattleshipPlayer {
 
             vessels.forEach((key, value) ->{
                 Ship current = value;
-                current.updateShipStatus(x, y);
+                current.updateShipStatus(x, y, getName());
                 vessels.replace(key, current);
             });
 
@@ -157,12 +157,12 @@ public class BattleshipPlayer {
         // If the player enters C120 as the coordinates give them the COSC120 inside joke achievement
         if (input.equals("C120")) {
             AchievementHandler handler = new AchievementHandler(BattleshipServer.class);
-            handler.unlockAchievement(getName(), C_120.toString());
+            handler.unlockAchievement(this.getName(), C_120.toString());
         }
 
         // Debug commands for testing achievements and states - Craig
         if (input.equals("ROSEBUD")){
-            playerBoard.sinkAll();
+            playerBoard.sinkAll(this.getName());
         }
 
         // Craig's code split off and moved here by Mitch
