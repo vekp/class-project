@@ -152,8 +152,10 @@ public class BattleshipPlayer {
      * @return true if the coordinate is valid, false if not
      */
     private boolean validateInput(String input) {
+        // Make input case in-sensitive
+        input = input.toUpperCase();
         // If the player enters C120 as the coordinates give them the COSC120 inside joke achievement
-        if (input.equals("C120") && isHumanControlled()) {
+        if (input.equals("C120")) {
             AchievementHandler handler = new AchievementHandler(BattleshipServer.class);
             handler.unlockAchievement(getName(), C_120.toString());
         }

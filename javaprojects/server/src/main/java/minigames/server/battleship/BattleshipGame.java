@@ -240,7 +240,7 @@ public class BattleshipGame {
             opponent.updateHistory(result.opponentMessage());
             SwapTurns();
             renderingCommands.add(new JsonObject().put("command", "wait"));
-        } else if (!result.successful()) {
+        } else {
             currentPlayer.updateHistory(result.playerMessage());
             renderingCommands.add(new JsonObject().put("command", "wait"));
         }
