@@ -15,8 +15,8 @@ public class Session {
     @JsonProperty("isActive")
     private boolean isActive = false;
 
-    @JsonProperty("game")
-    private ArrayList<Game> game = new ArrayList<Game>();
+    @JsonProperty("games")
+    private ArrayList<Game> games = new ArrayList<Game>();
 
     // an empty constructor function to allow the object to be created without any parameters.
     public Session(){
@@ -54,11 +54,11 @@ public class Session {
 
     public void addGame(String gameName, String value) {
         Game game = new Game(gameName, value);
-        this.game.add(game);
+        this.games.add(game);
     }
 
     public ArrayList<Game> getGames() {
-        return this.game;
+        return this.games;
     }
 
     public String returnSession() {
