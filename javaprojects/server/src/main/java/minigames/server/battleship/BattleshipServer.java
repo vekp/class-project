@@ -18,7 +18,7 @@ import java.util.Random;
  */
 enum achievements{
     FOUR_CORNERS, COSY_CONVOY, YOU_GOT_HIM, SLOW_LEARNER, C_120, HUNTER_KILLER, THREE_HOUR_CRUISE, THE_BIGGER_THEY_ARE,
-    DESTROYER_DESTROYED, TITLE_DROP;
+    DESTROYER_DESTROYED, TITLE_DROP, MISSION_COMPLETE;
 
     /**
      * Sorry Nathan I'm not sure if this is the format needed by the handler
@@ -37,6 +37,7 @@ enum achievements{
             case THE_BIGGER_THEY_ARE:   return "The Bigger They Are";
             case DESTROYER_DESTROYED:   return "Destroyer == Destroyed!";
             case TITLE_DROP:            return "Watership Down";
+            case MISSION_COMPLETE:      return "Mission Complete";
             default:            return "Unknown Achievement";
         }
     }
@@ -69,6 +70,8 @@ public class BattleshipServer implements GameServer {
                 "Destroy a destroyer.", 10, "", false));
         achievementHandler.registerAchievement(new Achievement(achievements.TITLE_DROP.toString(),
                 "Destroy a battleship.", 10, "", false));
+        achievementHandler.registerAchievement(new Achievement(achievements.MISSION_COMPLETE.toString(),
+                "Destroy all enemy ships.", 100, "", false));
 
     }
 

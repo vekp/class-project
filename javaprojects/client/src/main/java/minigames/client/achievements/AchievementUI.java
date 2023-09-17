@@ -8,6 +8,8 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
+import static minigames.utilities.MinigameUtils.generateScrollPane;
+
 public class AchievementUI extends JPanel {
     private final JScrollPane achievementScrollPane;
     private final MinigameNetworkClient mnClient;
@@ -80,15 +82,6 @@ public class AchievementUI extends JPanel {
         buttonPanel.add(backButton, BorderLayout.EAST);
     }
 
-    /**
-     * Create a vertical scroll pane of the given content
-     */
-    public static JScrollPane generateScrollPane(Component content) {
-        JScrollPane scrollPane = new JScrollPane(content);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        return scrollPane;
-    }
 
     /**
      * Display the achievement viewer UI in the main window, with buttons below.

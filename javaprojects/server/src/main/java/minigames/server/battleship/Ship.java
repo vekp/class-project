@@ -142,8 +142,10 @@ public class Ship {
      * Updates the cells within the current Ship Object, should be performed after every round of enemy firing.
      * @param row The x coordinate for the target
      * @param col The y coord
+     * @param playerName The name of the player who owns the board, this helps to pop the appropriate achievement.
      */
-    public Ship updateShipStatus(int col, int row) {
+
+    public Ship updateShipStatus(int col, int row, String playerName) {
 
         hits = 0;
         // booleans that can be set to reduce console spam
@@ -192,17 +194,19 @@ public class Ship {
         // if all cells within the Ship have been hit, sink the ship
         if (this.size == hits && !this.sunk) {
             this.sink();
+
             this.setJustSunk(true);  // Set just sunk
-            if (this.getShipClass().equals("Carrier")) {
-                achievementHandler.unlockAchievement(owner, THE_BIGGER_THEY_ARE.toString());
+            if(this.getShipClass().equals("Carrier")){
+                achievementHandler.unlockAchievement(playerName, THE_BIGGER_THEY_ARE.toString());
             } else if (this.getShipClass().equals("Patrol Boat")) {
-                achievementHandler.unlockAchievement(owner, THREE_HOUR_CRUISE.toString());
-            } else if (this.getShipClass().equals("Submarine")) {
-                achievementHandler.unlockAchievement(owner, HUNTER_KILLER.toString());
+                achievementHandler.unlockAchievement(playerName, THREE_HOUR_CRUISE.toString());
+            } else if (this.getShipClass().equals("Submarine")){
+                achievementHandler.unlockAchievement(playerName, HUNTER_KILLER.toString());
+
             } else if (this.getShipClass().equals("Destroyer")) {
-                achievementHandler.unlockAchievement(owner, DESTROYER_DESTROYED.toString());
+                achievementHandler.unlockAchievement(playerName, DESTROYER_DESTROYED.toString());
             } else if (this.getShipClass().equals("Battleship")) {
-                achievementHandler.unlockAchievement(owner, TITLE_DROP.toString());
+                achievementHandler.unlockAchievement(playerName, TITLE_DROP.toString());
             }
         } else {
             if (this.justSunk) this.setJustSunk(false);

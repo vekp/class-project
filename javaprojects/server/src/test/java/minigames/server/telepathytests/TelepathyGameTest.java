@@ -1,6 +1,8 @@
 package minigames.server.telepathytests;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,9 +13,16 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.RenderingPackage;
 import minigames.server.telepathy.TelepathyGame;
+import minigames.server.telepathy.Player;
+import minigames.telepathy.State;
+import minigames.telepathy.TelepathyCommandException;
+import minigames.telepathy.TelepathyCommandHandler;
 import minigames.telepathy.TelepathyCommands;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+
 
 public class TelepathyGameTest {
     @Test
@@ -23,11 +32,9 @@ public class TelepathyGameTest {
         TelepathyGame game = new TelepathyGame(testGameName);
 
         assertTrue(game.getName().equals(testGameName));
-        TelepathyGame.Player[] gamePlayers = game.getPlayers();
+        HashMap<String,Player> gamePlayers = game.getPlayers();
         
-        assertTrue(gamePlayers.length == 2);
-        assertTrue(gamePlayers[0] == null);
-        assertTrue(gamePlayers[1] == null);
+        assertTrue(gamePlayers.size() == 0);
     }
 
     @Test
@@ -53,27 +60,37 @@ public class TelepathyGameTest {
 
         // Test joining empty game (when creating new game)
         game.joinGame("Bob");
-        assertTrue(game.getPlayers()[0].name().equals("Bob"));
+        assertTrue(game.getPlayers().get("Bob").getName().equals("Bob"));
 
         // Check that another Bob cannot join
         RenderingPackage renderingPackage = game.joinGame("Bob");
         assertTrue((renderingPackage.renderingCommands().get(0).getString("command"))
                 .equals(TelepathyCommands.JOINGAMEFAIL.toString()));
 
-        TelepathyGame.Player players[] = game.getPlayers();
-        assertTrue(players[0].name().equals("Bob"));
-        assertTrue(players[1] == null);
+        HashMap<String,Player> players = game.getPlayers();
+        assertTrue(players.size() == 1);
+        assertTrue(players.keySet().contains("Bob"));
+
+        // Check that players with invalid names cannot join
+        renderingPackage = game.joinGame(" ");
+        assertTrue(
+                (renderingPackage.renderingCommands().get(0).getString("command").equals("JOINGAMEFAIL"))
+        );
+
+        renderingPackage = game.joinGame(null);
+        assertTrue(
+            (renderingPackage.renderingCommands().get(0).getString("command").equals("JOINGAMEFAIL"))
+        );
 
         // Check another player can join a game with a free spot
         renderingPackage = game.joinGame("Alice");
         assertTrue(
                 (renderingPackage.renderingCommands().get(0).getString("nativeCommand").equals("client.loadClient")));
-        assertTrue((renderingPackage.renderingCommands().get(1).getString("command")
-                .equals(TelepathyCommands.JOINGAMESUCCESS.toString())));
 
         players = game.getPlayers();
-        assertTrue(players[0].name().equals("Bob"));
-        assertTrue(players[1].name().equals("Alice"));
+        assertTrue(players.size() == 2);
+        assertTrue(players.keySet().contains("Bob"));
+        assertTrue(players.keySet().contains("Alice"));
 
         // Check that a player cannot join a full game
         renderingPackage = game.joinGame("Fred");
@@ -81,8 +98,9 @@ public class TelepathyGameTest {
                 .equals(TelepathyCommands.JOINGAMEFAIL.toString())));
 
         players = game.getPlayers();
-        assertTrue(players[0].name().equals("Bob"));
-        assertTrue(players[1].name().equals("Alice"));
+        assertTrue(players.size() == 2);
+        assertTrue(players.keySet().contains("Bob"));
+        assertTrue(players.keySet().contains("Alice"));
     }
     
     @Test
@@ -92,15 +110,43 @@ public class TelepathyGameTest {
 
         String testPlayerName = "Bob";
 
-        // Test QUIT
         assertTrue(game.telepathyGameMetadata().players().length == 0);
-
         game.joinGame(testPlayerName); // Join game to test QUIT
 
+        // Test TOGGLEREADY
+        assertFalse(game.getPlayers().get("Bob").isReady());
+        RenderingPackage response = game.runCommands(new CommandPackage(
+            game.telepathyGameMetadata().gameServer(), 
+            game.telepathyGameMetadata().name(), 
+            testPlayerName,
+            Collections.singletonList(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.TOGGLEREADY))));
+
+        // Get the attributes and expected attributes
+        ArrayList<String> returnedAttributes = TelepathyCommandHandler.getAttributes(response.renderingCommands().get(0));
+        ArrayList<String> expectedAttributes = new ArrayList<>();
+        expectedAttributes.add("readyButton");
+        expectedAttributes.add("true");
+        assertTrue(returnedAttributes.containsAll(expectedAttributes));
+        assertTrue(game.getPlayers().get("Bob").isReady());
+
+        // Test REQUESTUPDATE
+        response = game.runCommands(new CommandPackage(
+            game.telepathyGameMetadata().gameServer(), 
+            game.telepathyGameMetadata().name(), 
+            testPlayerName, 
+            Collections.singletonList(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.REQUESTUPDATE))));
+
+        // Updates expected
+        //          MODIFYPLAYER from joining game
+        System.out.println(response.renderingCommands().get(0).getString("command"));
+        assertTrue(response.renderingCommands().get(0).getString("command").equals("MODIFYPLAYER"));
+        
+        // Test QUIT
+        
         assertTrue(game.telepathyGameMetadata().players().length == 1);
 
         CommandPackage cp = makeCommandPackage(game.telepathyGameMetadata(), testPlayerName, TelepathyCommands.QUIT.toString());
-        RenderingPackage response = game.runCommands(cp);
+        response = game.runCommands(cp);
         assertTrue(response.renderingCommands().get(0).getString("nativeCommand").equals("client.quitToMGNMenu"));
         assertTrue(game.telepathyGameMetadata().players().length == 0); // Player has been removed from the game
         
@@ -113,14 +159,42 @@ public class TelepathyGameTest {
         assertTrue(response.renderingCommands().get(0).getString("command").equals(TelepathyCommands.QUIT.toString()));
         assertTrue(game.telepathyGameMetadata().players().length == 0);
         
-        // Test empty, invalid commands - expect an INVALIDCOMMAND response
+        // Test empty, commands not defined will throw an exception
         game.joinGame(testPlayerName);
 
-        cp = makeCommandPackage(game.telepathyGameMetadata(), testPlayerName, " ");
-        response = game.runCommands(cp);
-        assertTrue(response.renderingCommands().get(0).getString("command")
-                .equals(TelepathyCommands.INVALIDCOMMAND.toString()));
+        assertThrows(TelepathyCommandException.class, () -> {
+            game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), testPlayerName, " "));
+        });
+    }
 
+    @Test
+    @DisplayName("TelepathyGame state testing")
+    public void testGameState(){
+        // Test state transitions and methods that check for state
+
+        String player1 = "Bob";
+        String player2 = "Alice";
+        // Test INITIALISE state
+        TelepathyGame game = new TelepathyGame("test");
+        assertTrue(game.getState() == State.INITIALISE);
+
+        game.joinGame(player1);
+        game.joinGame(player2);
+
+        game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), player1, TelepathyCommands.TOGGLEREADY.toString()));
+        game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), player2, TelepathyCommands.TOGGLEREADY.toString()));
+        
+        // Test RUNNING state
+
+        // Send toggle ready during running state
+        RenderingPackage response = game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), player1, TelepathyCommands.TOGGLEREADY.toString()));
+        assertTrue(response.renderingCommands().get(0).getString("command").equals("INVALIDCOMMAND"));
+
+        // Test GAMEOVER state
+
+        // Game is over if player leaves while game is running
+        game.runCommands(makeCommandPackage(game.telepathyGameMetadata(), player1, TelepathyCommands.QUIT.toString()));
+        assertTrue(game.getState() == State.GAMEOVER);
     }
     
     /* HELPER METHODS */

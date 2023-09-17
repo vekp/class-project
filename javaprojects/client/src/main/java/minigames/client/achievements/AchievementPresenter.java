@@ -1,12 +1,11 @@
 package minigames.client.achievements;
 
 import minigames.achievements.Achievement;
+import minigames.utilities.MinigameUtils;
 
 import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 
 /**
@@ -34,10 +33,10 @@ public class AchievementPresenter {
 
     /**
      * Create image of achievement of given height
-     * @param targetHeight the desired height of image
+     * @param targetSize the desired size of image
      * @return an ImageIcon
      */
-    private ImageIcon achievementImage(int targetHeight) {
+    private ImageIcon achievementImage(int targetSize) {
 
         // Set path of image
         String path;
@@ -54,32 +53,11 @@ public class AchievementPresenter {
             }
         }
 
-        ImageIcon scaledImage =  scaledImage(path, targetHeight);
+        ImageIcon scaledImage =  MinigameUtils.scaledImage(path, targetSize);
         if (isUnlocked) return scaledImage;
         // Apply grey filter to locked items
         Image grayedImage = GrayFilter.createDisabledImage(scaledImage.getImage());
         return new ImageIcon(grayedImage);
-    }
-
-    /**
-     * Makes a scaled image of desired height and proportional width.
-     * @param filepath String with filepath of the source image
-     * @param targetHeight int of desired height to scale image to
-     * @return ImageIcon after it has been scaled.
-     */
-    public static ImageIcon scaledImage(String filepath, int targetHeight) {
-        ImageIcon imageIcon = new ImageIcon(filepath);
-        float aspectRatio = (float) imageIcon.getIconWidth() / imageIcon.getIconHeight();
-        int targetWidth;
-        if (aspectRatio > 1) {
-            targetWidth = targetHeight;
-            targetHeight = (int) (targetHeight / aspectRatio);
-        } else {
-            targetWidth = (int) (targetHeight * aspectRatio);
-        }
-        Image scaledImage = imageIcon.getImage().getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
-        imageIcon.setImage(scaledImage);
-        return imageIcon;
     }
 
     /**
@@ -109,19 +87,23 @@ public class AchievementPresenter {
      * @return A JPanel
      */
     public JPanel mediumAchievementPanel() {
+        int imageSize = 50;
         JLabel text = new JLabel("<html><h3 style='margin: 0'>" + achievement.name() +
                 "</h3>" + achievement.description() + "</html>");
 
         JPanel panel = new JPanel();
-        JLabel image = new JLabel(achievementImage(50));
-        image.setPreferredSize(new Dimension(50, 50));
+        JLabel image = new JLabel(achievementImage(imageSize));
+        image.setPreferredSize(new Dimension(imageSize, imageSize));
         image.setBorder(new EmptyBorder(4, 4, 4, 4));
 
         panel.add(image);
         panel.add(Box.createRigidArea(new Dimension(10, 0)));
         panel.add(text);
 
-        if (!isUnlocked) text.setForeground(achievement.hidden()? hiddenLockedColour : lockedColour);
+        if (!isUnlocked) {
+            text.setForeground(achievement.hidden() ? hiddenLockedColour : lockedColour);
+            text.setName("Locked achievement text"); // Tag the text for applyStyling
+        }
         else if (achievement.hidden()) text.setForeground(hiddenUnlockedColour);
 
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -161,6 +143,8 @@ public class AchievementPresenter {
         panel.add(image, gbc);
         panel.add(name, gbc);
         panel.add(description, gbc);
+
+        panel.setPreferredSize(new Dimension(AchievementCarousel.carouselPanelWidth, AchievementCarousel.carouselPanelHeight));
 
         return panel;
     }

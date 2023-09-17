@@ -57,9 +57,9 @@ public class Battleship implements GameClient, Tickable {
     JLabel currentTurn;
     JPanel maps;
     JPanel nauticalMap;
-    JTextArea nauticalText;
+    JLabel nauticalText;
     JPanel targetMap;
-    JTextArea targetText;
+    JLabel targetText;
     JPanel terminal;
     JTextArea messages;
     JScrollPane commandTerminal;
@@ -102,9 +102,10 @@ public class Battleship implements GameClient, Tickable {
                 "Help Menu",
                 helpPanel,
                 e1 -> {
-                    maps.requestFocus();
-                }
-                ));
+                    userCommand.requestFocus();
+                })
+        );
+
         helpButton.setFont(fonts.get(1));
 
         // Style buttons
@@ -165,18 +166,16 @@ public class Battleship implements GameClient, Tickable {
         // Maps
         maps = new JPanel();
         nauticalMap = new JPanel();  // Add player ship grid
-        nauticalText = new JTextArea();
+        nauticalText = new JLabel();
         nauticalText.setFont(fonts.get(1));
-        nauticalText.setEditable(false);
         nauticalMap.add(nauticalText);
 
         maps.add(nauticalMap);
         maps.add(Box.createRigidArea(new Dimension(100, 330)));
 
         targetMap = new JPanel();  // Add enemy ship grid
-        targetText = new JTextArea();
+        targetText = new JLabel();
         targetText.setFont(fonts.get(1));
-        targetText.setEditable(false);
         targetMap.add(targetText);
         maps.add(targetMap);
         maps.setFocusable(true);

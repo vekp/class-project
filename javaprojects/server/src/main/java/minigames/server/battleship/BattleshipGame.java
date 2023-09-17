@@ -257,10 +257,14 @@ public class BattleshipGame {
                     //no other commands run here, player will continue waiting until their turn
                 }
 
+                if(opponent.getBoard().checkGameOver(current.getName()) || current.getBoard().checkGameOver(opponent.getName())){
+                    this.gameState = GameState.GAME_OVER;
+                }
+
                 return new RenderingPackage(gameMetadata(), commands);
             }
             case GAME_OVER -> {
-                //todo do game over stuff
+                // TODO - Render a game-over screen
             }
         }
 
@@ -278,7 +282,7 @@ public class BattleshipGame {
     public ArrayList<JsonObject> runGameCommand(BattleshipPlayer currentPlayer, BattleshipPlayer opponent, String userInput) {
 
         //tell the player to take their turn - if they provided invalid input for any reason, this will
-        //fail and they will be prompted to provide another input
+        //fail, and they will be prompted to provide another input
         BattleshipTurnResult result = currentPlayer.processTurn(userInput, opponent.getBoard());
 
         // Update current player's message history with the result
@@ -293,6 +297,9 @@ public class BattleshipGame {
             //opponent should now get feedback about the player's turn
             opponent.updateHistory(result.opponentMessage());
             SwapTurns();
+            renderingCommands.add(new JsonObject().put("command", "wait"));
+        } else {
+            currentPlayer.updateHistory(result.playerMessage());
             renderingCommands.add(new JsonObject().put("command", "wait"));
         }
         return renderingCommands;
@@ -318,10 +325,10 @@ public class BattleshipGame {
                 .put("player", targetPlayer.getName()));
         renderingCommands.add(new JsonObject()
                 .put("command", "placePlayer1Board")
-                .put("text", Board.generateBoard(player, targetPlayer.getBoard().getGrid())));
+                .put("text", targetPlayer.getBoard().generateBoard(player, false)));
         renderingCommands.add(new JsonObject()
                 .put("command", "placePlayer2Board")
-                .put("text", Board.showEnemyBoard(enemy, opponent.getBoard().getGrid())));
+                .put("text", opponent.getBoard().generateBoard(enemy, true)));
         renderingCommands.add(new JsonObject()
                 .put("command", "updateTurnCount")
                 .put("turnCount", gameTurn));
@@ -387,10 +394,10 @@ public class BattleshipGame {
                 // For one player, show enemy board of computer
                 renderingCommands.add(new JsonObject()
                         .put("command", "placePlayer1Board")
-                        .put("text", Board.generateBoard(player, bPlayers.get(playerName).getBoard().getGrid())));
+                        .put("text", bPlayers.get(playerName).getBoard().generateBoard(player, false)));
                 renderingCommands.add(new JsonObject()
                         .put("command", "placePlayer2Board")
-                        .put("text", Board.showEnemyBoard(enemy, bPlayers.get(getPlayerNames()[1]).getBoard().getGrid())));
+                        .put("text", bPlayers.get(getPlayerNames()[1]).getBoard().generateBoard(enemy, true)));
             } else {
                 // Second player to join - Simply replaces the computer
                 bPlayers.remove("Computer");
@@ -399,10 +406,10 @@ public class BattleshipGame {
                 // For two players, show enemy board of player 1
                 renderingCommands.add(new JsonObject()
                         .put("command", "placePlayer1Board")
-                        .put("text", Board.generateBoard(player, bPlayers.get(playerName).getBoard().getGrid())));
+                        .put("text", bPlayers.get(playerName).getBoard().generateBoard(player, false)));
                 renderingCommands.add(new JsonObject()
                         .put("command", "placePlayer2Board")
-                        .put("text", Board.showEnemyBoard(enemy, bPlayers.get(getPlayerNames()[0]).getBoard().getGrid())));
+                        .put("text", bPlayers.get(getPlayerNames()[0]).getBoard().generateBoard(enemy, true)));
             }
 
             return new RenderingPackage(gameMetadata(), renderingCommands);

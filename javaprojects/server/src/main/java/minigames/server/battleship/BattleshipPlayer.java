@@ -65,11 +65,11 @@ public class BattleshipPlayer {
         // Get formatted input and spit it to be passed into shotOutcome()
         String[] validatedInput = formatInput(input).split(",");
 
-        int col = BattleshipGame.chars.indexOf(validatedInput[0]);
-        int row = -1;
+        int row = BattleshipGame.chars.indexOf(validatedInput[0]);
+        int col = -1;
         // This technically should not need error handling as only valid input can get to this stage - precautionary
         try {
-            row = Integer.parseInt(validatedInput[1]);
+            col = Integer.parseInt(validatedInput[1]);
         } catch (NumberFormatException e) {
             return BattleshipTurnResult.invalidInput(input);
         }
@@ -77,7 +77,9 @@ public class BattleshipPlayer {
         // Add input to the message history
         updateHistory(formatInput(input));
 
-        return shotOutcome(opponent, col, row);
+        opponent.setLastShot(row, col);
+
+        return shotOutcome(opponent, row, col);
     }
 
     /**
@@ -103,12 +105,12 @@ public class BattleshipPlayer {
             //no need to check for already unlocked as handler will do that
             System.out.println("Slow Learner Achievement - Requirements met for " + getName());
             AchievementHandler handler = new AchievementHandler(BattleshipServer.class);
-            handler.unlockAchievement(getName(), SLOW_LEARNER.toString());
+            handler.unlockAchievement(this.getName(), SLOW_LEARNER.toString());
             return BattleshipTurnResult.missTarget(input);
         } else if (currentState.equals(CellType.HIT)) {
             System.out.println("You Got Him Achievement - Requirements met for " + getName());
             AchievementHandler handler = new AchievementHandler(BattleshipServer.class);
-            handler.unlockAchievement(getName(), YOU_GOT_HIM.toString());
+            handler.unlockAchievement(this.getName(), YOU_GOT_HIM.toString());
             return BattleshipTurnResult.alreadyHitCell(input);
         } else {
             // If the cell is not an ocean, miss, or hit cell, set the cell to a "hit"
@@ -118,7 +120,7 @@ public class BattleshipPlayer {
             HashMap<String, Ship> vessels = opponent.getVessels();
             vessels.forEach((key, value) ->{
                 Ship current = value;
-                current.updateShipStatus(x, y);
+                current.updateShipStatus(x, y, getName());
                 vessels.replace(key, current);
             });
             opponent.setVessels(vessels);
@@ -151,11 +153,19 @@ public class BattleshipPlayer {
      * @return true if the coordinate is valid, false if not
      */
     private boolean validateInput(String input) {
+        // Make input case in-sensitive
+        input = input.toUpperCase();
         // If the player enters C120 as the coordinates give them the COSC120 inside joke achievement
-        if (input.equals("C120") && isHumanControlled()) {
+        if (input.equals("C120")) {
             AchievementHandler handler = new AchievementHandler(BattleshipServer.class);
-            handler.unlockAchievement(getName(), C_120.toString());
+            handler.unlockAchievement(this.getName(), C_120.toString());
         }
+
+        // Debug commands for testing achievements and states - Craig
+        if (input.equals("ROSEBUD")){
+            playerBoard.sinkAll(this.getName());
+        }
+
         // Craig's code split off and moved here by Mitch
         // Regex to check that the coordinate string is valid
         String regex = "^[A-J][0-9]$";
