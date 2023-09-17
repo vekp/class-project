@@ -12,7 +12,6 @@ import static java.lang.Math.round;
 public class Board {
     private Grid grid; // A two-dimensional array of Cells for drawing the game board
     private HashMap<String, Ship> vessels;  // A hashmap containing each of the five ship types for the current board
-    private int turnNumber;  // The current turn number
 
     private GameState gameState;
     private int lastRowShot;
@@ -24,7 +23,6 @@ public class Board {
 //     * @param   String representing the name of the player
      */
     public Board(int choice){
-        this.turnNumber = 0;
         this.vessels = new HashMap<>();
         this.grid = new Grid(); // Create a default grid
         chooseGrid(choice); // Fake name while I sort this out
@@ -54,19 +52,7 @@ public class Board {
      */
 //    public String getPlayerName() {return this.playerName;}
 
-    /**
-     * Getter for the current turn number
-     * @return An int for the current turn number
-     */
-    public int getTurnNumber() {return this.turnNumber;}
 
-    /**
-     * Getter for the player's message history
-     * @return the message history string
-     */
-//    public String getMessageHistory() {
-//        return messageHistory;
-//    }
 
     /**
      * Getter for the player's current game state
@@ -129,22 +115,6 @@ public class Board {
         if(cellType.toString().equals("X") || cellType.toString().equals(".")) {
             this.grid.shootCell(col, row);
         }
-    }
-
-
-    /**
-     * Adds the user's input to the message history
-     * @param input user's input
-     */
-//    public void updateMessageHistory(String input) {
-//        this.messageHistory = getMessageHistory() + input;
-//    }
-
-    /**
-     * Increments the turn number
-     */
-    public void incrementTurnNumber() {
-        this.turnNumber = getTurnNumber() + 1;
     }
 
     /**
@@ -270,5 +240,9 @@ public class Board {
     public void setLastShot(int row, int col) {
         this.lastRowShot = row;
         this.lastColShot = col;
+    }
+
+    public void checkGameOver(){
+
     }
 }
