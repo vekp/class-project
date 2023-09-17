@@ -25,12 +25,12 @@ public class SpaceBot extends SpaceEntity {
         this.seeking = true;
         this.startLocation = new Point(startLocation);
         botImage = new ImageIcon(getClass().getResource("/images/spacemaze/alien1a.png")).getImage();
+
     }
 
     /**
      * Private method to get a list of valid moves the bot could make.
      * @return a ArrayList<Point> of valid moves.
-     * Covered by tests from testInvalidMoves, testValidMovesAreValid, testBotMoveCommand, testIllegalBotMoveCommand
      */
     private ArrayList<Point> getValidMoves() {
         ArrayList<Point> validMoves = new ArrayList<Point>();
@@ -42,12 +42,13 @@ public class SpaceBot extends SpaceEntity {
              if (MazeDisplay.isMoveValid(newLocation)) {
             validMoves.add(newLocation);
             }
-        }
 
+        }
         return validMoves;
+
     }
 
-    /**
+    /** 
      * Private method to decide which valid move end up with the bot closing the distance to the player the most.
      * If two moves are the same distance, it will prioritise Left, Down, Right, Up.
      * @param playerPos a Point of the player's current position.
@@ -73,13 +74,14 @@ public class SpaceBot extends SpaceEntity {
                 bestMove = i;
                 bestDistance = possDistance;
             }
+
         }
+
         // If there is a best move, return it. If not, return an invalid location.
         if(bestMove > -1) {
             return possibleMoves.get(bestMove);
         }
-        else
-        {
+        else {
             Point invalid = new Point(-1,-1);
             return invalid;
         }
@@ -97,6 +99,7 @@ public class SpaceBot extends SpaceEntity {
             seeking = true;
             moves.clear();
             return seeking;
+
         }
         // Check for a movement loop - last three elements form a sequence a,b,a if seeking and travelled at least three moves
         else if(aSize >= 3 && seeking == true) {
@@ -108,6 +111,7 @@ public class SpaceBot extends SpaceEntity {
                 seeking = false;
                 return seeking;
             }
+
         }
 
         return seeking;
@@ -115,39 +119,30 @@ public class SpaceBot extends SpaceEntity {
     }
 
     /**
-     * Private method to make the bot choose a move which decreases the distance to the player.
+     * Private method to make the bot choose a move which decreases the distance to the player, or attempt to move randomly.
      * @param playerPosition a Point representing the players current position.
      */
-    private void moveCloser(Point playerPosition) {
-         ArrayList<Point> validMoves = getValidMoves();
+    private void moveCloser(Point playerPosition, Point closestMove, ArrayList<Point> validMoves) {
 
-        if (validMoves.size() > 0) {
-            Point closestMove = distanceCloser(playerPosition, validMoves);
-            // A move to close the distance.
-            if(closestMove.x > -1 && closestMove.y > -1) {
+        // A move to close the distance, when the Point is not -1,-1
+        if(closestMove.x > -1 && closestMove.y > -1) {
 
-                updateLocation(closestMove);
-                return;
-            }
-            else
-            {
-                // no valid moves to close the distance, so use a random move.
-                Random ran = new Random();
-                moveRandom(ran);
-            }
+            updateLocation(closestMove);
         }
+        else {
+            // no valid moves or moves to close the distance, attempt to move randomly.
+            moveRandom(new Random(), validMoves);
+        }
+
     }
 
     /**
-     * Private method to make the bot move randomly.
+     * Private method to attempt to make the bot move randomly. If no valid moves, do not move.
      * @param ran an instance of the Random class.
      */
-    private void moveRandom(Random ran) {
-        
+    private void moveRandom(Random ran, ArrayList<Point> validMoves) {
         int validDecision;
-        ArrayList<Point> validMoves = getValidMoves();
 
-        
         if (validMoves.size() > 1) {
             validDecision = ran.nextInt((validMoves.size() - 1));
         } else if (validMoves.size() == 1) {
@@ -205,21 +200,24 @@ public class SpaceBot extends SpaceEntity {
     }
     
      /**
-     * Public method to make the bot move.
+     * Public method - entry point to make the bot move, called by external classes
      * @param playerPos a Point representing the player's current position. Used only for seeking movement.
      */
     public void move(Point playerPos) {
+        // decide if the bot should seek or move randomly.
         boolean goSeek = chooseSeeking();
+        // get a list of valid moves. NOTE - static method for checking valid moves in MazeControl. 
+        // MazeControl will always be instantiated when bots are in use, saved passing MazeControl into the bots or refactoring the check this late.
+        ArrayList<Point> validMoves = getValidMoves();
         
-        if(goSeek)
-        {
-            moveCloser(playerPos);
+        if(goSeek) {     
+            Point closestMove = distanceCloser(playerPos, validMoves);
+            moveCloser(playerPos, closestMove, validMoves);
         }
-        else
-        {
-            Random ran = new Random();
-            moveRandom(ran);
+        else {
+            moveRandom(new Random(), validMoves);
         }
+
     }
     
      /**
@@ -234,22 +232,46 @@ public class SpaceBot extends SpaceEntity {
 
     public Image getBotImage() {
         return botImage;
+
     }
 
 
     //-----------------------------Testing Methods------------------------------
+     /**
+     * Public test method to get a list of valid moves the bot could make.
+     * @return a ArrayList<Point> of valid moves.
+     */
+    public ArrayList<Point> testingGetValidMoves() {
+        ArrayList<Point> validMoves = new ArrayList<Point>();
+        
+        // Checking for valid moves, 0 : Up, 1 : Right, 2 : Down, 3 : Left.
+        for(int i = 0;i<4;i++) {
+            Point newLocation = moveAttempt(i);
+             // Is a valid move
+             System.out.println("valid location x,y :" + newLocation.x + ", " + newLocation.y);
+             if (MazeDisplay.isMoveValid(newLocation)) {
+            validMoves.add(newLocation);
+            }
+        }
+
+        return validMoves;
+    }
+
+
+
+
     /**
      * Public method to allow testing of the moveAttempt method.
      * @param move an int representing the direction to move. 0 : Up, 1 : right, 2 : down, 3 : left.
      * @return a Point representing the new position after making the move.
      */
     public Point testingGetMoveAttempt(int move) {
-        if(move < 0 || move > 3)
-        {
+        if(move < 0 || move > 3) {
             throw new IllegalArgumentException("The movement test input must be between 0 and 3 inclusive.");
         }
 
         return moveAttempt(move);
+
     }
     /**
      * Public method to allow getting of internal moves arraylist.
@@ -273,6 +295,22 @@ public class SpaceBot extends SpaceEntity {
     public Point testingDistanceCloser(Point playerPos, ArrayList<Point> possibleMoves) {
         return distanceCloser(playerPos, possibleMoves);
     }
+    /**
+     * Public method to test the ability of the bot to choose a move which decreases the distance to the player.
+     * @param playerPosition a Point representing the players current position.
+     */
+    public void testingMoveCloser(Point playerPosition, Point closestMove, ArrayList<Point> validMoves) {
+        moveCloser(playerPosition, closestMove, validMoves);
+    }
+
+    /**
+     * Public test method to make the bot move randomly.
+     * @param ran an instance of the Random class.
+     */
+    public void testingMoveRandom(Random ran, ArrayList<Point> validMoves) {   
+        moveRandom(ran, validMoves);
+        
+    }
 
     /**
      * Public method to test the logic of switching movement modes.
@@ -280,6 +318,7 @@ public class SpaceBot extends SpaceEntity {
      */
     public boolean testingChooseSeeking() {
         return chooseSeeking();
+        
     }
 
 }

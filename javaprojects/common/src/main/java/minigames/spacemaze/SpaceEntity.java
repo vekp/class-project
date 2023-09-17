@@ -1,42 +1,36 @@
 package minigames.spacemaze;
-
 import java.awt.Point;
-import java.awt.Graphics;
-import javax.swing.ImageIcon;
-import javax.swing.JPanel;
-/*
- * Base class for bots and players.
- *  @author Nikolas Olins
- *  Jpanel and related rendering methods taken from https://github.com/ntedgi/PacMan-Game-Java-Swing/blob/master/src/Character.java
+
+/**
+ * Abstract base class for bots and players.
+ * @author Nikolas Olins
+ *  
  */
 
-public abstract class SpaceEntity extends JPanel {
+public abstract class SpaceEntity {
     protected Point location;
-    protected ImageIcon image;
 
-    public SpaceEntity(Point startLocation)
-    {
+    /**
+     * Constructor
+     * @param startLocation a point representing the starting location.
+     */
+    public SpaceEntity(Point startLocation) {
         this.location = new Point(startLocation);
         //this.image = leftIcon();
     }
-    /*
-    protected ImageIcon leftIcon() {
-        return null;
-    }
-*/
-    /*
-    @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-		image.paintIcon(this, g, location.x, location.y);
-    }
-*/
-
-    // getter for location
+    /**
+     * Public method to return the starting location as a Point.
+     * @param startLocation a point representing the starting location.
+     * @return a Point of the start location.
+     */
     public Point getLocation() {
         return location;
     }
-    // update the current location
+
+    /**
+     * Public method to update the current location
+     * @param newLocation a point representing the new location.
+     */
     public void updateLocation(Point newLocation) {
         location = new Point(newLocation);
     }

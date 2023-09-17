@@ -2,19 +2,11 @@ package minigames.client.spacemaze;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.*;
 import java.awt.Point;
-import java.util.ArrayList;
-
-import org.junit.jupiter.api.Disabled;
-import java.io.*;
-import static org.mockito.Mockito.*;
-import org.junit.jupiter.api.extension.ExtendWith;
+import java.util.*;
 
 public class SpaceMazeClientTests {
 
@@ -24,7 +16,7 @@ public class SpaceMazeClientTests {
      * Setting up a maze display for testing logic
      */
     @BeforeEach
-    public void dummyMazeArray(){
+    public void dummyMazeArray() {
         SpaceMaze spaceMaze = new SpaceMaze();
         ArrayList<SpaceBot> bots = new ArrayList<>();
         char [][] mazeMap = {
@@ -57,8 +49,9 @@ public class SpaceMazeClientTests {
         
         assertEquals(startLocation.x, cLoc.x);
         assertEquals(startLocation.y, cLoc.y);
-        assertNotNull(bot.testingGetMovesList(), "bot move ArrayList is not null");
-        assertTrue(bot.testingIsSeeking(), "bot is seeking");
+        assertNotNull(bot.testingGetMovesList(), "bot move ArrayList is null");
+        assertTrue(bot.testingIsSeeking(), "bot is not seeking");
+        assertNotNull(bot.getBotImage(), "bot image is null");
 
     }
     /**
@@ -182,11 +175,88 @@ public class SpaceMazeClientTests {
         Point playerPosTwo = new Point(2,7);
         bot.updateLocation(new Point(0,7));
         ArrayList<Point> validMovesTwo = new ArrayList<Point>();
-
         Point seekingMoveDecisionTwo = bot.testingDistanceCloser(playerPosTwo, validMovesTwo);
         Point expectedResult = new Point(-1,-1);
-
         assertTrue(expectedResult.equals(seekingMoveDecisionTwo), "expected Point(-1,-1)");
+    }
+
+     /**
+     * Test to check the bot chooses to switch between seeking and random mode correctly.
+     * @author Nik Olins
+     */
+    @DisplayName("Testing the bot's decision to seek or move randomly")
+    @Test
+    public void testChooseSeeking() {
+
+        // move bot around with < 3 moves stored , bot is currently seeking and should choose seeking
+        bot.updateLocation(new Point(6,2));
+        bot.updateLocation(new Point(5,2));
+        assertTrue(bot.testingChooseSeeking(), "bot should choose seeking with <3 stored moves and seeking true");
+        assertTrue(bot.testingIsSeeking(), "bot should currently be seeking with <3 stored moves");
+
+        // move bot around with >= 3 moves stored with trigger sequence. seeking is true and moves list cleared
+        bot.updateLocation(new Point(6,2));
+        assertFalse(bot.testingChooseSeeking(), "should not choose seeking with aba sequence detected");
+        assertFalse(bot.testingIsSeeking(), "bot should not currently be seeking with >=3 stored moves and aba detected");
+        int storedMoves = bot.testingGetMovesList().size();
+        assertEquals(storedMoves, 0, "the stored moves should be cleared to zero when changing between seeking and non seeking behaviour.");
+        // move bot around with <5 moves and no seeking - choose seeking should be false.
+        bot.updateLocation(new Point(6,2));
+        bot.updateLocation(new Point(5,2));
+        bot.updateLocation(new Point(5,3));
+        assertFalse(bot.testingIsSeeking(), "bot should not be seeking once random is triggered and <5 moves are recorded.");
+        assertFalse(bot.testingChooseSeeking(), "should not choose seeking when seeking is false and stored moves are <5");
+        
+        // move bot around with >=5 moves, choose seeking and clear moves list.
+        bot.updateLocation(new Point(5,2));
+        bot.updateLocation(new Point(5,3));
+        assertTrue(bot.testingChooseSeeking(), "bot should choose to seek when seeking is false and stored moves >=5");
+        assertTrue(bot.testingIsSeeking(), "bot should be seeking after making 5 random moves.");
+
+    }
+
+     /**
+     * Test to check the seeking mode move generation. If there are valid moves, choose the one which reduces the distance.
+     * If there is a tie, choose counter clockwise from Left.
+     * If there are no valid moves, attempt to move randomly. If there are no ramdom moves, do not move.
+     * @author Nik Olins
+     */
+    @DisplayName("Testing the bot's decision to seek or move randomly")
+    @Test
+    public void testMoveCloser() {
+
+        Point playerPosOne = new Point(2,3);
+        ArrayList<Point> validMoves = new ArrayList<Point>();
+        // no valid moves , cannot close distance attempt random move. AS there are no valid options, do not move.
+        Point botPositionOne = bot.getLocation();
+        Point closestMove = bot.testingDistanceCloser(playerPosOne, validMoves);
+        bot.testingMoveCloser(playerPosOne, closestMove, validMoves);
+        assertTrue(botPositionOne.equals(bot.getLocation()), "the bot should not have moved.");
+
+        // a valid move to close the distance, move to that position.
+        validMoves.add(new Point(3,3));
+        Point nextMove = bot.testingDistanceCloser(playerPosOne, validMoves);
+        bot.testingMoveCloser(playerPosOne, nextMove, validMoves);
+        Point botPositionTwoPost = bot.getLocation();
+        assertFalse(botPositionOne.equals(botPositionTwoPost), "the bot should have moved to 3,3");
+        
+    }
+
+    /**
+     * Test to confirm random movement works.
+     * @author Nik Olins
+     */
+    @DisplayName("Testing the bot's random move behaviour.")
+    @Test
+    public void testMoveRandom() {
+        ArrayList<Point> validMoves = new ArrayList<Point>();
+        validMoves.add(new Point(0,8));
+        validMoves.add(new Point(2,8));
+        Point botStartLoc = bot.getLocation();
+
+        // Randomly move the bot, confirm the position changed from the start location.
+        bot.testingMoveRandom(new Random(), validMoves);
+        assertFalse(botStartLoc.equals(bot.getLocation()), "the bot should have moved from its start location.");
 
     }
 
