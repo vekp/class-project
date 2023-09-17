@@ -319,8 +319,8 @@ public class NotificationManager implements Tickable {
     /**
      * Set font for notifications
      */
-    public NotificationManager setFont(String fontname) {
-        this.fontName = fontname;
+    public NotificationManager setFont(String fontName) {
+        this.fontName = fontName;
         setApplyColourAndFontStyling(true);
         return this;
     }
@@ -353,7 +353,11 @@ public class NotificationManager implements Tickable {
         // Set colours
         if (component.getName() != null && component.getName().equals("Locked achievement text")) {
             // Darken text colour if locked achievement
-            Color lockedAchievementColour = new Color(foregroundColour.getRed() / 2, foregroundColour.getGreen() / 2, foregroundColour.getBlue() / 2);
+            Color lockedAchievementColour = new Color(
+                    (foregroundColour.getRed() + backgroundColour.getRed()) / 2,
+                    (foregroundColour.getGreen() + backgroundColour.getGreen()) / 2,
+                    (foregroundColour.getBlue() + backgroundColour.getBlue()) / 2
+            );
             component.setForeground(lockedAchievementColour);
         } else component.setForeground(foregroundColour);
         component.setBackground(backgroundColour);
@@ -365,9 +369,10 @@ public class NotificationManager implements Tickable {
                 public void mouseExited(MouseEvent e) {
                     jb.setBackground(backgroundColour);
                 }
+
                 @Override
                 public void mouseEntered(MouseEvent e) {
-                    jb.setBackground(hoverColour);
+                    if (jb.isEnabled()) jb.setBackground(hoverColour);
                 }
             });
             jb.setBorder(border);

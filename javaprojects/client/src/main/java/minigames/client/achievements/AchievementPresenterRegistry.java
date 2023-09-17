@@ -52,6 +52,7 @@ public class AchievementPresenterRegistry {
             if (ap.isUnlocked) {
                 makeClickable(achievementPanel, i);
             }
+            dialogManager.applyStyling(panel);
             panel.add(achievementPanel);
         }
         return panel;
