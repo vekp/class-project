@@ -1,15 +1,18 @@
+package minigames.client.peggle;
+
+import io.vertx.core.json.JsonObject;
+import minigames.client.GameClient;
+import minigames.client.MinigameNetworkClient;
+import minigames.commands.CommandPackage;
+import minigames.rendering.GameMetadata;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.Image;
 import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import java.util.Collections;
+import java.util.logging.Logger;
 
-/*
- * PeggleUI class that provides a user interface for the Peggle mini-game
- */
-public class PeggleUI {
-    private static final String gameName = "Peggle MiniGame";
-    // File paths for images
+public class PeggleUI implements GameClient {
     private static final String iconFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/UI/gameIcon.png";
     private static final String backgroundFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/UI/menuBG.png";
     private static final String startButtonFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/startBTN.png";
@@ -18,24 +21,60 @@ public class PeggleUI {
     private static final String achievementsButtonFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/achievementsBTN.png";
     private static final String leaderboardButtonFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/leaderboardBTN.png";
     private static final String settingsButtonFilePath = "./javaprojects/client/src/main/java/minigames/client/peggle/assets/buttons/settingsBTN.png";
+    private MinigameNetworkClient mnClient;
+    private GameMetadata gm;
+    private String player;
+    private static final Logger logger = Logger.getLogger(PeggleUI.class.getName());
 
-    private static JFrame mainWindow = null;
+    @Override
+    public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {
+        this.mnClient = mnClient;
+        this.gm = game;
+        this.player = player;
+        mnClient.getMainWindow().addCenter(generateMainMenu(mnClient));
+        mnClient.getMainWindow().getFrame().setPreferredSize(new Dimension(1920,1080));
+        mnClient.getMainWindow().pack();
 
-    // Main function initialises the UI and starts the game
-    public static void main(String[] args) {
-        mainWindow = new JFrame(gameName);
-        mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainWindow.setPreferredSize(new Dimension(1000, 750));
-        mainWindow.setIconImage(new ImageIcon(iconFilePath).getImage());
-
-        JPanel titleScreen = generateMainMenu();
-        mainWindow.setContentPane(titleScreen);
-        mainWindow.pack();
-        mainWindow.setVisible(true);
     }
 
-    // Adds a panel to the background with an anchor
-    private static void addPanelToBackground(JLabel background, JPanel panel, int anchor) {
+    @Override
+    public void execute(GameMetadata game, JsonObject command) {
+        this.gm = game;
+        logger.info("my command: " + command.encode());
+        switch(command.getString("command")) {
+//            case "startGame" -> sendCommand("startGame");
+
+        }
+    }
+
+    @Override
+    public void closeGame() {
+        sendCommand("exitGame");
+        mnClient.getMainWindow().getFrame().setPreferredSize(new Dimension(1000 ,750));
+        mnClient.runMainMenuSequence();
+
+
+    }
+
+    private void sendCommand(String command) {
+        JsonObject json = new JsonObject().put("command", command);
+        mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
+
+    }
+
+    private JPanel generateMainMenu(MinigameNetworkClient mnClient) {
+        JPanel titleScreen = new JPanel(new BorderLayout());
+        JLabel background = new JLabel(new ImageIcon(backgroundFilePath));
+        titleScreen.add(background, BorderLayout.CENTER);
+        background.setLayout(new GridBagLayout());
+        JPanel buttonsPanel = generateMainButtonsPanel(mnClient);
+        addPanelToBackground(background, buttonsPanel, GridBagConstraints.CENTER);
+        JPanel topCenterButtonsPanel = generateTopCenterButtonsPanel(mnClient);
+        addPanelToBackground(background, topCenterButtonsPanel, GridBagConstraints.NORTH);
+        return titleScreen;
+    }
+
+    private void addPanelToBackground(JLabel background, JPanel panel, int anchor) {
         GridBagConstraints backgroundConstraints = new GridBagConstraints();
         backgroundConstraints.gridx = 0;
         backgroundConstraints.gridy = 0;
@@ -45,54 +84,32 @@ public class PeggleUI {
         background.add(panel, backgroundConstraints);
     }
 
-    // Generates the title screen main menu of the game
-    private static JPanel generateMainMenu() {
-        JPanel titleScreen = new JPanel(new BorderLayout());
-        JLabel background = new JLabel(new ImageIcon(backgroundFilePath));
-        titleScreen.add(background, BorderLayout.CENTER);
-        background.setLayout(new GridBagLayout());
 
-        JPanel buttonsPanel = generateMainButtonsPanel();
-        addPanelToBackground(background, buttonsPanel, GridBagConstraints.CENTER);
-
-        JPanel topCenterButtonsPanel = generateTopCenterButtonsPanel();
-        addPanelToBackground(background, topCenterButtonsPanel, GridBagConstraints.NORTH);
-
-        return titleScreen;
-    }
-
-    // Generates the main menu buttons (start, exit)
-    private static JPanel generateMainButtonsPanel() {
+    private JPanel generateMainButtonsPanel(MinigameNetworkClient mnClient) {
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.setOpaque(false);
         buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS)); // Vertical alignment
-
-        JButton startButton = createImageButton(startButtonFilePath, e -> startGame(), 0.5); //scaling
-        JButton exitButton = createImageButton(exitButtonFilePath, e -> System.exit(0), 0.5); //scaling
-
-        // Add buttons
+        JButton startButton = createImageButton(startButtonFilePath, e -> startGame(mnClient), 0.5); //scaling
+        JButton exitButton = createImageButton(exitButtonFilePath, e -> closeGame(), 0.5); //scaling
         buttonsPanel.add(startButton);
         buttonsPanel.add(Box.createVerticalStrut(75)); // Vertical spacing between buttons
         buttonsPanel.add(exitButton);
-
         return buttonsPanel;
     }
 
-    // Generate the top center buttons (achievements, leaderboard, instructions, settings)
-    private static JPanel generateTopCenterButtonsPanel() {
+
+    private JPanel generateTopCenterButtonsPanel(MinigameNetworkClient mnClient) {
         JPanel topRightButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         topRightButtonsPanel.setOpaque(false);
-
-        topRightButtonsPanel.add(createImageButton(achievementsButtonFilePath, e -> checkAchievements(), 0.3));
-        topRightButtonsPanel.add(createImageButton(leaderboardButtonFilePath, e -> checkLeaderboard(), 0.3));
-        topRightButtonsPanel.add(createImageButton(instructionsButtonFilePath, e -> checkInstructions(), 0.3));
-        topRightButtonsPanel.add(createImageButton(settingsButtonFilePath, e -> checkSettings(), 0.3));
-
+        topRightButtonsPanel.add(createImageButton(achievementsButtonFilePath, e -> checkAchievements(mnClient), 0.3));
+        topRightButtonsPanel.add(createImageButton(leaderboardButtonFilePath, e -> checkLeaderboard(mnClient), 0.3));
+        topRightButtonsPanel.add(createImageButton(instructionsButtonFilePath, e -> checkInstructions(mnClient), 0.3));
+        topRightButtonsPanel.add(createImageButton(settingsButtonFilePath, e -> checkSettings(mnClient), 0.3));
         return topRightButtonsPanel;
     }
 
-    // Creates a button with an image, associated action and scaling
-    private static JButton createImageButton(String imagePath, ActionListener action, double scalingFactor) {
+
+    private JButton createImageButton(String imagePath, ActionListener action, double scalingFactor) {
         ImageIcon icon = new ImageIcon(imagePath);
         int scaledWidth = (int) (icon.getIconWidth() * scalingFactor);
         int scaledHeight = (int) (icon.getIconHeight() * scalingFactor);
@@ -107,52 +124,46 @@ public class PeggleUI {
         return button;
     }
 
+    public void showMainMenu(MinigameNetworkClient client) {
 
-    public static void showMainMenu() {
-        JPanel titleScreen = generateMainMenu();
+        JFrame mainWindow = client.getMainWindow().getFrame();
+        JPanel titleScreen = generateMainMenu(client);
         mainWindow.setContentPane(titleScreen);
-        mainWindow.setPreferredSize(new Dimension(1000, 750));
+        mainWindow.setPreferredSize(new Dimension(1920, 1080));
         mainWindow.pack();
         mainWindow.revalidate();
     }
 
+    private void startGame(MinigameNetworkClient client) {
+        GameContainer gameSession = new GameContainer(client, this);
 
-
-    // Starts the game by switching to the InGameUI
-    private static void startGame() {
-        InGameUI gameSession = new InGameUI();
+        JFrame mainWindow = client.getMainWindow().getFrame();
         mainWindow.setContentPane(gameSession);
-        mainWindow.setPreferredSize(new Dimension(1000, 750));
+        mainWindow.setPreferredSize(new Dimension(1920, 1080));
         mainWindow.pack();
         mainWindow.revalidate();
     }
 
-    // Checks achievements and displays them to the player
-    private static void checkAchievements() {
+    private void checkInstructions(MinigameNetworkClient client) {
+        InstructionsUI instructionsUI = new InstructionsUI(client, this);
+        JFrame mainWindow = client.getMainWindow().getFrame();
+        mainWindow.setContentPane(instructionsUI);
+        mainWindow.setPreferredSize(new Dimension(1920, 1080));
+        mainWindow.pack();
+        mainWindow.revalidate();
+    }
+
+    private void checkAchievements(MinigameNetworkClient client) {
         System.out.println("Checking Achievements");
     }
 
-    // Checks and displays the leaderboard
-    private static void checkLeaderboard() {
+    private void checkLeaderboard(MinigameNetworkClient client) {
         System.out.println("Checking Leaderboard");
     }
 
-    // Checks and displays game settings
-    private static void checkSettings() {
+    private void checkSettings(MinigameNetworkClient client) {
         System.out.println("Checking Settings");
     }
 
-    // Display game instructions to the player
-    private static void checkInstructions() {
-        InstructionsUI instructionsUI = new InstructionsUI();
-        mainWindow.setContentPane(instructionsUI);
-        mainWindow.setPreferredSize(new Dimension(1000, 750));
-        mainWindow.pack();
-        mainWindow.revalidate();
-    }
 
-    // Pause the game and display the pause menu. TODO: To be implemented
-    private void pauseMenu(){
-        System.out.println("Pause Menu");
-    }
 }
