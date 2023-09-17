@@ -240,8 +240,11 @@ public class Survey extends JPanel implements ActionListener {
         feedbackText.setRows(5);
         feedbackText.setWrapStyleWord(true);
         feedbackText.setFont(fontText);
+        feedbackText.setMargin(new Insets(5,15,5,5));
         feedbackText.setBackground(Color.BLACK);
-        feedbackText.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+        Border border = BorderFactory.createLineBorder(Color.BLACK, 1);
+        feedbackText.setBorder(BorderFactory.createCompoundBorder(border, 
+        BorderFactory.createEmptyBorder(10, 10, 10, 10)));
         feedbackPanel.add(feedbackText);
 
         // surveyQuestionsPanelLeft (incorporates all Question titles for the survey)

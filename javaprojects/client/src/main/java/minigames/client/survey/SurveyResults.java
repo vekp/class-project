@@ -19,10 +19,11 @@ import java.util.*;
 
 public class SurveyResults extends JPanel implements ActionListener{
 
-        // (labels,buttons etc need to be registered here to be accessible by the methods in this class)
-    private JPanel titlePanel, closePanel, gameNamePanel, surveyResultsPanelGroup, surveyResultsPanelLeft, surveyResultsPanelRight, feedbackPanel, footerPanel, uiRatingPanel, enjoymentPanel, functionalityPanel, difficultyPanel, overallRatingPanel; 
-    private JLabel counterLabel, headingLabel, testLabel, gameNameLabel, feedbackLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, difficultyLabel, gameNameTextLabel, helpLabel, overallRatingLabel;
+    // (labels,buttons etc need to be registered here to be accessible by the methods in this class)
+    private JPanel titlePanel, closePanel, gameNamePanel, surveyResultsPanelGroup, surveyResultsPanelLeft, surveyResultsPanelRight, footerPanel, overallRatingLeftPanel, feedbackPanel; 
+    private JLabel counterLabel, headingLabel, testLabel, gameNameLabel, feedbackLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, difficultyLabel, gameNameTextLabel, helpLabel, uiRatingRatingLabel, enjoymentRatingLabel, functionalityRatingLabel, difficultyRatingLabel, feedbackRatingLabel, overallRatingLabelLeft, overallRatingHelpLabel, overallRatingLabelRight;
     private JButton closeButton;
+    private JTextArea feedbackText;
     private JComboBox gameNameComboBox;
     private Border borderPosition, raisedBevel, loweredBevel, outerColourBorder, styledOuterBorder, innerColourBorder, styledInnerBorder, styledBorders, finalBorder;
 
@@ -36,6 +37,7 @@ public class SurveyResults extends JPanel implements ActionListener{
 
     private Font fontHeading = new Font("Open sans semibold", Font.BOLD, 24);
     private Font fontLabel = new Font("Open sans semibold", Font.PLAIN, 18);
+    private Font fontRatingResult = new Font("Open sans semibold", Font.PLAIN, 16);
     private Font fontText = new Font("Lucida console", Font.PLAIN, 16);
     private Font fontHelp = new Font("Open sans semibold", Font.PLAIN, 14);
     private Font fontButton = new Font("Open sans semibold", Font.PLAIN, 12);
@@ -45,7 +47,7 @@ public class SurveyResults extends JPanel implements ActionListener{
     private final String background = "space_planet_asteroids.jpg";
 
     // Our called games names will be stored here for use in a combo box
-    public String[] gameNames = {};
+    public String[] gameNames = {"testGame1", "testGame2", "testGame3", "testGame4"};
 
     public SurveyResults(MinigameNetworkClient mnClient, String gameId) {
 
@@ -125,29 +127,78 @@ public class SurveyResults extends JPanel implements ActionListener{
         feedbackLabel.setHorizontalAlignment(JLabel.CENTER);
 
         // Overall Rating Label
-        overallRatingLabel = new JLabel();
-        overallRatingLabel.setText("Overall Rating: ");
-        overallRatingLabel.setFont(fontLabel);
-        overallRatingLabel.setHorizontalAlignment(JLabel.CENTER);
+        overallRatingLabelLeft = new JLabel();
+        overallRatingLabelLeft.setText("Overall Rating: ");
+        overallRatingLabelLeft.setFont(fontLabel);
+        overallRatingLabelLeft.setHorizontalAlignment(JLabel.CENTER);
 
+        // rating explanation help TextLabel
+        overallRatingHelpLabel = new JLabel();
+        overallRatingHelpLabel.setText("<html>"+ "Overall total rating (excludes Difficulty rating)." +"</html>");
+        overallRatingHelpLabel.setFont(fontButton);
+        overallRatingHelpLabel.setForeground(Color.BLACK);
+        overallRatingHelpLabel.setHorizontalAlignment(JLabel.CENTER);
+
+        overallRatingLeftPanel = new JPanel();
+        overallRatingLeftPanel.setLayout(new GridLayout(2, 0));
+        overallRatingLeftPanel.add(overallRatingLabelLeft);
+        overallRatingLeftPanel.add(overallRatingHelpLabel);
 
         // surveyResultsPanelLeft (incorporates all Result titles for the survey)
         surveyResultsPanelLeft = new JPanel();
         surveyResultsPanelLeft.setLayout(new GridLayout(7, 0));
-        for (Component d : new Component[] { gameNameLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, difficultyLabel, overallRatingLabel, feedbackLabel }) {
+        for (Component d : new Component[] { gameNameLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, difficultyLabel, overallRatingLeftPanel, feedbackLabel }) {
             surveyResultsPanelLeft.add(d);
         }
 
-        // gameNameComboBox = new JComboBox(gameNames);
-        // gameNameComboBox.addActionListener(this);
-
+        
+        // INFO TO BE PULLED FROM DATABASE
+        gameNameComboBox = new JComboBox(gameNames);
+        gameNameComboBox.setFont(fontRatingResult);
+        gameNameComboBox.addActionListener(this);
+        uiRatingRatingLabel = new JLabel("DB result");
+        uiRatingRatingLabel.setForeground(Color.BLACK);
+        uiRatingRatingLabel.setFont(fontRatingResult);
+        uiRatingRatingLabel.setHorizontalAlignment(JLabel.CENTER);
+        enjoymentRatingLabel = new JLabel("DB result");
+        enjoymentRatingLabel.setForeground(Color.BLACK);
+        enjoymentRatingLabel.setFont(fontRatingResult);
+        enjoymentRatingLabel.setHorizontalAlignment(JLabel.CENTER);
+        functionalityRatingLabel = new JLabel("DB result");
+        functionalityRatingLabel.setForeground(Color.BLACK);
+        functionalityRatingLabel.setFont(fontRatingResult);
+        functionalityRatingLabel.setHorizontalAlignment(JLabel.CENTER);
+        difficultyRatingLabel = new JLabel("DB result");
+        difficultyRatingLabel.setForeground(Color.BLACK);
+        difficultyRatingLabel.setFont(fontRatingResult);
+        difficultyRatingLabel.setHorizontalAlignment(JLabel.CENTER);
+        overallRatingLabelRight = new JLabel("DB result");
+        overallRatingLabelRight.setForeground(Color.BLACK);
+        overallRatingLabelRight.setFont(fontRatingResult);
+        overallRatingLabelRight.setHorizontalAlignment(JLabel.CENTER);
+        feedbackPanel = new JPanel();
+        feedbackText = new JTextArea();
+        feedbackText.setColumns(30);
+        feedbackText.setLineWrap(true);
+        feedbackText.setRows(5);
+        feedbackText.setEditable(false);
+        feedbackText.setText("DB results listed as items 1. 2. 3. etc");
+        feedbackText.setWrapStyleWord(true);
+        feedbackText.setFont(fontText);
+        feedbackText.setMargin(new Insets(5,15,5,5));
+        feedbackText.setBackground(Color.BLACK);
+        Border border = BorderFactory.createLineBorder(Color.BLACK, 1);
+        feedbackText.setBorder(BorderFactory.createCompoundBorder(border, 
+        BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+        feedbackPanel.add(feedbackText);
 
         // surveyResultsPanelRight (incorporates all Question responses for the survey)
         surveyResultsPanelRight = new JPanel();
         surveyResultsPanelRight.setLayout(new GridLayout(7, 0));
-        // for (Component d : new Component[] { gameNameTextLabel, helpLabel, uiRatingPanel, enjoymentPanel, functionalityPanel, difficultyPanel, feedbackPanel }) {
-        //     surveyResultsPanelRight.add(d);
-        // }
+        for (Component d : new Component[] { gameNameComboBox, uiRatingRatingLabel, enjoymentRatingLabel, functionalityRatingLabel, difficultyRatingLabel, overallRatingLabelRight, feedbackPanel }) {
+            surveyResultsPanelRight.add(d);
+        }
+
         // surveyResultsPanelGroup (incorporates all panels from the left and right groups for the survey)
         surveyResultsPanelGroup = new JPanel();
         surveyResultsPanelGroup.setLayout(new GridLayout(0, 2));
@@ -181,9 +232,9 @@ public class SurveyResults extends JPanel implements ActionListener{
         return(image);
     }
 
-    // Change colour of labels (overrides singular setting of colour) Does not include helpLabel
+    // Change colour of labels (overrides singular setting of colour) Does not include helpLabel or Rating Labels
     public void labelColourChange(Color backColour, Color foreColour) {
-        JLabel labels[] = {counterLabel, headingLabel, testLabel, gameNameLabel, feedbackLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, difficultyLabel, gameNameTextLabel, overallRatingLabel};
+        JLabel labels[] = {counterLabel, headingLabel, testLabel, gameNameLabel, feedbackLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, difficultyLabel, gameNameTextLabel, overallRatingLabelLeft};
         for(JLabel label: labels){
             if(label != null) {
                 label.setBackground(backColour);
@@ -195,7 +246,7 @@ public class SurveyResults extends JPanel implements ActionListener{
     // Change colour of panels (overrides singular setting of colour)
     public void panelColourChange(Color backColour, Color foreColour) {
         // footerPanel breaks the code, if clause sorts it
-        JPanel panels[] = {titlePanel, closePanel, surveyResultsPanelGroup, surveyResultsPanelLeft, surveyResultsPanelRight, feedbackPanel, uiRatingPanel, enjoymentPanel, functionalityPanel, difficultyPanel, footerPanel};
+        JPanel panels[] = {titlePanel, closePanel, feedbackPanel, surveyResultsPanelGroup, surveyResultsPanelLeft, surveyResultsPanelRight, overallRatingLeftPanel, footerPanel};
         for(JPanel panel: panels){
             if(panel != null) {
                 panel.setBackground(backColour);
