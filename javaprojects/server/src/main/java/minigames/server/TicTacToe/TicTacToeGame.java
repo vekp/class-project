@@ -1,6 +1,8 @@
 package minigames.server.tictactoe;
 
+import io.vertx.core.json.JsonObject;
 import minigames.commands.CommandPackage;
+import minigames.rendering.GameMetadata;
 import minigames.rendering.RenderingPackage;
 
 import java.util.ArrayList;
@@ -8,33 +10,41 @@ import java.util.Arrays;
 import java.util.List;
 
 public class TicTacToeGame {
-    
+
     String name;
-    char[] board = new char[9];  // 3x3 board, can be 'X', 'O', or '\0' (empty)
+    char[] board = new char[9];
     List<String> players = new ArrayList<>();
-    int currentPlayerIndex = 0; // index to decide the current player's turn
+    int currentPlayerIndex = 0;
 
     public TicTacToeGame(String name, String firstPlayer) {
         this.name = name;
-        Arrays.fill(board, '\0');  // Initialize the board to be empty
+        Arrays.fill(board, '\0');
         players.add(firstPlayer);
     }
 
-    public List<String> getPlayerNames() {
-        return players;
+    public String[] getPlayerNames() {
+        return players.toArray(new String[0]);
     }
 
     public RenderingPackage joinGame(String playerName) {
         if (!players.contains(playerName)) {
             players.add(playerName);
         }
-        return new RenderingPackage(name, playerName, boardState());
+
+        List<JsonObject> commands = new ArrayList<>();
+        commands.add(new JsonObject().put("boardState", boardState()));
+        GameMetadata metadata = new GameMetadata("TicTacToe", name, players.toArray(new String[0]), true);
+
+        return new RenderingPackage(metadata, commands);
     }
 
     public RenderingPackage runCommands(CommandPackage cp) {
-        // Only the current player can make a move
-        if (!cp.playerName().equals(players.get(currentPlayerIndex))) {
-            return new RenderingPackage(name, cp.playerName(), "notYourTurn");
+        List<JsonObject> commands = new ArrayList<>();
+
+        if (!cp.player().equals(players.get(currentPlayerIndex))) {
+            commands.add(new JsonObject().put("message", "notYourTurn"));
+            GameMetadata metadata = new GameMetadata("TicTacToe", name, players.toArray(new String[0]), true);
+            return new RenderingPackage(metadata, commands);
         }
 
         int move = cp.commands().get(0).getInteger("move");
@@ -42,35 +52,31 @@ public class TicTacToeGame {
 
         if (board[move] == '\0') {
             board[move] = currentPlayerMark;
+
             if (checkVictory(currentPlayerMark)) {
-                return new RenderingPackage(name, cp.playerName(), "gameWon", currentPlayerMark);
+                commands.add(new JsonObject().put("result", "gameWon").put("winner", currentPlayerMark));
             } else if (isBoardFull()) {
-                return new RenderingPackage(name, cp.playerName(), "gameDraw");
+                commands.add(new JsonObject().put("result", "gameDraw"));
             } else {
-                // Switch to the other player
                 currentPlayerIndex = 1 - currentPlayerIndex;
             }
         } else {
-            return new RenderingPackage(name, cp.playerName(), "cellTaken");
+            commands.add(new JsonObject().put("message", "cellTaken"));
         }
-        return new RenderingPackage(name, cp.playerName(), boardState());
+
+        commands.add(new JsonObject().put("boardState", boardState()));
+        GameMetadata metadata = new GameMetadata("TicTacToe", name, players.toArray(new String[0]), true);
+
+        return new RenderingPackage(metadata, commands);
     }
 
     private boolean checkVictory(char mark) {
-        // Implement the logic to check if 'mark' has won the game
-        // Check rows, columns, and diagonals
-
-        // Rows
         for (int i = 0; i < 9; i += 3) {
-            if (board[i] == mark && board[i+1] == mark && board[i+2] == mark) return true;
+            if (board[i] == mark && board[i + 1] == mark && board[i + 2] == mark) return true;
         }
-        
-        // Columns
         for (int i = 0; i < 3; i++) {
-            if (board[i] == mark && board[i+3] == mark && board[i+6] == mark) return true;
+            if (board[i] == mark && board[i + 3] == mark && board[i + 6] == mark) return true;
         }
-        
-        // Diagonals
         if (board[0] == mark && board[4] == mark && board[8] == mark) return true;
         if (board[2] == mark && board[4] == mark && board[6] == mark) return true;
 

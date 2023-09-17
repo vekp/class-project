@@ -41,7 +41,8 @@ public class TicTacToeServer implements GameServer {
     @Override
     public GameMetadata[] getGamesInProgress() {
         return games.keySet().stream().map((name) -> {
-            return new GameMetadata("TicTacToe", name, games.get(name).getPlayerNames(), true);
+                GameMetadata metadata = new GameMetadata("TicTacToe", name, players.toArray(new String[0]), true);
+            return metadata;
         }).toArray(GameMetadata[]::new);
     }
 
