@@ -1,10 +1,14 @@
 package minigames.server.battleship;
 
+import minigames.server.achievements.AchievementHandler;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.Math.round;
+import static minigames.server.battleship.achievements.SLOW_LEARNER;
+import static minigames.server.battleship.achievements.MISSION_COMPLETE;
 
 /**
  * The Board Class contains all the information about the current state of a player's game board, including the player's name
@@ -222,18 +226,22 @@ public class Board {
         this.lastColShot = col;
     }
 
-    public void checkGameOver(){
+    public boolean checkGameOver(String name){
         // for ship in vessels hashmap, check if it is sunk and increment counter
+
+        AchievementHandler handler = new AchievementHandler(BattleshipServer.class);
         int counter = 0;
         for(Map.Entry<String, Ship> ship: vessels.entrySet()) {
             if(ship.getValue().isSunk()){
                 counter++;
             }
-            if(counter == 5){
-                this.setGameState(GameState.GAME_OVER);
-                System.out.println("\n\nGame over dude\n\n");
+            if(counter == 5) {
+                handler.unlockAchievement(name, MISSION_COMPLETE.toString());
+                return true;
+
             }
         }
+        return false;
     }
 
     /**

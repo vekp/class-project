@@ -203,10 +203,14 @@ public class BattleshipGame {
                     //no other commands run here, player will continue waiting until their turn
                 }
 
+                if(opponent.getBoard().checkGameOver(opponent.getName()) || current.getBoard().checkGameOver(current.getName())){
+                    this.gameState = GameState.GAME_OVER;
+                }
+
                 return new RenderingPackage(gameMetadata(), commands);
             }
             case GAME_OVER -> {
-                //todo do game over stuff
+                // TODO - Render a game-over screen
             }
         }
 
