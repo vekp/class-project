@@ -193,9 +193,12 @@ public class KrumGame {
         players[1] = new KrumPlayer(level.p2x, level.p2y, "kangaroo_sprite/", 8, 31, false, alphaRaster, 1, players, primaryColor, secondaryColor, gunColor, onMoon);
         players[0].joey.otherPlayer = players[1];
         players[1].joey.otherPlayer = players[0];
+        players[0].otherPlayer = players[1];
+        players[1].otherPlayer = players[0];
         playerTurn = 0;
         savedTurns = new KrumTurn[] {new KrumTurn(players, background, windX, windY, updateCount, ending, running, winner, waterLevel), new KrumTurn(players, background, windX, windY, updateCount, ending, running, winner, waterLevel)};       
         currentTurn = savedTurns[playerTurn];
+
         playersInitialized = true;
     }
 
@@ -398,17 +401,29 @@ public class KrumGame {
                 rf = new KrumInputFrame();
             }
             p.update(windX, windY, alphaRaster, updateCount, rf, pf, turnOver);
+            if (p.playerIndex == myPlayerIndex && p.unlockAchievements.size() > 0) {
+                for (String s : p.unlockAchievements) {
+                    unlockAchievement(s);
+                }
+                p.unlockAchievements.clear();
+            }
             if (p.ypos > waterLevel) p.die();
             if (p.projectile != null) {
                 if(p.projectile.collisionCheck()) {
                     KrumSound.playSound("explode2");
                     ExplosionDetails.explode((int)p.projectile.x, (int)p.projectile.y, p.projectile.explosionRadius, 
                         KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
-                    handlePlayerKnock(p.projectile);                   
+                    handlePlayerKnock(p.projectile);       
+                    boolean alreadyDead = p.otherPlayer.dead;            
                     for (KrumPlayer pl : players) {
-                        double distance = KrumHelpers.distanceBetween(p.projectile.centre()[0], p.projectile.centre()[1], pl.playerCentre().x, pl.playerCentre().y);
+                        double distance = KrumHelpers.distanceBetween(p.projectile.centre()[0], p.projectile.centre()[1], pl.playerCentre().x, pl.playerCentre().y);                        
                         if (distance <= p.projectile.damageRadius) {
                             pl.hit(p.projectile.maxDamage, distance, p.projectile.damageRadius);
+                        }
+                    }
+                    if (p.playerIndex == myPlayerIndex && p.otherPlayer.dead && !alreadyDead) {
+                        if (p.projectile.firedFromRope) {
+                            unlockAchievement("Tarzan Kill");
                         }
                     }
                     p.projectile = null;
@@ -434,7 +449,11 @@ public class KrumGame {
                         ExplosionDetails.explode((int)p.projectile.x, (int)p.projectile.y, p.projectile.explosionRadius, 
                             KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
                         handlePlayerKnock(p.projectile);
+                        boolean alreadyDead = players[n].dead;
                         players[n].hit(p.projectile.maxDamage, 0, p.projectile.damageRadius);
+                        if (p.playerIndex == myPlayerIndex && n != p.playerIndex && players[n].dead && !alreadyDead) {
+                            unlockAchievement("Tarzan Kill");
+                        }
                         for (int i = 0; i < players.length; i++) {
                             if (i == n) continue;
                             double distance = KrumHelpers.distanceBetween(p.projectile.centre()[0], p.projectile.centre()[1], players[i].playerCentre().x, players[i].playerCentre().y);
@@ -448,13 +467,19 @@ public class KrumGame {
             }
             if (p.grenade != null) {
                 if (p.grenade.timerCheck(updateCount)) {
+                    boolean alreadyDead = p.otherPlayer.dead;
                     for (KrumPlayer pl : players) {
                         double distance = KrumHelpers.distanceBetween(p.grenade.centre()[0], p.grenade.centre()[1], pl.playerCentre().x, pl.playerCentre().y);
-                        if (distance <= p.grenade.damageRadius) {
+                        if (distance <= p.grenade.damageRadius) {                            
                             pl.hit(p.grenade.maxDamage, distance, p.grenade.damageRadius);
-                            if (pl.playerIndex != myPlayerIndex && !p.grenade.hasBounced) {
+                            if (p.playerIndex == myPlayerIndex && pl.playerIndex != myPlayerIndex && !p.grenade.hasBounced) {
                                 unlockAchievement("Grenade Direct Hit");
                             }
+                        }
+                    }
+                    if (p.playerIndex == myPlayerIndex && p.otherPlayer.dead && !alreadyDead) {
+                        if (p.grenade.firedFromRope) {
+                            unlockAchievement("Tarzan Kill");
                         }
                     }
                     KrumSound.playSound("explode2");
@@ -466,10 +491,20 @@ public class KrumGame {
             }
             if (p.joey.active) {
                 if (p.joey.timerCheck(updateCount)) {
+                    boolean oppAlreadyDead = p.otherPlayer.dead;
+                    boolean alreadyDead = p.dead;
                     for (KrumPlayer pl : players) {
                         double distance = KrumHelpers.distanceBetween(p.joey.centre()[0], p.joey.centre()[1], pl.playerCentre().x, pl.playerCentre().y);
                         if (distance <= p.joey.damageRadius) {
                             pl.hit(p.joey.maxDamage, distance, p.joey.damageRadius);
+                        }
+                    }
+                    if (p.playerIndex == myPlayerIndex && p.dead && !alreadyDead) {
+                        unlockAchievement("Joey Suicide");
+                    }
+                    if (p.playerIndex == myPlayerIndex && p.otherPlayer.dead && !oppAlreadyDead) {
+                        if (p.joey.firedFromRope) {
+                            unlockAchievement("Tarzan Kill");
                         }
                     }
                     ExplosionDetails.explode((int)p.joey.xpos, (int)p.joey.ypos, p.joey.explosionRadius, 
