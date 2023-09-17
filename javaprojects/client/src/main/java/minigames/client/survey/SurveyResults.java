@@ -27,11 +27,11 @@ public class SurveyResults extends JPanel implements ActionListener{
     private Border borderPosition, raisedBevel, loweredBevel, outerColourBorder, styledOuterBorder, innerColourBorder, styledInnerBorder, styledBorders, finalBorder;
 
     private Color bgColour = new Color(255,255,255); // background
-    private Color fgColour = new Color(0,0,0); // foreground
+    private Color fgColour = new Color(0,0,0); // foreground Black
 
     // Background colour of main panel
     private Color mainBgColour = new Color(46,114,173);
-    private Color outerBorderLineColour = new Color(0, 0, 0);
+    private Color outerBorderLineColour = new Color(0, 0, 0); // Black
     private Color innerborderLineColour = new Color(64,28,99,255);
 
     private Font fontHeading = new Font("Open sans semibold", Font.BOLD, 24);
@@ -74,8 +74,18 @@ public class SurveyResults extends JPanel implements ActionListener{
         headingLabel = new JLabel();
         headingLabel.setText("Survey Results");
         headingLabel.setFont(fontHeading);
+        headingLabel.setHorizontalAlignment(JLabel.CENTER);
 
+        // rating explanation help TextLabel
+        helpLabel = new JLabel();
+        helpLabel.setText("<html>"+ "Survey Results are calculated from an average of all the provided answers." +"</html>");
+        helpLabel.setFont(fontHelp);
+        helpLabel.setForeground(Color.BLACK);
+        helpLabel.setHorizontalAlignment(JLabel.CENTER);
+
+        titlePanel.setLayout(new GridLayout(2, 0));
         titlePanel.add(headingLabel);
+        titlePanel.add(helpLabel);
         this.add(titlePanel, BorderLayout.NORTH);
 
         // gameName Label
@@ -157,6 +167,7 @@ public class SurveyResults extends JPanel implements ActionListener{
         footerPanel.add(closePanel, BorderLayout.CENTER);
         this.add(footerPanel, BorderLayout.SOUTH);
 
+        panelColourChange(bgColour, fgColour);
         labelColourChange(Color.WHITE, Color.BLUE);
     }
 
@@ -170,13 +181,25 @@ public class SurveyResults extends JPanel implements ActionListener{
         return(image);
     }
 
-    // Change colour of labels (overrides singular setting of colour)
+    // Change colour of labels (overrides singular setting of colour) Does not include helpLabel
     public void labelColourChange(Color backColour, Color foreColour) {
-        JLabel labels[] = {counterLabel, headingLabel, testLabel, gameNameLabel, feedbackLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, difficultyLabel, gameNameTextLabel, helpLabel, overallRatingLabel};
+        JLabel labels[] = {counterLabel, headingLabel, testLabel, gameNameLabel, feedbackLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, difficultyLabel, gameNameTextLabel, overallRatingLabel};
         for(JLabel label: labels){
             if(label != null) {
                 label.setBackground(backColour);
                 label.setForeground(foreColour);
+            }
+        }
+    }
+
+    // Change colour of panels (overrides singular setting of colour)
+    public void panelColourChange(Color backColour, Color foreColour) {
+        // footerPanel breaks the code, if clause sorts it
+        JPanel panels[] = {titlePanel, closePanel, surveyResultsPanelGroup, surveyResultsPanelLeft, surveyResultsPanelRight, feedbackPanel, uiRatingPanel, enjoymentPanel, functionalityPanel, difficultyPanel, footerPanel};
+        for(JPanel panel: panels){
+            if(panel != null) {
+                panel.setBackground(backColour);
+                panel.setForeground(foreColour);
             }
         }
     }

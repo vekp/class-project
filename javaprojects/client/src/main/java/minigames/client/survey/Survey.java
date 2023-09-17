@@ -111,7 +111,7 @@ public class Survey extends JPanel implements ActionListener {
         helpLabel = new JLabel();
         helpLabel.setText("<html>"+ "Using a scale of 1: Very Low to 5: Very High. Please rate the following questions." +"</html>");
         helpLabel.setFont(fontHelp);
-        helpLabel.setForeground (Color.YELLOW);
+        helpLabel.setForeground(Color.YELLOW);
         helpLabel.setHorizontalAlignment(JLabel.CENTER);
 
         // User Interface Rating Label
