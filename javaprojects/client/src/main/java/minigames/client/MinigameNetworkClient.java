@@ -357,7 +357,10 @@ public class MinigameNetworkClient {
                 })
                 .onFailure((resp) -> {
                     logger.error("Failed: {} ", resp.getMessage());
-                }).map((resp) -> resp.bodyAsString());
+                }).map((resp) -> {
+                    String rpj = resp.bodyAsString();
+                    return rpj;    
+                });
     }
 
     /**
