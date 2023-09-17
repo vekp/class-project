@@ -191,6 +191,7 @@ public class BattleshipGame {
                     //if it is not this player's turn, but the opponent is an AI, we do the opponents turn and
                     //send the result
                     if (current.isAIControlled()) {
+                        //this should be guaranteed to give a successful turn because the AI cant enter invalid input
                         BattleshipTurnResult AIResult = current.processAITurn(opponent.getBoard());
                         opponent.updateHistory(AIResult.opponentMessage());
                         SwapTurns();
@@ -232,22 +233,21 @@ public class BattleshipGame {
         BattleshipTurnResult result = currentPlayer.processTurn(userInput, opponent.getBoard());
 
         // Update current player's message history with the result
-        if (result.successful()) currentPlayer.updateHistory(result.playerMessage());
+        currentPlayer.updateHistory(result.playerMessage());
 
         //the commands to be sent back to the player
         ArrayList<JsonObject> renderingCommands = new ArrayList<>(getGameRender(currentPlayer, opponent));
 
-        //only swap turns if the turn was successful. If not, it means the input was invalid
-        //and we want the player to try again
+        //if the turn wasn't successful, there was an invalid input, the player will stay on their turn until
+        //they enter a valid coordinate
         if (result.successful()) {
             //opponent should now get feedback about the player's turn
             opponent.updateHistory(result.opponentMessage());
+            //we can now swap turns and set the player to wait for their next turn
             SwapTurns();
             renderingCommands.add(new JsonObject().put("command", "wait"));
-        } else {
-            currentPlayer.updateHistory(result.playerMessage());
-            renderingCommands.add(new JsonObject().put("command", "wait"));
         }
+
         return renderingCommands;
     }
 

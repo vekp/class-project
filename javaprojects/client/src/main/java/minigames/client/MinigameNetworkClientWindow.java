@@ -23,7 +23,6 @@ import java.util.List;
 public class MinigameNetworkClientWindow {
 
     MinigameNetworkClient networkClient;
-    private final AchievementNotificationHandler achievementPopups;
 
     JFrame frame;
 
@@ -44,8 +43,6 @@ public class MinigameNetworkClientWindow {
 
         frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        this.achievementPopups = new AchievementNotificationHandler(networkClient);
 
         parent = new JPanel(new BorderLayout());
 

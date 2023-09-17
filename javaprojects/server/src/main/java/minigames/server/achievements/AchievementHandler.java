@@ -51,13 +51,23 @@ public class AchievementHandler {
      * unlocked (regardless of game - though typically when running only 1 client this is only going to contain 1
      * game's achievements)
      *
-     * @return A list of achievements that were just unlocked. Sorted by order that they were added to the queue
+     * @return A list of achievements that were just unlocked.
      */
-    public static List<Achievement> getRecentUnlocks() {
-        List<Achievement> result = new ArrayList<>(recentUnlocks.stream().toList());
-        //once the recent unlocks are requested, it is presumed they will be turned into notifications, so this queue
-        //is now cleared as these are no longer the 'recent' unlocks.
-        recentUnlocks.clear();
+    public static List<Achievement> getRecentUnlocks(String player) {
+        List<Achievement> result = new ArrayList<>();
+        PlayerAchievementProfile profile = playerManager.getPlayer(player);
+        //if this profile exists, we grab their recent unlocks, and loop through it, retrieving
+        //the achievement data for each game from the database and putting it in the results
+        if (profile != null) {
+            for (Map.Entry<String, HashSet<String>> entry : profile.getRecentUnlocks().entrySet()) {
+                for (String achievementName : entry.getValue()) {
+                    Achievement achievement = database.getAchievement(entry.getKey(), achievementName);
+                    if (achievement != null)
+                        result.add(achievement);
+                }
+            }
+        }
+        //this will be empty if there are no unlocks (or no existing player)
         return result;
     }
 
@@ -125,13 +135,14 @@ public class AchievementHandler {
     /**
      * Puts together a game state object containing the list of locked, unlocked, and hidden achievements
      * for a particular player. Used by the server to put together data packets to send to the client for display
+     *
      * @param playerID the player we want achievements for
      * @param gameName the name we want to attach to the achievement data. Since the handler usually is keyed by a
      *                 class type (not a game name), it might be more appropriate to pass in a game's title for the
      *                 user to read.
      * @return a game state object containing lists of unlocked and locked achievements for this player in this game
      */
-    public GameAchievementState getAchievementState(String playerID, String gameName){
+    public GameAchievementState getAchievementState(String playerID, String gameName) {
         List<Achievement> gameAchievements = database.getAchievementsByGame(getHandlerID());
         //if there are no achievements for this handler we will not provide a state for it
         if (gameAchievements.size() == 0) return null;

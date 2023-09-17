@@ -116,8 +116,9 @@ public class MinigameNetworkServer {
         });
 
         //respond to request to get the most recently unlocked achievements
-        router.get("/achievementUnlocks").respond((ctx) -> {
-            List<Achievement> recentUnlocks = AchievementHandler.getRecentUnlocks();
+        router.get("/achievementUnlocks/:player").respond((ctx) -> {
+            String playerID = ctx.pathParam("player");
+            List<Achievement> recentUnlocks = AchievementHandler.getRecentUnlocks(playerID);
             return Future.succeededFuture(recentUnlocks);
         });
 
