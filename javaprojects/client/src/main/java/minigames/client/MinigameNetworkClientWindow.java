@@ -48,14 +48,14 @@ public class MinigameNetworkClientWindow {
             for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
                     UIManager.setLookAndFeel(info.getClassName());
-                    UIManager.put("nimbusBase", Color.BLACK); // Set base color
-                    UIManager.put("nimbusBlueGrey", Color.BLACK); // Set blue/grey color
-                    UIManager.put("control", Color.BLACK); // Set control background color
-                    UIManager.put("text", Color.WHITE); // Set text color
+                    UIManager.put("nimbusBase", Color.BLACK); // Set base colour
+                    UIManager.put("nimbusBlueGrey", Color.BLACK); // Set blue/grey colour
+                    //UIManager.put("control", Color.BLACK); // Set control background colour
+                    UIManager.put("text", Color.WHITE); // Set text colour
                     UIManager.put("List.background", Color.BLACK); // Set list background
-                    UIManager.put("TextField.textForeground", Color.BLACK); // Set text field text color
-                    UIManager.put("List.foreground", Color.BLACK); // Set JList text color
-                    UIManager.put("ComboBox.foreground", Color.BLACK); // Set JComboBox text color
+                    UIManager.put("TextField.textForeground", Color.BLACK); // Set text field text colour
+                    UIManager.put("List.foreground", Color.BLACK); // Set JList text colour
+                    UIManager.put("ComboBox.foreground", Color.BLACK); // Set JComboBox text colour
                     break;
                 }
             }
