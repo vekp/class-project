@@ -156,14 +156,19 @@ public class MinigameNetworkServer {
         // Receives name of Active User, returns whether user is active/added to active list.
         router.post("/user").respond((ctx) -> {
             String userName = ctx.body().asString();
-            logger.info(userName);
             //if the player list didn't already have this name, add it
             //todo add to player account feature when implemented
             if (!Main.players.contains(userName)) {
                 Main.players.add(userName);
             }
             Main.activePlayer = userName;
+            logger.info(Main.activePlayer + " has been updated server side!");
             return Future.succeededFuture(userName);
+        });
+
+        // responds to request to get username of the active player.
+        router.get("/userGet").handler((ctx) -> {
+            ctx.response().end(Main.activePlayer);
         });
 
         // Starts a new game on the server

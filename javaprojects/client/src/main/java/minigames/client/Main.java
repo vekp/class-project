@@ -4,6 +4,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import minigames.client.battleship.Battleship;
 import minigames.client.muddletext.MuddleText;
+import minigames.client.useraccount.UserServerAction;
 import io.vertx.core.Launcher;
 
 import org.apache.logging.log4j.LogManager;
@@ -19,10 +20,14 @@ public class Main extends AbstractVerticle {
     /** A logger for logging output */
     private static final Logger logger = LogManager.getLogger(Main.class);
 
+    public static UserServerAction user;
+
     /** Where GameClients should register themselves in doWiring */
     public static final ClientRegistry clientRegistry = new ClientRegistry();
 
     MinigameNetworkClient client;
+    
+
 
     /**
      * A place for groups to put code that registers their GameClient with the ClientRegistry, etc.

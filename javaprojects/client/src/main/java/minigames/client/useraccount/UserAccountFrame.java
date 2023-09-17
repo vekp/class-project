@@ -75,7 +75,8 @@ public class UserAccountFrame extends JFrame implements ActionListener {
                         }else{
                                 user.generateUser(emailInput, pinInput);                                
                         }
-                        userClient.send(username);
+                        userClient.login(username);
+                        
                         this.dispose();
                 } else { System.out.println("Please enter a valid email address."); }
         }   

@@ -11,6 +11,7 @@ import minigames.achievements.PlayerAchievementRecord;
 import minigames.client.achievementui.AchievementCollection;
 import minigames.client.achievementui.AchievementUI;
 import minigames.client.notifications.NotificationManager;
+import minigames.client.useraccount.UserServerAction;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -59,6 +60,7 @@ public class MinigameNetworkClient {
     WebClient webClient;
     MinigameNetworkClientWindow mainWindow;
     Animator animator;
+    UserServerAction user;
 
     Optional<GameClient> gameClient;
     NotificationManager notificationManager;
@@ -243,27 +245,6 @@ public class MinigameNetworkClient {
     }
 
     /**
-     * Sends username to the server, retrieves active status/checks it's in active list.
-     */
-    public Future<String> userName(String userName) {
-        return webClient.post(port, host, "/user")
-                .sendBuffer(Buffer.buffer(userName))
-                .onSuccess((resp) -> {
-                    logger.info(resp.bodyAsString());
-                })
-                .map((resp) -> {
-                    JsonObject rpj = resp.bodyAsJsonObject();
-                    logger.info(rpj);
-                    return rpj.toString();
-                })
-                //.onSuccess((rp) -> runRenderingPackage(rp))
-                .onFailure((resp) -> {
-                    logger.error("Failed: {} ", resp.getMessage());
-                });
-    }
-
-
-    /**
      * Creates a new game on the server, running any commands that come back
      */
     public Future<RenderingPackage> newGame(String gameServer, String playerName) {
@@ -321,9 +302,9 @@ public class MinigameNetworkClient {
     }
 
     /**
-     * Sends a UserCommandPackage to the server, running any commands that come back
+     * Sends a username string to the server, receives the username back referenced from the updated variable on the server.
      */
-    public Future<String> send(String userName) {
+    public Future<String> login(String userName) {
         return webClient.post(port, host, "/user")
                 .sendBuffer(Buffer.buffer(userName))
                 .onSuccess((resp) -> {
@@ -331,11 +312,27 @@ public class MinigameNetworkClient {
                 })
                 .map((resp) -> {
                     String rpj = resp.bodyAsString();
+                    this.user = new UserServerAction(this, rpj);
+                    Main.user = this.user;
                     return rpj;
                 })
                 .onFailure((resp) -> {
                     logger.error("Failed: {} ", resp.getMessage());
                 });
+    }
+
+    /**
+     * Sends a request to get the active username from the server.
+     */
+    public Future<String> userNameGet() {
+        return webClient.get(port, host, "/userGet")
+                .send()
+                .onSuccess((resp) -> {
+                    logger.info(resp.bodyAsString() + "Received at Client");
+                })
+                .onFailure((resp) -> {
+                    logger.error("Failed: {} ", resp.getMessage());
+                }).map((resp) -> resp.bodyAsString());
     }
 
     /**
