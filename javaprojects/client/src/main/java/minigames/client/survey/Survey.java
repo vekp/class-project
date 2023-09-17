@@ -24,6 +24,7 @@ public class Survey extends JPanel implements ActionListener {
     private JLabel counterLabel, headingLabel, testLabel, gameNameLabel, blankLabel, feedbackLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, difficultyLabel, gameNameTextLabel, helpLabel;
     private JButton backButton, submitButton, resultsButton;
     private JTextArea feedbackText;
+    private JScrollPane feedbackScrollPane;
     private JRadioButton uiRatingOne, uiRatingTwo, uiRatingThree, uiRatingFour, uiRatingFive, enjoymentOne, enjoymentTwo, enjoymentThree, enjoymentFour, enjoymentFive, functionalityOne, functionalityTwo, functionalityThree, functionalityFour, functionalityFive, difficultyOne, difficultyTwo, difficultyThree, difficultyFour, difficultyFive;
     private ButtonGroup uiRatingButtonGroup, enjoymentButtonGroup, functionalityButtonGroup, difficultyButtonGroup;
     private Border borderPosition, raisedBevel, loweredBevel, outerColourBorder, styledOuterBorder, innerColourBorder, styledInnerBorder, styledBorders, finalBorder;
@@ -245,6 +246,8 @@ public class Survey extends JPanel implements ActionListener {
         Border border = BorderFactory.createLineBorder(Color.BLACK, 1);
         feedbackText.setBorder(BorderFactory.createCompoundBorder(border, 
         BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+        // feedbackScrollPane = new JScrollPane(feedbackText, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        // feedbackPanel.add(feedbackScrollPane);
         feedbackPanel.add(feedbackText);
 
         // surveyQuestionsPanelLeft (incorporates all Question titles for the survey)

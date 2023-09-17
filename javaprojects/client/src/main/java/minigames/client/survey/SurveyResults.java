@@ -24,6 +24,7 @@ public class SurveyResults extends JPanel implements ActionListener{
     private JLabel counterLabel, headingLabel, testLabel, gameNameLabel, feedbackLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, difficultyLabel, gameNameTextLabel, helpLabel, uiRatingRatingLabel, enjoymentRatingLabel, functionalityRatingLabel, difficultyRatingLabel, feedbackRatingLabel, overallRatingLabelLeft, overallRatingHelpLabel, overallRatingLabelRight;
     private JButton closeButton;
     private JTextArea feedbackText;
+    private JScrollPane scrollPane;
     private JComboBox gameNameComboBox;
     private Border borderPosition, raisedBevel, loweredBevel, outerColourBorder, styledOuterBorder, innerColourBorder, styledInnerBorder, styledBorders, finalBorder;
 
@@ -190,6 +191,8 @@ public class SurveyResults extends JPanel implements ActionListener{
         Border border = BorderFactory.createLineBorder(Color.BLACK, 1);
         feedbackText.setBorder(BorderFactory.createCompoundBorder(border, 
         BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+        // scrollPane = new JScrollPane(feedbackText);
+        // feedbackPanel.add(scrollPane);
         feedbackPanel.add(feedbackText);
 
         // surveyResultsPanelRight (incorporates all Question responses for the survey)
