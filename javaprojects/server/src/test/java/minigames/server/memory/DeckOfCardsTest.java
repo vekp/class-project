@@ -14,7 +14,7 @@ public class DeckOfCardsTest {
     private static final Logger logger = LogManager.getLogger(DeckOfCardsTest.class);
     
     String[] suits = { "Clubs", "Diamonds", "Hearts", "Spades" };
-    String[] values = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
+    String[] values = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "JACK", "QUEEN", "KING", "ACE" };
     /**
      * This unit test will test to see if each card in the deck has been constructed as per the constructor.
      * Are the cards the right values and suits. s
@@ -25,7 +25,7 @@ public class DeckOfCardsTest {
         minigames.common.memory.DeckOfCards.PlayingCard[] cardDeck = new DeckOfCards().getCards();
         int counter = 0;
         for(int i = 0; i < suits.length; i++){
-            for(int j = 0; j < values.length; j++ ){
+            for(int j = 0; j < values.length; j++){
                 assertTrue(cardDeck[counter].getSuit() == suits[i] && cardDeck[counter].getValue() == values[j]);
                 counter++;
             }
