@@ -1,5 +1,4 @@
 package minigames.client.useraccount;
-import minigames.client.useraccount.Session.*;
 import java.nio.charset.StandardCharsets;
 import java.io.BufferedWriter;
 import java.nio.file.Paths;
@@ -22,14 +21,19 @@ public class FileHandler {
         private String path;
         private String username;
         private String pin;
+        private File file;
+
+        FileHandler(String username){
+                this.username = username;
+                this.path = "src/main/java/minigames/client/useraccount/" + this.username + ".json";
+                this.file = new File(this.path);
+                this.pin = pin;
+        }
+
     public void generateUser(String username, String pin){
         // split username at @ sign and just return the first part of the string .
-        this.username = username.split("@")[0];
-        this.pin = pin;
-        this.path = "src/main/java/minigames/client/useraccount/" + this.username + ".json";
-        File file = new File(this.path);
             System.out.println("Welcome " + this.username);
-            try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, false))) {
+            try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(this.file, false))) {
                 StringBuilder jsonString = new StringBuilder("{"); // Start the JSON array
                 String userJson = String.format("\"username\": \"%s\", \"pin\": \"%s\"", this.username, this.pin);
                 String sessionJson = String.format(new Session(true).returnSession());
@@ -107,14 +111,14 @@ public class FileHandler {
         return games;
     }
 
-    public void addGame (String path, File file, String gameName, String value) {
+    public void addGame (String gameName, String value) {
         try{
             byte[] fileBytes = Files.readAllBytes(Paths.get(path));
             String jsonFile = new String(fileBytes, StandardCharsets.UTF_8);
-            FileManager fileManager = new FileManager(path, jsonFile);
+            FileManager fileManager = new FileManager(this.path, jsonFile);
             fileManager.updateGame(gameName, value);
             String sessionJson = fileManager.sessionListToJson();
-            try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, false))){
+            try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(this.file, false))){
                 StringBuilder jsonString = new StringBuilder("{"); // Start the JSON array
                 String userJson = String.format("\"username\": \"%s\", \"pin\": \"%s\"", username, "1234");
                 jsonString.append(userJson).append(",\"session\":"); // Add user JSON to the array

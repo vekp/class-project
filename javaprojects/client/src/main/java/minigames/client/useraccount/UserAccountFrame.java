@@ -1,4 +1,5 @@
 package minigames.client.useraccount;
+import io.vertx.core.Future;
 
 import javax.swing.*;
 import java.awt.*;
@@ -61,23 +62,22 @@ public class UserAccountFrame extends JFrame implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e){
                 String emailInput = emailField.getText();
-                String pinInput = pinField.getText();
-                FileHandler user = new FileHandler();
+                String pinInput = pinField.getText();                
                 UserAccountSchema schema = new UserAccountSchema();
                 if (schema.isValid("email", emailInput)) {
                         String username = emailInput.split("@")[0];
-                        System.out.println("Welcome, " + emailInput + ", enjoy your session!");
+                        FileHandler user = new FileHandler(username);
                         String path = "src/main/java/minigames/client/useraccount/" + username + ".json";
                         File file = new File(path);
                         if(file.exists()){
                                 user.addSession(file, path, username);    
-                                user.addGame(path, file, "gameName", "score or any random value");
+                                user.addGame("gameName", "score or any random value");
                         }else{
                                 user.generateUser(emailInput, pinInput);                                
                         }
                         userClient.login(username);
                         Future<String> userFromServer = userClient.userNameGet();
-                        System.out.println("Server user is: " + userFromServer);
+                        System.out.println("Server user is: " + userFromServer); 
                         this.dispose();
                 } else { System.out.println("Please enter a valid email address."); }
         }   

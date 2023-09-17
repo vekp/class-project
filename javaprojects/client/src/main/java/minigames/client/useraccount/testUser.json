@@ -1,1 +1,11 @@
-{"username": "testUser", "pin": "12345","session":[ {"timestamp": "Sun Sep 17 19:20:58 AEST 2023", "id": "27c9b377-5cf1-44c8-93c1-1634ac1cdffe", "isActive": "true"}]}
+{
+    "username": "testUser",
+    "pin": "12345",
+    "session": [
+        {
+            "timestamp": "Sun Sep 17 19:20:58 AEST 2023",
+            "id": "27c9b377-5cf1-44c8-93c1-1634ac1cdffe",
+            "isActive": "true"
+        }
+    ]
+}
