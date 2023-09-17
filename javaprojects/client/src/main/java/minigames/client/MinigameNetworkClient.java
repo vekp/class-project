@@ -353,13 +353,14 @@ public class MinigameNetworkClient {
         return webClient.get(port, host, "/userGet")
                 .send()
                 .onSuccess((resp) -> {
-                    logger.info(resp.bodyAsString() + "Received at Client");
+                    logger.info(resp.bodyAsString() + " Sent from Client");
+                })
+                .map((resp) -> {
+                    String rpj = resp.bodyAsString();
+                    return rpj;
                 })
                 .onFailure((resp) -> {
                     logger.error("Failed: {} ", resp.getMessage());
-                }).map((resp) -> {
-                    String rpj = resp.bodyAsString();
-                    return rpj;    
                 });
     }
 

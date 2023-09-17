@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.Future;
 
 public class UserAccountFrame extends JFrame implements ActionListener {
 
@@ -75,7 +76,8 @@ public class UserAccountFrame extends JFrame implements ActionListener {
                                 user.generateUser(emailInput, pinInput);                                
                         }
                         userClient.login(username);
-                        
+                        Future<String> userFromServer = userClient.userNameGet();
+                        System.out.println("Server user is: " + userFromServer);
                         this.dispose();
                 } else { System.out.println("Please enter a valid email address."); }
         }   
