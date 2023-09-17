@@ -6,28 +6,40 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+/**
+ * The ButtonFactory class provides utility methods for creating styled JButtons for the Snake game UI.
+ * It offers a centralized way to maintain the consistent look and feel of buttons throughout the game interface.
+ */
 public class ButtonFactory {
 
+    // Default background color for the button.
     private static final Color DEFAULT_BACKGROUND_COLOR = new Color(36, 192, 196);
+
+    // Background color for the button when the mouse hovers over it.
     private static final Color HOVER_BACKGROUND_COLOR = new Color(174, 52, 255);
+
+    // Default border color for the button.
     private static final Color DEFAULT_BORDER_COLOR = new Color(174, 52, 255);
+
+    // Border color for the button when the mouse hovers over it.
     private static final Color HOVER_BORDER_COLOR = new Color(36, 192, 196);
 
     /**
      * Creates a styled JButton with the specified properties.
      *
      * @param text      The text to be displayed on the button.
-     * @param xPosition The horizontal position where the button should be placed.
-     * @param yPosition The vertical position where the button should be placed.
+     * @param xPosition The x-coordinate for the top-left corner of the button.
+     * @param yPosition The y-coordinate for the top-left corner of the button.
      * @param width     The width of the button.
      * @param height    The height of the button.
      * @param action    The action to be executed when the button is clicked.
-     * @return A styled JButton ready to be added to a GUI component.
+     *
+     * @return A styled JButton with the provided properties and added visual effects for mouse hover actions.
      */
     public static JButton createButton(String text, int xPosition, int yPosition, int width, int height, ActionListener action) {
         JButton button = new JButton(text);
 
-        // Set font, colors, and properties
+        // Set button properties for appearance
         button.setFont(new Font("Arial", Font.PLAIN, 24));
         button.setForeground(Color.WHITE);
         button.setContentAreaFilled(false);
@@ -39,10 +51,10 @@ public class ButtonFactory {
         button.setOpaque(true);
         button.setBackground(DEFAULT_BACKGROUND_COLOR);
 
-        // Set the button's size and position
+        // Position and size the button based on provided parameters
         button.setBounds(xPosition, yPosition, width, height);
 
-        // Add mouse listeners for hover effects
+        // Add mouse listeners to change button appearance on hover
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -63,7 +75,7 @@ public class ButtonFactory {
             }
         });
 
-        // Attach the provided action listener to the button
+        // Attach the provided action listener to handle button clicks
         button.addActionListener(action);
 
         return button;

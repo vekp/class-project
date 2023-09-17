@@ -1,4 +1,4 @@
 package minigames.client.snake;
 
-public class AboutMePanel extends BasePanel{
+public class AboutMePanel{
 }

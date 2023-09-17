@@ -1,6 +1,6 @@
 package minigames.client.snake;
 
-public class HelpMenuPanel extends BasePanel{
+public class HelpMenuPanel {
 
 
 //    TODO: Convert this to the panel logic and pass in all of the setup
