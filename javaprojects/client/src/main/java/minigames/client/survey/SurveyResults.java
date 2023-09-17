@@ -21,8 +21,8 @@ public class SurveyResults extends JPanel implements ActionListener{
 
         // (labels,buttons etc need to be registered here to be accessible by the methods in this class)
     private JPanel titlePanel, closePanel, gameNamePanel, surveyResultsPanelGroup, surveyResultsPanelLeft, surveyResultsPanelRight, feedbackPanel, footerPanel, uiRatingPanel, enjoymentPanel, functionalityPanel, difficultyPanel, overallRatingPanel; 
+    private JLabel counterLabel, headingLabel, testLabel, gameNameLabel, feedbackLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, difficultyLabel, gameNameTextLabel, helpLabel, overallRatingLabel;
     private JButton closeButton;
-    private JLabel headingLabel;
     private JComboBox gameNameComboBox;
     private Border borderPosition, raisedBevel, loweredBevel, outerColourBorder, styledOuterBorder, innerColourBorder, styledInnerBorder, styledBorders, finalBorder;
 
@@ -35,7 +35,7 @@ public class SurveyResults extends JPanel implements ActionListener{
     private Color innerborderLineColour = new Color(64,28,99,255);
 
     private Font fontHeading = new Font("Open sans semibold", Font.BOLD, 24);
-    private Font fontLabel = new Font("Open sans semibold", Font.PLAIN, 20);
+    private Font fontLabel = new Font("Open sans semibold", Font.PLAIN, 18);
     private Font fontText = new Font("Lucida console", Font.PLAIN, 16);
     private Font fontHelp = new Font("Open sans semibold", Font.PLAIN, 14);
     private Font fontButton = new Font("Open sans semibold", Font.PLAIN, 12);
@@ -74,15 +74,76 @@ public class SurveyResults extends JPanel implements ActionListener{
         headingLabel = new JLabel();
         headingLabel.setText("Survey Results");
         headingLabel.setFont(fontHeading);
-        headingLabel.setForeground(Color.WHITE);
-        headingLabel.setBackground(Color.WHITE);
 
         titlePanel.add(headingLabel);
         this.add(titlePanel, BorderLayout.NORTH);
-        this.setVisible(true);
 
-        gameNameComboBox = new JComboBox(gameNames);
-        gameNameComboBox.addActionListener(this);
+        // gameName Label
+        gameNameLabel = new JLabel();
+        gameNameLabel.setText("Choose Game Results: ");
+        gameNameLabel.setFont(fontLabel);
+        gameNameLabel.setHorizontalAlignment(JLabel.CENTER);
+
+        // User Interface Rating Label
+        uiRatingLabel = new JLabel();
+        uiRatingLabel.setText("User Interface: ");
+        uiRatingLabel.setFont(fontLabel);
+        uiRatingLabel.setHorizontalAlignment(JLabel.CENTER);
+
+        // Enjoyment Rating Label
+        enjoymentLabel = new JLabel();
+        enjoymentLabel.setText("Enjoyment: ");
+        enjoymentLabel.setFont(fontLabel);
+        enjoymentLabel.setHorizontalAlignment(JLabel.CENTER);
+
+        // Functionality Rating Label
+        functionalityLabel = new JLabel();
+        functionalityLabel.setText("Functionality: ");
+        functionalityLabel.setFont(fontLabel);
+        functionalityLabel.setHorizontalAlignment(JLabel.CENTER);
+
+        // Game Difficulty Rating Label
+        difficultyLabel = new JLabel();
+        difficultyLabel.setText("Game Difficulty: ");
+        difficultyLabel.setFont(fontLabel);
+        difficultyLabel.setHorizontalAlignment(JLabel.CENTER);
+
+        // feedback Label
+        feedbackLabel = new JLabel();
+        feedbackLabel.setText("Feedback: ");
+        feedbackLabel.setFont(fontLabel);
+        feedbackLabel.setHorizontalAlignment(JLabel.CENTER);
+
+        // Overall Rating Label
+        overallRatingLabel = new JLabel();
+        overallRatingLabel.setText("Overall Rating: ");
+        overallRatingLabel.setFont(fontLabel);
+        overallRatingLabel.setHorizontalAlignment(JLabel.CENTER);
+
+
+        // surveyResultsPanelLeft (incorporates all Result titles for the survey)
+        surveyResultsPanelLeft = new JPanel();
+        surveyResultsPanelLeft.setLayout(new GridLayout(7, 0));
+        for (Component d : new Component[] { gameNameLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, difficultyLabel, overallRatingLabel, feedbackLabel }) {
+            surveyResultsPanelLeft.add(d);
+        }
+
+        // gameNameComboBox = new JComboBox(gameNames);
+        // gameNameComboBox.addActionListener(this);
+
+
+        // surveyResultsPanelRight (incorporates all Question responses for the survey)
+        surveyResultsPanelRight = new JPanel();
+        surveyResultsPanelRight.setLayout(new GridLayout(7, 0));
+        // for (Component d : new Component[] { gameNameTextLabel, helpLabel, uiRatingPanel, enjoymentPanel, functionalityPanel, difficultyPanel, feedbackPanel }) {
+        //     surveyResultsPanelRight.add(d);
+        // }
+        // surveyResultsPanelGroup (incorporates all panels from the left and right groups for the survey)
+        surveyResultsPanelGroup = new JPanel();
+        surveyResultsPanelGroup.setLayout(new GridLayout(0, 2));
+        surveyResultsPanelGroup.add(surveyResultsPanelLeft);
+        surveyResultsPanelGroup.add(surveyResultsPanelRight);
+        this.add(surveyResultsPanelGroup, BorderLayout.CENTER);
 
         // Close Button
         closePanel = new JPanel();
@@ -95,6 +156,8 @@ public class SurveyResults extends JPanel implements ActionListener{
         footerPanel = new JPanel();
         footerPanel.add(closePanel, BorderLayout.CENTER);
         this.add(footerPanel, BorderLayout.SOUTH);
+
+        labelColourChange(Color.WHITE, Color.BLUE);
     }
 
     // Public Functions
@@ -105,6 +168,17 @@ public class SurveyResults extends JPanel implements ActionListener{
         }
         catch (Exception e) { e.printStackTrace(); /*handled in paintComponent()*/ }
         return(image);
+    }
+
+    // Change colour of labels (overrides singular setting of colour)
+    public void labelColourChange(Color backColour, Color foreColour) {
+        JLabel labels[] = {counterLabel, headingLabel, testLabel, gameNameLabel, feedbackLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, difficultyLabel, gameNameTextLabel, helpLabel, overallRatingLabel};
+        for(JLabel label: labels){
+            if(label != null) {
+                label.setBackground(backColour);
+                label.setForeground(foreColour);
+            }
+        }
     }
 
     // Override Functions
