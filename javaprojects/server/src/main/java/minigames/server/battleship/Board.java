@@ -1,10 +1,14 @@
 package minigames.server.battleship;
 
+import minigames.server.achievements.AchievementHandler;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.Math.round;
+import static minigames.server.battleship.achievements.SLOW_LEARNER;
+import static minigames.server.battleship.achievements.MISSION_COMPLETE;
 
 /**
  * The Board Class contains all the information about the current state of a player's game board, including the player's name
@@ -12,7 +16,6 @@ import static java.lang.Math.round;
 public class Board {
     private Grid grid; // A two-dimensional array of Cells for drawing the game board
     private HashMap<String, Ship> vessels;  // A hashmap containing each of the five ship types for the current board
-    private int turnNumber;  // The current turn number
 
     private GameState gameState;
     private int lastRowShot;
@@ -24,14 +27,11 @@ public class Board {
 //     * @param   String representing the name of the player
      */
     public Board(int choice){
-        this.turnNumber = 0;
         this.vessels = new HashMap<>();
         this.grid = new Grid(); // Create a default grid
         chooseGrid(choice); // Fake name while I sort this out
 
         this.gameState = GameState.SHIP_PLACEMENT;
-        // Set the player to be the owner for all ships on this board
-        this.setPlayerOwner();
         // Initialise last shot to invalid coordinates.
         this.lastRowShot = -1;
         this.lastColShot = -1;
@@ -48,25 +48,6 @@ public class Board {
         return this.grid.getGrid();
     }
 
-    /**
-     * Getter for the player name
-     * @return The String of the player that owns the board
-     */
-//    public String getPlayerName() {return this.playerName;}
-
-    /**
-     * Getter for the current turn number
-     * @return An int for the current turn number
-     */
-    public int getTurnNumber() {return this.turnNumber;}
-
-    /**
-     * Getter for the player's message history
-     * @return the message history string
-     */
-//    public String getMessageHistory() {
-//        return messageHistory;
-//    }
 
     /**
      * Getter for the player's current game state
@@ -105,17 +86,6 @@ public class Board {
     }
 
     /**
-     * Sets the player to be the owner for all ships on this board
-     */
-    public void setPlayerOwner(){
-        this.vessels.forEach((key, value) ->{
-            Ship current = value;
-//            current.setOwner(this.playerName);
-            vessels.replace(key, current);
-        });
-    }
-
-    /**
      * Sets the CellType for a given coordinate in the grid
      * @param col horizontal position
      * @param row vertical position
@@ -129,22 +99,6 @@ public class Board {
         if(cellType.toString().equals("X") || cellType.toString().equals(".")) {
             this.grid.shootCell(col, row);
         }
-    }
-
-
-    /**
-     * Adds the user's input to the message history
-     * @param input user's input
-     */
-//    public void updateMessageHistory(String input) {
-//        this.messageHistory = getMessageHistory() + input;
-//    }
-
-    /**
-     * Increments the turn number
-     */
-    public void incrementTurnNumber() {
-        this.turnNumber = getTurnNumber() + 1;
     }
 
     /**
@@ -271,4 +225,37 @@ public class Board {
         this.lastRowShot = row;
         this.lastColShot = col;
     }
+
+    public boolean checkGameOver(String name){
+        // for ship in vessels hashmap, check if it is sunk and increment counter
+
+        AchievementHandler handler = new AchievementHandler(BattleshipServer.class);
+        int counter = 0;
+        for(Map.Entry<String, Ship> ship: vessels.entrySet()) {
+            if(ship.getValue().isSunk()){
+                counter++;
+            }
+            if(counter == 5) {
+                handler.unlockAchievement(name, MISSION_COMPLETE.toString());
+                return true;
+
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Sinks all ships on the current board, for testing achievements and game state
+     */
+    public void sinkAll(String playerName){
+        vessels.forEach((shipType, ship) -> {
+            Cell[] shipParts = ship.getShipParts();
+            for(int i = 0; i < shipParts.length; i++){
+                int col = shipParts[i].getVerticalCoordInt();
+                int row = shipParts[i].getHorizontalCoord();
+                ship.updateShipStatus(col, row, playerName);
+            }
+        });
+    }
+
 }
