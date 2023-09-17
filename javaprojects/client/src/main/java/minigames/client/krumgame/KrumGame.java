@@ -61,6 +61,8 @@ public class KrumGame {
     boolean initialized;
     boolean playersInitialized;
 
+    boolean onMoon;
+
     
     // Player information
     String player;
@@ -107,7 +109,7 @@ public class KrumGame {
 
     ComponentAdapter offsetListener;
 
-
+    static final int MOON_LEVEL_INDEX = 3;
 
     long seed; // seed for Random() -- needs to be the same for all clients
 
@@ -139,9 +141,11 @@ public class KrumGame {
         KrumLevel chameleon = new KrumLevel("chameleon.png", null, 235, 0, 600, 0);
         KrumLevel ropetest = new KrumLevel("ropetestmap.png", null, 235, 0, 600, 0);
         KrumLevel cavetest = new KrumLevel("cave_test_2.png", "cave_test_2_mask.png", 300, 500, 680, 110);
+        KrumLevel moonplaceholder = new KrumLevel("moon_placeholder.png", null, 100, 400, 700, 400);
         levels.add(chameleon);
         levels.add(ropetest);
         levels.add(cavetest);    
+        levels.add(moonplaceholder);
         setActiveLevel(0);           
     }
 
@@ -154,7 +158,13 @@ public class KrumGame {
         backgroundComponent = currentLevel.background;
         background = backgroundComponent.getImage();
         alphaRaster = backgroundComponent.getAlphaRaster();        
-        currentLevelIndex = index;        
+        currentLevelIndex = index;      
+        onMoon = (index == MOON_LEVEL_INDEX);
+        if (players != null) {
+            for (KrumPlayer p : players) {
+                p.onMoon = onMoon;
+            }
+        }
     }
 
     /**
@@ -179,8 +189,8 @@ public class KrumGame {
      */
     private void initializePlayers(KrumLevel level){
         players = new KrumPlayer[2];
-        players[0] = new KrumPlayer(level.p1x, level.p1y, "kangaroo_sprite/", 8, 31, true, alphaRaster, 0, players, primaryColor, secondaryColor, gunColor);
-        players[1] = new KrumPlayer(level.p2x, level.p2y, "kangaroo_sprite/", 8, 31, false, alphaRaster, 1, players, primaryColor, secondaryColor, gunColor);
+        players[0] = new KrumPlayer(level.p1x, level.p1y, "kangaroo_sprite/", 8, 31, true, alphaRaster, 0, players, primaryColor, secondaryColor, gunColor, onMoon);
+        players[1] = new KrumPlayer(level.p2x, level.p2y, "kangaroo_sprite/", 8, 31, false, alphaRaster, 1, players, primaryColor, secondaryColor, gunColor, onMoon);
         players[0].joey.otherPlayer = players[1];
         players[1].joey.otherPlayer = players[0];
         playerTurn = 0;
@@ -195,8 +205,10 @@ public class KrumGame {
     void startTurn() {
         System.out.println("Start turn");
         playerTurn *= -1;
-        windString = windManager.updateWindString();
+        windManager.updateWind();
+        windString = windManager.getWindString();
         windX = windManager.getWindX();
+        windY = windManager.getWindY();
         turnEndFrame = updateCount + KrumC.TURN_TIME_LIMIT_FRAMES;
         savedTurns[playerTurn] = new KrumTurn(players, background, windX, windY, updateCount, ending, running, winner, waterLevel);
         currentTurn = savedTurns[playerTurn];
@@ -411,6 +423,13 @@ public class KrumGame {
                             }                            
                         }
 
+                        // test for airshot achievement
+                        if (players[n].airborne) {
+                            if (p.playerIndex == myPlayerIndex) {
+                                unlockAchievement("Airshot!");
+                            }
+                        }
+
                         KrumSound.playSound("explode2");
                         ExplosionDetails.explode((int)p.projectile.x, (int)p.projectile.y, p.projectile.explosionRadius, 
                             KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
@@ -457,6 +476,7 @@ public class KrumGame {
                         KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
                     handlePlayerKnock(p.joey); 
                     p.joey.active = false;
+                    KrumSound.playSound("joeypop");
                 }
             }
             if (turnOver && readyToStartTurn) {
@@ -669,6 +689,7 @@ public class KrumGame {
      * Main game loop
      */
     void startGame(){
+        disableInfoLogging();
         panel.gameActive = true;
         lastFrameTime = System.nanoTime();
         while (choosingLevel || !initialized) {
@@ -684,7 +705,7 @@ public class KrumGame {
         initializePlayers(currentLevel); 
         KrumSound.playSound("intro2");
         // Starting the Wind Manager
-        windManager = new WindManager(seed);
+        windManager = new WindManager(seed, onMoon);
         windX = windManager.getWindX();
         windY = windManager.getWindY();
         windString = windManager.getWindString();
@@ -988,8 +1009,7 @@ public class KrumGame {
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(panel);
         mnClient.getMainWindow().pack();
-        requestMyPlayerIndex();
-        disableInfoLogging();
+        requestMyPlayerIndex();        
     }
 
     /**
