@@ -49,7 +49,7 @@ public class Survey extends JPanel implements ActionListener {
     // Background image variable declaration
     private Image image;
     private final String imageFolderPath = "src/main/resources/images/backgrounds/";
-
+    private final String background = "nebula.jpg";
     // Public variables
     // Sets the Frame Title (top left corner)
     public static final String FRAME_TITLE = "Game Survey";
@@ -319,7 +319,7 @@ public class Survey extends JPanel implements ActionListener {
         resultsButton = new JButton("Results");
         resultsButton.setFont(fontButton);
         resultsButton.addActionListener(e -> {
-            this.removeAll();
+            mnClient.getMainWindow().clearAll();
             JPanel results = new SurveyResults(mnClient, gameId);
             // frame.setTitle(Survey.FRAME_TITLE);
             mnClient.getMainWindow().addCenter(results);
@@ -343,7 +343,7 @@ public class Survey extends JPanel implements ActionListener {
     public Image readBackgroundImage() {
         try
         {
-            image = javax.imageio.ImageIO.read(new File(imageFolderPath + "nebula.jpg"));
+            image = javax.imageio.ImageIO.read(new File(imageFolderPath + background));
         }
         catch (Exception e) { e.printStackTrace(); /*handled in paintComponent()*/ }
         return(image);
