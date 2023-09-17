@@ -40,11 +40,15 @@ public class TicTacToeServer implements GameServer {
 
     @Override
     public GameMetadata[] getGamesInProgress() {
-        return games.keySet().stream().map((name) -> {
-                GameMetadata metadata = new GameMetadata("TicTacToe", name, players.toArray(new String[0]), true);
-            return metadata;
-        }).toArray(GameMetadata[]::new);
-    }
+    return games.entrySet().stream().map(entry -> {
+        String name = entry.getKey();
+        TicTacToeGame game = entry.getValue();
+        String[] playerNames = game.getPlayerNames();  // Assuming TicTacToeGame has a method called getPlayerNames()
+        GameMetadata metadata = new GameMetadata("TicTacToe", name, playerNames, true);
+        return metadata;
+    }).toArray(GameMetadata[]::new);
+}
+
 
     @Override
     public Future<RenderingPackage> newGame(String playerName) {
