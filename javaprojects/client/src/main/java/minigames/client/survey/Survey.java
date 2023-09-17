@@ -19,7 +19,7 @@ import java.util.*;
 
 public class Survey extends JPanel implements ActionListener {
 
-    // (labels and buttons need to be registered here)
+    // (labels,buttons etc need to be registered here to be accessible by the methods in this class)
     private JPanel titlePanel, backPanel, gameNamePanel, surveyQuestionsPanelGroup, surveyQuestionsPanelLeft, surveyQuestionsPanelRight, feedbackPanel, submitPanel, footerPanel, uiRatingPanel, enjoymentPanel, functionalityPanel, difficultyPanel, overallRatingPanel, resultsPanel; 
     private JLabel counterLabel, headingLabel, testLabel, gameNameLabel, blankLabel, feedbackLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, difficultyLabel,overallRatingLabel, gameNameTextLabel, helpLabel;
     private JButton backButton, submitButton, resultsButton;
@@ -27,10 +27,12 @@ public class Survey extends JPanel implements ActionListener {
     private JRadioButton uiRatingOne, uiRatingTwo, uiRatingThree, uiRatingFour, uiRatingFive, enjoymentOne, enjoymentTwo, enjoymentThree, enjoymentFour, enjoymentFive, functionalityOne, functionalityTwo, functionalityThree, functionalityFour, functionalityFive, difficultyOne, difficultyTwo, difficultyThree, difficultyFour, difficultyFive, overallRatingOne, overallRatingTwo, overallRatingThree, overallRatingFour, overallRatingFive;
     private ButtonGroup uiRatingButtonGroup, enjoymentButtonGroup, functionalityButtonGroup, difficultyButtonGroup, overallRatingButtonGroup;
     private Border borderPosition, raisedBevel, loweredBevel, outerColourBorder, styledOuterBorder, innerColourBorder, styledInnerBorder, styledBorders, finalBorder;
+
     // Colours
     // Colours of panels, buttons and radio buttons
     private Color bgColour = new Color(255,255,255); // background
     private Color fgColour = new Color(0,0,0); // foreground
+
     // Background colour of main panel
     // private Color mainBgColour = new Color(51,167,202);
     private Color mainBgColour = new Color(46,114,173);
@@ -44,7 +46,6 @@ public class Survey extends JPanel implements ActionListener {
     private Font fontButton = new Font("Open sans semibold", Font.PLAIN, 12);
 
     private final PolicyFactory sanitiser = Sanitizers.BLOCKS.and(Sanitizers.FORMATTING);
-
     // Background image variable declaration
     private Image image;
     private final String imageFolderPath = "src/main/resources/images/backgrounds/";
@@ -132,11 +133,9 @@ public class Survey extends JPanel implements ActionListener {
         uiRatingFour = new JRadioButton("4");
         uiRatingFive = new JRadioButton("5");
         uiRatingThree.setSelected(true);
-        uiRatingPanel.add(uiRatingOne);
-        uiRatingPanel.add(uiRatingTwo);
-        uiRatingPanel.add(uiRatingThree);
-        uiRatingPanel.add(uiRatingFour);
-        uiRatingPanel.add(uiRatingFive);
+        for (Component c : new Component[] { uiRatingOne, uiRatingTwo, uiRatingThree, uiRatingFour, uiRatingFive }) {
+            uiRatingPanel.add(c);
+        }
         uiRatingPanel.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 1));
 
         // Ensures only one of the radio buttons are selected at a time
@@ -163,11 +162,9 @@ public class Survey extends JPanel implements ActionListener {
         enjoymentFour = new JRadioButton("4");
         enjoymentFive = new JRadioButton("5");
         enjoymentThree.setSelected(true);
-        enjoymentPanel.add(enjoymentOne);
-        enjoymentPanel.add(enjoymentTwo);
-        enjoymentPanel.add(enjoymentThree);
-        enjoymentPanel.add(enjoymentFour);
-        enjoymentPanel.add(enjoymentFive);
+        for (Component c : new Component[] { enjoymentOne, enjoymentTwo, enjoymentThree, enjoymentFour, enjoymentFive }) {
+            enjoymentPanel.add(c);
+        }
         enjoymentPanel.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 1));
 
 
@@ -194,11 +191,9 @@ public class Survey extends JPanel implements ActionListener {
         functionalityFour = new JRadioButton("4");
         functionalityFive = new JRadioButton("5");
         functionalityThree.setSelected(true);
-        functionalityPanel.add(functionalityOne);
-        functionalityPanel.add(functionalityTwo);
-        functionalityPanel.add(functionalityThree);
-        functionalityPanel.add(functionalityFour);
-        functionalityPanel.add(functionalityFive);
+        for (Component c : new Component[] { functionalityOne, functionalityTwo, functionalityThree, functionalityFour, functionalityFive }) {
+            functionalityPanel.add(c);
+        }
         functionalityPanel.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 1));
 
 
@@ -225,11 +220,9 @@ public class Survey extends JPanel implements ActionListener {
         difficultyFour = new JRadioButton("4");
         difficultyFive = new JRadioButton("5");
         difficultyThree.setSelected(true);
-        difficultyPanel.add(difficultyOne);
-        difficultyPanel.add(difficultyTwo);
-        difficultyPanel.add(difficultyThree);
-        difficultyPanel.add(difficultyFour);
-        difficultyPanel.add(difficultyFive);
+        for (Component c : new Component[] { difficultyOne, difficultyTwo, difficultyThree, difficultyFour, difficultyFive }) {
+            difficultyPanel.add(c);
+        }
         difficultyPanel.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 1));
 
         // Ensures only one of the radio buttons are selected at a time
@@ -256,11 +249,9 @@ public class Survey extends JPanel implements ActionListener {
         overallRatingFour = new JRadioButton("4");
         overallRatingFive = new JRadioButton("5");
         overallRatingThree.setSelected(true);
-        overallRatingPanel.add(overallRatingOne);
-        overallRatingPanel.add(overallRatingTwo);
-        overallRatingPanel.add(overallRatingThree);
-        overallRatingPanel.add(overallRatingFour);
-        overallRatingPanel.add(overallRatingFive);
+        for (Component c : new Component[] { overallRatingOne, overallRatingTwo, overallRatingThree, overallRatingFour, overallRatingFive }) {
+            overallRatingPanel.add(c);
+        }
         overallRatingPanel.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 1));
 
         // Ensures only one of the radio buttons are selected at a time
@@ -293,27 +284,15 @@ public class Survey extends JPanel implements ActionListener {
         // surveyQuestionsPanelLeft (incorporates all Question titles for the survey)
         surveyQuestionsPanelLeft = new JPanel();
         surveyQuestionsPanelLeft.setLayout(new GridLayout(8, 0));
-        surveyQuestionsPanelLeft.add(gameNameLabel);
-        surveyQuestionsPanelLeft.add(blankLabel);
-        surveyQuestionsPanelLeft.add(uiRatingLabel);
-        surveyQuestionsPanelLeft.add(enjoymentLabel);
-        surveyQuestionsPanelLeft.add(functionalityLabel);
-        surveyQuestionsPanelLeft.add(difficultyLabel);
-        surveyQuestionsPanelLeft.add(overallRatingLabel);
-        surveyQuestionsPanelLeft.add(feedbackLabel);
-
+        for (Component c : new Component[] { gameNameLabel, blankLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, difficultyLabel, overallRatingLabel, feedbackLabel }) {
+            surveyQuestionsPanelLeft.add(c);
+        }
         // surveyQuestionsPanelRight (incorporates all Question responses for the survey)
         surveyQuestionsPanelRight = new JPanel();
         surveyQuestionsPanelRight.setLayout(new GridLayout(8, 0));
-        surveyQuestionsPanelRight.add(gameNameTextLabel);
-        surveyQuestionsPanelRight.add(helpLabel);
-        surveyQuestionsPanelRight.add(uiRatingPanel);
-        surveyQuestionsPanelRight.add(enjoymentPanel);
-        surveyQuestionsPanelRight.add(functionalityPanel);
-        surveyQuestionsPanelRight.add(difficultyPanel);
-        surveyQuestionsPanelRight.add(overallRatingPanel);
-        surveyQuestionsPanelRight.add(feedbackPanel);
-
+        for (Component c : new Component[] { gameNameTextLabel, helpLabel, uiRatingPanel, enjoymentPanel, functionalityPanel, difficultyPanel, overallRatingPanel, feedbackPanel }) {
+            surveyQuestionsPanelRight.add(c);
+        }
         // surveyQuestionsPanelGroup (incorporates all panels from the left and right groups for the survey)
         surveyQuestionsPanelGroup = new JPanel();
         surveyQuestionsPanelGroup.setLayout(new GridLayout(0, 2));
@@ -343,8 +322,8 @@ public class Survey extends JPanel implements ActionListener {
             this.removeAll();
             JPanel results = new SurveyResults(mnClient, gameId);
             // frame.setTitle(Survey.FRAME_TITLE);
-            this.add(results);
-            this.repaint();
+            mnClient.getMainWindow().addCenter(results);
+            mnClient.getMainWindow().pack();
         });
         resultsPanel.add(resultsButton);
         
@@ -360,6 +339,7 @@ public class Survey extends JPanel implements ActionListener {
     }
 
     // Public Functions
+
     public Image readBackgroundImage() {
         try
         {
@@ -430,38 +410,6 @@ public class Survey extends JPanel implements ActionListener {
         mnClient.sendSurveyData(surveyData).onSuccess(e -> mnClient.runMainMenuSequence());
     }
 
-    // Validate the feedbackText input
-    private boolean isValidText(String text) {
-        // Check for common SQL injection patterns
-        if (text != null && text.matches("(?i).*\\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER)\\b.*")) {
-            return false;
-        }
-        
-        // Allow only alphanumeric characters and common punctuation
-        if (text != null && !text.matches("^[a-zA-Z0-9 .,!?'\"()%\\-]+$")) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private String sanitiseText(String text) {
-        return sanitiser.sanitize(text);
-    }
-
-    // Get the selected radio button value from a ButtonGroup
-    private String getSelectedRadioButtonValue(ButtonGroup buttonGroup) {
-        Enumeration<AbstractButton> buttons = buttonGroup.getElements();
-        while (buttons.hasMoreElements()) {
-            AbstractButton button = buttons.nextElement();
-            if (button.isSelected()) {
-                return button.getText();
-            }
-        }
-        return "";
-    }
-
-
     // Change colour of panels (overrides singular setting of colour)
     public void panelColourChange(Color backColour, Color foreColour) {
         // footerPanel breaks the code, if clause sorts it
@@ -496,11 +444,45 @@ public class Survey extends JPanel implements ActionListener {
         }
     }
 
+    // Private Functions
+
+    // Validate the feedbackText input
+    private boolean isValidText(String text) {
+        // Check for common SQL injection patterns
+        if (text != null && text.matches("(?i).*\\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER)\\b.*")) {
+            return false;
+        }
+        
+        // Allow only alphanumeric characters and common punctuation
+        if (text != null && !text.matches("^[a-zA-Z0-9 .,!?'\"()%\\-]+$")) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private String sanitiseText(String text) {
+        return sanitiser.sanitize(text);
+    }
+
+    // Get the selected radio button value from a ButtonGroup
+    private String getSelectedRadioButtonValue(ButtonGroup buttonGroup) {
+        Enumeration<AbstractButton> buttons = buttonGroup.getElements();
+        while (buttons.hasMoreElements()) {
+            AbstractButton button = buttons.nextElement();
+            if (button.isSelected()) {
+                return button.getText();
+            }
+        }
+        return "";
+    }
+
+    // Protected Functions
+
     @Override
     public void actionPerformed(ActionEvent e) {
     }
 
-    // Protected Functions
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
