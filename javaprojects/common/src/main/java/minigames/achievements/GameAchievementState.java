@@ -17,6 +17,17 @@ public record GameAchievementState(
         List<Achievement> unlocked,
         List<Achievement> locked
 ) {
+
+    //The below converters were mainly needed as there were some issues getting the built-in mapping working with
+    //when using the jsonObject map functions - it ended up being simpler for the moment just to manually create the
+    //JSON data here (and offers a bit more control and vision over what is actually happening in the conversion)
+
+
+    /**
+     * Converter to create a GameAchievementState object from a JSON string
+     * @param json the string to attempt to create an object from
+     * @return the resulting GameAchievementState object
+     */
     public static GameAchievementState fromJSON(String json) {
         JsonObject obj = new JsonObject(json);
         String id = obj.getString("gameID");
@@ -34,6 +45,10 @@ public record GameAchievementState(
         return new GameAchievementState(id, unlocked, locked);
     }
 
+    /**
+     * Converts a GameAchievementState object into a JSON string (to pass through the network)
+     * @return a JSON string for this GameAchievementState object
+     */
     public String toJSON() {
         JsonObject obj = new JsonObject();
         obj.put("gameID", gameID);

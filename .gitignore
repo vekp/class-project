@@ -5,6 +5,12 @@
 #
 # Note, however, we might find ourselves adding some more during term.
 
+# Derby database binary files
+derbyDatabase/
+testDb_temporary/
+.dat
+.ctrl
+
 # Gradle generated files
 .gradle/
 build/
@@ -19,6 +25,7 @@ node_modules/
 # IntelliJ generated files
 .idea/
 *.iml
+feedback.json
 
 .settings/
 
@@ -76,3 +83,8 @@ temp/
 *.db
 /server/testDB/
 testDB/
+
+# ignore KrumDatabase
+javaprojects/server/KrumDatabase/
+javaprojects/KrumDatabase
+KrumDatabase/
