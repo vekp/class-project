@@ -31,11 +31,13 @@ public class MinigameNetworkServer {
     Vertx vertx;
     HttpServer server;
     Router router;
+    UserServerAction user;
 
     public MinigameNetworkServer(Vertx vertx) {
         this.vertx = vertx;
         this.server = vertx.createHttpServer();
         this.router = Router.router(vertx);
+        this.user = new UserServerAction();
     }
 
     /**
@@ -171,6 +173,7 @@ public class MinigameNetworkServer {
         // responds to request to get username of the active player.
         router.get("/userGet").handler((ctx) -> {
             ctx.response().end(Main.activePlayer);
+            return Future.succeededFuture(Main.activePlayer);            
         });
 
         // Starts a new game on the server

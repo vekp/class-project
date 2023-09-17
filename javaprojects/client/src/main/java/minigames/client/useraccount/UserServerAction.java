@@ -23,7 +23,7 @@ public class UserServerAction {
     }
 
     // get username from the server
-    public Future<String> getUserName() {
-       return this.client.userNameGet();
+    public String getUserName() {
+       return this.userName;
     }
 }
