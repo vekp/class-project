@@ -126,7 +126,9 @@ public class AchievementCarousel implements Tickable {
      */
     private void setButtons() {
         leftButton.setEnabled(position > 0);
+        apRegistry.dialogManager.applyStyling(leftButton);
         rightButton.setEnabled(position < unlockedQty - 1);
+        apRegistry.dialogManager.applyStyling(rightButton);
     }
 
     /**

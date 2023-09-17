@@ -369,9 +369,10 @@ public class NotificationManager implements Tickable {
                 public void mouseExited(MouseEvent e) {
                     jb.setBackground(backgroundColour);
                 }
+
                 @Override
                 public void mouseEntered(MouseEvent e) {
-                    jb.setBackground(hoverColour);
+                    if (jb.isEnabled()) jb.setBackground(hoverColour);
                 }
             });
             jb.setBorder(border);
