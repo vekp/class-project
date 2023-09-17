@@ -21,7 +21,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
 
 import minigames.commands.CommandPackage;
-import minigames.commands.UserCommandPackage;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.GameServerDetails;
 import minigames.rendering.NativeCommands.LoadClient;

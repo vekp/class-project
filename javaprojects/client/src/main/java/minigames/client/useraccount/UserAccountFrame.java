@@ -65,12 +65,13 @@ public class UserAccountFrame extends JFrame implements ActionListener {
                 UserAccountSchema schema = new UserAccountSchema();
                 if (schema.isValid("email", emailInput)) {
                         String username = emailInput.split("@")[0];
-                        //TODO: Store these .json files on the server
                         System.out.println("Welcome, " + emailInput + ", enjoy your session!");
                         String path = "src/main/java/minigames/client/useraccount/" + username + ".json";
                         File file = new File(path);
                         if(file.exists()){
-                                user.addSession(emailInput, file, path, username);        
+                                user.addSession(file, path, username);    
+                                System.out.println("Session added"); 
+                                user.addGame(path, file, "gameName", "score or any random value");
                         }else{
                                 user.generateUser(emailInput, pinInput);                                
                         }

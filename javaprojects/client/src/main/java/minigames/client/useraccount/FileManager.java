@@ -9,12 +9,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 // mostly used to add the new session and also update all old sessions to false
 
-public class SessionManager {
+public class FileManager {
     private ObjectMapper objectMapper;
     private List<Session> sessions;
     private String jsonFile;
 
-    public SessionManager(String path, String jsonFile) {
+    public FileManager(String path, String jsonFile) {
         this.jsonFile = jsonFile;
         this.objectMapper = new ObjectMapper();
         this.sessions = parseSessionFromJson(this.jsonFile);
@@ -27,7 +27,7 @@ public class SessionManager {
             session.setInActive();
         }
         // Create and add a new session this one should be true as it is the active session
-        Session session = new Session("true");
+        Session session = new Session(true);
         this.sessions.add(session);
     }
 
@@ -43,6 +43,18 @@ public class SessionManager {
         }
     }
 
+
+    public void updateGame (String gameName, String value) {
+        // add the game to the active session
+        for (Session session : sessions){
+            boolean isActive = session.getIsActive();
+            if (session.getIsActive() == true){     
+                session.addGame(gameName, value);
+            }
+        }
+    }
+
+
     // move the try catch into it's own method away from the constructor
     public String sessionListToJson() {
         try {
@@ -54,4 +66,3 @@ public class SessionManager {
     }
 
     } 
-
