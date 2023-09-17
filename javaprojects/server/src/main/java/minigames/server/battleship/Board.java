@@ -1,8 +1,6 @@
 package minigames.server.battleship;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static java.lang.Math.round;
 
@@ -10,59 +8,52 @@ import static java.lang.Math.round;
  * The Board Class contains all the information about the current state of a player's game board, including the player's name
  */
 public class Board {
+
+    // Fields
     private Grid grid; // A two-dimensional array of Cells for drawing the game board
     private HashMap<String, Ship> vessels;  // A hashmap containing each of the five ship types for the current board
     private int turnNumber;  // The current turn number
+    private int shipSelected;
 
     private GameState gameState;
 
+    // Constructor
 
     /**
      * The Constructor takes only the player's name as a parameter
-//     * @param   String representing the name of the player
+     * @param choice integer used to choose the default board - For now
      */
     public Board(int choice){
         this.turnNumber = 0;
         this.vessels = new HashMap<>();
         this.grid = new Grid(); // Create a default grid
-        chooseGrid(choice); // Fake name while I sort this out
-
         this.gameState = GameState.SHIP_PLACEMENT;
+        this.shipSelected = 0;
+        chooseGrid(choice);
         // Set the player to be the owner for all ships on this board
         this.setPlayerOwner();
 
     }
 
-
     // Getters
+
     /**
      * Return the 2D string array to display in the client window
      * @return The 2D String Array in its current state
      */
     public Cell[][] getGrid() {
-        // There is probably a smarter way to do this too, but for now it stays
+        System.out.println(this.gameState.toString());
+        if (this.gameState == GameState.SHIP_PLACEMENT) {
+            this.grid.generateGrid(this.vessels);
+        }
         return this.grid.getGrid();
     }
-
-    /**
-     * Getter for the player name
-     * @return The String of the player that owns the board
-     */
-//    public String getPlayerName() {return this.playerName;}
 
     /**
      * Getter for the current turn number
      * @return An int for the current turn number
      */
     public int getTurnNumber() {return this.turnNumber;}
-
-    /**
-     * Getter for the player's message history
-     * @return the message history string
-     */
-//    public String getMessageHistory() {
-//        return messageHistory;
-//    }
 
     /**
      * Getter for the player's current game state
@@ -72,6 +63,10 @@ public class Board {
         return gameState;
     }
 
+    /**
+     * TODO
+     * @return
+     */
     public HashMap<String, Ship> getVessels() {
         return vessels;
     }
@@ -83,7 +78,27 @@ public class Board {
      */
     public Ship getShip(String shipClass){return this.vessels.get(shipClass);}
 
+    /**
+     * TODO
+     * @return
+     */
+    public int getShipSelected() {
+        return shipSelected;
+    }
+
     // Setters
+
+    /**
+     * TODO
+     */
+    public void setShipSelected() {
+        if (this.shipSelected < 4) {
+            this.shipSelected++;
+        } else {
+            this.shipSelected = 0;
+        }
+    }
+
     /**
      * Sets the current game state for the player
      * @param gameState enum value
@@ -106,7 +121,7 @@ public class Board {
     public void setPlayerOwner(){
         this.vessels.forEach((key, value) ->{
             Ship current = value;
-//            current.setOwner(this.playerName);
+            // current.setOwner(this.playerName);
             vessels.replace(key, current);
         });
     }
@@ -127,20 +142,11 @@ public class Board {
         }
     }
 
-
-    /**
-     * Adds the user's input to the message history
-     * @param input user's input
-     */
-//    public void updateMessageHistory(String input) {
-//        this.messageHistory = getMessageHistory() + input;
-//    }
-
     /**
      * Increments the turn number
      */
     public void incrementTurnNumber() {
-        this.turnNumber = getTurnNumber() + 1;
+        this.turnNumber++;
     }
 
     /**
@@ -225,7 +231,7 @@ public class Board {
     // and finally returns the players grid after all this is complete (in defaultGrid() below)
 
     public Cell[][] chooseGrid(int choice){
-        if(choice==1){
+        if (choice == 1){
             return otherGrid();
         } else {
             return defaultGrid();
@@ -244,6 +250,58 @@ public class Board {
     public Cell[][] otherGrid(){
         this.vessels = new HashMap<>(this.grid.defaultShips1());
         return this.getGrid();
+    }
+
+//    public void moveShip() {
+//        this.setVessels(this.grid.customShip(this.vessels));
+//    };
+
+    /**
+     * Method to get the ship corresponding to the coordinate input
+     * @param target cell used to grab coordinates from (new cell created when passed in with the user's x,y coord)
+     * @param vessels player's list of vessels
+     * @return the Ship object shot at
+     */
+    public Ship getVessel(Cell target, HashMap<String, Ship> vessels) {
+        ArrayList<String> shipClasses = new ArrayList<>();
+        vessels.forEach((key, value) -> {
+            shipClasses.add(key);
+            System.out.println(key);
+        });
+
+        for (String shipClass : shipClasses) {
+            Cell[] parts = vessels.get(shipClass).getShipParts();
+            ArrayList<String> coords = new ArrayList<>();
+            for (Cell part : parts) {
+                coords.add(part.getBothCoords());
+            }
+            if (coords.contains(target.getBothCoords())) {
+                System.out.println("Coordinate contained");
+                return vessels.get(shipClass);
+            }
+
+        }
+        // Returns a 'null' ship which will give false values required for the functions use
+        return new Ship("", new Cell[0], 0,0, true);
+    }
+
+    /**
+     * TODO
+     * @param shipTitle
+     * @param shipType
+     * @param row
+     * @param col
+     * @param horizontal
+     * @param exShips
+     * @return
+     */
+    public HashMap<String,Ship> customShip(String shipTitle, int shipType, int row, int col, boolean horizontal, HashMap<String,Ship> exShips){
+        // Map of ships
+        HashMap<String, Ship> vessels = new HashMap<>(exShips);
+        // Replace ship in the map
+        vessels.replace(shipTitle, this.grid.createShip(shipType, row, col, horizontal));
+
+        return vessels;
     }
 
 }
