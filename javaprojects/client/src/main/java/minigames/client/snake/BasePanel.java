@@ -4,6 +4,10 @@ import minigames.client.MinigameNetworkClient;
 
 import javax.swing.*;
 import java.awt.*;
+//ImageResource phoneBackground = MultimediaManager.getPhoneBackground();
+//        ImageIcon image = phoneBackground.getImage();
+//        int width = phoneBackground.getWidth();
+//        int height = phoneBackground.getHeight();
 
 /**
  * The BasePanel class is the main container for various sub-panels that make up the Snake game UI.
@@ -14,10 +18,8 @@ public class BasePanel extends JPanel {
     // Constants for button dimensions and positions
     private static final int BUTTON_WIDTH = 200;
     private static final int BUTTON_HEIGHT = 50;
-    private static final int START_BUTTON_Y = 300;
-    private static final int HOW_TO_PLAY_BUTTON_Y = 360;
-    private static final int ACHIEVEMENT_BUTTON_Y = 420;
-    private static final int BACK_BUTTON_Y = 480;
+    private static final int START_BUTTON_Y = 150;
+    private final int BUTTON_GAP = 10;
 
     // Main panel with a CardLayout to switch between different views
     private final JPanel mainPanel = new JPanel(new CardLayout());
@@ -101,7 +103,7 @@ public class BasePanel extends JPanel {
      * Configures the background for the main menu panel.
      */
     private void setupBackground() {
-        ImageIcon backgroundIcon = MultimediaManager.getImage();
+        ImageIcon backgroundIcon = MultimediaManager.getPhoneBackground().getImage();
         JLabel backgroundLabel = new JLabel(backgroundIcon);
         backgroundLabel.setBounds(0, 0, backgroundIcon.getIconWidth(), backgroundIcon.getIconHeight());
         backgroundLabel.setLayout(null); // For adding components directly
@@ -159,17 +161,17 @@ public class BasePanel extends JPanel {
      * Sets up buttons for each view, with their respective actions.
      */
     private void setupButtons() {
-        int buttonX = (MultimediaManager.getStartMenuWidth() - BUTTON_WIDTH) / 2;
+        int buttonX = (MultimediaManager.getPhoneBackground().getWidth() - BUTTON_WIDTH) / 2;
 
-        JButton mainMenuButton = ButtonFactory.createButton("Main Menu", buttonX, START_BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT, e -> showPanel("Main Menu"));
-        JButton gameViewButton = ButtonFactory.createButton("Play", buttonX, HOW_TO_PLAY_BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT, e -> showPanel("Play"));
-        JButton helpMenuButton = ButtonFactory.createButton("Help Menu", buttonX, ACHIEVEMENT_BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT, e -> showPanel("Help Menu"));
-        JButton aboutMeButton = ButtonFactory.createButton("About Me", buttonX, BACK_BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT, e -> showPanel("About Me"));
-        JButton achieveButton = ButtonFactory.createButton("Achievements", buttonX, BACK_BUTTON_Y + 60, BUTTON_WIDTH, BUTTON_HEIGHT, e -> showPanel("Achievements"));
-        JButton exitGameButton = ButtonFactory.createButton("Exit Game", buttonX, BACK_BUTTON_Y + 120, BUTTON_WIDTH, BUTTON_HEIGHT, e -> closeGameAction.run());
+//        JButton mainMenuButton = ButtonFactory.createButton("Main Menu", buttonX, START_BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT, e -> showPanel("Main Menu"));
+        JButton gameViewButton = ButtonFactory.createButton("Play", buttonX, START_BUTTON_Y + BUTTON_HEIGHT + BUTTON_GAP, BUTTON_WIDTH, BUTTON_HEIGHT, e -> showPanel("Play"));
+        JButton helpMenuButton = ButtonFactory.createButton("Help Menu", buttonX, gameViewButton.getY() + BUTTON_HEIGHT + BUTTON_GAP, BUTTON_WIDTH, BUTTON_HEIGHT, e -> showPanel("Help Menu"));
+        JButton aboutMeButton = ButtonFactory.createButton("About Me", buttonX, helpMenuButton.getY() + BUTTON_HEIGHT + BUTTON_GAP, BUTTON_WIDTH, BUTTON_HEIGHT, e -> showPanel("About Me"));
+        JButton achieveButton = ButtonFactory.createButton("Achievements", buttonX, aboutMeButton.getY() + BUTTON_HEIGHT + BUTTON_GAP, BUTTON_WIDTH, BUTTON_HEIGHT, e -> showPanel("Achievements"));
+        JButton exitGameButton = ButtonFactory.createButton("Exit Game", buttonX, achieveButton.getY() + BUTTON_HEIGHT + BUTTON_GAP, BUTTON_WIDTH, BUTTON_HEIGHT, e -> closeGameAction.run());
 
         JLabel backgroundLabel = (JLabel) mainMenu.getComponent(0);
-        backgroundLabel.add(mainMenuButton);
+//        backgroundLabel.add(mainMenuButton);
         backgroundLabel.add(gameViewButton);
         backgroundLabel.add(helpMenuButton);
         backgroundLabel.add(aboutMeButton);
@@ -182,7 +184,10 @@ public class BasePanel extends JPanel {
      */
     private void setupMainWindow() {
         JFrame mainWindow = mnClient.getMainWindow().getFrame();
-        mainWindow.setSize(MultimediaManager.getStartMenuWidth(), MultimediaManager.getStartMenuHeight() + 100);
+
+        ImageResource phoneBackground = MultimediaManager.getPhoneBackground();
+        mainWindow.setSize(phoneBackground.getWidth(), phoneBackground.getHeight() + 100);
         mainWindow.setLocationRelativeTo(null);
     }
+
 }

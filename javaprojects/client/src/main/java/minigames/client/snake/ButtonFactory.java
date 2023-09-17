@@ -13,16 +13,16 @@ import java.awt.event.MouseEvent;
 public class ButtonFactory {
 
     // Default background color for the button.
-    private static final Color DEFAULT_BACKGROUND_COLOR = new Color(36, 192, 196);
+    private static final Color DEFAULT_BACKGROUND_COLOR = new Color(18, 96, 98);
 
     // Background color for the button when the mouse hovers over it.
-    private static final Color HOVER_BACKGROUND_COLOR = new Color(174, 52, 255);
+    private static final Color HOVER_BACKGROUND_COLOR = new Color(87, 26, 128);
 
     // Default border color for the button.
-    private static final Color DEFAULT_BORDER_COLOR = new Color(174, 52, 255);
+    private static final Color DEFAULT_BORDER_COLOR = new Color(18, 144, 147);
 
     // Border color for the button when the mouse hovers over it.
-    private static final Color HOVER_BORDER_COLOR = new Color(36, 192, 196);
+    private static final Color HOVER_BORDER_COLOR = new Color(87, 26, 128);
 
     /**
      * Creates a styled JButton with the specified properties.

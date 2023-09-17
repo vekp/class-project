@@ -35,8 +35,8 @@ public class GameDisplay extends JPanel implements ActionListener {
 
     // Array containing the paths of different food images for the game.
     private static final String[] FOODS_IMAGE = {
-            "/snake/orange.png", "/snake/apple.png", "/snake/cherry.png",
-            "/snake/watermelon.png", "/snake/orange.png"
+            "/sounds/orange.png", "/sounds/apple.png", "/sounds/cherry.png",
+            "/sounds/watermelon.png", "/sounds/orange.png"
     };
 
     // Flag to determine if the game is paused.
@@ -338,7 +338,7 @@ public class GameDisplay extends JPanel implements ActionListener {
      */
     private void playEatAppleSound() {
         try {
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResourceAsStream("/snake/eat_apple.wav")));
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResourceAsStream("/sounds/eat_apple.wav")));
             Clip clip = AudioSystem.getClip();
             clip.open(audioInputStream);
             clip.start();

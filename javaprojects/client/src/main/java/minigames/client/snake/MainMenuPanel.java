@@ -3,33 +3,56 @@ package minigames.client.snake;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * The MainMenuPanel class represents the main menu screen for the Snake game.
+ * It is responsible for displaying the main menu background, initializing the multimedia manager
+ * for sound playback, and providing methods to manage the background sound.
+ */
 public class MainMenuPanel extends JPanel {
-private final MultimediaManager multimediaManager;
-    // Constants for button dimensions and positions
-    private static final int BUTTON_WIDTH = 200;
-    private static final int BUTTON_HEIGHT = 50;
-    private static final int BUTTON_START_Y = 300;
-    private static final int BUTTON_GAP = 60; // Vertical gap between buttons
+    // The multimedia manager to manage sounds and images for the game
+    private final MultimediaManager multimediaManager;
 
+    /**
+     * Constructs the MainMenuPanel. Initializes the layout, size, background,
+     * and starts the background sound for the main menu.
+     */
     public MainMenuPanel() {
         this.multimediaManager = new MultimediaManager();
+
         // Setup layout, size, and background
-        setLayout(null); // We'll set absolute positions for components
-        setPreferredSize(new Dimension(MultimediaManager.getStartMenuWidth(), MultimediaManager.getStartMenuHeight())); // Set the preferred size based on the background image dimensions
+        setLayout(null); // Using null layout to set absolute positions for components
+        // Set the preferred size based on the background image dimensions
+        setPreferredSize(new Dimension(MultimediaManager.getPhoneBackground().getWidth(), MultimediaManager.getPhoneBackground().getHeight()));
         setupBackground();
-        // Play background sound
-        multimediaManager.playBackgroundSound("/snake/menu.wav");
+
+        // Play the background sound for the main menu
+        multimediaManager.playBackgroundSound("Menu");
     }
 
+    /**
+     * Sets up the background image for the main menu.
+     */
     private void setupBackground() {
-        ImageIcon backgroundIcon = MultimediaManager.getImage(); // Assuming you'll provide the directory in this method
+        ImageIcon backgroundIcon = MultimediaManager.getPhoneBackground().getImage();
         JLabel backgroundLabel = new JLabel(backgroundIcon);
-        backgroundLabel.setBounds(0, 0, backgroundIcon.getIconWidth(), backgroundIcon.getIconHeight()); // Use the size of the image
-        add(backgroundLabel); // This should be the first component added to ensure it's in the background
+        backgroundLabel.setBounds(0, 0, backgroundIcon.getIconWidth(), backgroundIcon.getIconHeight()); // Set the size of the label to the size of the image
+        add(backgroundLabel); // This should be the first component added to ensure it's rendered in the background
+
+        // Adding the Snake Logo to the top of the MainMenuPanel
+        ImageIcon logoIcon = MultimediaManager.getSnakeLogoResource().getImage();
+        JLabel logoLabel = new JLabel(logoIcon);
+
+        // Calculate the x position to center the logo
+        int logoX = (backgroundIcon.getIconWidth() - logoIcon.getIconWidth()) / 2;
+        logoLabel.setBounds(logoX, 30, logoIcon.getIconWidth(), logoIcon.getIconHeight()); // 10 pixels from the top
+
+        backgroundLabel.add(logoLabel); // Add the logo to the background label so it appears on top of the background
     }
 
-    public void stopBackgroundSound(){
+    /**
+     * Stops the background sound that is currently playing.
+     */
+    public void stopBackgroundSound() {
         multimediaManager.stopBackgroundSound();
     }
-
 }
