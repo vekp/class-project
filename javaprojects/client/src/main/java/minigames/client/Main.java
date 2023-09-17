@@ -3,6 +3,7 @@ package minigames.client;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import minigames.client.battleship.Battleship;
+import minigames.client.memory.Memory;
 import minigames.client.muddletext.MuddleText;
 import minigames.client.peggle.PeggleUI;
 import minigames.client.tictactoe.TicTacToeClient;
@@ -38,6 +39,7 @@ public class Main extends AbstractVerticle {
         clientRegistry.registerGameClient("MuddleText", new MuddleText());
         clientRegistry.registerGameClient("SpaceMaze", new SpaceMaze());
         clientRegistry.registerGameClient("Battleship", new Battleship());
+        clientRegistry.registerGameClient("Memory", new Memory());
         clientRegistry.registerGameClient("Telepathy", new Telepathy());
         clientRegistry.registerGameClient("Snake", new SnakeGameText());
         clientRegistry.registerGameClient("Peggle", new PeggleUI());

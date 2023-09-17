@@ -5,6 +5,7 @@ import io.vertx.core.Promise;
 import minigames.server.database.DerbyDatabase;
 import minigames.server.battleship.BattleshipServer;
 import minigames.server.highscore.*;
+import minigames.server.memory.MemoryServer;
 import minigames.server.muddle.MuddleServer;
 import minigames.server.snake.SnakeServer;
 import minigames.server.peggle.PeggleServer;
@@ -83,6 +84,7 @@ public class Main extends AbstractVerticle {
         gameRegistry.registerGameServer("Muddle", new MuddleServer());
         gameRegistry.registerGameServer("SpaceMaze", new SpaceMazeServer());
         gameRegistry.registerGameServer("Battleship", new BattleshipServer());
+        gameRegistry.registerGameServer("Memory", new MemoryServer());
         gameRegistry.registerGameServer("Telepathy", new TelepathyServer());
         gameRegistry.registerGameServer("Snake", new SnakeServer());
         gameRegistry.registerGameServer("Peggle", new PeggleServer());
