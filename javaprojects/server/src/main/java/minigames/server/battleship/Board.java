@@ -28,8 +28,6 @@ public class Board {
         chooseGrid(choice); // Fake name while I sort this out
 
         this.gameState = GameState.SHIP_PLACEMENT;
-        // Set the player to be the owner for all ships on this board
-        this.setPlayerOwner();
         // Initialise last shot to invalid coordinates.
         this.lastRowShot = -1;
         this.lastColShot = -1;
@@ -45,13 +43,6 @@ public class Board {
         // There is probably a smarter way to do this too, but for now it stays
         return this.grid.getGrid();
     }
-
-    /**
-     * Getter for the player name
-     * @return The String of the player that owns the board
-     */
-//    public String getPlayerName() {return this.playerName;}
-
 
 
     /**
@@ -88,17 +79,6 @@ public class Board {
      */
     public void setVessels(HashMap<String, Ship> vessels){
         this.vessels = vessels;
-    }
-
-    /**
-     * Sets the player to be the owner for all ships on this board
-     */
-    public void setPlayerOwner(){
-        this.vessels.forEach((key, value) ->{
-            Ship current = value;
-//            current.setOwner(this.playerName);
-            vessels.replace(key, current);
-        });
     }
 
     /**
@@ -254,7 +234,6 @@ public class Board {
                 System.out.println("Game over dude");
             }
         });
-        // if counter == vessels.length then switch to gameover state
 
     }
 }

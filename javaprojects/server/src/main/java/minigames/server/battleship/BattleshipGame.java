@@ -224,7 +224,7 @@ public class BattleshipGame {
     public ArrayList<JsonObject> runGameCommand(BattleshipPlayer currentPlayer, BattleshipPlayer opponent, String userInput) {
 
         //tell the player to take their turn - if they provided invalid input for any reason, this will
-        //fail and they will be prompted to provide another input
+        //fail, and they will be prompted to provide another input
         BattleshipTurnResult result = currentPlayer.processTurn(userInput, opponent.getBoard());
 
         // Update current player's message history with the result
@@ -239,6 +239,9 @@ public class BattleshipGame {
             //opponent should now get feedback about the player's turn
             opponent.updateHistory(result.opponentMessage());
             SwapTurns();
+            renderingCommands.add(new JsonObject().put("command", "wait"));
+        } else if (!result.successful()) {
+            currentPlayer.updateHistory(result.playerMessage());
             renderingCommands.add(new JsonObject().put("command", "wait"));
         }
         return renderingCommands;
