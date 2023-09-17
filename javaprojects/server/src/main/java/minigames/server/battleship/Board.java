@@ -243,6 +243,18 @@ public class Board {
     }
 
     public void checkGameOver(){
+        // for ship in vessels hashmap, check if it is sunk and increment counter
+        vessels.forEach((shipType, ship) -> {
+            int counter = 0;
+            if(ship.isSunk()){
+                counter++;
+            }
+            if(counter == 5){
+                this.setGameState(GameState.GAME_OVER);
+                System.out.println("Game over dude");
+            }
+        });
+        // if counter == vessels.length then switch to gameover state
 
     }
 }
