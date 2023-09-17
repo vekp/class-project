@@ -70,7 +70,6 @@ public class UserAccountFrame extends JFrame implements ActionListener {
                         File file = new File(path);
                         if(file.exists()){
                                 user.addSession(file, path, username);    
-                                System.out.println("Session added"); 
                                 user.addGame(path, file, "gameName", "score or any random value");
                         }else{
                                 user.generateUser(emailInput, pinInput);                                

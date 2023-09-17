@@ -12,7 +12,7 @@ public class UserData {
     private String pin;
     private List<Session> session;
     private UserAccountSchema schema;
-    public MinigameNetworkClient userClient;
+    // public MinigameNetworkClient userClient;
     // could have another List of achievements here
 
     // Getters and setters for username, pin, and session

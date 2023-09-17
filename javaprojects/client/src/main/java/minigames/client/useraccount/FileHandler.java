@@ -128,18 +128,22 @@ public class FileHandler {
             }
         }
         catch (IOException e){
+            System.out.println("User game not added been written to the file.");
             e.printStackTrace();
         }
     }
 
     public void addSession(File file, String path, String username){        
         try{
+            System.out.println("Adding session line 138");
             byte[] fileBytes = Files.readAllBytes(Paths.get(path));
             String jsonFile = new String(fileBytes, StandardCharsets.UTF_8);
             FileManager fileManager = new FileManager(path, jsonFile);
         fileManager.addSession();
         String sessionJson = fileManager.sessionListToJson();
+        System.out.println(sessionJson);
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, false))){
+            System.out.println("Adding session line 145");
                 StringBuilder jsonString = new StringBuilder("{"); // Start the JSON array
                 String userJson = String.format("\"username\": \"%s\", \"pin\": \"%s\"", username, "1234");
                 jsonString.append(userJson).append(",\"session\":"); // Add user JSON to the array
@@ -149,10 +153,12 @@ public class FileHandler {
                 // Write the content to the file
                 bufferedWriter.write(jsonString.toString());
         } catch (IOException ex) {
+            System.out.println("Adding session line 155");
                 ex.printStackTrace();
         }
         }
         catch(IOException e){
+            System.out.println("Adding session line 160");
             e.printStackTrace();
         }      
     }

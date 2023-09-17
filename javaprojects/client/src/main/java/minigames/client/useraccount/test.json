@@ -1,11 +1,34 @@
 {
-    "username": "test",
-    "pin": "12345",
+    "username": "null",
+    "pin": "1234",
     "session": [
         {
-            "timestamp": "Sun Sep 17 13:58:05 AEST 2023",
-            "id": "410975e8-e20a-4728-8c98-aa8969b49667",
-            "isActive": "true"
+            "timestamp": "Sun Sep 17 14:16:43 AEST 2023",
+            "id": "a21a877f-b92a-4179-ab0c-2cf682dd6a42",
+            "isActive": false,
+            "games": []
+        },
+        {
+            "timestamp": "Sun Sep 17 14:17:02 AEST 2023",
+            "id": "40e80469-bdca-465b-8cbb-f290c1164c9d",
+            "isActive": false,
+            "games": [
+                {
+                    "name": "gameName",
+                    "score": "score or any random value"
+                }
+            ]
+        },
+        {
+            "timestamp": "Sun Sep 17 14:17:38 AEST 2023",
+            "id": "2b76e030-3128-476d-8a0b-417d207204dd",
+            "isActive": true,
+            "games": [
+                {
+                    "name": "gameName",
+                    "score": "score or any random value"
+                }
+            ]
         }
     ]
 }
