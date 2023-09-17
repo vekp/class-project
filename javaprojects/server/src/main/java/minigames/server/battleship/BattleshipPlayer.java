@@ -159,6 +159,12 @@ public class BattleshipPlayer {
             AchievementHandler handler = new AchievementHandler(BattleshipServer.class);
             handler.unlockAchievement(getName(), C_120.toString());
         }
+
+        // Debug commands for testing achievements and states - Craig
+        if (input.equals("ROSEBUD")){
+            playerBoard.sinkAll();
+        }
+
         // Craig's code split off and moved here by Mitch
         // Regex to check that the coordinate string is valid
         String regex = "^[A-J][0-9]$";

@@ -224,16 +224,25 @@ public class Board {
 
     public void checkGameOver(){
         // for ship in vessels hashmap, check if it is sunk and increment counter
-        vessels.forEach((shipType, ship) -> {
-            int counter = 0;
-            if(ship.isSunk()){
+        int counter = 0;
+        for(Map.Entry<String, Ship> ship: vessels.entrySet()) {
+            if(ship.getValue().isSunk()){
                 counter++;
             }
             if(counter == 5){
                 this.setGameState(GameState.GAME_OVER);
-                System.out.println("Game over dude");
+                System.out.println("\n\nGame over dude\n\n");
             }
-        });
-
+        }
     }
+
+    /**
+     * Sinks all ships on the current board, for testing achievements and game state
+     */
+    public void sinkAll(){
+        vessels.forEach((shipType, ship) -> {
+            ship.sink();
+        });
+    }
+
 }
