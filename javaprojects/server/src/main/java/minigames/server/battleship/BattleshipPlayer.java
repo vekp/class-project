@@ -152,11 +152,19 @@ public class BattleshipPlayer {
      * @return true if the coordinate is valid, false if not
      */
     private boolean validateInput(String input) {
+        // Make input case in-sensitive
+        input = input.toUpperCase();
         // If the player enters C120 as the coordinates give them the COSC120 inside joke achievement
-        if (input.equals("C120") && isHumanControlled()) {
+        if (input.equals("C120")) {
             AchievementHandler handler = new AchievementHandler(BattleshipServer.class);
             handler.unlockAchievement(getName(), C_120.toString());
         }
+
+        // Debug commands for testing achievements and states - Craig
+        if (input.equals("ROSEBUD")){
+            playerBoard.sinkAll();
+        }
+
         // Craig's code split off and moved here by Mitch
         // Regex to check that the coordinate string is valid
         String regex = "^[A-J][0-9]$";
