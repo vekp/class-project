@@ -12,18 +12,6 @@ import java.awt.event.MouseEvent;
  */
 public class ButtonFactory {
 
-    // Default background color for the button.
-    private static final Color DEFAULT_BACKGROUND_COLOR = new Color(18, 96, 98);
-
-    // Background color for the button when the mouse hovers over it.
-    private static final Color HOVER_BACKGROUND_COLOR = new Color(87, 26, 128);
-
-    // Default border color for the button.
-    private static final Color DEFAULT_BORDER_COLOR = new Color(18, 144, 147);
-
-    // Border color for the button when the mouse hovers over it.
-    private static final Color HOVER_BORDER_COLOR = new Color(87, 26, 128);
-
     /**
      * Creates a styled JButton with the specified properties.
      *
@@ -33,23 +21,22 @@ public class ButtonFactory {
      * @param width     The width of the button.
      * @param height    The height of the button.
      * @param action    The action to be executed when the button is clicked.
-     *
      * @return A styled JButton with the provided properties and added visual effects for mouse hover actions.
      */
     public static JButton createButton(String text, int xPosition, int yPosition, int width, int height, ActionListener action) {
         JButton button = new JButton(text);
 
         // Set button properties for appearance
-        button.setFont(new Font("Arial", Font.PLAIN, 24));
-        button.setForeground(Color.WHITE);
+        button.setFont(GameConstants.BUTTON_FONT);
+        button.setForeground(GameConstants.BUTTON_TEXT_COLOR);
         button.setContentAreaFilled(false);
         button.setFocusPainted(false);
         button.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(DEFAULT_BORDER_COLOR, 2),
-                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+                BorderFactory.createLineBorder(GameConstants.DEFAULT_BORDER_COLOR, GameConstants.BORDER_THICKNESS),
+                BorderFactory.createEmptyBorder(GameConstants.BORDER_PADDING, GameConstants.BORDER_PADDING, GameConstants.BORDER_PADDING, GameConstants.BORDER_PADDING)
         ));
         button.setOpaque(true);
-        button.setBackground(DEFAULT_BACKGROUND_COLOR);
+        button.setBackground(GameConstants.DEFAULT_BACKGROUND_COLOR);
 
         // Position and size the button based on provided parameters
         button.setBounds(xPosition, yPosition, width, height);
@@ -58,19 +45,19 @@ public class ButtonFactory {
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                button.setBackground(HOVER_BACKGROUND_COLOR);
+                button.setBackground(GameConstants.HOVER_BACKGROUND_COLOR);
                 button.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(HOVER_BORDER_COLOR, 2),
-                        BorderFactory.createEmptyBorder(10, 20, 10, 20)
+                        BorderFactory.createLineBorder(GameConstants.HOVER_BORDER_COLOR, GameConstants.BORDER_THICKNESS),
+                        BorderFactory.createEmptyBorder(GameConstants.BORDER_PADDING, GameConstants.BORDER_PADDING, GameConstants.BORDER_PADDING, GameConstants.BORDER_PADDING)
                 ));
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-                button.setBackground(DEFAULT_BACKGROUND_COLOR);
+                button.setBackground(GameConstants.DEFAULT_BACKGROUND_COLOR);
                 button.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(DEFAULT_BORDER_COLOR, 2),
-                        BorderFactory.createEmptyBorder(10, 20, 10, 20)
+                        BorderFactory.createLineBorder(GameConstants.DEFAULT_BORDER_COLOR, GameConstants.BORDER_THICKNESS),
+                        BorderFactory.createEmptyBorder(GameConstants.BORDER_PADDING, GameConstants.BORDER_PADDING, GameConstants.BORDER_PADDING, GameConstants.BORDER_PADDING)
                 ));
             }
         });
