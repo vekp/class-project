@@ -1,5 +1,12 @@
 package minigames.server.spacemaze;
 
+/**
+ * InteractiveResponses enum class
+ * Holds different responses to send to the client, according to player's
+ * interactions with the game.
+ * 
+ * @author Niraj Rana Bhat
+ */
 enum InteractiveResponses {
     GAME_STARTED,
     BOTS_COLLISION,
