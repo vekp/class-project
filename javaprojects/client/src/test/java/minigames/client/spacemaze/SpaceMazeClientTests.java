@@ -5,12 +5,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 import java.awt.Point;
 import java.util.*;
 
 public class SpaceMazeClientTests {
 
     private MazeDisplay maze;
+    private SpaceMaze spaceMazeFontLoader;
+
 
     /**
      * Setting up a maze display for testing logic
@@ -31,6 +34,7 @@ public class SpaceMazeClientTests {
                 {'.', '.', '.', 'W'},
         };
         maze = new MazeDisplay(mazeMap, spaceMaze, bots);
+        spaceMazeFontLoader = spaceMaze;
     }
 
     //-------------------Bot class tests------------------------//
@@ -325,4 +329,29 @@ public class SpaceMazeClientTests {
         assertTrue(testExit.equals(actualExit));
     }
 
+    /**
+     * Test to confirm loadCustomFonts loads public Pixel font and is of correct size.
+     * 
+     * @author Niraj Rana Bhat
+     */
+    @Test
+    @DisplayName("Test Public pixel fonts loaded with correct size")
+    public void testLoadCustomFontPublicPixel(){
+        spaceMazeFontLoader.loadCustomFont();
+        assertNotNull(spaceMazeFontLoader.getCustomFont());
+        assertEquals(40f, spaceMazeFontLoader.getCustomFont().getSize2D(), 0.01);
+    }
+
+     /**
+     * Test to confirm loadCustomFonts loads Aquire font and is of correct size.
+     * 
+     * @author Niraj Rana Bhat
+     */
+    @Test
+    @DisplayName("Test Aquire fonts loaded with correct size")
+    public void testLoadCustomFontAquire(){
+        spaceMazeFontLoader.loadCustomFont();
+        assertNotNull(spaceMazeFontLoader.getAquireFont());
+        assertEquals(13f, spaceMazeFontLoader.getAquireFont().getSize2D(), 0.01);
+    }
 }

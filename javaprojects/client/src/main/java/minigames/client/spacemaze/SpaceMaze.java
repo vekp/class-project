@@ -331,6 +331,10 @@ public class SpaceMaze implements GameClient {
         return customFont;
     }
 
+    public Font getAquireFont(){
+        return aquireFont;
+    }
+
     /**
      * Method that loads custom fonts from the resources.
      */
