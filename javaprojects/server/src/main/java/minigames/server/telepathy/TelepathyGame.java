@@ -264,7 +264,17 @@ public class TelepathyGame {
             // Add the updates to the response
             renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
                     TelepathyCommands.ELIMINATETILES,
-                    eliminatedTileStrings.toArray(new String[eliminatedTileStrings.size()])));
+                    Integer.toString(questionTile.getHorizontalPos()),
+                    Integer.toString(questionTile.getVerticalPos()),
+                    questionTile.getTileColour().toString(),
+                    questionTile.getTileSymbol().toString()));
+        } else{
+            // There is a match
+            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
+                TelepathyCommands.PARTIALMATCH,
+                Integer.toString(questionTile.getHorizontalPos()),
+                Integer.toString(questionTile.getVerticalPos())
+            ));
         }
 
         return renderingCommands;

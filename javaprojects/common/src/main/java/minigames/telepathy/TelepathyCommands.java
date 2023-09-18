@@ -39,13 +39,17 @@ public enum TelepathyCommands {
     * MODIFYPLAYER: Inform the client that information about a player has been modified.
     *       Attributes: Name of the player, modifications (joined, leaving)
     *       Attributes: n/a
+    * PARTIALMATCH: Inform the client that their question tile had a match with
+    *       the target tile.
+    *       Attributes: The X and Y coordinate of the question tile used.
     * TESTCOMMAND: A simple command used for testing/debugging purposes.
     * INVALIDCOMMAND: Used to respond to an invalid CommandPackage.
     */
  
     JOINGAMESUCCESS, JOINGAMEFAIL, TOGGLEREADY, ASKQUESTION, FINALGUESS, 
     CHOOSETILE, BUTTONUPDATE, REQUESTUPDATE, NOUPDATE, GAMEOVER, SYSTEMQUIT, 
-    ELIMINATETILES, QUIT, MODIFYPLAYER, POPUP, TESTCOMMAND, INVALIDCOMMAND, DEFAULT;
+    ELIMINATETILES, QUIT, MODIFYPLAYER, POPUP, PARTIALMATCH, TESTCOMMAND, 
+    INVALIDCOMMAND, DEFAULT;
 
     public String toString(){
         return switch(this){
@@ -63,6 +67,7 @@ public enum TelepathyCommands {
             case SYSTEMQUIT -> "SYSTEMQUIT";
             case MODIFYPLAYER -> "MODIFYPLAYER";
             case POPUP -> "POPUP";
+            case PARTIALMATCH -> "PARTIALMATCH";
             case ELIMINATETILES -> "ELIMINATETILES";
             case INVALIDCOMMAND -> "INVALIDCOMMAND";
             case TESTCOMMAND -> "TESTCOMMAND";

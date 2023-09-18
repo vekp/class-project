@@ -227,14 +227,16 @@ public class TelepathyGameTest {
         // Check correct player turn - can only ask questions on your turn
         game = progressGameToState(State.RUNNING);
 
-        
         String player = game.getCurrentPlayerTurn();
         cp = makeCommandPackage(game.telepathyGameMetadata(), 
             player, 
             TelepathyCommands.ASKQUESTION, "1", "1");
         response = game.runCommands(cp);
 
-        assertTrue(response.renderingCommands().get(0).getString("command").equals(TelepathyCommands.BUTTONUPDATE.toString()));
+        // Response could be a match or no match
+        String responseCommand = response.renderingCommands().get(0).getString("command");
+        assertTrue(responseCommand.equals(TelepathyCommands.ELIMINATETILES.toString()) || 
+            responseCommand.equals(TelepathyCommands.PARTIALMATCH.toString()));
         
         // Check that turns have switched
         assertTrue(!game.getCurrentPlayerTurn().equals(player));

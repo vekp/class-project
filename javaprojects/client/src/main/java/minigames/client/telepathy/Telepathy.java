@@ -29,6 +29,7 @@ import minigames.client.notifications.DialogManager;
 import minigames.telepathy.TelepathyCommandException;
 import minigames.telepathy.TelepathyCommandHandler;
 import minigames.telepathy.TelepathyCommands;
+import minigames.telepathy.Tile;
 
 import minigames.telepathy.State;
 
@@ -44,7 +45,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
+import java.sql.Array;
 import java.awt.Point;
 
 
@@ -109,6 +110,10 @@ public class Telepathy implements GameClient, Tickable{
     private State serverState;
     private HashMap<String, JComponent> componentList; // Maintains references to swing elements that need to be modified 
     
+    // Guesses and eliminated rows/columns
+    HashSet<Integer> eliminatedColumns;
+    HashSet<Integer> eliminatedRows;
+    HashSet<Tile> guessedTiles;
 
     /**
      * A Telepathy board UI, a 9 x 9 2D array of Jbuttons with coordinates around the 
@@ -118,6 +123,10 @@ public class Telepathy implements GameClient, Tickable{
         this.ticking = true;
         this.last = System.nanoTime();
         this.serverState = null;
+
+        this.eliminatedColumns =  new HashSet<>();
+        this.eliminatedRows = new HashSet<>();
+        this.guessedTiles = new HashSet<>();
 
         this.componentList = new HashMap<>();
         this.buttonGrid = new JButton[COLS][ROWS];
@@ -289,7 +298,9 @@ public class Telepathy implements GameClient, Tickable{
 
         for (int row = 0; row < this.buttonGrid.length; row++) {
             for (int col = 0; col < this.buttonGrid[row].length; col++) {
-                this.buttonGrid[col][row].setEnabled(true);
+                if(!this.eliminatedRows.contains(row) && !this.eliminatedColumns.contains(col)){
+                    this.buttonGrid[col][row].setEnabled(true);
+                }
             }
         }
 
@@ -688,8 +699,37 @@ public class Telepathy implements GameClient, Tickable{
             case POPUP -> handlePopupCommand(jsonCommand);
             case GAMEOVER -> sendCommand(TelepathyCommands.QUIT);
             case BUTTONUPDATE -> updateButton(jsonCommand);
+            case ELIMINATETILES -> handleNoResonse(jsonCommand);
+            case PARTIALMATCH -> handleYesResponse(jsonCommand);
             default -> logger.info("{} not handled", jsonCommand);
         }
+    }
+
+    /**
+     * Handle a no response from the server after asking a question. When the
+     * question tile does not match the target at all, eliminate the row/column
+     * on the board and the colour and symbol on the side panel.
+     * 
+     * @param jsonCommand: The command received with an ELIMINATETILES command.
+     *  should contain X and Y coordinates and Colour/Symbol to eliminate.
+     */
+    private void handleNoResonse(JsonObject jsonCommand){
+        ArrayList<String> attributes  = TelepathyCommandHandler.getAttributes(jsonCommand);
+        
+        int xElim = Integer.parseInt(attributes.get(0));
+        int yElim = Integer.parseInt(attributes.get(1));
+
+        //TODO: add colours/symbols to eliminated sets
+        String cElim = attributes.get(2);
+        String sElim = attributes.get(3); 
+
+        this.eliminatedColumns.add(xElim);
+        this.eliminatedRows.add(yElim);
+    
+    }
+
+    private void handleYesResponse(JsonObject jsonCommand){
+        
     }
 
     /**
