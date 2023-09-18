@@ -7,7 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * MazeControl class to verifies and controls player input,
+ * MazeControl class to verifies and updates player input,
  * controls maze elements (such as keys) and returns an updated
  * maze array for display to screen.
  * 
@@ -19,57 +19,48 @@ public class MazeControl {
 
     private static final Logger logger = LogManager.getLogger(MazeControl.class);
         
-    // Maze info -- hard coded for now
-    private int mazeWidth = 25;
-    private int mazeHeight = 25;
-    private int mazeSize = 25;
-    private int currentLevel;               // level of current maze
-    private int maxLevel = 5;               // maximum number of levels
-    //private char[][] mazeArray = new char[mazeWidth][mazeHeight];  
+    // Maze info -- 
+    private int mazeWidth = 25;             // Width of mazeArray - hard coded
+    private int mazeHeight = 25;            // Height of mazeArray - hard coded
+    private int currentLevel;               // Level of current maze
+    private int maxLevel = 5;               // Maximum number of levels
     private char[][] mazeArray;
 
     // MazeTimer
     public GameTimer mazeTimer = new GameTimer();
     public int timeTaken;
 
-    // Player info
+    // Player info - player, player's location (current, previous and next tile)
     SpacePlayer mazePlayer;
     private Point playerLocation;
     private List<Point> playerPrevLocationList = new ArrayList<Point>();
     private char nextTile;
 
-    // Start info - locations of maze entrances
-    //private List<Point> startLocationsList = new ArrayList<Point>();  
-    private Point startLocation;
-    //private Point[] startLocations;  
+    // Start info - locations of maze entrances  
+    private Point startLocation; 
 
     // Exit info - location of maze exit
     private Point exitLocation;
     private Boolean exitUnlocked = false;
 
-    // Key info
+    // Key info - number of keys to unlock the exit, key locations and status
     private int numKeysToUnlock;
     private List<Point> keyLocationsList = new ArrayList<Point>();
     private HashMap<Point, Boolean> keyStatus = new HashMap<Point, Boolean>();
     
-    // PickUps info - locations of Pickups in maze
-    //private List<Point> pickUpLocationsList = new ArrayList<Point>(); 
-    //private Point[] pickUpLocations;
-
     // Traps info
     private List<Point> wormholeLocationsList = new ArrayList<Point>();
     private List<Point> bombLocationsList = new ArrayList<Point>();
+    
     // Bots info
     private List<Point> botsLocationsList = new ArrayList<Point>();
-
+    
     // Bonus Points (chests) info
     private List<Point> bonusPointsLocationsList = new ArrayList<Point>();
     private HashMap<Point, Boolean> bonusStatus = new HashMap<Point, Boolean>();
     
-
     // Level Achievement info
     private boolean thisLevelAllKeysBonus;
-    // Change allKeysPerLevel to private - public for testing
     private HashMap<Integer, Boolean> allKeysPerLevel = new HashMap<Integer, Boolean>();
     private HashMap<Integer, Boolean> allBonusPerLevel = new HashMap<Integer, Boolean>();
 
@@ -78,7 +69,10 @@ public class MazeControl {
     
 
     // INITALISE MAZE:
-    // MazeControl - set player
+    /*
+    * MazeControl Construcor- set player, create maze and set maze elements 
+    * (such as levels, keys, bonuses, and achievement tracking variables)
+    */ 
     public MazeControl(SpacePlayer player)
     {
         // Set/link player;
@@ -128,15 +122,12 @@ public class MazeControl {
         // Place player in maze - start location
         // Sets players location
         playerLocation = new Point(playerLoc);
-
         this.nextTile = '.';
 
-        // checks players location is in startLocations List
+        // Check players location is at startLocation
         if (startLocation.equals(playerLocation))
         {
-            // Set (x, y) to 'P'
-            // NB - array[row = y][col = x]
-            //mazeArray[x][y] = 'P';
+            // Set mazeArray[x][y] = 'P';
             mazeArray[playerLocation.y][playerLocation.x] = 'P';
         }
         else
@@ -151,7 +142,7 @@ public class MazeControl {
     
     // SET MAZE ELEMENTS:
     /*
-     * set_Locations function - iterates throught the maze array and sets locations
+     * set_Locations function - iterates throught the maze array and sets locations in variables/lists
      *  
      */
     public void set_locations()
@@ -234,9 +225,9 @@ public class MazeControl {
 
     /* 
     * setBonusStatus function - inputs bonusPointsLocations into a map and defaults collected bool value to false
-    * @param keyLocations - Point object array of bonus points (chests) locations in mazeArray
+    * @param bonusPointsLocationsList - Point object array of bonus points (chests) locations in mazeArray
     */
-    public void setBonusStatus(List<Point> keyLocationsList)
+    public void setBonusStatus(List<Point> bonusPointsLocationsList)
     {
         // Bonus Status: (x, y)-> False
         for (int i = 0; i < bonusPointsLocationsList.size(); i++)
@@ -268,7 +259,6 @@ public class MazeControl {
     public Boolean validMove(Point posMove)
     {
         // Check if (x, y) is a wall 
-        // NB - array[row=y][col=x]
         if (mazeArray[posMove.y][posMove.x] == 'W')
         {
            return false;
@@ -290,9 +280,9 @@ public class MazeControl {
                 else 
                 {
                     return false;
-                    // Could print out a message about requiring a key
                 }
         }
+        // Return true if move is valid
         else 
         {
             return true;
@@ -335,7 +325,7 @@ public class MazeControl {
     }
 
 
-    // UPDATE PLAYER/MAZE ELEMENTS AND UNLOCK EXIT:
+    // UPDATE PLAYER/MAZE ELEMENTS, UNLOCK EXIT AND ACHIEVEMENT FUNCTIONS:
     /*
     * updatePlayerLocationMaze function - takes a SpacePlayer and Point(x, y) coords updates playerLocation and mazeArray,
     *              and updates keyStatus and checks if game is over. 
@@ -344,51 +334,52 @@ public class MazeControl {
     */ 
     public void updatePlayerLocationMaze(SpacePlayer player, Point newMove)
     {
-        // Assume move is valid --  should have been checked via SpaceMazeGame
-        
-        // Set previous player location (temp object)
-        Point prevMove = new Point(playerLocation);
-        playerPrevLocationList.add(playerLocation);
-
-        // Update playerLocation in mazeArray to newMove
-        playerLocation = new Point(newMove);
-        nextTile = mazeArray[newMove.y][newMove.x];
-        mazePlayer.updateLocation(newMove);
-
-        // Reducing ellapsed time for chest collection
-        if (bonusPointsLocationsList.contains(playerLocation)) {
-            mazeTimer.reduceTime();
-        }
-
-        // Set new player location to 'P'
-        mazeArray[newMove.y][newMove.x] = 'P';
-        // Set previous player location to '.'
-        mazeArray[prevMove.y][prevMove.x]= '.';
-
-        // Check if player location picks up a key
-        updateKeyStatus(mazePlayer, playerLocation);
-
-        // Check/update if player picks up a bonus/chest
-        updateBonusStatus(mazePlayer, playerLocation);
-
-        // Check if player steps on a trap - wormhole
-        if (collisionDetectWormhole())
+        // Assume move is valid -- should have been checked client side - but do again just in case
+        if (validMove(newMove))
         {
-            // Change player location to a random Point
-            playerLocation = new Point(randomRelocationPoint());
+            // Set previous player location (temp object)
+            Point prevMove = new Point(playerLocation);
             playerPrevLocationList.add(playerLocation);
-            // Update player location in map to 'P'
-            mazeArray[playerLocation.y][playerLocation.x] = 'P';
-            // Update previous position to '.'
+
+            // Update playerLocation in mazeArray to newMove
+            playerLocation = new Point(newMove);
+            nextTile = mazeArray[newMove.y][newMove.x];
+            mazePlayer.updateLocation(newMove);
+
+            // Reducing ellapsed time for chest collection
+            if (bonusPointsLocationsList.contains(playerLocation)) {
+                mazeTimer.reduceTime();
+            }
+
+            // Set new player location to 'P'
+            mazeArray[newMove.y][newMove.x] = 'P';
+            // Set previous player location to '.'
             mazeArray[prevMove.y][prevMove.x]= '.';
-            mazeArray[newMove.y][newMove.x]= '.';
-        }
-        
-        // Check if player steps on a trap - bomb
-        if(collisionDetectBomb())
-        {
-            // Remove all walls (replace with path - '.') within one tile
-            blowUpWalls();
+
+            // Check if player location picks up a key
+            updateKeyStatus(mazePlayer, playerLocation);
+            // Check/update if player picks up a bonus/chest
+            updateBonusStatus(mazePlayer, playerLocation);
+
+            // Check if player steps on a trap - wormhole
+            if (collisionDetectWormhole())
+            {
+                // Change player location to a random Point
+                playerLocation = new Point(randomRelocationPoint());
+                playerPrevLocationList.add(playerLocation);
+                // Update player location in map to 'P'
+                mazeArray[playerLocation.y][playerLocation.x] = 'P';
+                // Update previous position to '.'
+                mazeArray[prevMove.y][prevMove.x]= '.';
+                mazeArray[newMove.y][newMove.x]= '.';
+            }
+            
+            // Check if player steps on a pickup - bomb
+            if(collisionDetectBomb())
+            {
+                // Remove all walls (replace with path - '.') within one tile
+                blowUpWalls();
+            }
         }
     }
 
@@ -403,7 +394,7 @@ public class MazeControl {
         Point randomLocation;
         do{
             Random rand = new Random();
-            randomLocation = new Point(rand.nextInt(mazeWidth), rand.nextInt(mazeWidth));
+            randomLocation = new Point(rand.nextInt(mazeWidth), rand.nextInt(mazeHeight));
         }
         while (!validMove(randomLocation));
         // update player location to there
@@ -459,7 +450,7 @@ public class MazeControl {
      * @param level - level just played 
      * @param bonusStatus - map of chests/bonuses collected
      */
-    public void updateAllKeysStatus(int level, HashMap bonusStatus)
+    public void updateAllKeysStatus(int level, HashMap<Point, Boolean> keyStatus)
     {
         // Update each level (key value) to true if all chests were collected for a level
         boolean gotAllThisLevel = !keyStatus.containsValue(false);
@@ -484,7 +475,7 @@ public class MazeControl {
      * @param level - level just played 
      * @param bonusStatus - map of chests/bonuses collected
      */
-    public void updateAllBonusStatus(int level, HashMap bonusStatus)
+    public void updateAllBonusStatus(int level, HashMap<Point, Boolean> bonusStatus)
     {
         // Update each level (key value) to true if all chests were collected for a level
         boolean gotAllThisLevel = !bonusStatus.containsValue(false);
@@ -523,6 +514,17 @@ public class MazeControl {
         }
     }
 
+    /*
+     * awardFastAsLightning function - achievement function for bonus collection 
+     * (called by SpaceMazeServer)
+     * return boolean - true if current time equals zero
+     */
+    public boolean awardFastAsLightning() {
+        String currentTime = mazeTimer.getCurrentTime();
+        return currentTime.equals("0:00");
+    }
+    
+
     
     // NEW LEVEL, PLAYER DEAD, GAMEOVER:
     /*
@@ -535,7 +537,6 @@ public class MazeControl {
             logger.info("Moving to next level");
             // Pause Timer
             mazeTimer.pauseTimer();
-
             // Increment current level
             currentLevel++;
             // Set number of keys to unlock exit (level num)
@@ -545,10 +546,8 @@ public class MazeControl {
 
             // Update allBonusStatus for this level
             updateAllBonusStatus(currentLevel, bonusStatus);
-
             // Update allKeysStatus for this level
             updateAllKeysStatus(currentLevel, keyStatus);
-
             // Update thisLevelAllKeysBonus for this level
             updateLevelAllKeyBonusStatus();
 
@@ -562,17 +561,11 @@ public class MazeControl {
             bonusStatus.clear();
 
             // Reset player's number of keys to zero
-            mazePlayer.resetKeys();
-            //int mazePlayerNumKeys = mazePlayer.checkNumberOfKeys();
-            //System.out.println("Called resetKeys(), player numKeys = " + mazePlayerNumKeys);
-            //logger.info("PlayerKeys reset attempt! numKeys = " + mazePlayer.checkNumberOfKeys()); 
-
+            mazePlayer.resetKeys();  
             // Set start, key... locations
             set_locations();
-
             // Exit location
             this.exitLocation = getExitLocation();
-
             // Initalise keyStatus with collected = false
             setKeyStatus(keyLocationsList);
 
@@ -583,6 +576,7 @@ public class MazeControl {
             playerLocation = startLocation;
             playerEntersMaze(playerLocation);    
         } 
+        // If last level was played -> call GameOver()
         else if (currentLevel == maxLevel) 
         {
             callGameOver();
@@ -730,26 +724,20 @@ public class MazeControl {
 
     /*
     * getNextTile function - For the server to identify the collision type
-    *
     * @return char of tile player is moving onto
-     */
+    */
     public char getNextTile() {
         return nextTile;
     }
 
     /*
-    * getKeysRemaining function
-    *
+    * getKeysRemaining function - check number of keys still required to open exit
     * @return number of keys remaining to unlock exit
-     */
+    */
     public int getKeysRemaining() {
         return numKeysToUnlock - mazePlayer.checkNumberOfKeys();
     }
 
-    public boolean awardFastAsLightning() {
-        String currentTime = mazeTimer.getCurrentTime();
-        return currentTime.equals("0:00");
-    }
     
 
     // BYPASS FUNCTIONS FOR TESTING:

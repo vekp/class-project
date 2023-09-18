@@ -115,14 +115,6 @@ public class SpaceMazeGame {
                     renderingCommands.add(serializedMazeArray);
                 }
                 case "botCollision" -> {
-                    // For testing triggering of achievements.
-                    /*
-                    String playerName = getPlayerNames()[0];
-                    *AchievementHandler thisHandler = new AchievementHandler(SpaceMazeServer.class);
-                    thisHandler.unlockAchievement(playerName, DETERMINED_COLLECTOR.toString());
-                     * 
-                     */
-
                     int playerLives = player.getLives();
                     if (playerLives > 0) {
                         player.removeLife(1);
