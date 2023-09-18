@@ -4,55 +4,57 @@ import javax.swing.*;
 import java.util.Objects;
 
 /**
- * The ImageResource class represents a multimedia resource (specifically an image)
- * for the Snake game UI. This class encapsulates the image along with its dimensions
- * to provide easy access and manipulation of these resources in the game.
+ * The ImageResource class encapsulates an image resource for the Snake game UI.
+ * It provides easy access and manipulation of these resources in the game by
+ * storing the image along with its dimensions.
  */
-class ImageResource {
+public class ImageResource {
 
-    // Image for this resource
-    private final ImageIcon image;
+    // The image associated with this resource
+    private final ImageIcon resourceImage;
 
-    // Dimensions of the image
-    private final int width;
-    private final int height;
+    // Width of the resource image
+    private final int imageWidth;
+
+    // Height of the resource image
+    private final int imageHeight;
 
     /**
-     * Constructs an ImageResource based on the provided path. The path should point to
-     * the location of the image resource within the project.
+     * Constructs an ImageResource by loading an image from the provided path.
+     * The path should be relative to the location of the image resource within the project.
      *
-     * @param path The path to the image resource.
+     * @param imagePath The relative path to the image resource.
      */
-    public ImageResource(String path) {
-        this.image = new ImageIcon(Objects.requireNonNull(MultimediaManager.class.getResource(path)));
-        this.width = image.getIconWidth();
-        this.height = image.getIconHeight();
+    public ImageResource(String imagePath) {
+        this.resourceImage = new ImageIcon(Objects.requireNonNull(MultimediaManager.class.getResource(imagePath)));
+        this.imageWidth = resourceImage.getIconWidth();
+        this.imageHeight = resourceImage.getIconHeight();
     }
 
     /**
-     * Retrieves the ImageIcon for this resource.
+     * Returns the ImageIcon associated with this resource.
      *
-     * @return ImageIcon representing the image of this resource.
+     * @return The ImageIcon representing this resource.
      */
-    public ImageIcon getImage() {
-        return image;
+    public ImageIcon getImageResource() {
+        return resourceImage;
     }
 
     /**
-     * Retrieves the width of the image.
+     * Returns the width of the resource image.
      *
-     * @return Width of the image in pixels.
+     * @return The width of the image in pixels.
      */
-    public int getWidth() {
-        return width;
+    public int getImageResourceWidth() {
+        return imageWidth;
     }
 
     /**
-     * Retrieves the height of the image.
+     * Returns the height of the resource image.
      *
-     * @return Height of the image in pixels.
+     * @return The height of the image in pixels.
      */
-    public int getHeight() {
-        return height;
+    public int getImageResouceHeight() {
+        return imageHeight;
     }
 }
