@@ -1,6 +1,7 @@
 package minigames.server.memory;
 
 import io.vertx.core.Future;
+import io.vertx.core.json.JsonObject;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -11,6 +12,8 @@ import minigames.rendering.GameServerDetails;
 import minigames.rendering.RenderingPackage;
 import minigames.server.ClientType;
 import minigames.server.GameServer;
+
+import minigames.achievements.Achievement;
 import minigames.server.achievements.AchievementHandler;
 
 /**
@@ -18,8 +21,8 @@ import minigames.server.achievements.AchievementHandler;
  * When it receives a CommandPackage, it finds the MemoryGame and calls it.
  * Used and adapted MuddleServer.java
  */
+
 public class MemoryServer implements GameServer {
-    
     static final String chars = "abcdefghijklmopqrstuvwxyz";
     AchievementHandler achievementHandler;
 
@@ -80,4 +83,25 @@ public class MemoryServer implements GameServer {
         return Future.succeededFuture(g.runCommands(cp));
     }
 
+    /* 
+        @Override
+        public Future<RenderingPackage> callGame(CommandPackage cp) {
+            MemoryGame g = games.get(cp.gameId());
+
+            // Create temp JSONObject object
+            JsonObject cmd = cp.commands().get(0);
+            switch (cmd.getString("command")) {
+                case "clearServer" -> {
+                    clearServer(cp.gameId());
+                }
+            }
+            return Future.succeededFuture(g.runCommands(cp));
+        }
+
+        private void clearServer(String s) {
+            games.remove(s);
+        }
+    
+     */
+    
 }

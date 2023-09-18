@@ -9,6 +9,7 @@ import minigames.client.achievements.AchievementNotificationHandler;
 import minigames.client.achievements.AchievementUI;
 import minigames.client.survey.Survey;
 import minigames.client.backgrounds.Starfield;
+import minigames.client.useraccount.UserAccountFrame;
 import minigames.client.krumgame.KrumGameClient;
 import minigames.client.krumgame.KrumMenu;
 import minigames.rendering.GameMetadata;
@@ -270,6 +271,16 @@ public class MinigameNetworkClientWindow {
             pack();
         });
         south.add(surveyButton);
+
+        // Create a button for the User Account UI
+        JButton userAccountButton = new JButton("User Account");
+        userAccountButton.addActionListener(e -> {
+            // TODO implement properly. tests to run the UI on init.
+            UserAccountFrame login = new UserAccountFrame();
+            login.userLogin(networkClient);
+            login.setVisible(true);
+        });
+        south.add(userAccountButton);
 
         pack();
 

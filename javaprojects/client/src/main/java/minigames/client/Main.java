@@ -5,6 +5,7 @@ import io.vertx.core.Promise;
 import minigames.client.battleship.Battleship;
 import minigames.client.memory.Memory;
 import minigames.client.muddletext.MuddleText;
+import minigames.client.useraccount.UserServerAction;
 import minigames.client.peggle.PeggleUI;
 import minigames.client.tictactoe.TicTacToeClient;
 import minigames.client.spacemaze.SpaceMaze;
@@ -27,10 +28,14 @@ public class Main extends AbstractVerticle {
     /** A logger for logging output */
     private static final Logger logger = LogManager.getLogger(Main.class);
 
+    public static UserServerAction user;
+
     /** Where GameClients should register themselves in doWiring */
     public static final ClientRegistry clientRegistry = new ClientRegistry();
 
     MinigameNetworkClient client;
+    
+
 
     /**
      * A place for groups to put code that registers their GameClient with the ClientRegistry, etc.

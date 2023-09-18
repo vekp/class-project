@@ -655,3 +655,4 @@ public class Memory implements GameClient, ActionListener {
     }
 
 }
+

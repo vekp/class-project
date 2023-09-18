@@ -13,9 +13,14 @@ dependencies {
     implementation group: 'io.vertx', name:'vertx-core', version: '4.3.2'
     implementation group: 'io.vertx', name:'vertx-web-client', version: '4.3.2'
     // Enables Jackson Databind for serialisation of basic Java types
+    implementation group: "com.fasterxml.jackson.core", name: "jackson-databind", version: "2.13.3"
+
+    // JUnit 5 dependency for unit testing
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.0'
     runtimeOnly group: "com.fasterxml.jackson.core", name: "jackson-databind", version: "2.13.3"
 
     implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
     // If you want to use the OWASP Java HTML Sanitizer library specifically, you can add it like this:
     implementation group: 'com.googlecode.owasp-java-html-sanitizer', name: 'owasp-java-html-sanitizer', version: '20220608.1'
 }
+
