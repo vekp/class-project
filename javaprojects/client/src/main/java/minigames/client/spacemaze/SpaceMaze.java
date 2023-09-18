@@ -35,8 +35,10 @@ import java.awt.GridBagLayout;
 import java.awt.Image;
 
 import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.Timer;
+import javax.swing.border.Border;
 
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
@@ -67,6 +69,9 @@ public class SpaceMaze implements GameClient {
 
     //Class to hold all sounds for client side use
     SpaceMazeSound sound;
+
+    //Border
+    Border whiteBorder;
 
     //Header Section
     JPanel headerPanel;
@@ -143,6 +148,8 @@ public class SpaceMaze implements GameClient {
         loadCustomFont();
         
         buttonDimension = new Dimension(300, 70);
+
+        whiteBorder = BorderFactory.createLineBorder(Color.WHITE);
         
         //Menu Header Section
         headerPanel = new JPanel();
@@ -362,6 +369,7 @@ public class SpaceMaze implements GameClient {
         gameOverPanel.setLayout(new GridBagLayout());
         gameOverPanel.setPreferredSize(new Dimension(600, 600));
         gameOverPanel.setBackground(Color.BLACK);
+        gameOverPanel.setBorder(whiteBorder);
 
         GridBagConstraints gbc = new GridBagConstraints();
         Font gameOverFonts = customFont;
@@ -418,6 +426,7 @@ public class SpaceMaze implements GameClient {
         gameOverHeaderPanel.setPreferredSize(new Dimension(600, 200));
         gameOverHeaderPanel.setBackground(Color.BLACK);
         gameOverHeaderPanel.setLayout(new GridBagLayout());
+        gameOverHeaderPanel.setBorder(whiteBorder);
         GridBagConstraints c = new GridBagConstraints();
 
         JLabel gameOverHeaderText;
@@ -601,6 +610,7 @@ public class SpaceMaze implements GameClient {
         helpPanel.setLayout(new GridBagLayout());
         helpPanel.setPreferredSize(new Dimension(600, 600));
         helpPanel.setBackground(Color.BLACK);
+        helpPanel.setBorder(whiteBorder);
 
         GridBagConstraints gbc = new GridBagConstraints();
         aquireFont = aquireFont.deriveFont(13f);
@@ -781,6 +791,7 @@ public class SpaceMaze implements GameClient {
         mainMenuPanel.setLayout(new GridBagLayout());
         mainMenuPanel.setPreferredSize(new Dimension(600, 600));
         mainMenuPanel.setBackground(Color.BLACK);
+        mainMenuPanel.setBorder(whiteBorder);
 
         //Buttons panel inside menu section
         buttonsPanel = new JPanel();
@@ -891,6 +902,7 @@ public class SpaceMaze implements GameClient {
 
         //Credit Section
         developerCredits = new JLabel("Developed by: Andy, Nik, Natasha, Niraj");
+        developerCredits.setForeground(Color.WHITE);
     }
 }
 
