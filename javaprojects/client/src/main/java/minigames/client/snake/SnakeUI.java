@@ -5,6 +5,9 @@ import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
+
+import javax.swing.*;
+import java.awt.*;
 import java.util.Collections;
 
 /**
@@ -15,19 +18,16 @@ import java.util.Collections;
 public class SnakeUI implements GameClient {
 
     // Represents the name of the player
-    String player;
-
-    // Represents the main UI components and layout for the Snake game
-    BasePanel basePanel;
+    private String player;
 
     // Represents the client responsible for network communication with the game server
-    MinigameNetworkClient mnClient;
+    private MinigameNetworkClient mnClient;
 
     // Holds metadata related to the game, like server details and game name
-    GameMetadata gameMetadata;
+    private GameMetadata gameMetadata;
 
     /**
-     * Default constructor for SnakeUI.
+     * Constructs a SnakeUI instance.
      */
     public SnakeUI() {
         // Constructor remains empty
@@ -47,12 +47,22 @@ public class SnakeUI implements GameClient {
         this.player = player;
 
         // Initialize the base UI panel for the Snake game
-        this.basePanel = new BasePanel(mnClient, this::closeGame);
+        // Represents the main UI components and layout for the Snake game
+        BasePanel basePanel = new BasePanel(mnClient, this::closeGame);
+
+        // Set preferred size for the basePanel
+        ImageIcon backgroundIcon = MultimediaManager.getPhoneBackground().getImageResource();
+        basePanel.getContainerPanel().setPreferredSize(new Dimension(backgroundIcon.getIconWidth(), backgroundIcon.getIconHeight()));
 
         // Clear previous game window contents and set up the new game UI
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(basePanel.getContainerPanel());
+
+        // Pack the window and adjust size if possible
         mnClient.getMainWindow().pack();
+
+        JFrame mainFrame = mnClient.getMainWindow().getFrame();
+        mainFrame.setSize(backgroundIcon.getIconWidth(), backgroundIcon.getIconHeight());
     }
 
     /**
@@ -82,6 +92,7 @@ public class SnakeUI implements GameClient {
      */
     public void closeGame() {
         // TODO: Add cleanup actions here
+        MultimediaManager.stopBackgroundSound();
         mnClient.runMainMenuSequence();
     }
 }
