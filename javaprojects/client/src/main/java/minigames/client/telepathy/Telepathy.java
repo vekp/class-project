@@ -83,6 +83,9 @@ public class Telepathy implements GameClient, Tickable{
 
     ArrayList<JButton> buttonColour; // list of colours used in game
     ArrayList<JButton> buttonSymbols; // list of buttons with symbol icons used in game
+
+    JButton player1Turn; 
+    JButton player2Turn;
     
     ArrayList<ImageIcon> allIcons; // ordered list of icons
     ArrayList<Point> allCoordinatesList; // list of board coordinates
@@ -122,6 +125,9 @@ public class Telepathy implements GameClient, Tickable{
 
         this.componentList = new HashMap<>();
         this.buttonGrid = new JButton[COLS][ROWS];
+
+        this.player1Turn = new JButton();
+        this.player2Turn = new JButton();
         
 
         telepathyBoard = new JPanel();
@@ -149,10 +155,11 @@ public class Telepathy implements GameClient, Tickable{
         JButton backButton = new JButton("Menu");
         backButton.setPreferredSize(new Dimension(20, 40));
         backButton.addActionListener(e -> {
-            //TODO: Make own method
             telepathyNotificationManager.dismissCurrentNotification();
             clearButtonBackgrounds();
             enableButtonGrid();
+            setButtonColour(this.player1Turn, Color.RED);
+            setButtonColour(this.player2Turn, Color.RED);
             sendCommand(TelepathyCommands.QUIT);
         });
         this.componentList.put("backButton", backButton);
@@ -268,6 +275,8 @@ public class Telepathy implements GameClient, Tickable{
 
         
     }
+
+
 
     /**
      * a method that disables all buttons on the board
@@ -630,24 +639,22 @@ public class Telepathy implements GameClient, Tickable{
         JPanel player1 = new JPanel();
         player1.setLayout(new BoxLayout(player1, BoxLayout.X_AXIS));
         JButton currentPlayer = new JButton("  > Your Turn <  ");
-        JButton player1Turn = new JButton();
-        setButtonColour(player1Turn, Color.RED);
-        player1Turn.setPreferredSize(new Dimension(30, 6));
+        setButtonColour(this.player1Turn, Color.RED);
+        this.player1Turn.setPreferredSize(new Dimension(30, 6));
 
         player1.add(currentPlayer);
         player1.add(Box.createRigidArea(new Dimension(6, 0)));
-        player1.add(player1Turn);
+        player1.add(this.player1Turn);
 
 
         JPanel player2 = new JPanel();
         player2.setLayout(new BoxLayout(player2, BoxLayout.X_AXIS));
         JButton opponent = new JButton("Opponent's Turn");
-        JButton player2Turn = new JButton();
-        setButtonColour(player2Turn, Color.RED);
-        player2Turn.setPreferredSize(new Dimension(30, 6));
+        setButtonColour(this.player2Turn, Color.RED);
+        this.player2Turn.setPreferredSize(new Dimension(30, 6));
         player2.add(opponent);
         player2.add(Box.createRigidArea(new Dimension(5, 0)));
-        player2.add(player2Turn);
+        player2.add(this.player2Turn);
 
 
        // lobby.add(headings);
@@ -832,8 +839,18 @@ public class Telepathy implements GameClient, Tickable{
                 // Alter all tiles on board
                 if(attributes.get(1).equals("disableAll")){
                     disableButtonGrid();
+                    if (this.serverState == State.RUNNING){
+                        setButtonColour(this.player2Turn, Color.GREEN);
+                        setButtonColour(this.player1Turn, Color.RED);
+                    }
+                   
                 } else if(attributes.get(1).equals("enableAll")){
                     enableButtonGrid();
+                    if (this.serverState == State.RUNNING){
+                        setButtonColour(this.player1Turn, Color.GREEN);
+                        setButtonColour(this.player2Turn, Color.RED);
+                    }
+                    
                 }
             }
         }
