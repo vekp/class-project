@@ -85,12 +85,10 @@ public class Telepathy implements GameClient, Tickable{
     ArrayList<JButton> buttonSymbols; // list of buttons with symbol icons used in game
     
     ArrayList<ImageIcon> allIcons; // ordered list of icons
+    ArrayList<Point> allCoordinatesList; // list of board coordinates
 
     Map<Point, ImageIcon> mappedIcons; // a map to store mapped icons to board buttons
-
-    
-    JButton startGame; // Button to initialise game
-   
+ 
 
     int ROWS = 9; // adjustable variable for grid size
     int COLS = 9; // adjustable variable for grid size
@@ -148,39 +146,31 @@ public class Telepathy implements GameClient, Tickable{
 
        
         // Button to go back to the main menu
-        JButton backButton = new JButton("Back");
+        JButton backButton = new JButton("Menu");
         backButton.setPreferredSize(new Dimension(20, 40));
         backButton.addActionListener(e -> {
             //TODO: Make own method
             telepathyNotificationManager.dismissCurrentNotification();
-            startGame.setEnabled(true);
             clearButtonBackgrounds();
             enableButtonGrid();
             sendCommand(TelepathyCommands.QUIT);
         });
         this.componentList.put("backButton", backButton);
 
-        JButton readyButton = new JButton("Ready");
+        JButton readyButton = new JButton("READY");
         readyButton.addActionListener(e -> {
             sendCommand(TelepathyCommands.TOGGLEREADY);
         });
         this.componentList.put("readyButton", readyButton);
 
 
-        // Button to start game
-        startGame = new JButton("Start a Game!");
-        startGame.setPreferredSize(new Dimension(20, 40));
-        //startGame.addActionListener(e -> {
-            //activateWelcomeMessage();
-          //  startGame.setEnabled(false);
-        //});
-   
+      
         // panel to display buttons
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
         buttonPanel.add(readyButton);
         buttonPanel.add(backButton);
-        buttonPanel.add(startGame);
+     
     
 
          //a panel for the 2D button array
@@ -220,9 +210,10 @@ public class Telepathy implements GameClient, Tickable{
             }
         };
 
-        ArrayList<Point> allCoordinatesList = TelepathyIcons.allCoordinates(this.buttonGrid);
+       
+        allCoordinatesList = TelepathyIcons.allCoordinates(this.buttonGrid);
         allIcons = TelepathyIcons.allIcons();
-
+        // a map of ordered icons to board coordinates
         mappedIcons = TelepathyIcons.mappedIcons(allCoordinatesList, allIcons);
 
 
