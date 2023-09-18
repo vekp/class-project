@@ -136,12 +136,14 @@ public class KrumGame {
      */
     private void initializeLevels() {
         levels = new ArrayList<KrumLevel>();
-        KrumLevel chameleon = new KrumLevel("chameleon.png", null, 235, 0, 600, 0);
-        KrumLevel ropetest = new KrumLevel("ropetestmap.png", null, 235, 0, 600, 0);
-        KrumLevel cavetest = new KrumLevel("cave_test_2.png", "cave_test_2_mask.png", 300, 500, 680, 110);
-        levels.add(chameleon);
-        levels.add(ropetest);
-        levels.add(cavetest);    
+        KrumLevel aussieBush = new KrumLevel("Maps/Aussie Bush.png", null, 235, 0, 600, 0);
+        KrumLevel city = new KrumLevel("Maps/City.png", null, 235, 100, 600, 100);
+        KrumLevel mine = new KrumLevel("Maps/Mine.png", null, 375, 400, 425, 400);
+        KrumLevel moon = new KrumLevel("Maps/Moon.png", null, 50, 370, 660, 410);
+        levels.add(aussieBush);
+        levels.add(city);
+        levels.add(mine);  
+        levels.add(moon);  
         setActiveLevel(0);           
     }
 
