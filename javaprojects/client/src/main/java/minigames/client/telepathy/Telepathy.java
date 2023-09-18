@@ -238,24 +238,33 @@ public class Telepathy implements GameClient, Tickable{
         sidePanel = new JPanel();
         sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));        
 
-        Font font = new Font("futura", Font.BOLD, 16);
-        JLabel heading = new JLabel("Tile Features");
-        heading.setFont(font);
-        heading.setAlignmentX(Component.CENTER_ALIGNMENT);
+        //Font font = new Font("futura", Font.BOLD, 16);
+        //JLabel heading = new JLabel("Tile Features");
+       // heading.setFont(font);
+       // heading.setAlignmentX(Component.CENTER_ALIGNMENT);
         
-       
+        TitledBorder border = new TitledBorder("Tile Features");
+        border.setTitleJustification(TitledBorder.CENTER);
+        border.setTitlePosition(TitledBorder.TOP);
+
         colourSymbolPanel = new JPanel();
+        colourSymbolPanel.setBorder(border);
+
         colourSymbolPanel.setLayout(new FlowLayout());
         colourSymbolPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         colourSymbolPanel.setOpaque(true);
         JPanel colours = colourSideTiles();
         JPanel symbols = symbolSideTiles();
-        
+       
         colourSymbolPanel.add(colours);
         colourSymbolPanel.add(symbols);
 
-        sidePanel.add(heading);
+        JPanel lobby = gameLobby();
+
+       // sidePanel.add(heading);
         sidePanel.add(colourSymbolPanel);
+        sidePanel.add(Box.createRigidArea(new Dimension(0, 30)));
+        sidePanel.add(lobby);
 
         
     }
@@ -546,7 +555,7 @@ public class Telepathy implements GameClient, Tickable{
        // adds buttons to the JPanel
         for(JButton button: buttonColour){
             colours.add(button);
-            colours.add(Box.createRigidArea(new Dimension(0, 5)));
+            colours.add(Box.createRigidArea(new Dimension(0, 8)));
         }
 
         return colours;
@@ -592,6 +601,63 @@ public class Telepathy implements GameClient, Tickable{
         button.setOpaque(true);
         button.setBorderPainted(true);
         button.setFocusPainted(false);
+    }
+
+     /**
+     * a method to set a button's colour
+     */
+     public void setButtonColour(JButton button, Color color){
+        button.setBackground(color);
+        button.setForeground(color);
+        button.setOpaque(true);
+        button.setBorderPainted(false);
+        button.setFocusPainted(true);
+    }
+
+
+
+
+    public JPanel gameLobby(){
+
+        TitledBorder border = new TitledBorder("Game Lobby");
+        border.setTitleJustification(TitledBorder.CENTER);
+        border.setTitlePosition(TitledBorder.TOP);
+
+        JPanel lobby = new JPanel();
+        lobby.setBorder(border);
+        lobby.setLayout(new BoxLayout(lobby, BoxLayout.Y_AXIS));
+
+        JPanel player1 = new JPanel();
+        player1.setLayout(new BoxLayout(player1, BoxLayout.X_AXIS));
+        JButton currentPlayer = new JButton("  > Your Turn <  ");
+        JButton player1Turn = new JButton();
+        setButtonColour(player1Turn, Color.RED);
+        player1Turn.setPreferredSize(new Dimension(30, 6));
+
+        player1.add(currentPlayer);
+        player1.add(Box.createRigidArea(new Dimension(6, 0)));
+        player1.add(player1Turn);
+
+
+        JPanel player2 = new JPanel();
+        player2.setLayout(new BoxLayout(player2, BoxLayout.X_AXIS));
+        JButton opponent = new JButton("Opponent's Turn");
+        JButton player2Turn = new JButton();
+        setButtonColour(player2Turn, Color.RED);
+        player2Turn.setPreferredSize(new Dimension(30, 6));
+        player2.add(opponent);
+        player2.add(Box.createRigidArea(new Dimension(5, 0)));
+        player2.add(player2Turn);
+
+
+       // lobby.add(headings);
+        lobby.add(Box.createRigidArea(new Dimension(0, 10)));
+        lobby.add(player1);
+        lobby.add(Box.createRigidArea(new Dimension(0, 18)));
+        lobby.add(player2);
+
+        return lobby;
+
     }
 
 
