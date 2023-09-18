@@ -4,7 +4,6 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineEvent;
-import javax.swing.*;
 import java.util.Objects;
 
 /**
@@ -23,7 +22,7 @@ public class MultimediaManager {
     private static final ImageResource IMAGE_WATERMELON = new ImageResource("/images/snake/watermelon.png");
 
     // Background sound clip
-    private Clip backgroundSound;
+    private static Clip backgroundSound;
 
     // Paths to sounds
     private static final String SOUND_8_BIT = "/sounds/8Bit.wav";
@@ -33,41 +32,79 @@ public class MultimediaManager {
     private static final String SOUND_SMOOTH = "/sounds/smooth.wav";
     private static final String SOUND_SURF = "/sounds/surf.wav";
 
-    // Default constructor
-    public MultimediaManager() {
+    /**
+     * Constructs a MultimediaManager.
+     */
+    private MultimediaManager() {
         // Empty constructor
     }
 
     // Getters for ImageResource
+
+    /**
+     * Gets the ImageResource for the phone background image.
+     *
+     * @return ImageResource for the phone background image.
+     */
     public static ImageResource getPhoneBackground() {
         return PHONE_BACKGROUND;
     }
 
+    /**
+     * Gets the ImageResource for the background color block image.
+     *
+     * @return ImageResource for the background color block image.
+     */
     public static ImageResource getBackgroundColorBlockResource() {
         return BACKGROUND_COLOR_BLOCK;
     }
 
+    /**
+     * Gets the ImageResource for the snake logo image.
+     *
+     * @return ImageResource for the snake logo image.
+     */
     public static ImageResource getSnakeLogoResource() {
         return SNAKE_LOGO;
     }
 
+    /**
+     * Gets the ImageResource for the apple image.
+     *
+     * @return ImageResource for the apple image.
+     */
     public static ImageResource getAppleResource() {
         return IMAGE_APPLE;
     }
 
+    /**
+     * Gets the ImageResource for the cherry image.
+     *
+     * @return ImageResource for the cherry image.
+     */
     public static ImageResource getCherryResource() {
         return IMAGE_CHERRY;
     }
 
+    /**
+     * Gets the ImageResource for the orange image.
+     *
+     * @return ImageResource for the orange image.
+     */
     public static ImageResource getOrangeResource() {
         return IMAGE_ORANGE;
     }
 
+    /**
+     * Gets the ImageResource for the watermelon image.
+     *
+     * @return ImageResource for the watermelon image.
+     */
     public static ImageResource getWatermelonResource() {
         return IMAGE_WATERMELON;
     }
 
-// Methods related to sound
+    // Methods related to sound
 
     /**
      * Plays a looping background sound based on the provided sound name.
@@ -78,7 +115,10 @@ public class MultimediaManager {
      * @param soundName The name of the sound to be played. The name should correspond
      *                  to one of the predefined sound names (e.g., "8Bit", "EatApple").
      */
-    public void playBackgroundSound(String soundName) {
+    public static void playBackgroundSound(String soundName) {
+        // Stop any currently playing background sound
+        stopBackgroundSound();
+
         String soundPath;
 
         // Determine the sound file path based on the provided sound name
@@ -107,7 +147,7 @@ public class MultimediaManager {
 
         try {
             // Load the audio file using the determined sound path
-            AudioInputStream audioStream = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResource(soundPath)));
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(Objects.requireNonNull(MultimediaManager.class.getResource(soundPath)));
             backgroundSound = AudioSystem.getClip();
             backgroundSound.open(audioStream);
 
@@ -125,15 +165,17 @@ public class MultimediaManager {
         }
     }
 
+
     /**
      * Stops the currently playing background sound if there's any sound playing.
      * This method ensures that the sound is stopped gracefully without causing any
      * disruptions or errors.
      */
-    public void stopBackgroundSound() {
+    public static void stopBackgroundSound() {
         if (backgroundSound != null && backgroundSound.isRunning()) {
-            backgroundSound.stop();
+            // TODO : Test this over normal close - issue with stop method before
+            backgroundSound.close();
+            backgroundSound = null;
         }
     }
-
 }
