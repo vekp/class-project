@@ -63,21 +63,26 @@ public class UserAccountFrame extends JFrame implements ActionListener {
         public void actionPerformed(ActionEvent e){
                 String emailInput = emailField.getText();
                 String pinInput = pinField.getText();                
-                UserAccountSchema schema = new UserAccountSchema();
+                UserAccountSchema schema = new UserAccountSchema();                
                 if (schema.isValid("email", emailInput)) {
                         String username = emailInput.split("@")[0];
-                        FileHandler user = new FileHandler(username);
+                        userClient.login(username);                        
                         String path = "src/main/java/minigames/client/useraccount/" + username + ".json";
                         File file = new File(path);
                         if(file.exists()){
-                                user.addSession(file, path, username);    
-                                user.addGame("gameName", "score or any random value");
+                                Future<String> userFromServer = userClient.userNameGet();
+                                userFromServer.onSuccess(userFromServerResult -> {
+                                        FileHandler user = new FileHandler(userFromServerResult);
+                                        System.out.println("Server user is: " + userFromServerResult);
+                                        user.addSession(file, path, userFromServerResult); 
+                                        user.addGame("gameName", "score or any random value");
+                                    }).onFailure(error -> {
+                                        System.err.println("An error occurred: " + error.getMessage());
+                                    });                                                                  
                         }else{
+                                FileHandler user = new FileHandler(username);
                                 user.generateUser(emailInput, pinInput);                                
-                        }
-                        userClient.login(username);
-                        Future<String> userFromServer = userClient.userNameGet();
-                        System.out.println("Server user is: " + userFromServer); 
+                        }                        
                         this.dispose();
                 } else { System.out.println("Please enter a valid email address."); }
         }   
