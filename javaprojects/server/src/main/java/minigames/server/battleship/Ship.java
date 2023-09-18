@@ -8,13 +8,18 @@ import static minigames.server.battleship.achievements.*;
  * A Class to represent a ship on the game board
  */
 public class Ship {
+
     // Fields
-    private String shipClass;
-    private Cell[] shipParts;           // An Array containing all the Cells of the ship
-    private boolean sunk;               // A boolean for whether the ship has been sunk
+    private String shipClass;  // Name of the vessel
+    private Cell[] shipParts;  // An Array containing all the Cells of the ship
+    private boolean sunk;      // A boolean for whether the ship has been sunk
+    private boolean justSunk;  // Boolean for whether the ship has just been sunk on that turn
     int hits;
     int size;
-    String owner;                       // The name of the player that owns this ship
+    private int row;
+    private int col;
+    private boolean horizontal;
+    String owner;              // The name of the player that owns this ship
     AchievementHandler achievementHandler;
 
     // Constructor
@@ -24,12 +29,16 @@ public class Ship {
      * @param shipClass The class of the ship (Battleship, sub, etc)
      * @param shipParts The composition of the cells contained within the ship
      */
-    public Ship(String shipClass, Cell[] shipParts) {
+    public Ship(String shipClass, Cell[] shipParts, int row, int col, boolean horizontal) {
         this.shipClass = shipClass;
         this.shipParts = shipParts;
         this.sunk = false;
+        this.justSunk = false;
         this.hits = 0;
         this.size = shipParts.length;
+        this.row = row;
+        this.col = col;
+        this.horizontal = horizontal;
         this.achievementHandler = new AchievementHandler(BattleshipServer.class);
         this.owner = "";
     }
@@ -44,14 +53,14 @@ public class Ship {
                 " is it currently sunk?: " + this.sunk +"\nIt's owner is " + owner;
     }
 
-    // These will likely be wanted when custom ship movement is added
+    // Getters
 
     /**
      * Returns the ship class
      * @return String value
      */
     public String getShipClass() {
-        return shipClass;
+        return this.shipClass;
     }
 
     /**
@@ -60,8 +69,38 @@ public class Ship {
      */
     // Getters and Setters -> should be split up
     public Cell[] getShipParts() {
-        return shipParts;
+        return this.shipParts;
     }
+
+    /**
+     * Returns whether the current Ship Object has been sunk
+     * @return The boolean representing whether the ship's status is sunk
+     */
+    public boolean isSunk() {
+        return this.sunk;
+    }
+
+    /**
+     * get the just sunk status for a Ship object - used to control terminal output to the player
+     * @return boolean value determining whether the ship has just been sunk
+     */
+    public boolean isJustSunk() {
+        return this.justSunk;
+    }
+
+    public int getRow() {
+        return row;
+    }
+
+    public int getCol() {
+        return col;
+    }
+
+    public boolean isHorizontal() {
+        return horizontal;
+    }
+
+    // Setters
 
     /**
      * Set the composition of a ship (ship hull, ship left-most part, etc.)
@@ -80,11 +119,23 @@ public class Ship {
     }
 
     /**
-     * Returns whether the current Ship Object has been sunk
-     * @return The boolean representing whether the ship's status is sunk
+     * Set the just sunk status for a Ship object - used to control terminal output to the player
+     * @param sunk boolean value determining whether the ship has just been sunk
      */
-    public boolean isSunk() {
-        return sunk;
+    public void setJustSunk(boolean sunk) {
+        this.justSunk = sunk;
+    }
+
+    public void setRow(int row) {
+        this.row = row;
+    }
+
+    public void setCol(int col) {
+        this.col = col;
+    }
+
+    public void setHorizontal(boolean horizontal) {
+        this.horizontal = horizontal;
     }
 
     /**
@@ -93,7 +144,9 @@ public class Ship {
      * @param col The y coord
      * @param playerName The name of the player who owns the board, this helps to pop the appropriate achievement.
      */
+
     public Ship updateShipStatus(int col, int row, String playerName) {
+
         hits = 0;
         // booleans that can be set to reduce console spam
         boolean iWantPrintouts = false;
@@ -107,23 +160,23 @@ public class Ship {
 
 
         // Loop through all cells within the current ship to see if any of the cells were hit by the previous shot
-        for (int i = 0; i < size; i++){
+        for (int i = 0; i < size; i++) {
             Cell current = shipParts[i];
-            if(iWantMorePrintouts){
+            if (iWantMorePrintouts) {
                 System.out.println("Current cell coords: " + current.getBothCoords());
                 System.out.println("Target cell coords: " + target.getBothCoords());
                 System.out.println("Has current cell been shot? " + current.hasBeenShot());
             }
             // For every cell within the Ship, if it has been hit, increment the "hits" counter
-            if(current.hasBeenShot()){
-                hits ++;
+            if (current.hasBeenShot()) {
+                hits++;
             }
             // If the current Cell of the ship is at the same coord as the "target" cell, set the cell-type to "hit"
             // and increment the "hits" counter
-            if(current.getBothCoords().equals(target.getBothCoords())){
+            if (current.getBothCoords().equals(target.getBothCoords())) {
 
                 shipParts[i].shoot();
-                if(iWantMorePrintouts){
+                if (iWantMorePrintouts) {
                     System.out.println("Shot on target");
                     System.out.println("Hit here: " + current.getBothCoords());
                     System.out.println("Target coords: " + target.getBothCoords());
@@ -133,26 +186,30 @@ public class Ship {
         }
         // update the cells of the Ship Object
         this.shipParts = shipParts;
-        if(iWantPrintouts) {
+        if (iWantPrintouts) {
             System.out.println("Ship class: " + this.getShipClass());
             System.out.println("hits: " + this.hits);
             System.out.println("to hit: " + this.size);
         }
         // if all cells within the Ship have been hit, sink the ship
-        if(this.size==hits && !this.sunk){
+        if (this.size == hits && !this.sunk) {
             this.sink();
+
+            this.setJustSunk(true);  // Set just sunk
             if(this.getShipClass().equals("Carrier")){
                 achievementHandler.unlockAchievement(playerName, THE_BIGGER_THEY_ARE.toString());
             } else if (this.getShipClass().equals("Patrol Boat")) {
                 achievementHandler.unlockAchievement(playerName, THREE_HOUR_CRUISE.toString());
             } else if (this.getShipClass().equals("Submarine")){
                 achievementHandler.unlockAchievement(playerName, HUNTER_KILLER.toString());
+
             } else if (this.getShipClass().equals("Destroyer")) {
                 achievementHandler.unlockAchievement(playerName, DESTROYER_DESTROYED.toString());
             } else if (this.getShipClass().equals("Battleship")) {
                 achievementHandler.unlockAchievement(playerName, TITLE_DROP.toString());
             }
-            System.out.println("You sank the enemy "+ this.getShipClass());
+        } else {
+            if (this.justSunk) this.setJustSunk(false);
         }
         return this;
     }

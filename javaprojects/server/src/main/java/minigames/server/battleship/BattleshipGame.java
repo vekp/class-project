@@ -1,5 +1,6 @@
 package minigames.server.battleship;
 
+import java.awt.event.KeyEvent;
 import java.security.PublicKey;
 import java.util.*;
 
@@ -130,9 +131,56 @@ public class BattleshipGame {
         //if the game hasn't been aborted, we can move on to processing commands based on what the gamestate is
         switch (gameState) {
             case SHIP_PLACEMENT -> {
+
+                BattleshipPlayer currentClient = bPlayers.get(cp.player());
+                // List of available ships
+                String[] ships = {"Carrier", "Battleship", "Destroyer", "Submarine", "Patrol Boat"};
+                // Currently selected ship
+                int shipIndex  = currentClient.getBoard().getShipSelected();
+                Ship currentShip = currentClient.getBoard().getVessels().get(ships[shipIndex]);
+                // Orientation
+                int orient = 0;
+                if (currentShip.getShipParts()[0].getCellType().equals(CellType.SHIP_UP)) orient = 1;
+                switch (userInput) {
+                    case "up" -> {
+                        System.out.println("UP");
+                        if (currentClient.validPlacement(currentClient.getBoard().getShipSelected(), 0, -1, false)) {
+                            currentClient.moveShip("UP", currentShip);
+                        }
+                    }
+                    case "down" -> {
+                        System.out.println("DOWN");
+                        if (currentClient.validPlacement(currentClient.getBoard().getShipSelected(), 0, 1, false)) {
+                            currentClient.moveShip("DOWN", currentShip);
+                        }
+                    }
+                    case "left" -> {
+                        System.out.println("LEFT");
+                        if (currentClient.validPlacement(currentClient.getBoard().getShipSelected(), -1, 0, false)) {
+
+                        }
+                    }
+                    case "right" -> {
+                        System.out.println("RIGHT");
+                        if (currentClient.validPlacement(currentClient.getBoard().getShipSelected(), 1, 0, false)) {
+
+                        }
+                    }
+                    case "rotate" -> {
+                        System.out.println("SPACE");
+                        if (currentClient.validPlacement(currentClient.getBoard().getShipSelected(), 0, 0, true)) {
+
+                        }
+                    }
+                    case "switch" -> {
+                        System.out.println("R");
+                        currentClient.getBoard().setShipSelected();
+                    }
+                }
+
                 if (userInput.equalsIgnoreCase("ready")) {
                     //set this player to ready
-                    BattleshipPlayer currentClient = bPlayers.get(cp.player());
+
                     currentClient.setReady(true);
                     currentClient.updateHistory("Ready");
                     currentClient.updateHistory(BattleshipTurnResult.firstInstruction().playerMessage());
@@ -148,6 +196,7 @@ public class BattleshipGame {
                     }
                     //once all players are ready, pick a starting player and begin the game
                     if (gameState.equals(GameState.IN_PROGRESS)) {
+//                        currentClient.getBoard().setGameState(GameState.IN_PROGRESS);
                         Random rng = new Random();
                         //50% chance for either player to start first
                         int firstPlayer = rng.nextInt(0, 1);
@@ -167,11 +216,16 @@ public class BattleshipGame {
                     } else {
                         commands.add(new JsonObject().put("command", "waitReady"));
                     }
+
                 }
+
+                commands.add(new JsonObject().put("command", "shipPlacement"));  // This isn't actually doing anything atm
             }
             case IN_PROGRESS -> {
                 BattleshipPlayer current = bPlayers.get(activePlayer);
                 BattleshipPlayer opponent = bPlayers.get(opponentPlayer);
+                if (!current.getBoard().getGameState().equals(GameState.IN_PROGRESS)) current.getBoard().setGameState(GameState.IN_PROGRESS);
+                if (!opponent.getBoard().getGameState().equals(GameState.IN_PROGRESS)) opponent.getBoard().setGameState(GameState.IN_PROGRESS);
 
                 if (Objects.equals(current.getName(), cp.player())) {
                     //On this users turn, we process any non-refresh commands as an input coordinate

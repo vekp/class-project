@@ -13,6 +13,7 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +24,7 @@ public class Battleship implements GameClient, Tickable {
 
     // Needed for sending commands to the server
     MinigameNetworkClient mnClient;
-    int tickInterval = 180;
+    int tickInterval = 60;
     int tickTimer = 0;
 
     GameMetadata gm;
@@ -68,6 +69,7 @@ public class Battleship implements GameClient, Tickable {
     //flag to indicate whether this client is in wait mode (which means it will be constantly asking
     // for info refreshes from the server
     boolean waiting;
+    boolean shipPlacement;
 
 
     /**
@@ -103,6 +105,7 @@ public class Battleship implements GameClient, Tickable {
                     userCommand.requestFocus();
                 })
         );
+
         helpButton.setFont(fonts.get(1));
 
         // Style buttons
@@ -175,6 +178,14 @@ public class Battleship implements GameClient, Tickable {
         targetText.setFont(fonts.get(1));
         targetMap.add(targetText);
         maps.add(targetMap);
+        maps.setFocusable(true);
+        maps.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                keyboard(evt);
+            }
+        });
+
 
         // Terminal - Messages and input area
         terminal = new JPanel();
@@ -226,6 +237,25 @@ public class Battleship implements GameClient, Tickable {
         }
     }
 
+    void keyboard(java.awt.event.KeyEvent evt){
+        int keyCode = evt.getKeyCode();
+
+        if (shipPlacement) {
+            switch (keyCode) {
+                case KeyEvent.VK_UP -> sendCommand("up");
+                case KeyEvent.VK_DOWN -> sendCommand("down");
+                case KeyEvent.VK_LEFT -> sendCommand("left");
+                case KeyEvent.VK_RIGHT -> sendCommand("right");
+                case KeyEvent.VK_SPACE -> sendCommand("rotate");
+                case KeyEvent.VK_R -> sendCommand("switch");
+            }
+        }
+    }
+
+    /**
+     * Panel to contain instructional text for playing the game
+     * @return panel containing instructional text
+     */
     public JPanel generateHelpPanel() {
 
         JPanel panel = new JPanel(new GridBagLayout());
@@ -426,6 +456,7 @@ public class Battleship implements GameClient, Tickable {
         this.mnClient = mnClient;
         mnClient.getAnimator().requestTick(this);
         isQuitting = false;
+        shipPlacement = true;
         waiting = true; //this ensures we get at least 1 refresh to start
         this.gm = game;
         this.player = player;
@@ -487,6 +518,9 @@ public class Battleship implements GameClient, Tickable {
                 userCommand.setEditable(false);
                 waiting = true;
             }
+            case "shipPlacement" -> {
+
+            }
             case "prepareTurn" -> {
                 //we only set this messaging on the first instance that we are told our turn is ready
                 waiting = false;
@@ -537,7 +571,7 @@ public class Battleship implements GameClient, Tickable {
 
 
     /**
-     * This client will constantly tick at some interval. If we're in the waiting state (e.g waiting for another
+     * This client will constantly tick at some interval. If we're in the waiting state (e.g. waiting for another
      * player to take their turn), we will ask the server for updates in order to get any messages or info about the
      * players turn, and also to be notified when it is now our turn.
      *
