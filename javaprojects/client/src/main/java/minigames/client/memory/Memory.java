@@ -366,6 +366,17 @@ public class Memory implements GameClient, ActionListener {
             } else {
                 timeElapsed[1]--;
             }
+            if (matchesCounter == 9) {
+                timer.stop();
+                JOptionPane.showMessageDialog(null, String.format("You have matched all the pairs!\nFinal Score: %d/9 :D\nPress 'OK' to return to the main game menu.", matchesCounter), "Return to Main Menu", JOptionPane.INFORMATION_MESSAGE);
+                resetTimer();
+                resetScore();
+                matchesCounter = 0;
+                gameStarted = false;
+                sendCommand("resetToCardBacks");
+                closeGame();
+                mnClient.runMainMenuSequence();
+            }
             updateStopwatch();
         }
     }
@@ -496,9 +507,6 @@ public class Memory implements GameClient, ActionListener {
         // Add our components to the north, south, east, west, or centre of the main
         // window's BorderLayout
         mnClient.getMainWindow().addCenter(GUI);
-
-        animator = mnClient.getAnimator();
-        animator.requestTick(this);
 
         // Don't forget to call pack - it triggers the window to resize and repaint
         // itself
