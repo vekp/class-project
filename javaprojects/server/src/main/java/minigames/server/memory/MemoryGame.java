@@ -84,6 +84,7 @@ public class MemoryGame {
     public boolean check(int cardIndex) {
         if(solvedCards[cardIndex] == true){
             System.out.println("You have already solved this card!");
+            achievementHandler.unlockAchievement(playerName, DOUBLE_FLIPPER.toString());
             return false;
         }
         if(previousCardIndex == cardIndex){
@@ -98,10 +99,12 @@ public class MemoryGame {
                 solvedCards[cardIndex] = true;
                 solvedCards[previousCardIndex] = true;
                 previousCardIndex = -1;
+                achievementHandler.unlockAchievement(playerName, CARD_MATCHER.toString());
                 return true;
             } else {
                 previousCardIndex = -1;
                 System.out.println("These cards do not match");
+                achievementHandler.unlockAchievement(playerName, CARD_FLIPPER.toString());
                 return false;
             }
         } else {
@@ -162,7 +165,7 @@ public class MemoryGame {
                 result.put("command", "Flip_Card_1");
                 result.put("update", "true");
                 renderingCommands.add(result);
-                
+
 
                 // System.out.println(playingCards[0].getValue() + " of " + playingCards[0].getSuit());
             }
