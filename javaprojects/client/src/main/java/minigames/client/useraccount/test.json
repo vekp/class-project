@@ -110,8 +110,19 @@
         {
             "timestamp": "Mon Sep 18 19:19:01 AEST 2023",
             "id": "5e579e2e-30c0-48c1-a434-31db164a74d7",
-            "isActive": true,
+            "isActive": false,
             "games": []
+        },
+        {
+            "timestamp": "Mon Sep 18 20:17:54 AEST 2023",
+            "id": "6c5faf08-42c9-4154-974d-660f998137db",
+            "isActive": true,
+            "games": [
+                {
+                    "name": "gameName",
+                    "score": "score or any random value"
+                }
+            ]
         }
     ]
 }

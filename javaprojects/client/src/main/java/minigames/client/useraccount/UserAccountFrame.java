@@ -68,8 +68,8 @@ public class UserAccountFrame extends JFrame implements ActionListener {
                         userClient.login(username);                        
                         String path = "src/main/java/minigames/client/useraccount/" + username + ".json";
                         File file = new File(path);
-                        Future<String> userFromServer = userClient.userNameGet();
-                        if(file.exists()){                                
+                        if(file.exists()){
+                                Future<String> userFromServer = userClient.userNameGet();
                                 userFromServer.onSuccess(userFromServerResult -> {
                                         FileHandler user = new FileHandler(userFromServerResult);
                                         System.out.println("Server user is: " + userFromServerResult);
@@ -77,8 +77,9 @@ public class UserAccountFrame extends JFrame implements ActionListener {
                                         user.addGame("gameName", "score or any random value");
                                     }).onFailure(error -> {
                                         System.err.println("An error occurred: " + error.getMessage());
-           
+                                    });                                                                  
                         }else{
+                                FileHandler user = new FileHandler(username);
                                 user.generateUser(emailInput, pinInput);                                
                         }                        
                         this.dispose();
