@@ -52,7 +52,7 @@ public final class GameConstants {
     public static final int INFO_TEXT_WIDTH = 500;
     public static final int INFO_TEXT_HEIGHT = 200;
     public static final int INFO_TEXT_Y = 250;
-    public static final String GAME_RULES_TITLE = "Game Rules";
+    public static final String GAME_RULES_TITLE = "Help Menu";
     public static final String ABOUT_ME_TITLE = "About";
     public static final String[] GAME_RULES_MESSAGES = {
             "Navigate the maze with arrow keys and lead the snake on an exciting adventure! Feast on delicious fruits to grow and boost your score!",
