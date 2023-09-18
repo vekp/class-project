@@ -99,7 +99,7 @@ public class MinigameNetworkClientWindow {
         nameField = new JTextField(20);
         nameField.setText("Algernon");
 
-        frame.setLocationRelativeTo(null);
+
 
     }
 
@@ -160,6 +160,7 @@ public class MinigameNetworkClientWindow {
     public void pack() {
         frame.pack();
         parent.repaint();
+        frame.setLocationRelativeTo(null);
     }
 
     /**
