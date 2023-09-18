@@ -19,14 +19,13 @@ public class SurveyDatabaseHandler {
     // Saves jsonData object to feedback.json file
     public void saveToSurveyDatabase(JsonObject jsonData) {
         JSONObject feedbackObject = new JSONObject();
-        feedbackObject.put("user_id", jsonData.getLong("user_id")); // Replace with real user ID
+        feedbackObject.put("game_id", jsonData.getLong("game_id")); // Replace with real user ID
         feedbackObject.put("timestamp", getCurrentTimestamp());
         feedbackObject.put("feedback_text", jsonData.getString("feedback_text"));
         feedbackObject.put("ui_rating", jsonData.getString("ui_rating"));
         feedbackObject.put("enjoyment_rating", jsonData.getString("enjoyment_rating"));
         feedbackObject.put("functionality_rating", jsonData.getString("functionality_rating"));
         feedbackObject.put("difficulty_rating", jsonData.getString("difficulty_rating"));
-        feedbackObject.put("overall_rating", jsonData.getString("overall_rating"));
 
         // Read existing JSON data from the file 
         readExistingFeedbackData();
