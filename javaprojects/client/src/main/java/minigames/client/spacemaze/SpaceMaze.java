@@ -740,40 +740,21 @@ public class SpaceMaze implements GameClient {
         highScorePanel = new JPanel();
         highScorePanel.setLayout(new GridBagLayout());
         highScorePanel.setPreferredSize(new Dimension(600, 600));
-        highScorePanel.setBackground(Color.YELLOW);
+        highScorePanel.setBackground(Color.BLACK);
+        highScorePanel.setBorder(whiteBorder);
 
-        highScoreLabel = new JLabel("High Score:", SwingConstants.CENTER);
+        highScoreLabel = new JLabel("Feature Discarded!", SwingConstants.CENTER);
         highScoreLabel.setPreferredSize(new Dimension(600, 200));
         highScoreLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         customFont = customFont.deriveFont(20f);
         highScoreLabel.setFont(customFont);
-        highScoreLabel.setForeground(Color.BLACK);
+        highScoreLabel.setForeground(Color.WHITE);
         
-        gbc.insets = new Insets(-200, 20, 0, 0);
+        gbc.insets = new Insets(100, 20, 0, 0);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
         gbc.gridy = 0;
         highScorePanel.add(highScoreLabel, gbc);
-        
-        playerColumn = new JLabel("Player Name");
-        customFont = customFont.deriveFont(10f);
-        playerColumn.setFont(customFont);
-        playerColumn.setForeground(Color.BLACK);
-
-        gbc.insets = new Insets(20, 20, 0, 0);
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        highScorePanel.add(playerColumn, gbc);
-
-        scoreColumn= new JLabel("Score");
-        customFont = customFont.deriveFont(10f);
-        scoreColumn.setFont(customFont);
-        scoreColumn.setForeground(Color.BLACK);
-
-        gbc.insets = new Insets(20, 20, 0, 0);
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        highScorePanel.add(scoreColumn, gbc);
 
         backFromHighScoreButton = new JButton("Back");
         gbc.insets = new Insets(70, 20, 0, 0);
