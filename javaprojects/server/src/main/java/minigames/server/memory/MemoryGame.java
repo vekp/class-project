@@ -1,5 +1,6 @@
 package minigames.server.memory;
 
+import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import java.util.*;
 
@@ -45,13 +46,16 @@ public class MemoryGame {
         this.playerName = playerName;
         this.achievementHandler = new AchievementHandler(MemoryServer.class);
 
-        /** Achievement handler for this game */
         // Unlock TEST_THAT_MEMORY achievement for starting a new game
         achievementHandler.unlockAchievement(playerName, TEST_THAT_MEMORY.toString());
 
         this.playingCards = new DeckOfCards(18, true).getCards();
         ShufflingFramework.shuffle(playingCards);
     }
+
+    /** Achievement handler for this game */
+    // Code snippet from AchievementHandler.java
+    // private static final
 
     // Players
     HashMap<String, MemoryPlayer> players = new HashMap<>();

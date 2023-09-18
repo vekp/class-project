@@ -8,7 +8,9 @@ import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
+import minigames.client.Tickable;
 import minigames.client.Animator;
+
 import minigames.common.memory.DeckOfCards.*;
 
 import java.awt.*;
@@ -27,7 +29,7 @@ import javax.swing.Timer;
  * @author Melinda Luo, Lyam Talbot, Scott Lehmann, William Koller
  *         Memory Card Game
  */
-public class Memory implements GameClient, ActionListener {
+public class Memory implements GameClient, ActionListener, Tickable { // , MouseListener {
 
     // Client instance
     MinigameNetworkClient mnClient;
@@ -55,7 +57,8 @@ public class Memory implements GameClient, ActionListener {
     int btnContainerWidth;
     int btnContainerHeight;
 
-    ImageIcon cardBackImage = new ImageIcon(getClass().getResource("/memory/images/playing_cards/back/card_back_black.png"));
+    ImageIcon cardBackImage = new ImageIcon(
+            getClass().getResource("/memory/images/playing_cards/back/card_back_black.png"));
     ImageIcon[] cardFrontImages = new ImageIcon[18];
 
     // Game variable
@@ -83,6 +86,7 @@ public class Memory implements GameClient, ActionListener {
 
     public void MemoryGUI() {
         margin = BorderFactory.createEmptyBorder(10, 10, 10, 10);
+
         setPlayerPanelDisplay();
         setGameOptionsPanelDisplay();
         setButtonPanelDisplay();
@@ -128,40 +132,89 @@ public class Memory implements GameClient, ActionListener {
         playerName.setFont(new Font("Arial", Font.BOLD, 14));
         playerName.setHorizontalAlignment(JLabel.CENTER);
 
+        /*
+        difficulty = new JLabel("Difficulty: NEED TO FIX");
+        difficulty.setFont(new Font("Arial", Font.BOLD, 14));
+        difficulty.setHorizontalAlignment(JLabel.CENTER);
+        */
+
         matches = new JLabel("Pairs Matched: " + matchesCounter + "/9");
         matches.setFont(new Font("Arial", Font.BOLD, 14));
         matches.setHorizontalAlignment(JLabel.CENTER);
 
+        // stopwatch = new JLabel("Time: NEED TO FIX");
         stopwatch = new JLabel(String.format("Time: %02d:%02d", timeElapsed[0], timeElapsed[1])); // Text for Timer
         stopwatch.setFont(new Font("Arial", Font.BOLD, 14));
         stopwatch.setHorizontalAlignment(JLabel.CENTER);
 
         // Add the player information to the player panel
         playerPanel.add(playerName);
+        //playerPanel.add(difficulty);
         playerPanel.add(matches);
         playerPanel.add(stopwatch);
+
+        /*
+         * // ADDED BACK IN FOR POSSIBLE USE LATER
+         * 
+         * // TODO - wonky implementation. Needs more time in the oven.
+         * // Update rows and columns based on the selected difficulty
+         * // Listen for changes based on users selected difficulty to update the
+         * cardGridPanel
+         * difficultyComboBox.addActionListener((ActionEvent e) -> {
+         * // Get the selected difficulty from the JComboBox
+         * String selectedDifficulty = (String) difficultyComboBox.getSelectedItem();
+         * // Update rows and columns based on the selected difficulty
+         * switch (Objects.requireNonNull(selectedDifficulty)) {
+         * case "Easy" -> {
+         * rows = 3;
+         * columns = 4;
+         * }
+         * case "Medium" -> {
+         * rows = 4;
+         * columns = 4;
+         * }
+         * case "Hard" -> {
+         * rows = 5;
+         * columns = 4;
+         * }
+         * }
+         */
     }
 
     private void setGameOptionsPanelDisplay() {
-        // Create game options panel which hosts achievements, restart level, and exit buttons
+        // Create the game options panel which hosts new game, restart level, and exit
+        // buttons
         gameOptionsPanel = new JPanel();
         gameOptionsPanel.setLayout(new GridLayout(1, 5));
+
+        /*
+        newGameButton = new JButton("New Game");
+        newGameButton.setFont(new Font("Arial", Font.BOLD, 16));
+        */
+
+        restartLevelButton = new JButton("Restart Level");
+        restartLevelButton.setFont(new Font("Arial", Font.BOLD, 16));
+
+        exitButton = new JButton("Exit");
+        exitButton.setFont(new Font("Arial", Font.BOLD, 16));
+        //exitButton.addActionListener(e -> mnClient.runMainMenuSequence());
+
+        // Create a JComboBox to select difficulty level. This updates the
+        // cardGridPanel.
+        // JComboBox<String> difficultyComboBox = new JComboBox<>(new String[]{"Easy",
+        // "Medium", "Hard"});
+        // difficultyComboBox.setFont(new Font("Arial", Font.BOLD, 16));
+        // difficultyComboBox.setSelectedItem("Medium");
 
         // Create achievements button that talks to the API
         achievementsButton = new JButton("Achievements");
         achievementsButton.setFont(new Font("Arial", Font.BOLD, 16));
         achievementsButton.addActionListener(e -> mnClient.getGameAchievements(player, gm.gameServer()));
 
-        // Restart level button
-        restartLevelButton = new JButton("Restart Level");
-        restartLevelButton.setFont(new Font("Arial", Font.BOLD, 16));
-
-        // Exit button
-        exitButton = new JButton("Exit");
-        exitButton.setFont(new Font("Arial", Font.BOLD, 16));
-
         // Add game options to gameOptionsPanel
+        // gameOptionsPanel.add(difficultyComboBox);
         gameOptionsPanel.add(achievementsButton);
+        //gameOptionsPanel.add(newGameButton);
         gameOptionsPanel.add(restartLevelButton);
         gameOptionsPanel.add(exitButton);
     }
@@ -305,6 +358,27 @@ public class Memory implements GameClient, ActionListener {
             }
         });
 
+        /*
+         * btn1.addActionListener((evt) -> sendCommand("Flip_Card_1"));
+         * btn2.addActionListener((evt) -> sendCommand("Flip_Card_2"));
+         * btn3.addActionListener((evt) -> sendCommand("Flip_Card_3"));
+         * btn4.addActionListener((evt) -> sendCommand("Flip_Card_4"));
+         * btn5.addActionListener((evt) -> sendCommand("Flip_Card_5"));
+         * btn6.addActionListener((evt) -> sendCommand("Flip_Card_6"));
+         * btn7.addActionListener((evt) -> sendCommand("Flip_Card_7"));
+         * btn8.addActionListener((evt) -> sendCommand("Flip_Card_8"));
+         * btn9.addActionListener((evt) -> sendCommand("Flip_Card_9"));
+         * btn10.addActionListener((evt) -> sendCommand("Flip_Card_10"));
+         * btn11.addActionListener((evt) -> sendCommand("Flip_Card_11"));
+         * btn12.addActionListener((evt) -> sendCommand("Flip_Card_12"));
+         * btn13.addActionListener((evt) -> sendCommand("Flip_Card_13"));
+         * btn14.addActionListener((evt) -> sendCommand("Flip_Card_14"));
+         * btn15.addActionListener((evt) -> sendCommand("Flip_Card_15"));
+         * btn16.addActionListener((evt) -> sendCommand("Flip_Card_16"));
+         * btn17.addActionListener((evt) -> sendCommand("Flip_Card_17"));
+         * btn18.addActionListener((evt) -> sendCommand("Flip_Card_18"));
+         */
+
         buttonPanel.add(btn1);
         buttonPanel.add(btn2);
         buttonPanel.add(btn3);
@@ -326,18 +400,18 @@ public class Memory implements GameClient, ActionListener {
     }
 
     /**
-     * A method to resize the ImageIcon's image and return the resized ImageIcon
+     * a method to resize the ImageIcon's image and return the resized ImageIcon
      * 
-     * @param originalImageIcon The original ImageIcon to be resized
-     * @param targetWidth       Required width of the resized ImageIcon (cannot be
+     * @param originalImageIcon the original ImageIcon to be resized
+     * @param targetWidth       required width of the resized ImageIcon (cannot be
      *                          0. If value is negative, then a value is
      *                          substituted to maintain the aspect ratio of the
      *                          original image dimensions)
-     * @param targetHeight      Required height of the resized ImageIcon (cannot be
+     * @param targetHeight      required height of the resized ImageIcon (cannot be
      *                          0. If value is negative, then a value is
      *                          * substituted to maintain the aspect ratio of the
      *                          original image dimensions)
-     * @return Resized ImageIcon
+     * @return resized ImageIcon
      */
     public ImageIcon resizeImageIcon(ImageIcon originalImageIcon, int targetWidth, int targetHeight) {
         Image resizedImage = originalImageIcon.getImage().getScaledInstance(targetWidth, targetHeight,
@@ -350,7 +424,22 @@ public class Memory implements GameClient, ActionListener {
         JButton button = (JButton) e.getSource();
     }
 
-    // TimerListener implementing ActionListener - Define stopwatch timer countdown & call method to update stopwatch
+    // THIS METHOD CURRENTLY NOT IN USE - MAY NEED IT LATER FOR THE TIMER OR
+    // MULTIPLAYER??....
+    /** a variable called every tick that probes the server for the current state */
+    @Override
+    public void tick(Animator al, long now, long delta) {
+        if (now - last > interval) {
+            sendCommand("Update");
+            last = now;
+        }
+        al.requestTick(this);
+    }
+
+    // FIX - How to revert back to original (e.g. 1 minute) once Game Over message
+    // pops up and player clicks "OK"?
+    // TimerListener implementing ActionListener - Define timer countdown & call
+    // method to update stopwatch
     public class TimerListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -375,29 +464,27 @@ public class Memory implements GameClient, ActionListener {
         stopwatch.setText(String.format("Time: %02d:%02d", timeElapsed[0], timeElapsed[1]));
     }
 
-    // Method to reset stopwatch timer back to original time
     public void resetTimer() {
         timeElapsed[0] = 1; // Set minutes to 1
         timeElapsed[1] = 30; // Set seconds to 30
         updateStopwatch(); // Update the display
     }
 
-    // Reset score (pairs matched) back to 0/9
     private void resetScore() {
         matches.setText("Pairs Matched: 0/9");
     }
 
-    // Method to start the stopwatch timer
     public void startTimer() {
         timer = new Timer(1000, new TimerListener());
         timer.start();
         gameStarted = true;
     }
 
-    // Update score (pairs matched) depending on current game progress
     public void updateScore() {
+        // matches = new JLabel("Pairs Matched: " + matchesCounter + "/9");
         matchesCounter++;
         matches.setText(String.format("Pairs Matched: %d/9", matchesCounter));
+        // matches.revalidate();
     }
 
     // Run
@@ -409,11 +496,46 @@ public class Memory implements GameClient, ActionListener {
         });
     }
 
-    // Reset card ImageIcon to card back image
+    // THIS METHOD CURRENTLY NOT IN USE - MAY NEED IT LATER....
+    public ImageIcon isFlipped(boolean flipped) {
+        if (flipped) {
+            return new ImageIcon(getClass().getResource("/memory/images/playing_cards/front/_2_of_clubs.png"));
+        } else {
+            return cardBackImage;
+        }
+    }
+
+    // public void resetCards() {
+    //     ImageIcon image = resizeImageIcon(cardBackImage, -1, btnContainerHeight / rows - 5);
+    //     btn1.setIcon(image);
+    //     btn2.setIcon(image);
+    //     btn3.setIcon(image);
+    //     btn4.setIcon(image);
+    //     btn5.setIcon(image);
+    //     btn6.setIcon(image);
+    //     btn7.setIcon(image);
+    //     btn8.setIcon(image);
+    //     btn9.setIcon(image);
+    //     btn10.setIcon(image);
+    //     btn11.setIcon(image);
+    //     btn12.setIcon(image);
+    //     btn13.setIcon(image);
+    //     btn14.setIcon(image);
+    //     btn15.setIcon(image);
+    //     btn16.setIcon(image);
+    //     btn17.setIcon(image);
+    //     btn18.setIcon(image);
+    // }
+
+
+
+
+
     public void resetCards(boolean[] solvedCards) {
         JButton[] cardButtons = {btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9, btn10, btn11, btn12, btn13, btn14, btn15, btn16,
         btn17, btn18};
         ImageIcon image = resizeImageIcon(cardBackImage, -1, btnContainerHeight / rows - 5);
+        // btn1.setIcon(image);
         for(int i = 0; i < cardButtons.length; i++){
             if(solvedCards[i] == false){
                 cardButtons[i].setIcon(image);
@@ -421,8 +543,9 @@ public class Memory implements GameClient, ActionListener {
         }
     }
 
-    // Card names to string
+
     public String parseCardString(String cardString) {
+
         StringBuilder cardName = new StringBuilder();
         String[] card = new String[2];
         String[] cardAsArray = cardString.replaceAll(" ", "").replace("{", "").replace("}", "").split(",");
@@ -450,7 +573,6 @@ public class Memory implements GameClient, ActionListener {
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
     }
 
-    // Send command method
     public void sendCommand(JsonObject command) {
         if (exiting)
             return;
@@ -470,8 +592,19 @@ public class Memory implements GameClient, ActionListener {
 
         // Update Player Name
         playerName.setText("Player: " + player);
+        // Exit button to return to main game menu - Working
 
-        // Restart level button + ActionListener to include changes/updates on click
+        /*
+        newGameButton.addActionListener(e -> {
+            timer.stop();
+            resetTimer();
+            sendCommand("resetToCardBacks");
+            sendCommand("newGame");
+            gameStarted = false;
+            newGame = true;
+        });
+        */
+
         restartLevelButton.addActionListener(e -> {
             timer.stop();
             resetTimer();
@@ -480,7 +613,6 @@ public class Memory implements GameClient, ActionListener {
             gameStarted = false;
         });
 
-        // Exit button + ActionListener to include changes/updates on click
         exitButton.addActionListener(e -> {
             if (gameStarted == true) {
                 timer.stop();
@@ -500,19 +632,30 @@ public class Memory implements GameClient, ActionListener {
         animator = mnClient.getAnimator();
         animator.requestTick(this);
 
+        // FIX - Ask player which level difficulty they want to try before this pops up?
+        // Set popup message to ask if player wants to start game: YES or NO
+
+        /*
+         * int choice = JOptionPane.showConfirmDialog(null, "Start the game?",
+         * "Memory Card Game", JOptionPane.YES_NO_OPTION);
+         * if (choice == JOptionPane.YES_OPTION) {
+         * // On selection of YES - Timer for stopwatch starts countdown
+         * timer = new Timer(1000, new TimerListener());
+         * timer.start();
+         * }
+         */
+
         // Don't forget to call pack - it triggers the window to resize and repaint
         // itself
         mnClient.getMainWindow().pack();
     }
 
-    // Print cards array
     public void printArray(PlayingCard[] cards) {
         for (int i = 0; i < cards.length; i++) {
             System.out.println(cards[i].getValue() + " of " + cards[i].getSuit() + "\n");
         }
     }
 
-    // Return boolean array for solved cards
     public boolean[] parseBooleanArray(JsonArray array){
         boolean[] solvedCards = new boolean[18];
         for(int i = 0; i < array.size(); i++){
@@ -607,6 +750,8 @@ public class Memory implements GameClient, ActionListener {
                 btn18.setIcon(resizeImageIcon(cardFrontImages[17], -1, btnContainerHeight / rows - 5));
             }
             case "resetCards" -> {
+                // boolean[] solvedCards = (boolean[]) command.getJsonArray("solved");
+                // System.out.println(command.getJsonArray("solved"));
                 try{
                     Thread.sleep(1000);
                 } catch (InterruptedException e){
@@ -614,6 +759,25 @@ public class Memory implements GameClient, ActionListener {
                 }
                 boolean[] solvedCards = parseBooleanArray(command.getJsonArray("solved"));
                 resetCards(solvedCards);
+                // ImageIcon image = resizeImageIcon(cardBackImage, -1, btnContainerHeight / rows - 5);
+                // btn1.setIcon(image);
+                // btn2.setIcon(image);
+                // btn3.setIcon(image);
+                // btn4.setIcon(image);
+                // btn5.setIcon(image);
+                // btn6.setIcon(image);
+                // btn7.setIcon(image);
+                // btn8.setIcon(image);
+                // btn9.setIcon(image);
+                // btn10.setIcon(image);
+                // btn11.setIcon(image);
+                // btn12.setIcon(image);
+                // btn13.setIcon(image);
+                // btn14.setIcon(image);
+                // btn15.setIcon(image);
+                // btn16.setIcon(image);
+                // btn17.setIcon(image);
+                // btn18.setIcon(image);
             }
             case "resetToCardBacks" -> {
                 ImageIcon image = resizeImageIcon(cardBackImage, -1, btnContainerHeight / rows - 5);
@@ -638,6 +802,108 @@ public class Memory implements GameClient, ActionListener {
             }
         }
     }
+
+    /**
+     * Invoked when an action occurs.
+     *
+     * @param e the event to be processed
+     */
+
+    /*
+     * @Override
+     * public void actionPerformed(ActionEvent e) {
+     * 
+     * if (e.getSource() == newGameButton) {
+     * //TODO
+     * mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player,
+     * Collections.singletonList(new JsonObject().put("command", "newGame"))));
+     * System.out.println("New game started");
+     * }
+     * if (e.getSource() == restartLevelButton) {
+     * //TODO
+     * mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player,
+     * Collections.singletonList(new JsonObject().put("command", "restartLevel"))));
+     * System.out.println("Level Restarted...");
+     * }
+     * if (e.getSource() == exitButton) {
+     * //TODO
+     * closeGame();
+     * System.out.println("Testing...");
+     * }
+     * 
+     * }
+     */
+
+    /**
+     * Invoked when the mouse button has been clicked (pressed
+     * and released) on a component.
+     *
+     * @param e the event to be processed
+     */
+    // @Override
+    // public void mouseClicked(MouseEvent e) {
+
+    // }
+
+    /**
+     * Invoked when a mouse button has been pressed on a component.
+     *
+     * @param e the event to be processed
+     */
+    // @Override
+    // public void mousePressed(MouseEvent e) {
+
+    // }
+
+    /**
+     * Invoked when a mouse button has been released on a component.
+     *
+     * @param e the event to be processed
+     */
+    // @Override
+    // public void mouseReleased(MouseEvent e) {
+
+    // }
+
+    /**
+     * Invoked when the mouse enters a component.
+     *
+     * @param e the event to be processed
+     */
+    // @Override
+    // public void mouseEntered(MouseEvent e) {
+
+    // }
+
+    /**
+     * Invoked when the mouse exits a component.
+     *
+     * @param e the event to be processed
+     */
+    // @Override
+    // public void mouseExited(MouseEvent e) {
+
+    // }
+    /**
+     * a method to resize the ImageIcon's image and return the resized ImageIcon
+     * 
+     * @param originalImageIcon the original ImageIcon to be resized
+     * @param targetWidth       required width of the resized ImageIcon (cannot be
+     *                          0. If value is negative, then a value is
+     *                          substituted to maintain the aspect ratio of the
+     *                          original image dimensions)
+     * @param targetHeight      required height of the resized ImageIcon (cannot be
+     *                          0. If value is negative, then a value is
+     *                          * substituted to maintain the aspect ratio of the
+     *                          original image dimensions)
+     * @return resized ImageIcon
+     */
+    // public ImageIcon resizeImageIcon(ImageIcon originalImageIcon, int
+    // targetWidth, int targetHeight){
+    // Image resizedImage =
+    // originalImageIcon.getImage().getScaledInstance(targetWidth,targetHeight,Image.SCALE_SMOOTH);
+    // return new ImageIcon(resizedImage);
+    // }
 
     @Override
     public void closeGame() {
