@@ -158,8 +158,6 @@ public class Telepathy implements GameClient, Tickable{
             telepathyNotificationManager.dismissCurrentNotification();
             clearButtonBackgrounds();
             enableButtonGrid();
-            setButtonColour(this.player1Turn, Color.RED);
-            setButtonColour(this.player2Turn, Color.RED);
             sendCommand(TelepathyCommands.QUIT);
         });
         this.componentList.put("backButton", backButton);
@@ -623,6 +621,13 @@ public class Telepathy implements GameClient, Tickable{
         button.setFocusPainted(true);
     }
 
+     /**
+     * a method that resets the player turn button colours to default red
+     */
+     public void resetTurnButtons(){
+        setButtonColour(this.player1Turn, Color.RED);
+        setButtonColour(this.player2Turn, Color.RED);
+     }
 
 
 
@@ -666,7 +671,6 @@ public class Telepathy implements GameClient, Tickable{
         return lobby;
 
     }
-
 
 
     /**
@@ -757,6 +761,7 @@ public class Telepathy implements GameClient, Tickable{
         // First attribute is the identifier for popup
         if (popups.get(0).equals("welcomeMessage")) {
             activateWelcomeMessage();
+            resetTurnButtons();
             this.serverState = State.INITIALISE;
         }
         
@@ -842,6 +847,8 @@ public class Telepathy implements GameClient, Tickable{
                     if (this.serverState == State.RUNNING){
                         setButtonColour(this.player2Turn, Color.GREEN);
                         setButtonColour(this.player1Turn, Color.RED);
+                    }else{
+                        resetTurnButtons();
                     }
                    
                 } else if(attributes.get(1).equals("enableAll")){
@@ -849,6 +856,8 @@ public class Telepathy implements GameClient, Tickable{
                     if (this.serverState == State.RUNNING){
                         setButtonColour(this.player1Turn, Color.GREEN);
                         setButtonColour(this.player2Turn, Color.RED);
+                    }else{
+                        resetTurnButtons();
                     }
                     
                 }
