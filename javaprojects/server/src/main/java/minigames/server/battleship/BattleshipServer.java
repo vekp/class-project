@@ -116,8 +116,7 @@ public class BattleshipServer implements GameServer {
         return games.keySet().stream().map((name) -> {
             if (games.get(name).getPlayerNames().length == 2 && !games.get(name).getPlayerNames()[1].equals("Computer")) {
                 return new GameMetadata("Battleship", name, games.get(name).getPlayerNames(), false);
-            }if (games.get(name).getPlayerNames().length == 0) {
-//                games.remove(games.get(name).gameName);
+            }if (games.get(name).getPlayerNames().length < 2) {
                 return new GameMetadata("Battleship", name, games.get(name).getPlayerNames(), false);
             }
             return new GameMetadata("Battleship", name, games.get(name).getPlayerNames(), true);
