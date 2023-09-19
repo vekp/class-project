@@ -32,6 +32,7 @@ import minigames.telepathy.TelepathyCommandHandler;
 import minigames.telepathy.TelepathyCommands;
 import minigames.telepathy.Symbols;
 import minigames.telepathy.Colours;
+import minigames.telepathy.Tile;
 
 import minigames.telepathy.State;
 
@@ -47,7 +48,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
+import java.sql.Array;
 import java.awt.Point;
 
 
@@ -113,6 +114,10 @@ public class Telepathy implements GameClient, Tickable{
     private State serverState;
     private HashMap<String, JComponent> componentList; // Maintains references to swing elements that need to be modified 
     
+    // Guesses and eliminated rows/columns
+    HashSet<Integer> eliminatedColumns;
+    HashSet<Integer> eliminatedRows;
+    HashSet<Tile> guessedTiles;
 
     /**
      * A Telepathy board UI, a 9 x 9 2D array of Jbuttons with coordinates around the 
@@ -122,6 +127,10 @@ public class Telepathy implements GameClient, Tickable{
         this.ticking = true;
         this.last = System.nanoTime();
         this.serverState = null;
+
+        this.eliminatedColumns =  new HashSet<>();
+        this.eliminatedRows = new HashSet<>();
+        this.guessedTiles = new HashSet<>();
 
         this.componentList = new HashMap<>();
         this.buttonGrid = new JButton[COLS][ROWS];
@@ -298,9 +307,9 @@ public class Telepathy implements GameClient, Tickable{
 
         for (int row = 0; row < this.buttonGrid.length; row++) {
             for (int col = 0; col < this.buttonGrid[row].length; col++) {
-                this.buttonGrid[col][row].setEnabled(true);
-              
-                
+                if(!this.eliminatedRows.contains(row) && !this.eliminatedColumns.contains(col)){
+                    this.buttonGrid[col][row].setEnabled(true);
+                }
             }
         }
 
@@ -471,11 +480,19 @@ public class Telepathy implements GameClient, Tickable{
      * @param winLose: String received from the server with the name of the winner
      *  of this game of Telepathy.
      */
-    private void activateGameOverMessage(String winLose) {
+    private void activateGameOverMessage(String gameOverText, String gameWinner) {
+        
+        String winLose = "";
+        if(gameWinner.equals(this.player)){
+            winLose = "You win!";
+        } else{
+            winLose = "You lose!";
+        }
+        
         JPanel gameOverPanel = makeMessagePopup(
             "Game Over",
             winLose, 
-                "Thanks for playing!");
+                gameOverText + "\nThanks for playing!");
         telepathyNotificationManager.showMessageDialog("Telepathy", gameOverPanel);
     }
 
@@ -516,7 +533,7 @@ public class Telepathy implements GameClient, Tickable{
         // Define actions to take when player presses yes/no buttons
         ActionListener yesListener = e -> {
             sendCommand(TelepathyCommands.CHOOSETILE, Integer.toString(this.xCoord), Integer.toString(this.yCoord));
-            setButtonBorder(this.buttonGrid[this.xCoord][this.yCoord], Color.BLUE);
+            setButtonBorder(this.buttonGrid[this.xCoord][this.yCoord], new Color(232,224,31,255));
             telepathyNotificationManager.dismissCurrentNotification();
         };
 
@@ -699,6 +716,12 @@ public class Telepathy implements GameClient, Tickable{
         this.player = player;
         this.ticking = true;
 
+        // Reset tiles for new game
+        this.guessedTiles = new HashSet<>();
+        this.eliminatedColumns = new HashSet<>();
+        this.eliminatedRows = new HashSet<>();
+
+
         telepathyNotificationManager = mnClient.getDialogManager();
 
         // Add our components to the north, south, east, west, or centre of the main window's BorderLayout
@@ -746,8 +769,58 @@ public class Telepathy implements GameClient, Tickable{
             case POPUP -> handlePopupCommand(jsonCommand);
             case GAMEOVER -> sendCommand(TelepathyCommands.QUIT);
             case BUTTONUPDATE -> updateButton(jsonCommand);
+            case ELIMINATETILES -> handleNoResonse(jsonCommand);
+            case PARTIALMATCH -> handleYesResponse(jsonCommand);
             default -> logger.info("{} not handled", jsonCommand);
         }
+    }
+
+    /**
+     * Handle a no response from the server after asking a question. When the
+     * question tile does not match the target at all, eliminate the row/column
+     * on the board and the colour and symbol on the side panel.
+     * 
+     * @param jsonCommand: The command received with an ELIMINATETILES command.
+     *  should contain X and Y coordinates and Colour/Symbol to eliminate.
+     */
+    private void handleNoResonse(JsonObject jsonCommand){
+        ArrayList<String> attributes  = TelepathyCommandHandler.getAttributes(jsonCommand);
+        
+        int xElim = Integer.parseInt(attributes.get(0));
+        int yElim = Integer.parseInt(attributes.get(1));
+
+        //TODO: add colours/symbols to eliminated sets
+        String cElim = attributes.get(2);
+        String sElim = attributes.get(3); 
+
+        setButtonBorder(buttonGrid[xElim][yElim], Color.RED);
+
+        this.eliminatedColumns.add(xElim);
+        this.eliminatedRows.add(yElim);
+    
+    }
+
+    /**
+     * Handle a yes response from the server after asking a question. If at least
+     * one attribute of the guessed Tile has a match with the target tile add the
+     * guessed Tile to the list and set their border to green.
+     * @param jsonCommand: The command with Tile attributes of question Tile that 
+     *  has passed a check.
+     */
+    private void handleYesResponse(JsonObject jsonCommand){
+        ArrayList<String> attributes = TelepathyCommandHandler.getAttributes(jsonCommand);
+
+        int x = Integer.parseInt(attributes.get(0));
+        int y = Integer.parseInt(attributes.get(1));
+
+        this.guessedTiles.add(
+            new Tile(
+                x,
+                y,
+                Colours.valueOf(attributes.get(2).toUpperCase()),
+                Symbols.fromString(attributes.get(3))));
+    
+        setButtonBorder(buttonGrid[x][y], Color.GREEN);
     }
 
     /**
@@ -775,10 +848,8 @@ public class Telepathy implements GameClient, Tickable{
             this.serverState = State.RUNNING;
         }
 
-        if(popups.get(0).equals("gameOver")){
-            // TODO: Add winner/loser message based on attributes received
-
-            activateGameOverMessage("Placeholder winner");
+        if(popups.get(0).equals("gameOver")){            
+            activateGameOverMessage(popups.get(1), popups.get(2));
             this.serverState = State.GAMEOVER;
         }
     }

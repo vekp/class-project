@@ -1,14 +1,7 @@
-package minigames.server.telepathytests;
-
-import minigames.server.telepathy.*;
-import minigames.telepathy.Symbols;
-import minigames.telepathy.Colours;
+package minigames.telepathy;
 
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
-
-import org.junit.Ignore;
-
 
 public class TelepathyTileTests{
 
@@ -26,7 +19,6 @@ public class TelepathyTileTests{
     }
 
     @Test
-    @Disabled
     @DisplayName("Test Tile comparison")
     public void testTileComparisons(){
         // Check each field for a full match

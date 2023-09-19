@@ -10,11 +10,11 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import io.vertx.core.json.JsonObject;
 import minigames.telepathy.Colours;
-import minigames.server.telepathy.Player;
+import minigames.telepathy.Tile;
 import minigames.telepathy.Symbols;
 import minigames.telepathy.TelepathyCommandException;
 
-import minigames.server.telepathy.Tile;
+import minigames.server.telepathy.Player;
 
 
 

@@ -1,4 +1,4 @@
-package minigames.server.telepathy;
+package minigames.telepathy;
 
 import minigames.telepathy.Symbols; 
 import minigames.telepathy.Colours;
