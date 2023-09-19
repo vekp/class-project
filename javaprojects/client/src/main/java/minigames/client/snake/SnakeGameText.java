@@ -263,7 +263,6 @@ public class SnakeGameText implements GameClient {
         mnClient.getMainWindow().addSouth(footerPanel);
         // Don't forget to call pack - it triggers the window to resize and repaint itself
         mnClient.getMainWindow().pack();
-        mnClient.getNotificationManager().setMargins(15, 10, 10);
     }
 
     @Override
