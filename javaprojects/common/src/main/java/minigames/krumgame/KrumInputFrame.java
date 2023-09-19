@@ -36,6 +36,8 @@ public class KrumInputFrame {
     public boolean punch;
     public double xpos;
     public double ypos;
+    public boolean playBazookaClick;
+    public boolean playGrenadeClick;
     public KrumInputFrame() {
 
     }

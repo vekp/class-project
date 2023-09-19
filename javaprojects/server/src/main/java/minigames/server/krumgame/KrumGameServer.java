@@ -38,8 +38,10 @@ public class KrumGameServer implements GameServer{
         AchievementHandler achievementHandler = new AchievementHandler(KrumGameServer.class);
         achievementHandler.registerAchievement(new Achievement("Long Range Bazooka", "Score a direct hit with the bazooka from more than 500 pixels away", 25, "", false));
         achievementHandler.registerAchievement(new Achievement("Grenade Direct Hit", "Hurt your opponent with a grenade that never bounced", 25, "", false));
-
-
+        achievementHandler.registerAchievement(new Achievement("Airshot!", "Score a direct hit on an opponent while they're flying through the air", 100, "", true));
+        achievementHandler.registerAchievement(new Achievement("Joey Suicide", "Kill yourself with your own joey", 25, "", false));
+        achievementHandler.registerAchievement(new Achievement("Death Ray", "Kill an opponent with the laser cannon", 25, "", false));
+        achievementHandler.registerAchievement(new Achievement("Tarzan Kill", "Kill an opponent with a projectile you fired while swinging on a rope", 25, "", false));
     }
 
     @Override
