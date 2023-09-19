@@ -1,4 +1,4 @@
-package minigames.server.solitaireOrMemory;
+package minigames.common.memory;
 
 import java.util.Random;
 
