@@ -25,7 +25,7 @@ import javax.swing.Timer;
  * COSC220 Assessment 3
  * 
  * @author Melinda Luo, Lyam Talbot, Scott Lehmann, William Koller
- *         Memory Card Game
+ *         Memory Card Game 
  */
 public class Memory implements GameClient, ActionListener {
 

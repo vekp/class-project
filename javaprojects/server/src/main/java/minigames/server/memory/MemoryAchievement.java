@@ -3,7 +3,7 @@ package minigames.server.memory;
 import minigames.achievements.Achievement;
 
 /**
- * An enum containing all Achievements to be passed to the AchievementHandler for tracking
+ * An enum containing all Achievements to be passed to the AchievementHandler for tracking 
  */
 
 enum MemoryAchievement{

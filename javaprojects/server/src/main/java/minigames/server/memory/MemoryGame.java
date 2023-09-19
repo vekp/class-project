@@ -19,7 +19,7 @@ import static minigames.server.memory.MemoryAchievement.*;
 
 /**
  * Represents an actual Memory game in progress.
- * Used and adapted MuddleGame.java
+ * Used and adapted MuddleGame.java 
  */
 public class MemoryGame {
 

@@ -17,7 +17,7 @@ public class DeckOfCardsTest {
     String[] values = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "JACK", "QUEEN", "KING", "ACE" };
     /**
      * This unit test will test to see if each card in the deck has been constructed as per the constructor.
-     * Are the cards the right values and suits. s
+     * Are the cards the right values and suits.
      */
     @Test
     @DisplayName("Testing deck constructor")

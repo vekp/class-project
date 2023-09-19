@@ -54,7 +54,7 @@ public class ShufflingFrameworkTest {
 
     /**
      * This test is to ensure that when a deck of cards is shuffled that no elements are accidentally discarded.
-     * Every index should contain an instance of PlayingCard
+     * Every index should contain an instance of PlayingCard 
      */
 
     @Test
