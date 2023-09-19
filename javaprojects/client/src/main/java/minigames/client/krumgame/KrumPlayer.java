@@ -62,6 +62,7 @@ public class KrumPlayer {
 
     String spriteDir;
     BufferedImage sprite;
+    BufferedImage aura;
     BufferedImage spriteGun;
     Color primaryColor;
     Color secondaryColor;
@@ -70,6 +71,7 @@ public class KrumPlayer {
     WritableRaster levelRaster; // alpha values of level pixels
 
     BufferedImage[] sprites;
+    BufferedImage[] auras;
 
     boolean firing;
     boolean firingGrenade;
@@ -139,6 +141,9 @@ public class KrumPlayer {
     boolean grenadeNextFrame;
 
     int spriteIndex = 0;
+    int auraIndex = 0;
+
+    int frameCount = 0;
 
     boolean detachRopeNextFrame = false;
     boolean shootRopeNextFrame = false;
@@ -254,9 +259,16 @@ public class KrumPlayer {
             KrumHelpers.readSprite(spriteDir + "90_DOWN_L.png")
         };
 
+        auras = new BufferedImage[]{ 
+            KrumHelpers.readSprite(spriteDir + "aura_1.png"),
+            KrumHelpers.readSprite(spriteDir + "aura_2.png")
+        };
+
         for (BufferedImage i : sprites) {
             i = applyCustomColors(i);
         }
+
+        aura = auras[0];
 
         sprite = sprites[0];
         
@@ -447,8 +459,18 @@ public class KrumPlayer {
         }
 
         //Sprite Drawing   
+
+        frameCount += 1;
+
+        if (true && frameCount >= 20) { //First true to change to level 5 check
+            frameCount = 0;
+            auraIndex += 1;
+            auraIndex = auraIndex % 2;
+            aura = auras[auraIndex];
+        }
         
         if (flashFramesLeft <= 0 || flashFramesLeft % 4 == 0) {
+            g.drawImage(aura, null, (int)xpos, (int)ypos);
             g.drawImage(sprite, null, (int)xpos, (int)ypos);   
             if (!punching) {
                 spriteGun();
