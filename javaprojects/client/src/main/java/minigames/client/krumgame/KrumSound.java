@@ -10,13 +10,8 @@ import java.util.Arrays;
 
 public class KrumSound {
 
-    static String[] soundNames = {"titletune","joeypop","wahwah","applause","intro2","gunclick2", "grenadeclick3","laser1","ow","bazookaexplode","metal", 
-                                  "explode2", "fall","punch","bazooka", "grenadethrow","rope", "transition", "boing2", "rope2", "jump", "joeygiggle", 
-                                  "mini_ouch"};
-    /*  attribution:
-        mini_ouch: adapted from 'ouch.wav' by 'onerasmpz' on freesound.org (https://freesound.org/people/onerasmpz/sounds/371807/), licensed under Creative Commons Attribution 3.0 License (https://creativecommons.org/licenses/by/3.0/)
+    static String[] soundNames = {"titletune","joeypop","wahwah","applause","intro2","gunclick2", "grenadeclick3","laser1","ow","bazookaexplode","metal", "explode2", "fall","punch","bazooka", "grenadethrow","rope", "transition", "boing2", "rope2", "jump", "joeygiggle"};
 
-     */
     static HashMap<String, Clip> sounds;
 
     static int clientIndex;

@@ -2,10 +2,8 @@ package minigames.server;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
-import minigames.server.database.DerbyDatabase;
 import minigames.server.battleship.BattleshipServer;
 import minigames.server.highscore.*;
-import minigames.server.memory.MemoryServer;
 import minigames.server.muddle.MuddleServer;
 import minigames.server.snake.SnakeServer;
 import minigames.server.peggle.PeggleServer;
@@ -50,16 +48,9 @@ public class Main extends AbstractVerticle {
     public static final GameRegistry gameRegistry = new GameRegistry();
 
     /**
-     * Represents the application's (current) primary database, utilising the Derby embedded database system.
-     * This instance provides pooled connections and should be initialised during application startup.
-     * Resources and connections associated with this database will be released during application shutdown.
-     */
-    public static DerbyDatabase derbyDatabase;
-
-    /**
-     * Provides a set of APIs to manage and retrieve high scores from the database.
-     * This instance interacts directly with the DerbyDatabase to execute database operations.
-     * High scores from all game components can be accessed via this API.
+     * HighScoreAPI static reference (INCOMPLETE don't try to use yet)
+     * Provides access to high-score management and retrieval functionalities
+     * for all game components via `Main.highScoreAPI`.
      */
     public static HighScoreAPI highScoreAPI;
 
@@ -70,29 +61,28 @@ public class Main extends AbstractVerticle {
      * window). THIS SHOULD BE REPLACED WITH THE USER PROFILE SYSTEM WHEN READY
      */
     public static Set<String> players = new HashSet<>();
-    public static String activePlayer = "";
+
 
     /**
      * A place for groups to put code that registers their GameServer with the
      * GameRegistry, etc.
      */
     private static void doWiring() {
-        // Initialise the Derby Database singleton.
-        derbyDatabase = DerbyDatabase.getInstance();
-
         // Register our first demo game
         gameRegistry.registerGameServer("Muddle", new MuddleServer());
         gameRegistry.registerGameServer("SpaceMaze", new SpaceMazeServer());
         gameRegistry.registerGameServer("Battleship", new BattleshipServer());
-        gameRegistry.registerGameServer("Memory", new MemoryServer());
         gameRegistry.registerGameServer("Telepathy", new TelepathyServer());
         gameRegistry.registerGameServer("Snake", new SnakeServer());
         gameRegistry.registerGameServer("Peggle", new PeggleServer());
         gameRegistry.registerGameServer("TicTacToe", new TicTacToeServer());
         gameRegistry.registerGameServer("NoughtsAndCrosses", new NoughtsAndCrossesServer());
 
-        // Initialise the HighScoreAPI
-        highScoreAPI = new HighScoreAPI();
+        // Initialize the HighScoreAPI
+        HighScoreStorage highScoreStorage = new StubHighScoreStorage();
+        HighScoreManager highScoreManager = new HighScoreManager(highScoreStorage);
+        GlobalLeaderboard globalLeaderboard = new GlobalLeaderboard(highScoreStorage);
+        highScoreAPI = new HighScoreAPI(highScoreManager, globalLeaderboard);
 
         //adding some dummy/default names to the player list
         players.add("James");
