@@ -44,7 +44,7 @@ public class BasePanel extends JPanel implements MainMenuPanel.PanelSwitcher {
     }
 
     /**
-     * Initializes the UI by adding subpanels to the main panel and configuring the container panel.
+     * Initializes the UI by adding sub panels to the main panel and configuring the container panel.
      */
     private void initUI() {
         mainPanel.add(mainMenuPanel, GameConstants.MAIN_MENU_PANEL);
@@ -74,7 +74,10 @@ public class BasePanel extends JPanel implements MainMenuPanel.PanelSwitcher {
     public void switchToPanel(String panelName) {
         CardLayout cl = (CardLayout) mainPanel.getLayout();
         cl.show(mainPanel, panelName);
+        mainPanel.revalidate();
+        mainPanel.repaint();
     }
+
 
     /**
      * Configures the main window's properties and size.
@@ -106,7 +109,7 @@ public class BasePanel extends JPanel implements MainMenuPanel.PanelSwitcher {
     private String getCurrentPanelName() {
         for (Component component : mainPanel.getComponents()) {
             if (component.isVisible() && component instanceof JComponent) {
-                return ((JComponent) component).getName();
+                return component.getName();
             }
         }
         return null;
