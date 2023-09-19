@@ -511,7 +511,7 @@ public class Telepathy implements GameClient, Tickable{
         // Define actions to take when player presses yes/no buttons
         ActionListener yesListener = e -> {
             sendCommand(TelepathyCommands.CHOOSETILE, Integer.toString(this.xCoord), Integer.toString(this.yCoord));
-            setButtonBorder(this.buttonGrid[this.xCoord][this.yCoord], Color.BLUE);
+            setButtonBorder(this.buttonGrid[this.xCoord][this.yCoord], new Color(232,224,31,255));
             telepathyNotificationManager.dismissCurrentNotification();
         };
 
@@ -739,8 +739,11 @@ public class Telepathy implements GameClient, Tickable{
     }
 
     /**
-     * Handle a yes response from the server after asking a question.
-     * @param jsonCommand
+     * Handle a yes response from the server after asking a question. If at least
+     * one attribute of the guessed Tile has a match with the target tile add the
+     * guessed Tile to the list and set their border to green.
+     * @param jsonCommand: The command with Tile attributes of question Tile that 
+     *  has passed a check.
      */
     private void handleYesResponse(JsonObject jsonCommand){
         ArrayList<String> attributes = TelepathyCommandHandler.getAttributes(jsonCommand);
