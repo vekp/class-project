@@ -1,96 +1,118 @@
 package minigames.server.tictactoe;
 
+import java.util.*;
+
+import minigames.server.achievements.AchievementHandler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import io.vertx.core.json.JsonObject;
 import minigames.commands.CommandPackage;
-import minigames.rendering.GameMetadata;
-import minigames.rendering.RenderingPackage;
+import minigames.rendering.*;
+import minigames.rendering.NativeCommands.LoadClient;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import static minigames.server.tictactoe.TicTacToeAchievement.*;
 
 public class TicTacToeGame {
 
-    String name;
-    char[] board = new char[9];
-    List<String> players = new ArrayList<>();
-    int currentPlayerIndex = 0;
+    private static final Logger logger = LogManager.getLogger(TicTacToeGame.class);
 
-    public TicTacToeGame(String name, String firstPlayer) {
-        this.name = name;
-        Arrays.fill(board, '\0');
-        players.add(firstPlayer);
+    static int WIDTH = 3;
+    static int HEIGHT = 3;
+
+    record TicTacToePlayer(
+        String name,
+        char symbol,
+        List<String> movesMade
+    ) {
     }
+
+    String name;
+    AchievementHandler achievementHandler;
+    String currentPlayerName;
+
+    public TicTacToeGame(String name, String currentPlayerName) {
+        this.name = name;
+        this.currentPlayerName = currentPlayerName;
+        this.achievementHandler = new AchievementHandler(TicTacToeServer.class);
+
+        // Unlock TicTacToe beginner achievement for starting a new game
+        achievementHandler.unlockAchievement(currentPlayerName, TICTACTOE_BEGINNER.achievement.name());
+    }
+
+    char[][] board = new char[WIDTH][HEIGHT];
+
+    HashMap<String, TicTacToePlayer> players = new HashMap<>();
 
     public String[] getPlayerNames() {
-        return players.toArray(new String[0]);
+        return players.keySet().toArray(String[]::new);
     }
 
-    public RenderingPackage joinGame(String playerName) {
-        if (!players.contains(playerName)) {
-            players.add(playerName);
+    public GameMetadata gameMetadata() {
+        return new GameMetadata("TicTacToe", name, getPlayerNames(), true);
+    }
+
+    private String describeState() {
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < HEIGHT; i++) {
+            for (int j = 0; j < WIDTH; j++) {
+                sb.append(board[i][j] == 0 ? '.' : board[i][j]);
+                if (j < WIDTH - 1) sb.append('|');
+            }
+            sb.append('\n');
+            if (i < HEIGHT - 1) sb.append("-----\n");
         }
 
-        List<JsonObject> commands = new ArrayList<>();
-        commands.add(new JsonObject().put("boardState", boardState()));
-        GameMetadata metadata = new GameMetadata("TicTacToe", name, players.toArray(new String[0]), true);
-
-        return new RenderingPackage(metadata, commands);
+        return sb.toString();
     }
 
     public RenderingPackage runCommands(CommandPackage cp) {
-        List<JsonObject> commands = new ArrayList<>();
+        logger.info("Received command package {}", cp);
+        TicTacToePlayer p = players.get(cp.player());
 
-        if (!cp.player().equals(players.get(currentPlayerIndex))) {
-            commands.add(new JsonObject().put("message", "notYourTurn"));
-            GameMetadata metadata = new GameMetadata("TicTacToe", name, players.toArray(new String[0]), true);
-            return new RenderingPackage(metadata, commands);
-        }
+        String userInput = String.valueOf(cp.commands().get(0).getValue("command"));
 
-        int move = cp.commands().get(0).getInteger("move");
-        char currentPlayerMark = currentPlayerIndex == 0 ? 'X' : 'O';
+        // Parse command to get move
+        String[] parts = userInput.split(",");
+        int x = Integer.parseInt(parts[0].strip());
+        int y = Integer.parseInt(parts[1].strip());
 
-        if (board[move] == '\0') {
-            board[move] = currentPlayerMark;
-
-            if (checkVictory(currentPlayerMark)) {
-                commands.add(new JsonObject().put("result", "gameWon").put("winner", currentPlayerMark));
-            } else if (isBoardFull()) {
-                commands.add(new JsonObject().put("result", "gameDraw"));
-            } else {
-                currentPlayerIndex = 1 - currentPlayerIndex;
-            }
+        if (board[x][y] == 0) {
+            board[x][y] = p.symbol;
+            p.movesMade().add(userInput);
         } else {
-            commands.add(new JsonObject().put("message", "cellTaken"));
+            // TODO: Handle invalid move
         }
 
-        commands.add(new JsonObject().put("boardState", boardState()));
-        GameMetadata metadata = new GameMetadata("TicTacToe", name, players.toArray(new String[0]), true);
+        // Unlock achievements (for simplicity, I've added just one for a move)
+        achievementHandler.unlockAchievement(currentPlayerName, FIRST_MOVE.achievement.name());
 
-        return new RenderingPackage(metadata, commands);
+        ArrayList<JsonObject> renderingCommands = new ArrayList<>();
+        renderingCommands.add(new JsonObject().put("command", "clearText"));
+        renderingCommands.add(new JsonObject().put("command", "appendText").put("text", describeState()));
+
+        return new RenderingPackage(this.gameMetadata(), renderingCommands);
     }
 
-    private boolean checkVictory(char mark) {
-        for (int i = 0; i < 9; i += 3) {
-            if (board[i] == mark && board[i + 1] == mark && board[i + 2] == mark) return true;
-        }
-        for (int i = 0; i < 3; i++) {
-            if (board[i] == mark && board[i + 3] == mark && board[i + 6] == mark) return true;
-        }
-        if (board[0] == mark && board[4] == mark && board[8] == mark) return true;
-        if (board[2] == mark && board[4] == mark && board[6] == mark) return true;
+    public RenderingPackage joinGame(String playerName, char symbol) {
+        if (players.containsKey(playerName)) {
+            return new RenderingPackage(
+                gameMetadata(),
+                Arrays.stream(new RenderingCommand[]{
+                    new NativeCommands.ShowMenuError("That name's not available")
+                }).map(RenderingCommand::toJson).toList()
+            );
+        } else {
+            TicTacToePlayer p = new TicTacToePlayer(playerName, symbol, List.of());
+            players.put(playerName, p);
 
-        return false;
-    }
+            ArrayList<JsonObject> renderingCommands = new ArrayList<>();
+            renderingCommands.add(new LoadClient("TicTacToeClient", "TicTacToe", name, playerName).toJson());
+            renderingCommands.add(new JsonObject().put("command", "clearText"));
+            renderingCommands.add(new JsonObject().put("command", "appendText").put("text", describeState()));
 
-    private boolean isBoardFull() {
-        for (char c : board) {
-            if (c == '\0') return false;
+            return new RenderingPackage(gameMetadata(), renderingCommands);
         }
-        return true;
-    }
-
-    private String boardState() {
-        return new String(board);
     }
 }

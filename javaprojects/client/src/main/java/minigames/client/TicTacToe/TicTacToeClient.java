@@ -1,9 +1,11 @@
 package minigames.client.tictactoe;
 
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 import java.util.Collections;
+import io.vertx.core.json.JsonArray;
+
+
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
@@ -16,39 +18,42 @@ public class TicTacToeClient implements GameClient {
     GameMetadata gm;
     String player;
 
-    JTextArea messageArea;
-    JButton[][] boardButtons = new JButton[3][3];
+    JTextArea gameStatus;
+    JButton[][] ticTacToeGrid = new JButton[3][3];
+
+    JPanel gamePanel;
+    JButton achievementButton;
+    JButton backButton;
 
     public TicTacToeClient() {
-        messageArea = new JTextArea(5, 30);
-        messageArea.setEditable(false);
+        gameStatus = new JTextArea();
+        gameStatus.setEditable(false);
+        gameStatus.setPreferredSize(new Dimension(800, 30));
+        gameStatus.setForeground(Color.BLACK);
+        gameStatus.setFont(new Font("Monospaced", Font.PLAIN, 18));
+
+        gamePanel = new JPanel(new GridLayout(3, 3));
 
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                boardButtons[i][j] = new JButton("");
-                boardButtons[i][j].addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        JButton clickedButton = (JButton) e.getSource();
-                        int rowIndex = -1, colIndex = -1;
-                        for (int r = 0; r < 3; r++) {
-                            for (int c = 0; c < 3; c++) {
-                                if (boardButtons[r][c] == clickedButton) {
-                                    rowIndex = r;
-                                    colIndex = c;
-                                }
-                            }
-                        }
-                        int position = rowIndex * 3 + colIndex;
-                        sendMove(position);
-                    }
-                });
+                final int finalI = i;
+                final int finalJ = j;
+                JButton btn = new JButton();
+                btn.addActionListener(e -> sendMove(finalI, finalJ));
+                ticTacToeGrid[i][j] = btn;
+                gamePanel.add(btn);
             }
         }
+
+        achievementButton = new JButton("Achv");
+        achievementButton.addActionListener(e -> mnClient.getGameAchievements(player, gm.gameServer()));
+
+        backButton = new JButton("Back");
+        backButton.addActionListener(e -> mnClient.runMainMenuSequence());
     }
 
-    public void sendMove(int position) {
-        JsonObject json = new JsonObject().put("command", "makeMove").put("move", position);
+    public void sendMove(int x, int y) {
+        JsonObject json = new JsonObject().put("move", new int[]{x, y});
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
     }
 
@@ -58,44 +63,46 @@ public class TicTacToeClient implements GameClient {
         this.gm = game;
         this.player = player;
 
-        JPanel boardPanel = new JPanel(new GridLayout(3, 3));
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                boardPanel.add(boardButtons[i][j]);
-            }
-        }
+        mnClient.getMainWindow().addNorth(gameStatus);
+        mnClient.getMainWindow().addCenter(gamePanel);
 
-        mnClient.getMainWindow().addCenter(boardPanel);
-        mnClient.getMainWindow().addSouth(messageArea);
-
-        messageArea.append("Welcome to Tic Tac Toe!");
-
+        mnClient.getMainWindow().addSouth(achievementButton);
+        mnClient.getMainWindow().addSouth(backButton);
+        
         mnClient.getMainWindow().pack();
     }
 
     @Override
     public void execute(GameMetadata game, JsonObject command) {
-        this.gm = game;
+    String cmd = command.getString("command");
 
-        switch (command.getString("command")) {
-            case "boardUpdate":
-                char[] boardState = command.getJsonArray("board").getString(0).toCharArray();
-                for (int i = 0; i < 9; i++) {
-                    boardButtons[i / 3][i % 3].setText(String.valueOf(boardState[i]));
+    switch (cmd) {
+        case "updateGrid":
+            JsonArray jsonArray = command.getJsonArray("grid");
+            for (int i = 0; i < 3; i++) {
+                JsonArray row = jsonArray.getJsonArray(i);
+                for (int j = 0; j < 3; j++) {
+                    ticTacToeGrid[i][j].setText(row.getString(j));
                 }
+            }
+            break;
+                
+            case "setPlayerTurn":
+                gameStatus.setText("Turn: " + command.getString("player"));
                 break;
-            case "gameWon":
-                String winner = command.getString("winner");
-                messageArea.append("\n" + winner + " has won the game!");
+
+            case "declareWinner":
+                gameStatus.setText("Winner: " + command.getString("winner"));
                 break;
-            case "gameDraw":
-                messageArea.append("\nIt's a draw!");
+
+            case "declareDraw":
+                gameStatus.setText("It's a draw!");
                 break;
         }
     }
 
     @Override
     public void closeGame() {
-        // Cleanup resources if any
+        // Clean up resources or listeners if any.
     }
 }

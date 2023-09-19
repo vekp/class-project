@@ -7,15 +7,21 @@ import minigames.rendering.GameServerDetails;
 import minigames.rendering.RenderingPackage;
 import minigames.server.ClientType;
 import minigames.server.GameServer;
+import minigames.server.achievements.AchievementHandler;
 
 import java.util.HashMap;
 import java.util.Random;
 
+/**
+ * Our TicTacToeServer holds TicTacToeGames. 
+ * When it receives a CommandPackage, it finds the TicTacToeGame and calls it.
+ */
 public class TicTacToeServer implements GameServer {
 
     static final String chars = "abcdefghijklmopqrstuvwxyz";
+    AchievementHandler achievementHandler;
 
-    /** Generate a random name for our games, like Muddle does */
+    /** A random name. We could do with something more memorable, like Docker has */
     static String randomName() {
         Random r = new Random();
         StringBuffer sb = new StringBuffer();
@@ -28,9 +34,17 @@ public class TicTacToeServer implements GameServer {
     /** Holds the games in progress in memory (no db) */
     HashMap<String, TicTacToeGame> games = new HashMap<>();
 
+    public TicTacToeServer() {
+        achievementHandler = new AchievementHandler(TicTacToeServer.class);
+        // Register all achievements with handler
+        for (TicTacToeAchievement a : TicTacToeAchievement.values()) {
+            achievementHandler.registerAchievement(a.achievement);
+        }
+    }
+
     @Override
     public GameServerDetails getDetails() {
-        return new GameServerDetails("TicTacToe", "A classic Tic Tac Toe game");
+        return new GameServerDetails("TicTacToe", "The classic game of TicTacToe!");
     }
 
     @Override
@@ -40,33 +54,27 @@ public class TicTacToeServer implements GameServer {
 
     @Override
     public GameMetadata[] getGamesInProgress() {
-    return games.entrySet().stream().map(entry -> {
-        String name = entry.getKey();
-        TicTacToeGame game = entry.getValue();
-        String[] playerNames = game.getPlayerNames();  // Assuming TicTacToeGame has a method called getPlayerNames()
-        GameMetadata metadata = new GameMetadata("TicTacToe", name, playerNames, true);
-        return metadata;
-    }).toArray(GameMetadata[]::new);
+        return games.keySet().stream().map((name) -> {
+            return new GameMetadata("TicTacToe", name, games.get(name).getPlayerNames(), true);
+        }).toArray(GameMetadata[]::new);
+    }
+
+    @Override
+public Future<RenderingPackage> newGame(String playerName) {
+    TicTacToeGame g = new TicTacToeGame(randomName(), playerName);
+    games.put(g.name, g);
+    return Future.succeededFuture(g.joinGame(playerName, 'X'));  // Assign 'X' for the first player
 }
 
-
-    @Override
-    public Future<RenderingPackage> newGame(String playerName) {
-        TicTacToeGame g = new TicTacToeGame(randomName(), playerName);
-        games.put(g.name, g);
-        return Future.succeededFuture(g.joinGame(playerName));
-    }
-
-    @Override
-    public Future<RenderingPackage> joinGame(String game, String playerName) {
-        TicTacToeGame g = games.get(game);
-        return Future.succeededFuture(g.joinGame(playerName));
-    }
+@Override
+public Future<RenderingPackage> joinGame(String game, String playerName) {
+    TicTacToeGame g = games.get(game);
+    return Future.succeededFuture(g.joinGame(playerName, 'O'));  // Assign 'O' for the second player
+}
 
     @Override
     public Future<RenderingPackage> callGame(CommandPackage cp) {
         TicTacToeGame g = games.get(cp.gameId());
         return Future.succeededFuture(g.runCommands(cp));
     }
-
 }
