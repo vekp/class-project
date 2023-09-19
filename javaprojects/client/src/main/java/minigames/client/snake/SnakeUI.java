@@ -63,6 +63,7 @@ public class SnakeUI implements GameClient {
 
         JFrame mainFrame = mnClient.getMainWindow().getFrame();
         mainFrame.setSize(backgroundIcon.getIconWidth(), backgroundIcon.getIconHeight());
+        mainFrame.setResizable(false);
     }
 
     /**
