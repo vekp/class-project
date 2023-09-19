@@ -80,8 +80,7 @@ public class SpaceBot extends SpaceEntity {
         // If there is a best move, return it. If not, return an invalid location.
         if(bestMove > -1) {
             return possibleMoves.get(bestMove);
-        }
-        else {
+        } else {
             Point invalid = new Point(-1,-1);
             return invalid;
         }
@@ -128,8 +127,7 @@ public class SpaceBot extends SpaceEntity {
         if(closestMove.x > -1 && closestMove.y > -1) {
 
             updateLocation(closestMove);
-        }
-        else {
+        } else {
             // no valid moves or moves to close the distance, attempt to move randomly.
             moveRandom(new Random(), validMoves);
         }
@@ -151,7 +149,6 @@ public class SpaceBot extends SpaceEntity {
             // No valid moves
             return;
         }
-
         // Get the random valid move.
         Point selectedMove = validMoves.get(validDecision);
         // perform the move.
@@ -185,8 +182,8 @@ public class SpaceBot extends SpaceEntity {
                 moveAttempt.move(location.x-1, location.y);
                 break;
         }
-
         return moveAttempt;
+
     }
 
      /**
@@ -250,15 +247,12 @@ public class SpaceBot extends SpaceEntity {
              // Is a valid move
              System.out.println("valid location x,y :" + newLocation.x + ", " + newLocation.y);
              if (MazeDisplay.isMoveValid(newLocation)) {
-            validMoves.add(newLocation);
+                validMoves.add(newLocation);
             }
         }
-
         return validMoves;
+
     }
-
-
-
 
     /**
      * Public method to allow testing of the moveAttempt method.
@@ -269,7 +263,6 @@ public class SpaceBot extends SpaceEntity {
         if(move < 0 || move > 3) {
             throw new IllegalArgumentException("The movement test input must be between 0 and 3 inclusive.");
         }
-
         return moveAttempt(move);
 
     }
@@ -279,6 +272,7 @@ public class SpaceBot extends SpaceEntity {
      */
     public ArrayList<Point> testingGetMovesList() {
         return moves;
+        
     }
 
     /**
@@ -287,6 +281,7 @@ public class SpaceBot extends SpaceEntity {
      */
     public boolean testingIsSeeking() {
         return seeking;
+
     }
     /**
      * Public method to test the logic of deciding which move to make when seeking.
@@ -294,6 +289,7 @@ public class SpaceBot extends SpaceEntity {
      */
     public Point testingDistanceCloser(Point playerPos, ArrayList<Point> possibleMoves) {
         return distanceCloser(playerPos, possibleMoves);
+
     }
     /**
      * Public method to test the ability of the bot to choose a move which decreases the distance to the player.
@@ -301,6 +297,7 @@ public class SpaceBot extends SpaceEntity {
      */
     public void testingMoveCloser(Point playerPosition, Point closestMove, ArrayList<Point> validMoves) {
         moveCloser(playerPosition, closestMove, validMoves);
+
     }
 
     /**

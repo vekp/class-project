@@ -1,10 +1,6 @@
 package minigames.server.spacemaze;
 
 import java.util.*;
-import java.io.*;
-import java.awt.Point;
-
-
 
 /*
  * MazeInit class selects a maze appropriate for the level, initialises the maze which 
@@ -25,8 +21,7 @@ public class MazeInit {
      * Constructor - 
      * @param level - takes an int to identify the level of maze to construct
      */
-    public MazeInit(int level) 
-    {
+    public MazeInit(int level) {
         // Set mazeLegend
         this.mazeLegend = new HashMap<String, Character>();
         mazeLegend.put("Wall", 'W');        
@@ -53,11 +48,9 @@ public class MazeInit {
      * @param level - level of maze 
      * @return mazeArray = char[][] or required maze
      */
-    public void setMazeInitArray(int level) 
-    {
+    public void setMazeInitArray(int level) {
         // Set mazeArray depending on level passed in
-        switch (level)
-        {
+        switch (level) {
             case 1:
                 this.mazeArray = mazeArray1;
                 break;
@@ -83,8 +76,7 @@ public class MazeInit {
      * getMazeInitArray() - returns mazeArray
      * @return mazeArray
      */
-    public char[][] getMazeInitArray()
-    {
+    public char[][] getMazeInitArray() {
         return mazeArray;
     }
     
@@ -92,8 +84,7 @@ public class MazeInit {
      * getMazeLedgend()
      * @return mazeLegend - HashMap
      */
-    public HashMap<String, Character> getMazeLedgend()
-    {
+    public HashMap<String, Character> getMazeLedgend() {
         return mazeLegend;
     }
 

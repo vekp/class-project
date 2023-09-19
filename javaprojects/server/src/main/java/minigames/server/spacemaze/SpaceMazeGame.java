@@ -6,17 +6,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import io.vertx.core.json.JsonObject;
-import minigames.achievements.Achievement;
 import minigames.commands.CommandPackage;
 import minigames.rendering.*;
 import minigames.rendering.NativeCommands.LoadClient;
 import minigames.server.achievements.AchievementHandler;
 import static minigames.server.spacemaze.achievements.*;
-
 import java.awt.Point;
 
-import minigames.server.achievements.AchievementHandler;
-import static minigames.server.spacemaze.achievements.*;
 
 /**
  * SpaceMazeGame class represents an actual Space Maze game in progress
@@ -98,6 +94,7 @@ public class SpaceMazeGame {
                                 if(awardFastAsLightning) { 
                                     AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
                                     handler.unlockAchievement(getPlayerNames()[0],FAST_AS_LIGHTNING.toString());
+
                                 }
                                 serializedMazeArray.put("interactiveResponse", InteractiveResponses.TREASURE_CHEST.toString()); 
                             }
@@ -197,13 +194,13 @@ public class SpaceMazeGame {
                             handler.unlockAchievement(getPlayerNames()[0],THE_COLLECTORS_COLLECTION.toString());
                         }
 
-                        // TODO Nik - implement seasoned maze runner achievement.
                         Boolean isPlayerASeasonedMazeRunner = !player.hasLostLives();
                         if(isPlayerASeasonedMazeRunner) {
                             AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
                             handler.unlockAchievement(getPlayerNames()[0],SEASONED_MAZE_RUNNER.toString());
+                            
                         }
-                        // TODO Nik - implement fast as lightning achievement.
+                        
                     }
                 }
             }

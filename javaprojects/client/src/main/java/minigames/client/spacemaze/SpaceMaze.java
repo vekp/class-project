@@ -327,20 +327,20 @@ public class SpaceMaze implements GameClient {
      * Method that returns custom font.
      * @return Font
      */
-    public Font getCustomFont(){
+    public Font getCustomFont() {
         return customFont;
     }
 
-    public Font getAquireFont(){
+    public Font getAquireFont() {
         return aquireFont;
     }
 
     /**
      * Method that loads custom fonts from the resources.
      */
-    public void loadCustomFont(){
+    public void loadCustomFont() {
         //Loading custom font - PublicPixelFont
-        try{
+        try {
             InputStream fontStream = this.getClass().getResourceAsStream("/fonts/PublicPixelFont.ttf");
             customFont = Font.createFont(Font.TRUETYPE_FONT, fontStream);
             
@@ -351,11 +351,11 @@ public class SpaceMaze implements GameClient {
         customFont = customFont.deriveFont(40f);
 
         //Loading custom font - Aquire
-        try{
+        try {
             InputStream fontStream = this.getClass().getResourceAsStream("/fonts/Aquire-BW0ox.otf");
             aquireFont = Font.createFont(Font.TRUETYPE_FONT, fontStream);
             
-        } catch (FontFormatException | IOException e){
+        } catch (FontFormatException | IOException e) {
             e.printStackTrace();
             aquireFont = new Font("ArcadeClassics", Font.BOLD, 20);
         }
@@ -365,7 +365,7 @@ public class SpaceMaze implements GameClient {
     /**
      * Methods thats clears the current window and loads help panel.
      */
-    public void displayHelpPanel(){
+    public void displayHelpPanel() {
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(helpPanel);
         mnClient.getMainWindow().addSouth(developerCredits); 
@@ -376,7 +376,7 @@ public class SpaceMaze implements GameClient {
     /**
      * Methods thats clears the current window and loads Main Menu panel.
      */
-    public void displayMainMenu(){
+    public void displayMainMenu() {
         startTimer(); //Start timer for header animations.
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(mainMenuPanel);
@@ -387,7 +387,7 @@ public class SpaceMaze implements GameClient {
     /**
      * Methods thats clears the current window and loads High Score panel.
      */
-    public void displayHighScore(){
+    public void displayHighScore() {
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(highScorePanel);
         mnClient.getMainWindow().addSouth(developerCredits);
@@ -401,10 +401,10 @@ public class SpaceMaze implements GameClient {
      * @param totalTime - String value of total time played by the player
      * @param gameFinished - Boolean value representing state of the game, Game Over or Game Finished.
      */
-    public void displayGameOver(String totalScore, String totalTime, Boolean gameFinished){
+    public void displayGameOver(String totalScore, String totalTime, Boolean gameFinished) {
 
         String levelNumber = "0"; //Initialize a empty string that will be based on game's current state
-        if (gameFinished == false){
+        if (gameFinished == false) {
             levelNumber = totalScore;   //If game was not finished, the levelNumber is passed as totalScore. 
         }
         // Releasing sounds for garbage collection
@@ -422,7 +422,7 @@ public class SpaceMaze implements GameClient {
         Font gameOverFonts = customFont;
         gameOverFonts = gameOverFonts.deriveFont(16f);
 
-        if (gameFinished == true){
+        if (gameFinished == true) {
             //Messages to display if the game is finished, i.e player won the game
             greetingLabel = new JLabel("THANK YOU FOR PLAYING ");  
 
@@ -440,7 +440,7 @@ public class SpaceMaze implements GameClient {
 
         gameOverFonts = gameOverFonts.deriveFont(14f);
 
-        if (gameFinished == true){
+        if (gameFinished == true) {
             //Display total score if the game is finished.
             totalScoreLabel = new JLabel("TOTAL SCORE : " + totalScore);
         } else {
@@ -455,7 +455,7 @@ public class SpaceMaze implements GameClient {
         gbc.gridy = 1;
         gameOverPanel.add(totalScoreLabel, gbc);
 
-        if (gameFinished == true){
+        if (gameFinished == true) {
             //Display total time played if the game is finished.
             timeTakenLabel = new JLabel("TIME TAKEN : " + timeTaken );
         } else {
@@ -488,7 +488,7 @@ public class SpaceMaze implements GameClient {
 
         JLabel gameOverHeaderText;
         customFont = customFont.deriveFont(40f);
-        if (gameFinished == true){
+        if (gameFinished == true) {
             //Messages to display in the headerPanel, if the game is finished.
             gameOverHeaderText = new JLabel("VICTORY!!");
         } else {
@@ -534,20 +534,16 @@ public class SpaceMaze implements GameClient {
         ArrayList<SpaceBot> bots = new ArrayList<>();
         
         int numBots = botStartLocations.size();
-        for(int i = 0;i<numBots;i++)
-        {
+        for(int i = 0;i<numBots;i++) {
             JsonObject thisLoc = botStartLocations.getJsonObject(i);
-            //logger.info("JsonObject thisLoc {}", thisLoc);
-
             int x = thisLoc.getInteger("x");
             int y = thisLoc.getInteger("y");
             Point startLoc = new Point(x,y);
-            //SpaceBot newBot = new SpaceBot(startLoc, maze);
-             SpaceBot newBot = new SpaceBot(startLoc);
+            SpaceBot newBot = new SpaceBot(startLoc);
             bots.add(newBot);
         }
-
         return bots;
+
     }
 
 
@@ -555,7 +551,7 @@ public class SpaceMaze implements GameClient {
      * Called for the intial maze setup
      * @param jsonArray the maze sent from the server as a Json Object
      */
-    public void loadMaze(JsonArray jsonArray, JsonArray botStartLocations){
+    public void loadMaze(JsonArray jsonArray, JsonArray botStartLocations) {
         mnClient.getMainWindow().clearAll();
         
         //Json array of strings to Java array of strings
@@ -563,9 +559,6 @@ public class SpaceMaze implements GameClient {
 
         char[][] mazeMap = deserialiseJsonMaze(mazeList);
 
-
-        // get bots
-        //ArrayList<SpaceBot> bots = loadBots(botStartLocations, mazeMap);
         ArrayList<SpaceBot> bots = loadBots(botStartLocations);
         maze = new MazeDisplay(mazeMap, this, bots);
         statusBar = new StatusBar(this);
@@ -610,7 +603,7 @@ public class SpaceMaze implements GameClient {
     /**
      * Method that renders the main menu simple animation gif in the header panel
      */
-    public void loadMainMenuHeader(){
+    public void loadMainMenuHeader() {
         try {
             //Get TitleImages hashmap from images class.
             titleImages = Images.getImageHashMap();
@@ -623,7 +616,7 @@ public class SpaceMaze implements GameClient {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     currentImageIndex++;
-                    if (currentImageIndex >= titleImages.size()){
+                    if (currentImageIndex >= titleImages.size()) {
                         currentImageIndex = 0;
                     }
                     headerText.setIcon(new ImageIcon(titleImages.get(currentImageIndex)));
@@ -632,7 +625,7 @@ public class SpaceMaze implements GameClient {
             });
             timer.start();
 
-        } catch (Exception e){
+        } catch (Exception e) {
             logger.error("Image loading error?");
         }
     }
@@ -640,8 +633,8 @@ public class SpaceMaze implements GameClient {
     /**
      * Method to stop Header Panel animation timer.
      */
-    public void stopTimer(){
-        if (timer != null){
+    public void stopTimer() {
+        if (timer != null) {
             timer.stop();
         }
     }
@@ -649,8 +642,8 @@ public class SpaceMaze implements GameClient {
     /**
      * Method to start Header Panel animation timer.
      */
-    public void startTimer(){
-        if (timer != null){
+    public void startTimer() {
+        if (timer != null) {
             timer.start();
         }
     }
@@ -658,7 +651,7 @@ public class SpaceMaze implements GameClient {
     /**
      * Method that loads Help Panel.
      */
-    public void loadHelpPanel(){
+    public void loadHelpPanel() {
         //Getting Bomb Image, scaling it and using it as ImageIcon
         bombImage = Images.getImage("bombImages", 1);
         scaledBomb = bombImage.getScaledInstance(20, 20, Image.SCALE_SMOOTH);
@@ -710,14 +703,12 @@ public class SpaceMaze implements GameClient {
         helpText8 = new JLabel("IT TRANSPORTS YOU SOMEWHERE RANDOM IN THE MAZE. ");
 
         int i = 2; //Int value to set as gbc constraints gridy.
-        for (Component c : new Component[] 
-        { 
+        for (Component c : new Component[] { 
             helpText, 
             helpText1, 
             helpText2, 
             helpText3,
-        }) 
-        {
+        }) {
             c.setFont(aquireFont);
             c.setForeground(Color.YELLOW);
             gbc.insets = new Insets(10, 0, 0, 0);
@@ -790,13 +781,13 @@ public class SpaceMaze implements GameClient {
 
         backFromHelpButton.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseEntered(MouseEvent e){
+            public void mouseEntered(MouseEvent e) {
                 customFont = customFont.deriveFont(18f);
                 backFromHelpButton.setFont(customFont);
                 backFromHelpButton.setForeground(Color.YELLOW);
             }
             @Override
-            public void mouseExited(MouseEvent e){
+            public void mouseExited(MouseEvent e) {
                 customFont = customFont.deriveFont(16f);
                 backFromHelpButton.setFont(customFont);
                 backFromHelpButton.setForeground(Color.WHITE);
@@ -811,7 +802,7 @@ public class SpaceMaze implements GameClient {
     /**
      * Method that loads HighScore Panel.
      */
-    public void loadHighScorePanel(){
+    public void loadHighScorePanel() {
         GridBagConstraints gbc = new GridBagConstraints();
         highScorePanel = new JPanel();
         highScorePanel.setLayout(new GridBagLayout());
@@ -844,7 +835,7 @@ public class SpaceMaze implements GameClient {
     /**
      * Method that loads Main Menu Panel.
      */
-    public void loadMainMenu(){
+    public void loadMainMenu() {
         GridBagConstraints gbc = new GridBagConstraints();
         //Menu Section
         mainMenuPanel = new JPanel();
@@ -899,7 +890,7 @@ public class SpaceMaze implements GameClient {
 
         //Button visual settings
         for (Component c : new Component[] { startGameButton, highScoreButton, helpButton, mainMenuButton }) {
-            if (c == startGameButton){
+            if (c == startGameButton) {
                 customFont = customFont.deriveFont(24f);
             } else {
                 customFont = customFont.deriveFont(14f);
@@ -918,13 +909,13 @@ public class SpaceMaze implements GameClient {
         //Hover effect for button - Start Game button
         startGameButton.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseEntered(MouseEvent e){
+            public void mouseEntered(MouseEvent e) {
                 customFont = customFont.deriveFont(25f);
                 startGameButton.setFont(customFont);
                 startGameButton.setForeground(Color.YELLOW);
             }
             @Override
-            public void mouseExited(MouseEvent e){
+            public void mouseExited(MouseEvent e) {
                 customFont = customFont.deriveFont(24f);
                 startGameButton.setFont(customFont);
                 startGameButton.setForeground(Color.WHITE);
@@ -935,13 +926,13 @@ public class SpaceMaze implements GameClient {
         for (Component c : new Component[] { highScoreButton, helpButton, mainMenuButton }) {
             c.addMouseListener(new MouseAdapter() {
                 @Override
-                public void mouseEntered(MouseEvent e){
+                public void mouseEntered(MouseEvent e) {
                     customFont = customFont.deriveFont(16f);
                     c.setFont(customFont);
                     c.setForeground(Color.YELLOW);
                 }
                 @Override
-                public void mouseExited(MouseEvent e){
+                public void mouseExited(MouseEvent e) {
                     customFont = customFont.deriveFont(14f);
                     c.setFont(customFont);
                     c.setForeground(Color.WHITE);

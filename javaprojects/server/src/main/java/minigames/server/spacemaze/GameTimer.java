@@ -29,7 +29,7 @@ public class GameTimer {
     /**
      * Constructor for a timer
      */
-    public GameTimer(){
+    public GameTimer() {
         this.timerWasUsed = false;
         this.prePausedTime = 0;
         this.timerRunning = false;
@@ -85,7 +85,7 @@ public class GameTimer {
      * Calculates the total time the game has been running
      * @return String of the time in minutes and seconds
      */
-    public String getCurrentTime(){
+    public String getCurrentTime() {
         int currentTime = (int) (((System.currentTimeMillis() - startTime) + prePausedTime) / 1000);
         if (currentTime < 0) {
             startTime = System.currentTimeMillis();

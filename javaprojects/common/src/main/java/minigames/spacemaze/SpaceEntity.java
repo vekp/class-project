@@ -16,7 +16,7 @@ public abstract class SpaceEntity {
      */
     public SpaceEntity(Point startLocation) {
         this.location = new Point(startLocation);
-        //this.image = leftIcon();
+
     }
     /**
      * Public method to return the starting location as a Point.
@@ -25,6 +25,7 @@ public abstract class SpaceEntity {
      */
     public Point getLocation() {
         return location;
+
     }
 
     /**
@@ -33,5 +34,6 @@ public abstract class SpaceEntity {
      */
     public void updateLocation(Point newLocation) {
         location = new Point(newLocation);
+        
     }
 }

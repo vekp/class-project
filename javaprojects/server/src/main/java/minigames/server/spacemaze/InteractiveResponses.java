@@ -23,8 +23,8 @@ enum InteractiveResponses {
     START_DOOR;
 
     @Override
-    public String toString(){
-        switch (this){
+    public String toString() {
+        switch (this) {
             case GAME_STARTED:
                 return "Journey begins Commander, The door awaits its key.";
             case BOTS_COLLISION:
