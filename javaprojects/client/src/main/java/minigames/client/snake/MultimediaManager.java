@@ -13,7 +13,7 @@ import java.util.Objects;
 public class MultimediaManager {
 
     // ImageResources for all the images
-    private static final ImageResource PHONE_BACKGROUND = new ImageResource("/images/snake/gameBackgroundNokia.png");
+    private static final ImageResource PHONE_BACKGROUND = new ImageResource("/images/snake/GameBackground.png");
     private static final ImageResource BACKGROUND_COLOR_BLOCK = new ImageResource("/images/snake/backgroundColorBlock.png");
     private static final ImageResource SNAKE_LOGO = new ImageResource("/images/snake/snakeLogo.png");
     private static final ImageResource IMAGE_APPLE = new ImageResource("/images/snake/apple.png");
