@@ -9,9 +9,9 @@ public final class GameConstants {
     // Dimensions
     public static final int BUTTON_WIDTH = 200;
     public static final int BUTTON_HEIGHT = 50;
-    public static final int START_BUTTON_Y = 180;
+    public static final int START_BUTTON_Y = 250;
     public static final int BUTTON_GAP = 10;
-    public static final int LOGO_Y = 40;
+    public static final int LOGO_Y = 20;
 
     // Music
     public static final String MENU_MUSIC = "8Bit";
@@ -47,25 +47,32 @@ public final class GameConstants {
     // Button Text
     public static final String RETURN_BUTTON_TEXT = "Main Menu";
 
+    // Game Panel constants
+    public static final int STATUS_LABEL_Y_FROM_BOTTOM = 80;
+    public static final int GAME_PLAY_WIDTH = 850;
+    public static final int GAME_PLAY_HEIGHT = 500;
+
     // InformationPanel constants
-    public static final int INFO_TITLE_Y = 190;
+    public static final int INFO_TITLE_Y = 200;
     public static final int INFO_TEXT_WIDTH = 500;
     public static final int INFO_TEXT_HEIGHT = 200;
-    public static final int INFO_TEXT_Y = 250;
-    public static final String GAME_RULES_TITLE = "Help Menu";
+    public static final int INFO_TEXT_Y = 300;
+    public static final String GAME_RULES_TITLE = "How to Play";
     public static final String ABOUT_ME_TITLE = "About";
     public static final String[] GAME_RULES_MESSAGES = {
-            "Navigate the maze with arrow keys and lead the snake on an exciting adventure! Feast on delicious fruits to grow and boost your score!",
-            "Stay sharp! Avoid walls and don't bite your tail or it's game over. Need a breather? Hit the space bar to take a pause and strategize."
+            "Navigate the environment with arrow keys and lead your snake on an exciting adventure!",
+            "Feast on delicious fruits to grow your score!",
+            "Stay sharp! Avoid walls and don't bite your tail or it's game over.",
+            "Need a breather? Hit the space bar to take a pause and strategize."
     };
     public static final String[] ABOUT_ME_MESSAGES = {
-            "Developed by Luke, Sean & Matt (Group 15) COSC220 A3, 2023.",
+            "Developed by Luke, Sean & Matt (Group 15) COSC220 A3, 2023.", "",
             "Credits",
             "Music: Fesliyan Studios (www.FesliyanStudios.com)",
-            "Graphics: [Supplier Name and URL]"
-    };
+            "Logo: Sean 2023",
+    "Background: Matthew Picone 2023"};
 
-    public static final int RETURN_BUTTON_Y = 450;
+    public static final int RETURN_BUTTON_Y = 490;
 
     // Constructor - private to prevent instantiation
     private GameConstants() {}
