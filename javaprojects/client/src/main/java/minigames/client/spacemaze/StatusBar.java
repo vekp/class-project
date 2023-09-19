@@ -1,6 +1,7 @@
 package minigames.client.spacemaze;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -8,11 +9,15 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.image.BufferedImage;
+import java.io.File;
 
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.util.Timer;
@@ -27,26 +32,24 @@ public class StatusBar extends JPanel {
 
     private static final Logger logger = LogManager.getLogger(StatusBar.class);
 
-    JPanel statusBar; //Main Status Bar Panel
-
-    JLabel gameTimer; //JLabel to display time taken
-    JLabel score;     //JLabel to display score
-    JLabel level;     //JLabel to display level
-
+    JPanel statusBar;
+    JLabel gameTimer;
+    JLabel score;
+    JLabel level;
+    JLabel tipLabel;
     Timer timer;
     SpaceMaze spaceMaze;
-    Font customFont;  //Our custom font
+    Font customFont;
 
     //Lives Panel
     JPanel livesPanel; //Main container to display lives
-    JLabel livesRemaining; //A JLabel that contains just - "lives:"
-    JPanel livesOnlyPanel; //Lives Only Panel - A panel to hold each individual lives remaining images.
+    JLabel livesRemaining;
+    //JPanel lifeImage;  //sub containers for individual lives
+    JPanel livesOnlyPanel; //JPanel that displays only the lives.
 
-    ImageIcon lifeImage; //ImageIcon for the spaceship image, that acts as lives.
-
-    //Interactive Display section
-    JPanel interactiveTextPanel; //Panel to display at the bottom of the status bar some interactive texts. 
-    JLabel interactiveText; //texts that get updated depending on the events occurring of the game and player.
+    ImageIcon lifeImage;
+    
+    
 
     /**
      * Constructor for the Status Bar
@@ -62,31 +65,27 @@ public class StatusBar extends JPanel {
     /**
      * Panel below the maze for holding maze information
      *
-     * @return JPanel with components
+     * @return Jpanel with components
      */
     public JPanel statusBar() {
 
-        //Lives remaining display
+        //Sample Lives remaining display, Need to fetch no. of lives remaining from the server,
+        //and loop the Image labels 
+        //Todo, implement loops 
         customFont = customFont.deriveFont(13f);
         livesPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         livesPanel.setPreferredSize(new Dimension(250, 40));
         livesPanel.setBackground(Color.BLACK);
-
-        //Components inside lives panel
         livesRemaining = new JLabel("lives:", SwingConstants.LEFT);
         livesRemaining.setFont(customFont);
         livesRemaining.setForeground(Color.WHITE);
-
-        livesPanel.add(livesRemaining); //Adding "lives:" inside livesPanel 
+        livesPanel.add(livesRemaining);
 
         livesOnlyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         livesOnlyPanel.setPreferredSize(new Dimension(180, 40));
         livesOnlyPanel.setBackground(Color.BLACK);
+        livesPanel.add(livesOnlyPanel);
 
-        livesPanel.add(livesOnlyPanel); //Adding panel that stores each individual lives inside livesPanel.
-
-        //Setting up interactive text panel
-        interactiveTextPanel = getInteractiveTextPanel();
         
         try {
             lifeImage = new ImageIcon(getClass().getResource("/images/spacemaze/spaceShip2aUp.png"));
@@ -111,7 +110,7 @@ public class StatusBar extends JPanel {
         score = new JLabel("Score: 0", SwingConstants.LEFT);
         score.setForeground(Color.WHITE);
         score.setFont(customFont);
-        gbc.insets = new Insets(20, 20, 0, 0);
+        gbc.insets = new Insets(-100, 20, 0, 0);
         gbc.gridx = 0;
         statusBar.add(score, gbc);
 
@@ -119,12 +118,12 @@ public class StatusBar extends JPanel {
         gameTimer = new JLabel("Timer: 0", SwingConstants.CENTER);
         gameTimer.setForeground(Color.WHITE);
         gameTimer.setFont(customFont);
-        gbc.insets = new Insets(20, -70, 0, 0);
+        gbc.insets = new Insets(-100, -70, 0, 0);
         gbc.gridx = 1;
         statusBar.add(gameTimer, gbc);
 
         //Tracks the level the player is on
-        gbc.insets = new Insets(20, 0, 0, 20);
+        gbc.insets = new Insets(-100, 0, 0, 20);
         level = new JLabel("Level: 1 ", SwingConstants.RIGHT);
         level.setForeground(Color.WHITE);
         level.setFont(customFont);
@@ -136,18 +135,9 @@ public class StatusBar extends JPanel {
         gbc.gridwidth = 1;
         gbc.gridx = 0;
         gbc.gridy = 1;
-        gbc.insets = new Insets(30, 20, 0, 0);
+        gbc.insets = new Insets(0, 20, 0, 0);
         statusBar.add(livesPanel, gbc);
 
-        //Interactive Panel
-        gbc.weightx = 1;
-        gbc.weighty = 1;
-        gbc.gridwidth = 3;
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.anchor = GridBagConstraints.PAGE_END;
-        gbc.insets = new Insets(5, 20, 10, 10);
-        statusBar.add(interactiveTextPanel, gbc);
 
         return statusBar;
     }
@@ -215,10 +205,6 @@ public class StatusBar extends JPanel {
         }
     }
 
-    /**
-     * Method that updates the livesOnlyPanel based on no. of remaining lives.
-     * @param playerLives No.of remaining player lives 
-     */
     public void updatePlayerLives(int playerLives){
         livesOnlyPanel.removeAll();
         logger.info("PlayerLives deducted: " + playerLives);
@@ -227,31 +213,6 @@ public class StatusBar extends JPanel {
         }
         livesOnlyPanel.revalidate();
         livesOnlyPanel.repaint();
-    }
-
-    /**
-     * @return Interactive Text Panel with its components.
-     */
-    public JPanel getInteractiveTextPanel(){
-        JPanel rawPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 10));
-        rawPanel.setPreferredSize(new Dimension(180, 40));
-        rawPanel.setBackground(Color.BLACK);
-
-        interactiveText = new JLabel("Sample Interactive Text");
-        Font derivedCustomFont = customFont.deriveFont(Font.PLAIN, 13f);
-        interactiveText.setFont(derivedCustomFont);
-        interactiveText.setForeground(Color.WHITE);
-
-        rawPanel.add(interactiveText);
-        return rawPanel;
-    }
-
-    /**
-     * Method to Update Interactive Text label.
-     * @parm String to display on the Jlabel
-     */
-    public void setInteractiveText(String Text){
-        interactiveText.setText(Text);
     }
 
 }

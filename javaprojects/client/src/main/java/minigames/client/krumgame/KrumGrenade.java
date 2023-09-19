@@ -16,8 +16,8 @@ public class KrumGrenade extends KrumProjectile {
     final int MAX_DAMAGE = 50;
     long explosionTick; 
     boolean hasBounced = false;
-    KrumGrenade(int xpos, int ypos, double xvel, double yvel, int seconds, BufferedImage sprite, WritableRaster ground, long tick, boolean onMoon) {
-        super(xpos, ypos, xvel, yvel, sprite, ground, onMoon);        
+    KrumGrenade(int xpos, int ypos, double xvel, double yvel, int seconds, BufferedImage sprite, WritableRaster ground, long tick) {
+        super(xpos, ypos, xvel, yvel, sprite, ground);        
         knockbackDistance = KNOCKBACK_DISTANCE;
         knockbackPower = KNOCKBACK_POWER;
         radius = (int)(sprite.getWidth() / 2);        
@@ -31,9 +31,9 @@ public class KrumGrenade extends KrumProjectile {
     void update(double windX, double windY) {
         if (collisionCheck()) 
             System.out.println("colliding at start");
-        yvel += super.onMoon ? KrumC.MOON_GRAVITY : KrumC.GRAVITY;
-        xvel *= super.onMoon ? KrumC.MOON_AIR_RES_FACTOR : KrumC.AIR_RES_FACTOR;
-        yvel *= super.onMoon ? KrumC.MOON_AIR_RES_FACTOR : KrumC.AIR_RES_FACTOR;
+        yvel += KrumC.GRAVITY;
+        xvel *= KrumC.AIR_RES_FACTOR;
+        yvel *= KrumC.AIR_RES_FACTOR;
         this.x += xvel;
         this.y += yvel;
         ArrayList<int[]> collisionPoints = new ArrayList<int[]>();

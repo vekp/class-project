@@ -48,6 +48,8 @@ public class KrumPlayer {
     int[] ammo;
     int[] firedThisTurn;
     
+    
+
 
     boolean canShootRope;
 
@@ -60,6 +62,7 @@ public class KrumPlayer {
 
     String spriteDir;
     BufferedImage sprite;
+    BufferedImage aura;
     BufferedImage spriteGun;
     Color primaryColor;
     Color secondaryColor;
@@ -68,6 +71,7 @@ public class KrumPlayer {
     WritableRaster levelRaster; // alpha values of level pixels
 
     BufferedImage[] sprites;
+    BufferedImage[] auras;
 
     boolean firing;
     boolean firingGrenade;
@@ -124,9 +128,6 @@ public class KrumPlayer {
 
     boolean stuck = false;
 
-    boolean playBazookaClick = false;
-    boolean playGrenadeClick = false;
-
     boolean upArrowKeyDownNextFrame;
     boolean downArrowKeyDownNextFrame;
     boolean upArrowKeyUpNextFrame;
@@ -140,6 +141,9 @@ public class KrumPlayer {
     boolean grenadeNextFrame;
 
     int spriteIndex = 0;
+    int auraIndex = 0;
+
+    int frameCount = 0;
 
     boolean detachRopeNextFrame = false;
     boolean shootRopeNextFrame = false;
@@ -185,8 +189,6 @@ public class KrumPlayer {
     BufferedImage projectileSprite;
     BufferedImage grenadeSprite;
 
-    BufferedImage spaceHelmetSprite;
-
     ArrayList<Double> ropeSegmentLengths;
  
     int playerIndex;
@@ -199,22 +201,6 @@ public class KrumPlayer {
 
     KrumPlayer[] players;
 
-    public boolean onMoon;
-
-    final int helmetOffsets[][] = { {9, -6},
-                                    {8, -5},
-                                    {9, -1},
-                                    {5, -4},
-                                    {11, 3},
-                                    {6, -6},
-                                    {6, -5},
-                                    {5, -1},
-                                    {9, -4},
-                                    {3, 3}
-    };
-
-
-
     
     /**
      * 
@@ -226,7 +212,7 @@ public class KrumPlayer {
      * @param direction     true = pleyer faces right at beginning of fame
      * @param level         alpha raster of level
      */
-    KrumPlayer(int xpos, int ypos, String spriteFileName, int panelX, int panelY, boolean direction, WritableRaster level, int index, KrumPlayer[] players, Color primaryColor, Color secondaryColor, Color gunColor, boolean onMoon) {
+    KrumPlayer(int xpos, int ypos, String spriteFileName, int panelX, int panelY, boolean direction, WritableRaster level, int index, KrumPlayer[] players, Color primaryColor, Color secondaryColor, Color gunColor) {
         this.levelRaster = level;
         topEdgeLeft = -1;
         topEdgeRight = -1;
@@ -251,12 +237,9 @@ public class KrumPlayer {
         this.secondaryColor = secondaryColor;
         this.gunColor = gunColor;
 
-        this.onMoon = onMoon;
-
         BufferedImage joeySprite = KrumHelpers.readSprite("joey.png");
-        BufferedImage joeyHelmetSprite = KrumHelpers.readSprite("helmet_small.png");
 
-        joey = new KrumJoey(0,0,0,0,8,joeySprite,level,0,onMoon,joeyHelmetSprite);
+        joey = new KrumJoey(0,0,0,0,8,joeySprite,level,0);
         
         // Reading sprites
         projectileSprite = KrumHelpers.readSprite("carrot_s.png");
@@ -276,11 +259,16 @@ public class KrumPlayer {
             KrumHelpers.readSprite(spriteDir + "90_DOWN_L.png")
         };
 
-        spaceHelmetSprite = KrumHelpers.readSprite(spriteDir + "helmet.png");
+        auras = new BufferedImage[]{ 
+            KrumHelpers.readSprite(spriteDir + "aura_1.png"),
+            KrumHelpers.readSprite(spriteDir + "aura_2.png")
+        };
 
         for (BufferedImage i : sprites) {
             i = applyCustomColors(i);
         }
+
+        aura = auras[0];
 
         sprite = sprites[0];
         
@@ -471,12 +459,19 @@ public class KrumPlayer {
         }
 
         //Sprite Drawing   
+
+        frameCount += 1;
+
+        if (true && frameCount >= 20) { //First true to change to level 5 check
+            frameCount = 0;
+            auraIndex += 1;
+            auraIndex = auraIndex % 2;
+            aura = auras[auraIndex];
+        }
         
         if (flashFramesLeft <= 0 || flashFramesLeft % 4 == 0) {
+            g.drawImage(aura, null, (int)xpos, (int)ypos);
             g.drawImage(sprite, null, (int)xpos, (int)ypos);   
-            if (onMoon) {
-                g.drawImage(spaceHelmetSprite, null, (int)xpos + helmetOffsets[spriteIndex][0], (int)ypos + helmetOffsets[spriteIndex][1]);
-            }
             if (!punching) {
                 spriteGun();
                 if (!facingRight) {
@@ -521,6 +516,7 @@ public class KrumPlayer {
         // draw punch
         if (punching) {
             g.drawImage(punchSprite, null, (int)xpos, (int)ypos);
+            KrumSound.playSound("punch");
         }
 
         //draw hp
@@ -583,8 +579,6 @@ public class KrumPlayer {
             blowtorchAimAngle = playbackFrame.blowtorchAimAngle;
             lastAimAngle = playbackFrame.lastAimAngle;
             punchNextFrame = playbackFrame.punch;
-            playGrenadeClick = playbackFrame.playGrenadeClick;
-            playBazookaClick = playbackFrame.playBazookaClick;
             if (facingRight != playbackFrame.facingRight) {
                 facingRight = playbackFrame.facingRight;
                 spriteGun();
@@ -721,26 +715,6 @@ public class KrumPlayer {
         if (punching) {
             updatePunch();
         }
-        if (playBazookaClick) {
-            KrumSound.playSound("gunclick2");
-            playBazookaClick = false;
-            if (recordingFrame != null) {
-                recordingFrame.playBazookaClick = true;
-            }
-        }
-        else if (recordingFrame != null) {
-            recordingFrame.playBazookaClick = false;
-        }
-        if (playGrenadeClick) {
-            KrumSound.playSound("grenadeclick3");
-            playGrenadeClick = false;
-            if (recordingFrame != null) {
-                recordingFrame.playGrenadeClick = true;
-            }
-        }
-        else if (recordingFrame != null)  {
-            recordingFrame.playGrenadeClick = false;
-        }
 
         //fire weapons if at max power
         if (recordingFrame != null) {
@@ -753,9 +727,9 @@ public class KrumPlayer {
         if (airborne) {
             double oldx = xpos;
             double oldy = ypos;
-            yvel += onMoon ? KrumC.MOON_GRAVITY : KrumC.GRAVITY;
-            yvel *= onMoon ? KrumC.MOON_AIR_RES_FACTOR : KrumC.AIR_RES_FACTOR;
-            xvel *= onMoon ? KrumC.MOON_AIR_RES_FACTOR : KrumC.AIR_RES_FACTOR;
+            yvel += KrumC.GRAVITY;
+            yvel *= KrumC.AIR_RES_FACTOR;
+            xvel *= KrumC.AIR_RES_FACTOR;
             xpos += xvel;
             ypos += yvel; 
             boolean land = false;
@@ -846,9 +820,8 @@ public class KrumPlayer {
                 canShootRope = true;    
                 stuck = false;       
             }
-            else if (collision && wasOnRope && canShootRope) {
+            if (collision && wasOnRope) {
                 canShootRope = false;
-                KrumSound.playSound("mini_ouch");
             }
         }
         if (walking && (!airborne || walkedOffEdge || stuck) && !blowtorchActive) {
@@ -939,9 +912,9 @@ public class KrumPlayer {
             }
             double oldx = xpos;
             double oldy = ypos;
-            yvel += onMoon ? KrumC.MOON_GRAVITY : KrumC.GRAVITY;
-            yvel *= onMoon ? KrumC.MOON_AIR_RES_FACTOR : KrumC.AIR_RES_FACTOR;
-            xvel *= onMoon ? KrumC.MOON_AIR_RES_FACTOR : KrumC.AIR_RES_FACTOR;      
+            yvel += KrumC.GRAVITY;
+            yvel *= KrumC.AIR_RES_FACTOR;       
+            xvel *= KrumC.AIR_RES_FACTOR;            
             double velMag = Math.sqrt(xvel*xvel + yvel*yvel);
             double velDir = Math.atan2(-yvel, xvel);
             double ropeVelMag = Math.abs(Math.sin(ropeAngleRadians - velDir)) * velMag;
@@ -1432,13 +1405,13 @@ public class KrumPlayer {
     void fireJoey() {
         ammo[JOEY]--;
         firedThisTurn[JOEY]++;
-        joey.spawn(playerCentre().x - joey.sprite.getWidth() / 2,playerCentre().y - joey.sprite.getHeight() / 2,xvel + 1 * (facingRight ? 1 : -1), yvel - 1, tick, facingRight, onMoon);
+        joey.spawn(playerCentre().x - joey.sprite.getWidth() / 2,playerCentre().y - joey.sprite.getHeight() / 2,xvel + 1 * (facingRight ? 1 : -1), yvel - 1, tick, facingRight);
         KrumSound.playSound("joeygiggle");
     }
 
     void startGrenadeFire(MouseEvent e) {
         if (ammo[NADE] < 1 || firedThisTurn[NADE] >= shotsPerTurn[NADE]) {
-            playGrenadeClick = true;
+            KrumSound.playSound("grenadeclick3");
             return;
         }
         firingGrenade = true;
@@ -1460,7 +1433,7 @@ public class KrumPlayer {
         ammo[NADE]--;
         firedThisTurn[NADE]++;
         power /= 100000000; 
-        grenade = new KrumGrenade((int)(xpos + sprite.getWidth()/2 + Math.cos(grenadeAimAngle) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(grenadeAimAngle) * KrumC.psd), Math.cos(grenadeAimAngle) * power + xvel, Math.sin(grenadeAimAngle) * power * -1 + yvel, grenadeSeconds, grenadeSprite, levelRaster, tick, onMoon);
+        grenade = new KrumGrenade((int)(xpos + sprite.getWidth()/2 + Math.cos(grenadeAimAngle) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(grenadeAimAngle) * KrumC.psd), Math.cos(grenadeAimAngle) * power + xvel, Math.sin(grenadeAimAngle) * power * -1 + yvel, grenadeSeconds, grenadeSprite, levelRaster, tick);
         KrumSound.playSound("grenadethrow");
     }
 
@@ -1470,7 +1443,7 @@ public class KrumPlayer {
      */
     void startFire(MouseEvent e) {
         if (ammo[ZOOK] < 1 || firedThisTurn[ZOOK] >= shotsPerTurn[ZOOK]) {
-            playBazookaClick = true;
+            KrumSound.playSound("gunclick2");
             return;
         }
         firing = true;
@@ -1500,7 +1473,7 @@ public class KrumPlayer {
         firedThisTurn[ZOOK]++;
         ammo[ZOOK]--;
         power /= 100000000;   
-        projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(shootAimAngle) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(shootAimAngle) * KrumC.psd), Math.cos(shootAimAngle) * power + xvel, Math.sin(shootAimAngle) * power * -1 + yvel, projectileSprite, levelRaster, onMoon);
+        projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(shootAimAngle) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(shootAimAngle) * KrumC.psd), Math.cos(shootAimAngle) * power + xvel, Math.sin(shootAimAngle) * power * -1 + yvel, projectileSprite, levelRaster);
         KrumSound.playSound("bazooka");
     }
 

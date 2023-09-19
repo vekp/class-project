@@ -48,16 +48,13 @@ public class KrumJoey extends KrumProjectile {
     boolean active;    
     boolean flash;
     long currentTick;
-    final int[][] HELMET_OFFSETS = {{4, -3}, {0, -3}};
-    BufferedImage helmetSprite;
-    KrumJoey(int xpos, int ypos, double xvel, double yvel, int seconds, BufferedImage sprite, WritableRaster ground, long tick, boolean onMoon, BufferedImage helmetSprite) {
-        super(xpos, ypos, xvel, yvel, sprite, ground, onMoon);
+    KrumJoey(int xpos, int ypos, double xvel, double yvel, int seconds, BufferedImage sprite, WritableRaster ground, long tick) {
+        super(xpos, ypos, xvel, yvel, sprite, ground);
         maxDamage = MAX_DAMAGE;
         this.flash = false;
         this.facingRight = true;
         this.xpos = xpos;
         this.ypos = ypos;
-        this.helmetSprite = helmetSprite;
         knockbackDistance = KNOCKBACK_DISTANCE;
         knockbackPower = KNOCKBACK_POWER;
         explosionRadius = EXPLOSION_RADIUS; 
@@ -240,7 +237,7 @@ public class KrumJoey extends KrumProjectile {
      * @param tick
      * @param facingRight
      */
-    void spawn(double xpos, double ypos, double xvel, double yvel, long tick, boolean facingRight, boolean onMoon){
+    void spawn(double xpos, double ypos, double xvel, double yvel, long tick, boolean facingRight){
         this.xvel = xvel;
         this.yvel = yvel;
         exploding = false;   
@@ -252,16 +249,11 @@ public class KrumJoey extends KrumProjectile {
         this.currentTick = tick;
         this.flash = false;
         startTick = tick;
-        super.onMoon = onMoon;
     }
     @Override 
     void draw(Graphics2D g) {
         if (!flash || currentTick % 4 < 2) {
             g.drawImage(sprite, null, (int)xpos, (int)ypos);
-            if (onMoon) {
-                int i = facingRight ? 0 : 1;
-                g.drawImage(helmetSprite, null, (int)xpos + HELMET_OFFSETS[i][0], (int)ypos + HELMET_OFFSETS[i][1]);
-            }
         }        
     }
 
@@ -271,9 +263,9 @@ public class KrumJoey extends KrumProjectile {
 
     void update(long tick) {
         this.currentTick = tick;
-        yvel += super.onMoon ? KrumC.MOON_GRAVITY : KrumC.GRAVITY;
-        yvel *= super.onMoon ? KrumC.MOON_AIR_RES_FACTOR : KrumC.AIR_RES_FACTOR;
-        xvel *= super.onMoon ? KrumC.AIR_RES_FACTOR : KrumC.AIR_RES_FACTOR;
+        yvel += KrumC.GRAVITY;
+        yvel *= KrumC.AIR_RES_FACTOR;
+        xvel *= KrumC.AIR_RES_FACTOR;
         xpos += xvel;
         ypos += yvel; 
         boolean land = false;
@@ -327,6 +319,7 @@ public class KrumJoey extends KrumProjectile {
         if (!flash && KrumHelpers.distanceBetween(xpos + sprite.getWidth() / 2, ypos + sprite.getHeight() / 2, otherPlayer.playerCentre().x, otherPlayer.playerCentre().y) < PROXIMITY_THRESHOLD) {
             if (currentTick - startTick > PROXIMITY_BEGIN) {
                 explosionTick = Math.min(explosionTick, tick + PROXIMITY_DELAY);
+                KrumSound.playSound("joeypop");
                 flash = true;
             }           
         }

@@ -14,14 +14,12 @@ public class SpacePlayer extends SpaceEntity {
     private int numKeys;
     private int playerScore;
     private int numLives;
-    private boolean lostLives;
 
     public SpacePlayer(Point startLocation, int lives) {
         super(startLocation);
         this.numKeys = 0;
         this.playerScore = 0;
         this.numLives = lives;
-        this.lostLives = false;
     }
 
     /**
@@ -46,7 +44,6 @@ public class SpacePlayer extends SpaceEntity {
         this.numKeys = 0;
         this.playerScore = 0;
         this.numLives = 5;
-        this.lostLives = false;
     }
 
      /**
@@ -80,7 +77,6 @@ public class SpacePlayer extends SpaceEntity {
      * @param numRemove number of lives to remove off the player.
      */
     public void removeLife(int numRemove) {
-        lostLives = true;
         if(numLives - numRemove < 0) {
             throw new IllegalArgumentException("Taking away that many lives would result in a negative number of lives.");
         }
@@ -92,13 +88,6 @@ public class SpacePlayer extends SpaceEntity {
      */
     public int getLives() {
         return numLives;
-    }
-    /**
-     * Public method for determining if the player has ever lost a life.
-     * @return bool if the player has ever lost a life.
-     */
-    public boolean hasLostLives() {
-        return lostLives;
     }
 }
 
