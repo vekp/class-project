@@ -1,96 +1,130 @@
 package minigames.server.tictactoe;
 
 import io.vertx.core.json.JsonObject;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.RenderingPackage;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class TicTacToeGame {
 
-    String name;
-    char[] board = new char[9];
-    List<String> players = new ArrayList<>();
-    int currentPlayerIndex = 0;
+    public enum PlayerSymbol {
+        X, O
+    }
 
-    public TicTacToeGame(String name, String firstPlayer) {
+    public enum GameStatus {
+        PLAYING, X_WINS, O_WINS, DRAW
+    }
+
+    public String name;
+    private String[] players = new String[2];
+    private PlayerSymbol[] board = new PlayerSymbol[9];
+    private PlayerSymbol currentPlayer = PlayerSymbol.X;
+    private GameStatus status = GameStatus.PLAYING;
+
+    public TicTacToeGame(String name, String initialPlayer) {
         this.name = name;
-        Arrays.fill(board, '\0');
-        players.add(firstPlayer);
+        players[0] = initialPlayer;
+        Arrays.fill(board, null);
     }
 
-    public String[] getPlayerNames() {
-        return players.toArray(new String[0]);
-    }
+    public GameMetadata gameMetadata() {
+    // Determine the list of players currently in the game (excluding null entries)
+    List<String> playerNames = Arrays.stream(players)
+                                    .filter(Objects::nonNull)
+                                    .collect(Collectors.toList());
+
+    // Assume the game is joinable if there are fewer than 2 players
+    boolean isJoinable = playerNames.size() < 2;
+
+    return new GameMetadata("TicTacToe", name, playerNames.toArray(new String[0]), isJoinable);
+    
+}
+
 
     public RenderingPackage joinGame(String playerName) {
-        if (!players.contains(playerName)) {
-            players.add(playerName);
-        }
+    if (players[1] == null) {
+        players[1] = playerName;
+    }
 
-        List<JsonObject> commands = new ArrayList<>();
-        commands.add(new JsonObject().put("boardState", boardState()));
-        GameMetadata metadata = new GameMetadata("TicTacToe", name, players.toArray(new String[0]), true);
+    ArrayList<JsonObject> renderingCommands = new ArrayList<>();
+    renderingCommands.add(new JsonObject().put("command", "join").put("player", playerName));
 
-        return new RenderingPackage(metadata, commands);
+    return new RenderingPackage(gameMetadata(), renderingCommands);
+}
+
+    public String[] getPlayerNames() {
+        return players;
     }
 
     public RenderingPackage runCommands(CommandPackage cp) {
-        List<JsonObject> commands = new ArrayList<>();
+        JsonObject command = cp.commands().get(0); // assume single command for simplicity
 
-        if (!cp.player().equals(players.get(currentPlayerIndex))) {
-            commands.add(new JsonObject().put("message", "notYourTurn"));
-            GameMetadata metadata = new GameMetadata("TicTacToe", name, players.toArray(new String[0]), true);
-            return new RenderingPackage(metadata, commands);
+        switch (command.getString("command")) {
+            case "place":
+                int position = command.getInteger("position");
+                if (board[position] == null) {
+                    board[position] = currentPlayer;
+                    checkGameStatus();
+                    switchPlayer();
+                }
+                break;
         }
 
-        int move = cp.commands().get(0).getInteger("move");
-        char currentPlayerMark = currentPlayerIndex == 0 ? 'X' : 'O';
+        return renderGameState();
+    }
 
-        if (board[move] == '\0') {
-            board[move] = currentPlayerMark;
+    private void switchPlayer() {
+        currentPlayer = currentPlayer == PlayerSymbol.X ? PlayerSymbol.O : PlayerSymbol.X;
+    }
 
-            if (checkVictory(currentPlayerMark)) {
-                commands.add(new JsonObject().put("result", "gameWon").put("winner", currentPlayerMark));
-            } else if (isBoardFull()) {
-                commands.add(new JsonObject().put("result", "gameDraw"));
-            } else {
-                currentPlayerIndex = 1 - currentPlayerIndex;
+    private void checkGameStatus() {
+        // Check rows, columns, and diagonals
+        if (
+            (board[0] == currentPlayer && board[1] == currentPlayer && board[2] == currentPlayer) ||
+            (board[3] == currentPlayer && board[4] == currentPlayer && board[5] == currentPlayer) ||
+            (board[6] == currentPlayer && board[7] == currentPlayer && board[8] == currentPlayer) ||
+            (board[0] == currentPlayer && board[3] == currentPlayer && board[6] == currentPlayer) ||
+            (board[1] == currentPlayer && board[4] == currentPlayer && board[7] == currentPlayer) ||
+            (board[2] == currentPlayer && board[5] == currentPlayer && board[8] == currentPlayer) ||
+            (board[0] == currentPlayer && board[4] == currentPlayer && board[8] == currentPlayer) ||
+            (board[2] == currentPlayer && board[4] == currentPlayer && board[6] == currentPlayer)
+        ) {
+            status = currentPlayer == PlayerSymbol.X ? GameStatus.X_WINS : GameStatus.O_WINS;
+            return;
+        }
+
+        boolean isDraw = true;
+        for (PlayerSymbol cell : board) {
+            if (cell == null) {
+                isDraw = false;
+                break;
             }
-        } else {
-            commands.add(new JsonObject().put("message", "cellTaken"));
         }
 
-        commands.add(new JsonObject().put("boardState", boardState()));
-        GameMetadata metadata = new GameMetadata("TicTacToe", name, players.toArray(new String[0]), true);
-
-        return new RenderingPackage(metadata, commands);
-    }
-
-    private boolean checkVictory(char mark) {
-        for (int i = 0; i < 9; i += 3) {
-            if (board[i] == mark && board[i + 1] == mark && board[i + 2] == mark) return true;
+        if (isDraw) {
+            status = GameStatus.DRAW;
         }
-        for (int i = 0; i < 3; i++) {
-            if (board[i] == mark && board[i + 3] == mark && board[i + 6] == mark) return true;
-        }
-        if (board[0] == mark && board[4] == mark && board[8] == mark) return true;
-        if (board[2] == mark && board[4] == mark && board[6] == mark) return true;
-
-        return false;
     }
 
-    private boolean isBoardFull() {
-        for (char c : board) {
-            if (c == '\0') return false;
-        }
-        return true;
-    }
+    private RenderingPackage renderGameState() {
+    ArrayList<JsonObject> renderingCommands = new ArrayList<>();
+    
+    JsonObject gameState = new JsonObject()
+            .put("command", "updateGameState")
+            .put("board", board)
+            .put("currentPlayer", currentPlayer.toString())
+            .put("status", status.toString());
+    
+    renderingCommands.add(gameState);
+    
+    return new RenderingPackage(gameMetadata(), renderingCommands);
+}
 
-    private String boardState() {
-        return new String(board);
-    }
 }

@@ -15,6 +15,7 @@ public record CommandPackage(
     String player,
     List<JsonObject> commands
 ) {
+    
     public static CommandPackage fromJson(JsonObject json) {
         return new CommandPackage(
             json.getString("gameServer"),

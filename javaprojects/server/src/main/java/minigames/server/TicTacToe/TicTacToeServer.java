@@ -2,20 +2,26 @@ package minigames.server.tictactoe;
 
 import io.vertx.core.Future;
 import minigames.commands.CommandPackage;
+import minigames.rendering.RenderingPackage;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.GameServerDetails;
-import minigames.rendering.RenderingPackage;
 import minigames.server.ClientType;
 import minigames.server.GameServer;
+import minigames.server.achievements.AchievementHandler;
 
 import java.util.HashMap;
 import java.util.Random;
 
+/**
+ * The TicTacToeServer holds TicTacToeGames.
+ * When it receives a CommandPackage, it finds the TicTacToeGame and calls it.
+ */
 public class TicTacToeServer implements GameServer {
 
     static final String chars = "abcdefghijklmopqrstuvwxyz";
+    AchievementHandler achievementHandler;
 
-    /** Generate a random name for our games, like Muddle does */
+    /** A random name generator for games */
     static String randomName() {
         Random r = new Random();
         StringBuffer sb = new StringBuffer();
@@ -25,12 +31,18 @@ public class TicTacToeServer implements GameServer {
         return sb.toString();
     }
 
-    /** Holds the games in progress in memory (no db) */
+    /** Holds the Tic Tac Toe games in progress in memory (no db) */
     HashMap<String, TicTacToeGame> games = new HashMap<>();
+
+    public TicTacToeServer() {
+        achievementHandler = new AchievementHandler(TicTacToeServer.class);
+        // You can register achievements related to Tic Tac Toe here
+        // e.g. achievementHandler.registerAchievement(someAchievement);
+    }
 
     @Override
     public GameServerDetails getDetails() {
-        return new GameServerDetails("TicTacToe", "A classic Tic Tac Toe game");
+        return new GameServerDetails("TicTacToe", "A classic game of Xs and Os");
     }
 
     @Override
@@ -40,15 +52,10 @@ public class TicTacToeServer implements GameServer {
 
     @Override
     public GameMetadata[] getGamesInProgress() {
-    return games.entrySet().stream().map(entry -> {
-        String name = entry.getKey();
-        TicTacToeGame game = entry.getValue();
-        String[] playerNames = game.getPlayerNames();  // Assuming TicTacToeGame has a method called getPlayerNames()
-        GameMetadata metadata = new GameMetadata("TicTacToe", name, playerNames, true);
-        return metadata;
-    }).toArray(GameMetadata[]::new);
-}
-
+        return games.keySet().stream().map((name) -> {
+            return new GameMetadata("TicTacToe", name, games.get(name).getPlayerNames(), true);
+        }).toArray(GameMetadata[]::new);
+    }
 
     @Override
     public Future<RenderingPackage> newGame(String playerName) {

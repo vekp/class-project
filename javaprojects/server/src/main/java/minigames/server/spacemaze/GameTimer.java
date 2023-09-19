@@ -9,7 +9,7 @@ package minigames.server.spacemaze;
 *  Currently cannot end the game from a paused state and recieve your total time.
 *  I can adjust for that if needed but I think to recieve a score the game
 *  should end from a running state.
-*/
+* */
 public class GameTimer {
 
     // Time when timer was started

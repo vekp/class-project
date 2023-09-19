@@ -7,35 +7,29 @@ public class WindManager{
     private double windY;
     private String windString;
     private Random rand;
-    private boolean onMoon;
 
-
-    public WindManager(long seed, boolean onMoon){
+    public WindManager(long seed){
         rand = new Random(seed);
-        this.onMoon = onMoon;
-        updateWind();  
+        initializeWind();
     }
 
-    public void updateWind(){
+    private void initializeWind(){
         windY = 0;
-        if (onMoon) {
-            windX = 0;
-        }
-        else {
-            windX = (rand.nextDouble() - 0.5) / 10;
-        }
-        updateWindString();
+        windX = -0.02;
+        windString = "Wind: left 2.00";
     }
 
-    public void updateWindString(){
-        if (windX == 0) {
-            windString = "Wind: still";
-        }
-        else {
-            windString = "Wind: ";
-            windString += windX > 0 ? "Right " : "Left ";        
-            windString += Math.round(windX * 10000.0) / 100.0;
-        }        
+    public double updateWindX(){
+        return (rand.nextDouble() - 0.5) / 10;
+        
+    }
+
+    public String updateWindString(){
+        windX = updateWindX();
+        windString = "Wind: ";
+        windString += windX > 0 ? "Right " : "Left ";
+        windString += Math.round(windX * 10000.0) / 100.0;
+        return windString;
     }
 
     public double getWindX(){
@@ -49,7 +43,4 @@ public class WindManager{
     public String getWindString(){
         return windString;
     } 
-    public void setOnMoon(boolean onMoon) {
-        this.onMoon = onMoon;
-    }
 }
