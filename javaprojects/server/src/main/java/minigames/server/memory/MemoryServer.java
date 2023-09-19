@@ -14,7 +14,7 @@ import minigames.server.GameServer;
 import minigames.server.achievements.AchievementHandler;
 
 /**
- * Our MemoryServer holds MemoryGame.
+ * Our MemoryServer holds MemoryGame. 
  * When it receives a CommandPackage, it finds the MemoryGame and calls it.
  * Used and adapted MuddleServer.java
  */
