@@ -197,33 +197,44 @@ public class BattleshipPlayer {
         // List of available ships
         String[] ships = {"Carrier", "Battleship", "Destroyer", "Submarine", "Patrol Boat"};
         // Currently selected ship
-        int shipIndex = 0;
-        for (int i=0; i<ships.length; i++) {
-            if (ships[i].equals(ship.getShipClass())) shipIndex = i;
-        }
-
-
         int row = ship.getRow();
         int col = ship.getCol();
         boolean hor = ship.isHorizontal();
 
+        System.out.println("Moving ship: "+ships[ship.getIdentifier()]);
         switch (move) {
             case "UP" -> {
                 System.out.println("Moving up");
-                getBoard().customShip(ship.getShipClass(), shipIndex, row-1, col, hor, getBoard().getVessels());
+                this.playerBoard.customShip(ship.getShipClass(), ship.getIdentifier(), row-1, col, hor, getBoard().getVessels());
             }
             case "DOWN" -> {
                 System.out.println("Moving down");
-                getBoard().customShip(ship.getShipClass(), shipIndex, row+1, col, hor, getBoard().getVessels());
+                this.playerBoard.customShip(ship.getShipClass(), ship.getIdentifier(), row+1, col, hor, getBoard().getVessels());
+            }
+            case "LEFT" -> {
+                System.out.println("Moving left");
+                this.playerBoard.customShip(ship.getShipClass(), ship.getIdentifier(), row, col-1, hor, getBoard().getVessels());
+            }
+            case "RIGHT" -> {
+                System.out.println("Moving right");
+                this.playerBoard.customShip(ship.getShipClass(), ship.getIdentifier(), row, col+1, hor, getBoard().getVessels());
+            }
+            case "ROTATE" -> {
+                System.out.println("Rotating");
+                this.playerBoard.customShip(ship.getShipClass(), ship.getIdentifier(), row, col, !hor, getBoard().getVessels());
             }
         }
 
     }
 
-    public boolean validPlacement(int shipIndex, int colMov, int rowMov, boolean rotate) {
+    public boolean isInsideGrid(Ship shipIn, int colMov, int rowMov, boolean rotate) {
         // Get selected ship
         String[] ships = this.getBoard().getVessels().keySet().toArray(new String[0]);
-        Ship ship = this.getBoard().getShip(ships[shipIndex]);
+        for (String s:ships) {
+            System.out.print(s+", ");
+        }
+        System.out.println("");
+        Ship ship = this.getBoard().getShip(shipIn.getShipClass());
         System.out.println("Ship Class: "+ship.getShipClass());
         // Get coordinate list of existing ship location
         ArrayList<String> oldCoords = new ArrayList<>();
@@ -233,29 +244,27 @@ public class BattleshipPlayer {
 
         // TODO check if it overlaps? each turn or only at end?
 
+//        int horSize = col + ship.getShipParts().length + colMov;
+//        System.out.println("Horizontal: "+ship.isHorizontal());
+//        System.out.println("Horizontal Size: "+horSize);
+//        int length = ship.getShipParts().length;
+//        System.out.println("Ship Length: "+length);
+//        System.out.println(col + " + " + (length-1) + " + " + colMov + " = " + horSize);
+
         // Check new placement will be inside the grid
         int row = ship.getRow();
         int col = ship.getCol();
-        int horSize = col + ship.getShipParts().length + colMov;
-        System.out.println("Horizontal: "+ship.isHorizontal());
-        System.out.println("Horizontal Size: "+horSize);
-        int length = ship.getShipParts().length;
-        System.out.println("Ship Length: "+length);
-        System.out.println(col + " + " + (length-1) + " + " + colMov + " = " + horSize);
+        int len = ship.getShipParts().length;
+        boolean orientation = ship.isHorizontal();
 
-        if (ship.isHorizontal()) {
-            if (colMov != 0 && rowMov == 0 && horSize < length || horSize > 9) {
-                System.out.println("Cannot move horizontally");
-                return false;
-            }
-            if (ship.isHorizontal() && row + rowMov < 0 || row + rowMov > 9 && colMov == 0) {
-                System.out.println("Cannot move vertically");
-                return false;
-            }
-        }
-
-
-
+        // Moving left, if horizontal OR vertical and less than 0 return false
+        if ((colMov == -1) && (col + colMov < 0)) return false;
+        // Moving right, if horizontal OR vertical and greater than 10 return false
+        if ((colMov == 1) && ((col + len >= 10) || (col + colMov >= 10))) return false;
+        // Moving up, if horizontal OR vertical, and less than 0 return false
+        if ((rowMov == -1) && (row + rowMov < 0)) return false;
+        // Moving down, if horizontal OR vertical and greater than 10 return false
+        if ((rowMov == 1) && ((!orientation && row + len >= 10) || (orientation && row + rowMov >= 10))) return false;
 
 //        if (ship.isHorizontal() && (horSize > 10 || horSize < length) && colMov != 0) {
 //            System.out.println("Horizontal ship -> horizontal movement");

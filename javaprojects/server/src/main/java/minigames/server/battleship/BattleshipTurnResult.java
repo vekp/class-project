@@ -24,8 +24,9 @@ public record BattleshipTurnResult(
 
     public static BattleshipTurnResult invalidInput(String input) {
         String message = input.isBlank() ?
-                "\nInput cannot be blank, please enter a coordinate in the form 'A7'" :
-                "\n" + input + " is an invalid entry. Please enter a coordinate in the form 'A7'";
+                "Input cannot be blank, please enter a coordinate in the form 'A7'" + inputPrompt()
+                :
+                input + " is an invalid entry. Please enter a coordinate in the form 'A7'" + inputPrompt();
 
         return new BattleshipTurnResult(false, false, false,
                 message, "");
@@ -52,6 +53,14 @@ public record BattleshipTurnResult(
                 beginTurnPrompt(false, false, inputCoords));
     }
 
+    public static BattleshipTurnResult missionSuccess() {
+        return new BattleshipTurnResult(true, false, false, getRandomMessage(missionSuccessMessages), getRandomMessage(missionFailMessages));
+    }
+    public static BattleshipTurnResult missionFail() {
+        return new BattleshipTurnResult(true, false, false, getRandomMessage(missionFailMessages), getRandomMessage(missionSuccessMessages));
+    }
+
+
     // Response strings
     static String lineBreak = "\n";
     static String doubleBreak = "\n\n";
@@ -65,6 +74,9 @@ public record BattleshipTurnResult(
     static String[] playerMissMessages = {"Salvo Missed.", "Target not hit.", "Adjust your coordinates."};
     static String[] enemyMissMessages = {"Enemy has missed!", "Enemy missed another salvo.", "They missed us."};
     static String[] shipSunkMessages = {"Vessel has been destroyed.", "Another one sunk Sir!", "To the depths she goes."};
+
+    static String[] missionSuccessMessages = {"Victory! Enemy fleet has been destroyed.", "Mission Success! All ships destroyed.", "Voyage Successful! Enemy vessels destroyed."};
+    static String[] missionFailMessages = {"We have been defeated.", "Enemy has sunk our fleet.", "Mission Failed. Fleet destroyed."};
 
     /**
      * Method to pick a random string from a list
@@ -119,6 +131,10 @@ public record BattleshipTurnResult(
                 + message
                 + " "
                 + incoming;
+    }
+
+    static String inputPrompt() {
+        return doubleBreak + enterCoords + inputPending;
     }
 
 }
