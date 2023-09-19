@@ -10,7 +10,7 @@ public class DeckOfCards {
      * There are no setters for the card, it's immutable and won't change.
      * The only data member we can change is the faceUp value, which we can change
      * from true to false and back
-     * with the flipCard() method.
+     * with the flipCard() method. 
      */
     public class PlayingCard {
         private String suit;
