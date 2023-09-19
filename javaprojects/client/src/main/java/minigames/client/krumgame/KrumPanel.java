@@ -22,6 +22,7 @@ public class KrumPanel extends JPanel {
     KrumGame game;
     KeyEventDispatcher eventDispatcher;
     public KrumPanel(KrumGame g) {
+        this.setBackground(Color.WHITE);
         gameActive = false;
         setBorder(BorderFactory.createLineBorder(Color.black));
         addMouseListener(new MouseAdapter(){

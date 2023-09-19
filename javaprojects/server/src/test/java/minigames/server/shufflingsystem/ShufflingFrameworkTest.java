@@ -1,15 +1,19 @@
 package minigames.server.shufflingsystem;
 
 import org.junit.jupiter.api.*;
+
+import minigames.common.memory.DeckOfCards;
+import minigames.common.memory.DeckOfCards.PlayingCard;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import minigames.server.solitaireOrMemory.DeckOfCards;
-import minigames.server.solitaireOrMemory.DeckOfCards.PlayingCard;
-
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 public class ShufflingFrameworkTest {
@@ -50,7 +54,7 @@ public class ShufflingFrameworkTest {
 
     /**
      * This test is to ensure that when a deck of cards is shuffled that no elements are accidentally discarded.
-     * Every index should contain an instance of PlayingCard 
+     * Every index should contain an instance of PlayingCard
      */
 
     @Test
@@ -126,7 +130,7 @@ public class ShufflingFrameworkTest {
         Random random = new Random(seed);
         Random random2 = new Random(seed);
         PlayingCard[] controlDeck = new DeckOfCards(5, false).getCards();
-        PlayingCard[] deckOfCards = new DeckOfCards(5, false).getCards();
+        PlayingCard[] deckOfCards = copyCardArray(controlDeck);
 
         ShufflingFramework.shuffle(deckOfCards, random);
         ShufflingFramework.shuffle(controlDeck, random2);

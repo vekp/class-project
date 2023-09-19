@@ -243,7 +243,6 @@ public class Survey extends JPanel implements ActionListener {
         feedbackText.setFont(fontText);
         feedbackText.setMargin(new Insets(5,15,5,5));
         feedbackText.setBackground(Color.BLACK);
-        feedbackText.setForeground(Color.WHITE);
         Border border = BorderFactory.createLineBorder(Color.BLACK, 1);
         feedbackText.setBorder(BorderFactory.createCompoundBorder(border, 
         BorderFactory.createEmptyBorder(10, 10, 10, 10)));
@@ -291,6 +290,7 @@ public class Survey extends JPanel implements ActionListener {
         resultsButton.addActionListener(e -> {
             mnClient.getMainWindow().clearAll();
             JPanel results = new SurveyResults(mnClient, gameId);
+            // frame.setTitle(Survey.FRAME_TITLE);
             mnClient.getMainWindow().addCenter(results);
             mnClient.getMainWindow().pack();
         });
