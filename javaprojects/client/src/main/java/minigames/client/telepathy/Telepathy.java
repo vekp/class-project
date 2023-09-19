@@ -30,6 +30,8 @@ import minigames.telepathy.TelepathyCommandException;
 import minigames.telepathy.TelepathyCommandHandler;
 import minigames.telepathy.TelepathyCommands;
 import minigames.telepathy.Tile;
+import minigames.telepathy.Colours;
+import minigames.telepathy.Symbols;
 
 import minigames.telepathy.State;
 
@@ -652,6 +654,12 @@ public class Telepathy implements GameClient, Tickable{
         this.player = player;
         this.ticking = true;
 
+        // Reset tiles for new game
+        this.guessedTiles = new HashSet<>();
+        this.eliminatedColumns = new HashSet<>();
+        this.eliminatedRows = new HashSet<>();
+
+
         telepathyNotificationManager = mnClient.getDialogManager();
 
         // Add our components to the north, south, east, west, or centre of the main window's BorderLayout
@@ -723,13 +731,31 @@ public class Telepathy implements GameClient, Tickable{
         String cElim = attributes.get(2);
         String sElim = attributes.get(3); 
 
+        setButtonBorder(buttonGrid[xElim][yElim], Color.RED);
+
         this.eliminatedColumns.add(xElim);
         this.eliminatedRows.add(yElim);
     
     }
 
+    /**
+     * Handle a yes response from the server after asking a question.
+     * @param jsonCommand
+     */
     private void handleYesResponse(JsonObject jsonCommand){
-        
+        ArrayList<String> attributes = TelepathyCommandHandler.getAttributes(jsonCommand);
+
+        int x = Integer.parseInt(attributes.get(0));
+        int y = Integer.parseInt(attributes.get(1));
+
+        this.guessedTiles.add(
+            new Tile(
+                x,
+                y,
+                Colours.valueOf(attributes.get(2).toUpperCase()),
+                Symbols.fromString(attributes.get(3))));
+    
+        setButtonBorder(buttonGrid[x][y], Color.GREEN);
     }
 
     /**
@@ -756,9 +782,7 @@ public class Telepathy implements GameClient, Tickable{
             this.serverState = State.RUNNING;
         }
 
-        if(popups.get(0).equals("gameOver")){
-            // TODO: Add winner/loser message based on attributes received
-            
+        if(popups.get(0).equals("gameOver")){            
             activateGameOverMessage(popups.get(1), popups.get(2));
             this.serverState = State.GAMEOVER;
         }

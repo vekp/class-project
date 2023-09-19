@@ -25,4 +25,19 @@ public String toString(){
     }
 
  }
+
+public static Symbols fromString(String inString){
+    switch(inString){
+        case "<3": return Symbols.HEARTS;
+        case "*": return Symbols.STARS;
+        case "d": return Symbols.DIAMONDS;
+        case "s": return Symbols.SPADES;
+        case "c": return Symbols.CLUBS;
+        case "D": return Symbols.MOONS;
+        case "o": return Symbols.CIRCLES;
+        case "??": return Symbols.QUESTION_MARKS;
+        case "!!": return Symbols.EXCALAMATION_MARKS;
+        default: return null;
+    }
+}
 }

@@ -273,7 +273,9 @@ public class TelepathyGame {
             renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
                 TelepathyCommands.PARTIALMATCH,
                 Integer.toString(questionTile.getHorizontalPos()),
-                Integer.toString(questionTile.getVerticalPos())
+                Integer.toString(questionTile.getVerticalPos()),
+                questionTile.getTileColour().toString(),
+                questionTile.getTileSymbol().toString()
             ));
         }
 
