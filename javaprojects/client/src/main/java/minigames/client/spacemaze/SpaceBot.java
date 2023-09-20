@@ -30,6 +30,7 @@ public class SpaceBot extends SpaceEntity {
     /**
      * Private method to get a list of valid moves the bot could make.
      * @return a ArrayList<Point> of valid moves.
+     * Covered by tests from testInvalidMoves, testValidMovesAreValid, testBotMoveCommand, testIllegalBotMoveCommand
      */
     private ArrayList<Point> getValidMoves() {
         ArrayList<Point> validMoves = new ArrayList<Point>();
@@ -48,6 +49,7 @@ public class SpaceBot extends SpaceEntity {
 
     /**
      * Private method to decide which valid move end up with the bot closing the distance to the player the most.
+     * If two moves are the same distance, it will prioritise Left, Down, Right, Up.
      * @param playerPos a Point of the player's current position.
      * @param possibleMoves an ArrayList<Point> of valid moves the bot could take.
      * @return a Point of the a move to close the distance to the player.
@@ -60,7 +62,7 @@ public class SpaceBot extends SpaceEntity {
         double bestDistance = 50000.0;
         
         for(int i = 0;i<possibleMoves.size();i++) {
-            // index out of bounds here.
+
             Point thisMove = possibleMoves.get(i);
             int yDistance = Math.abs(playerPos.y - thisMove.y);
             int xDistance = Math.abs(playerPos.x - thisMove.x);
@@ -241,7 +243,7 @@ public class SpaceBot extends SpaceEntity {
      * @param move an int representing the direction to move. 0 : Up, 1 : right, 2 : down, 3 : left.
      * @return a Point representing the new position after making the move.
      */
-    public Point getMoveAttempt(int move) {
+    public Point testingGetMoveAttempt(int move) {
         if(move < 0 || move > 3)
         {
             throw new IllegalArgumentException("The movement test input must be between 0 and 3 inclusive.");
@@ -249,4 +251,35 @@ public class SpaceBot extends SpaceEntity {
 
         return moveAttempt(move);
     }
+    /**
+     * Public method to allow getting of internal moves arraylist.
+     * @return ArrayList<Point> used to store bot moves.
+     */
+    public ArrayList<Point> testingGetMovesList() {
+        return moves;
+    }
+
+    /**
+     * Public method to return the seeking boolean if the bot is in seeking mode.
+     * @return boolean of if the bot is seeking.
+     */
+    public boolean testingIsSeeking() {
+        return seeking;
+    }
+    /**
+     * Public method to test the logic of deciding which move to make when seeking.
+     * @return boolean of if the bot is seeking.
+     */
+    public Point testingDistanceCloser(Point playerPos, ArrayList<Point> possibleMoves) {
+        return distanceCloser(playerPos, possibleMoves);
+    }
+
+    /**
+     * Public method to test the logic of switching movement modes.
+     * @return boolean of if the bot is seeking.
+     */
+    public boolean testingChooseSeeking() {
+        return chooseSeeking();
+    }
+
 }

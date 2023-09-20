@@ -175,6 +175,8 @@ public class KrumPlayer {
     BufferedImage punchSprite;
     WritableRaster punchRaster;
 
+    public ArrayList<String> unlockAchievements;
+
     boolean punchHit = false;
 
 
@@ -200,6 +202,8 @@ public class KrumPlayer {
     KrumPlayer[] players;
 
     public boolean onMoon;
+
+    KrumPlayer otherPlayer;
 
     final int helmetOffsets[][] = { {9, -6},
                                     {8, -5},
@@ -253,9 +257,11 @@ public class KrumPlayer {
 
         this.onMoon = onMoon;
 
-        BufferedImage joeySprite = KrumHelpers.readSprite("joey.png");
 
-        joey = new KrumJoey(0,0,0,0,8,joeySprite,level,0,onMoon);
+        BufferedImage joeySprite = KrumHelpers.readSprite("joey.png");
+        BufferedImage joeyHelmetSprite = KrumHelpers.readSprite("helmet_small.png");
+
+        joey = new KrumJoey(0,0,0,0,8,joeySprite,level,0,onMoon,joeyHelmetSprite);
         
         // Reading sprites
         projectileSprite = KrumHelpers.readSprite("carrot_s.png");
@@ -274,6 +280,8 @@ public class KrumPlayer {
             KrumHelpers.readSprite(spriteDir + "90_UP_L.png"),
             KrumHelpers.readSprite(spriteDir + "90_DOWN_L.png")
         };
+
+        unlockAchievements = new ArrayList<String>();
 
         spaceHelmetSprite = KrumHelpers.readSprite(spriteDir + "helmet.png");
 
@@ -1431,7 +1439,7 @@ public class KrumPlayer {
     void fireJoey() {
         ammo[JOEY]--;
         firedThisTurn[JOEY]++;
-        joey.spawn(playerCentre().x - joey.sprite.getWidth() / 2,playerCentre().y - joey.sprite.getHeight() / 2,xvel + 1 * (facingRight ? 1 : -1), yvel - 1, tick, facingRight, onMoon);
+        joey.spawn(playerCentre().x - joey.sprite.getWidth() / 2,playerCentre().y - joey.sprite.getHeight() / 2,xvel + 1 * (facingRight ? 1 : -1), yvel - 1, tick, facingRight, onMoon, onRope);
         KrumSound.playSound("joeygiggle");
     }
 
@@ -1459,7 +1467,7 @@ public class KrumPlayer {
         ammo[NADE]--;
         firedThisTurn[NADE]++;
         power /= 100000000; 
-        grenade = new KrumGrenade((int)(xpos + sprite.getWidth()/2 + Math.cos(grenadeAimAngle) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(grenadeAimAngle) * KrumC.psd), Math.cos(grenadeAimAngle) * power + xvel, Math.sin(grenadeAimAngle) * power * -1 + yvel, grenadeSeconds, grenadeSprite, levelRaster, tick, onMoon);
+        grenade = new KrumGrenade((int)(xpos + sprite.getWidth()/2 + Math.cos(grenadeAimAngle) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(grenadeAimAngle) * KrumC.psd), Math.cos(grenadeAimAngle) * power + xvel, Math.sin(grenadeAimAngle) * power * -1 + yvel, grenadeSeconds, grenadeSprite, levelRaster, tick, onMoon, onRope);
         KrumSound.playSound("grenadethrow");
     }
 
@@ -1499,7 +1507,7 @@ public class KrumPlayer {
         firedThisTurn[ZOOK]++;
         ammo[ZOOK]--;
         power /= 100000000;   
-        projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(shootAimAngle) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(shootAimAngle) * KrumC.psd), Math.cos(shootAimAngle) * power + xvel, Math.sin(shootAimAngle) * power * -1 + yvel, projectileSprite, levelRaster, onMoon);
+        projectile = new KrumProjectile((int)(xpos + sprite.getWidth()/2 + Math.cos(shootAimAngle) * KrumC.psd), (int)(ypos + sprite.getHeight() / 2 - Math.sin(shootAimAngle) * KrumC.psd), Math.cos(shootAimAngle) * power + xvel, Math.sin(shootAimAngle) * power * -1 + yvel, projectileSprite, levelRaster, onMoon, onRope);
         KrumSound.playSound("bazooka");
     }
 
@@ -1516,8 +1524,7 @@ public class KrumPlayer {
             KrumSound.playSound("laser1");
             System.out.println("blowtorch firing from " + blowtorchStartX + ", " + blowtorchStartY + " at angle " + blowtorchAimAngle + ". player sprite is " + spriteIndex);
         }
-        else if (blowtorchWidening || blowtorchWide) {
-            KrumPlayer otherPlayer = players[1 - playerIndex];
+        else if (blowtorchWidening || blowtorchWide) {            
             // destroy level and hit opponent            
             int maxDrawWidth = BLOWTORCH_MAX_WIDTH / 2;
             double ex = (int)(blowtorchStartX + Math.cos(blowtorchAimAngle) * (blowtorchLength));
@@ -1555,9 +1562,8 @@ public class KrumPlayer {
                                 }
                             else if (!hitopp) {
                                 // hit opponent
-                                if  (   xt >= otherPlayer.xpos && xt < otherPlayer.xpos + otherPlayer.alphaRaster.getWidth() 
-                                    &&  yt >= otherPlayer.ypos && yt < otherPlayer.ypos + otherPlayer.alphaRaster.getHeight()
-                                ) { // possible hit
+                                if  (xt >= otherPlayer.xpos && xt < otherPlayer.xpos + otherPlayer.alphaRaster.getWidth() &&  yt >= otherPlayer.ypos && yt < otherPlayer.ypos + otherPlayer.alphaRaster.getHeight()) { 
+                                    // possible hit
                                     if (otherPlayer.alphaRaster.getPixel((int)(xt - otherPlayer.xpos), (int)(yt - otherPlayer.ypos), empty)[0] > KrumC.OPACITY_THRESHOLD) {
                                         hitopp = true;
                                     }
@@ -1570,7 +1576,11 @@ public class KrumPlayer {
                 y += yinc;                
             }
             if (hitopp) {
+                boolean alreadyDead = otherPlayer.dead;
                 otherPlayer.damage(KrumC.BLOWTORCH_DAMAGE);
+                if (otherPlayer.dead && !alreadyDead) {
+                    unlockAchievements.add("Death Ray");
+                }
                 //double kba = KrumHelpers.angleBetween(playerCentre().x, playerCentre().y, otherPlayer.playerCentre().x, otherPlayer.playerCentre().y);
                 double kba = blowtorchAimAngle;
                 double kbm = KrumC.BLOWTORCH_KNOCKBACK;
@@ -1656,7 +1666,6 @@ public class KrumPlayer {
 
         if (punchFrame <= 16 && !punchHit) {
             punchRaster = punchSprite.getAlphaRaster();
-            KrumPlayer otherPlayer = players[1 - playerIndex];
             for (int x = 0; x < punchSprite.getWidth(); x++) {
                 for (int y = 0; y < punchSprite.getHeight(); y++) {
                     int rx = (int)xpos - (int)otherPlayer.xpos + x;
