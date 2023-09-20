@@ -1,9 +1,6 @@
 package minigames.client.snake;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.*;
 import java.util.Objects;
 
 /**
@@ -14,26 +11,27 @@ public class MultimediaManager {
 
     // ImageResources for all the images
     private static final ImageResource PHONE_BACKGROUND = new ImageResource(
-            "/images/snake/GameBackground.png");
+            GameConstants.PHONE_BACKGROUND);
     private static final ImageResource BACKGROUND_COLOR_BLOCK = new ImageResource(
-            "/images/snake/backgroundColorBlock.png");
+            GameConstants.BACKGROUND_COLOR_BLOCK);
     private static final ImageResource SNAKE_LOGO = new ImageResource(
-            "/images/snake/snakeLogo.png");
+            GameConstants.SNAKE_LOGO);
     private static final ImageResource IMAGE_APPLE = new ImageResource(
-            "/images/snake/apple.png");
+            GameConstants.IMAGE_APPLE);
     private static final ImageResource IMAGE_CHERRY = new ImageResource(
-            "/images/snake/cherry.png");
+            GameConstants.IMAGE_CHERRY);
     private static final ImageResource IMAGE_ORANGE = new ImageResource(
-            "/images/snake/orange.png");
+            GameConstants.IMAGE_ORANGE);
     private static final ImageResource IMAGE_WATERMELON = new ImageResource(
-            "/images/snake/watermelon.png");
+            GameConstants.IMAGE_WATERMELON);
     // Paths to sounds
-    private static final String SOUND_8_BIT = "/sounds/8Bit.wav";
-    private static final String SOUND_EAT_APPLE = "/sounds/eatApple.wav";
-    private static final String SOUND_MENU = "/sounds/menu.wav";
-    private static final String SOUND_RETRO = "/sounds/retro1.wav";
-    private static final String SOUND_SMOOTH = "/sounds/smooth.wav";
-    private static final String SOUND_SURF = "/sounds/surf.wav";
+    private static final String SOUND_8_BIT = GameConstants.SOUND_8_BIT;
+    private static final String SOUND_POSTITIVE = GameConstants.SOUND_POSTITIVE;
+    private static final String SOUND_NEGATIVE = GameConstants.SOUND_NEGATIVE;
+    private static final String SOUND_MENU = GameConstants.SOUND_MENU;
+    private static final String SOUND_RETRO = GameConstants.SOUND_RETRO;
+    private static final String SOUND_SMOOTH = GameConstants.SOUND_SMOOTH;
+    private static final String SOUND_SURF = GameConstants.SOUND_SURF;
     // Image collection
     private static final ImageResource[] FOOD_IMAGES = {IMAGE_APPLE, IMAGE_CHERRY,
             IMAGE_WATERMELON, IMAGE_ORANGE};
@@ -134,8 +132,11 @@ public class MultimediaManager {
             case "8Bit":
                 soundPath = SOUND_8_BIT;
                 break;
-            case "EatApple":
-                soundPath = SOUND_EAT_APPLE;
+            case "Positive":
+                soundPath = SOUND_POSTITIVE;
+                break;
+            case "Negative":
+                soundPath = SOUND_NEGATIVE;
                 break;
             case "Menu":
                 soundPath = SOUND_MENU;
@@ -183,6 +184,54 @@ public class MultimediaManager {
         if (backgroundSound != null && backgroundSound.isRunning()) {
             backgroundSound.close();
             backgroundSound = null;
+        }
+    }
+
+    /**
+     * Plays a custom sound effect once with a specified volume gain.
+     *
+     * @param soundName   The name of the sound effect to be played.
+     */
+    public static void playSoundEffect(String soundName) {
+        String soundPath;
+
+        // Determine the sound file path based on the provided sound name
+        switch (soundName) {
+            case "Positive":
+                soundPath = SOUND_POSTITIVE;
+                break;
+            case "Negative":
+                soundPath = SOUND_NEGATIVE;
+                break;
+            default:
+                return; // Exit if the sound name doesn't match any predefined names
+        }
+        try {
+            // Load the audio file based on the provided sound path
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(
+                    Objects.requireNonNull(MultimediaManager.class.getResource(soundPath)));
+            Clip soundEffect = AudioSystem.getClip();
+            soundEffect.open(audioStream);
+
+            // Adjust the volume (gain) of the sound
+            if (soundEffect.isControlSupported(FloatControl. Type.MASTER_GAIN)) {
+                FloatControl gainControl = (FloatControl) soundEffect.getControl(FloatControl.Type.MASTER_GAIN);
+                float gain = 1.5f;
+                gainControl.setValue(gain);
+            }
+
+            // Start playing the sound once
+            soundEffect.start();
+
+            // Wait for the sound to finish playing
+            while (soundEffect.isRunning()) {
+                Thread.sleep(100); // Adjust the sleep duration as needed
+            }
+
+            // Close the sound clip
+            soundEffect.close();
+        } catch (Exception e) {
+            e.printStackTrace(); // Log any exceptions encountered during sound playback
         }
     }
 
