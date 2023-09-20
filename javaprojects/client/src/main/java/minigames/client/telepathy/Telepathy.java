@@ -85,6 +85,9 @@ public class Telepathy implements GameClient, Tickable{
     ArrayList<JButton> buttonColour; // list of colours used in game
     ArrayList<JButton> buttonSymbols; // list of buttons with symbol icons used in game
 
+    JLabel currentPlayer;
+    JLabel opponent;
+
     JButton player1Turn; 
     JButton player2Turn;
     
@@ -134,6 +137,9 @@ public class Telepathy implements GameClient, Tickable{
 
         this.componentList = new HashMap<>();
         this.buttonGrid = new JButton[COLS][ROWS];
+
+        this.currentPlayer = new JLabel();
+        this.opponent = new JLabel();
 
         this.player1Turn = new JButton();
         this.player2Turn = new JButton();
@@ -918,18 +924,14 @@ public class Telepathy implements GameClient, Tickable{
                 }
             }
 
+            }
+            case "playerLabel" -> {
+               this.currentPlayer.setText(attributes.get(1));
+            }
 
-
-
-
-
-
-
-
-
-
-
-
+            case "opponentLabel" -> {
+                this.opponent.setText("Opponent");
+            }
             
             case "board" -> {
                 // Alter all tiles on board
