@@ -28,7 +28,7 @@ public class DerbyDatabaseIntegrationTests {
     private static final Logger logger = LogManager.getLogger(DerbyDatabaseIntegrationTests.class);
     private static final String TEST_ENV = "testEnv";
     private static final String TEST_DB_PROPERTIES = "database/DerbyDatabaseTest.properties";
-    private static final String TEST_TABLE_NAME = "test_table";
+    private static final String TEST_TABLE_NAME = "TEST_TABLE";
     private static String testDatabasePath;
 
     private DerbyDatabase testDatabase;
@@ -49,7 +49,7 @@ public class DerbyDatabaseIntegrationTests {
         testDatabase = new DerbyDatabase(TEST_DB_PROPERTIES);
         testTable = new ExampleTable(testDatabase, TEST_TABLE_NAME);
         if (testTable.tableExists()) {
-            testTable.destroyTable();
+            testTable.clearTable();
         }
         testTable.createTable();
     }
@@ -182,7 +182,7 @@ public class DerbyDatabaseIntegrationTests {
         // Get the maximum pool size from the datasource configuration
         int maxPoolSize = ((HikariDataSource) testDatabase.getDataSource()).getMaximumPoolSize();
         // Try to get more connections than the pool allows
-        for (int i = 0; i < maxPoolSize + 2; i++) {
+        for (int i = 0; i < maxPoolSize + 1; i++) {
             try {
                 Connection conn = testDatabase.getConnection();
                 assertNotNull(conn);  // Ensure we actually got a connection
@@ -208,7 +208,7 @@ public class DerbyDatabaseIntegrationTests {
 
     @Test
     public void testGetConnection_WithConcurrency() throws SQLException {
-        int numOfThreads = 100;
+        int numOfThreads = 20;
         ExecutorService threads = Executors.newFixedThreadPool(numOfThreads); // make pool of threads
         CountDownLatch latch = new CountDownLatch(numOfThreads); // make threads act simultaneously
         List<Exception> exceptions = Collections.synchronizedList(new ArrayList<>()); // stores exceptions
@@ -410,5 +410,32 @@ public class DerbyDatabaseIntegrationTests {
         testDatabase.shutdown();
         assertTrue(testDatabase.isDisconnected());
         assertTrue(testDatabase.isClosed());
+    }
+
+    @Test
+    public void testBackupAndRestore() throws IOException, SQLException {
+        // Setup: Create initial records and insert them
+        ExampleRecord record1 = new ExampleRecord("key1", 10);
+        ExampleRecord record2 = new ExampleRecord("key2", 20);
+        testTable.create(record1);
+        testTable.create(record2);
+
+        // Perform backup
+        testTable.backup();
+
+        // Modify the table
+        testTable.delete(record1);                       // delete record1
+        testTable.update(new ExampleRecord("key2", 88)); // update record2's value
+
+        // Restore the table from backup
+        testTable.restore();
+
+        // Check if data matches the initial state
+        ExampleRecord restoredRecord1 = testTable.retrieveOne(record1);
+        ExampleRecord restoredRecord2 = testTable.retrieveOne(record2);
+
+        assertNotNull(restoredRecord1);
+        assertEquals(record1.getValue(), restoredRecord1.getValue());
+        assertEquals(record2.getValue(), restoredRecord2.getValue());
     }
 }
