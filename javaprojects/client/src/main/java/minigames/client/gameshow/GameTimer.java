@@ -9,11 +9,11 @@ import java.awt.event.ActionListener;
  * Represents a game timer component for tracking time and score in a game.
  */
 public class GameTimer extends JPanel {
-    private long startTime;            // The time when the timer was started
-    private long timeLimit;            // The maximum time limit for the game
-    private boolean isRunning;         // Flag to indicate whether the timer is running
-    private Timer timer;               // Swing Timer to trigger periodic updates
-    private long remainingTime;        // The remaining time on the timer
+    public long startTime;            // The time when the timer was started
+    public long timeLimit;            // The maximum time limit for the game
+    public boolean isRunning;         // Flag to indicate whether the timer is running
+    public Timer timer;               // Swing Timer to trigger periodic updates
+    public long remainingTime;        // The remaining time on the timer
 
     /**
      * Constructs a new GameTimer with the specified time limit.
@@ -77,7 +77,7 @@ public class GameTimer extends JPanel {
      * @param milliseconds The time in milliseconds to be formatted.
      * @return The formatted time string.
      */
-    private String formatTime(long milliseconds) {
+    public String formatTime(long milliseconds) {
         long seconds = milliseconds / 1000;
         long minutes = seconds / 60;
         seconds %= 60;
