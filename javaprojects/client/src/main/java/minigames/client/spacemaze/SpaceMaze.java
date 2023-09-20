@@ -956,7 +956,8 @@ public class SpaceMaze implements GameClient {
 
         //Credit Section
         developerCredits = new JLabel("Developed by: Andy, Nik, Natasha, Niraj");
-        developerCredits.setForeground(Color.WHITE);
+        Color light_grey = new Color(153, 153, 153);
+        developerCredits.setForeground(light_grey);
     }
 }
 
