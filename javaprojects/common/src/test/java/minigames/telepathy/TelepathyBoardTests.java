@@ -75,7 +75,18 @@ public class TelepathyBoardTests{
         assertTrue(vertical == 0);
     }
 
+    @Test
+    @DisplayName("Test eliminating Tiles on the board")
+    public void testEliminateTiles(){
+        Board board = new Board();
+        
+        // Test null Tile
+        assertThrows(IllegalArgumentException.class, () ->{
+            board.eliminateTiles(null);
+        });
 
+        //TODO test tiles are eliminated correctly
+    }
 
     @DisplayName ("Test generateColours returns an array of colour constants")
     @Test
