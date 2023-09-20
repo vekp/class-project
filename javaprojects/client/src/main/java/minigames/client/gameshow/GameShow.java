@@ -153,6 +153,7 @@ public class GameShow implements GameClient, Tickable {
         switch (game) {
             case "ImageGuesser":
                 startGame(command);
+                break;
             case "WordScramble":
                 startGame(command);
                 break;
