@@ -203,6 +203,16 @@ public class GameShow {
                         boolean correct = games.get(msg.getInteger("round")).guessIsCorrect(guess);
                         achievementUnlocker(correct, cp);
 
+                        if (correct) {
+                            this.players.get(cp.player()).addToScore(msg.getInteger("score"));
+                            logger.info( // Logging for testing during development
+                                "Player '{}' guessed correctly! They have added {} points to their score, which is now {}.",
+                                new Object[] { cp.player(),
+                                               msg.getInteger("score"),
+                                               players.get(cp.player()).score()
+                                }
+                            );
+                        }
 
                         renderingCommands.
                             add(new JsonObject()
@@ -213,6 +223,18 @@ public class GameShow {
                     case "ImageGuesser" -> {
                         boolean correct = games.get(msg.getInteger("round")).guessIsCorrect(guess);
                         achievementUnlocker(correct, cp);
+
+                        if (correct) {
+                            this.players.get(cp.player()).addToScore(msg.getInteger("score"));
+                            logger.info( // Logging for testing during development
+                              "Player '{}' guessed correctly! They have added {} points to their score, which is now {}.",
+                              new Object[] { cp.player(),
+                                msg.getInteger("score"),
+                                players.get(cp.player()).score()
+                              }
+                            );
+                        }
+
                         renderingCommands.
                             add(new JsonObject()
                                 .put("command", "guessOutcome")
