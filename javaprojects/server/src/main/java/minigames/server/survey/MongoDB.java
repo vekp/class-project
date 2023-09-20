@@ -1,3 +1,10 @@
+/***************************************************************************************
+*    Much of the following code was sourced from MongoDB Documentation
+*    Date Sourced: September 2023
+*    Code version: v4.10
+*    Availability: https://www.mongodb.com/docs/drivers/java/sync/current/usage-examples/
+***************************************************************************************/
+
 package minigames.server;
 
 import static com.mongodb.client.model.Filters.eq;

@@ -47,13 +47,21 @@ public class SurveyResults extends JPanel implements ActionListener{
     private Image image;
     private final String imageFolderPath = "src/main/resources/images/backgrounds/";
     private final String background = "space_planet_asteroids.jpg";
+    private String gameIdGlobal;
 
     // Our called games names will be stored here for use in a combo box
-    public String[] gameNames = {"testGame1", "testGame2", "testGame3", "testGame4"};
+    public String[] gameNames;
+    private Map<String, String> gameNameToIdMap = new HashMap<>();
+    
     MinigameNetworkClient mnClientGlobal;
 
     public SurveyResults(MinigameNetworkClient mnClient, String gameId) {
         mnClientGlobal = mnClient;
+        gameIdGlobal = gameId;
+
+        gameNameToIdMap.put("Muddle", "64fec6296849f97cdc19f017");
+        gameNameToIdMap.put("Battleships", "650a6db6ed70971c22601416");
+        gameNames = gameNameToIdMap.keySet().toArray(new String[0]);
 
         this.setPreferredSize(new Dimension(800, 600));
         this.setLayout(new GridLayout(0, 1));
@@ -271,52 +279,17 @@ public class SurveyResults extends JPanel implements ActionListener{
     // Override Functions
     @Override
     public void actionPerformed(ActionEvent e) {
-        // if (e.getSource() == gameNameComboBox) {
-        //     System.out.println(gameNameComboBox.getSelectedItem().toString());
-        //     // mnClient.setGameId(gameNameComboBox.getSelectedItem().toString());
-        // }
         if (e.getSource() == gameNameComboBox) {
-            String selectedGameId = gameNameComboBox.getSelectedItem().toString();
-            Future<String> surveyDataFuture = mnClientGlobal.getSurveyResultSummary("64fec6296849f97cdc19f017");
-    
-            surveyDataFuture.onSuccess((surveyData) -> {
-                JsonObject surveyResults = new JsonObject(surveyData);
-
-                // Get each rating value from the JSON object
-                String difficultyRating = surveyResults.getString("difficulty_rating");
-                String enjoymentRating = surveyResults.getString("enjoyment_rating");
-                String functionalityRating = surveyResults.getString("functionality_rating");
-                String uiRating = surveyResults.getString("ui_rating");
-                String overallRating = surveyResults.getString("overall_rating");
-                String feedback = surveyResults.getString("feedback");
-            
-                // Update the JLabels with the retrieved ratings
-                SwingUtilities.invokeLater(() -> {
-                    difficultyRatingLabel.setText(difficultyRating);
-                    enjoymentRatingLabel.setText(enjoymentRating);
-                    functionalityRatingLabel.setText(functionalityRating);
-                    uiRatingRatingLabel.setText(uiRating);
-                    overallRatingLabelRight.setText(overallRating);
-                    feedbackText.setText(feedback);
-                });
-                // Update the feedbackText with the retrieved survey data
-                // SwingUtilities.invokeLater(() -> {
-                //     feedbackText.setText(surveyData);
-                // });
-            });
-    
-            surveyDataFuture.onFailure((error) -> {
-                // Handle the error, e.g., display an error message
-                SwingUtilities.invokeLater(() -> {
-                    feedbackText.setText("Failed to retrieve survey data.");
-                });
-            });
+            String selectedGameName = gameNameComboBox.getSelectedItem().toString();
+            String selectedGameId = gameNameToIdMap.get(selectedGameName);
+            updateSurveyData(selectedGameId);
         }
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        updateSurveyData(gameIdGlobal);
 
         if(image != null) {
             Graphics2D g2 = (Graphics2D) g.create();
@@ -326,6 +299,39 @@ public class SurveyResults extends JPanel implements ActionListener{
         else {
             System.out.println("no image to process");
         }
+    }
+
+    private void updateSurveyData(String selectedGameId) {
+        Future<String> surveyDataFuture = mnClientGlobal.getSurveyResultSummary(selectedGameId);
+
+        surveyDataFuture.onSuccess((surveyData) -> {
+            JsonObject surveyResults = new JsonObject(surveyData);
+
+            // Get each rating value from the JSON object
+            String difficultyRating = surveyResults.getString("difficulty_rating");
+            String enjoymentRating = surveyResults.getString("enjoyment_rating");
+            String functionalityRating = surveyResults.getString("functionality_rating");
+            String uiRating = surveyResults.getString("ui_rating");
+            String overallRating = surveyResults.getString("overall_rating");
+            String feedback = surveyResults.getString("feedback");
+
+            // Update the JLabels with the retrieved ratings
+            SwingUtilities.invokeLater(() -> {
+                difficultyRatingLabel.setText(difficultyRating);
+                enjoymentRatingLabel.setText(enjoymentRating);
+                functionalityRatingLabel.setText(functionalityRating);
+                uiRatingRatingLabel.setText(uiRating);
+                overallRatingLabelRight.setText(overallRating);
+                feedbackText.setText(feedback);
+            });
+        });
+
+        surveyDataFuture.onFailure((error) -> {
+            // Handle the error, e.g., display an error message
+            SwingUtilities.invokeLater(() -> {
+                feedbackText.setText("Failed to retrieve survey data.");
+            });
+        });
     }
 
 }
