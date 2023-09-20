@@ -1,17 +1,41 @@
 package minigames.client.snake;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
 
 /**
  * GameConstants class holds common constants used across multiple classes in the Snake game.
  */
 public final class GameConstants {
+
     // Dimensions
     public static final int BUTTON_WIDTH = 200;
     public static final int BUTTON_HEIGHT = 50;
     public static final int START_BUTTON_Y = 250;
     public static final int BUTTON_GAP = 10;
     public static final int LOGO_Y = 20;
+    public static final int MINIMUM_FOOD_GENERATION_DELAY = 5;
+    public static final int MAXIMUM_FOOD_GENERATION_DELAY = 30;
+    public static final int SQUARE_SIZE = 20;
+    public static final int GAME_PLAY_WIDTH = 850;
+    public static final int GAME_PLAY_HEIGHT = 590;
+    public static final int GAME_PLAY_AREA_Y = 145;
+    public static final int LABEL_WIDTH = 125;
+    public static final int STANDARD_LABEL_HEIGHT = 30;
+    public static final int VALUE_LABEL_HEIGHT = 50;
+    public static final int UNIT_SQUARES = 40;
+    public static final int SCORE_TEXT_POSITION_X = 75;
+    public static final int STATUS_LABEL_VALUES_Y = GAME_PLAY_AREA_Y - VALUE_LABEL_HEIGHT;
+    public static final int STATUS_LABEL_KEYS_Y = STATUS_LABEL_VALUES_Y - STANDARD_LABEL_HEIGHT;
+    public static final int LIVES_TEXT_POSITION_X =
+            GAME_PLAY_WIDTH + SCORE_TEXT_POSITION_X - (2 * LABEL_WIDTH);
+    public static final int TIME_TEXT_POSITION_X = SCORE_TEXT_POSITION_X + LABEL_WIDTH;
+    public static final int LEVEL_TEXT_POSITION_X = LIVES_TEXT_POSITION_X + LABEL_WIDTH;
+    public static final int INFO_TITLE_Y = 200;
+    public static final int INFO_TEXT_WIDTH = 500;
+    public static final int INFO_TEXT_HEIGHT = 200;
+    public static final int INFO_TEXT_Y = 300;
+    public static final int RETURN_BUTTON_Y = 490;
 
     // Music
     public static final String MENU_MUSIC = "8Bit";
@@ -22,6 +46,9 @@ public final class GameConstants {
     // Colors
     public static final Color DEFAULT_BACKGROUND_COLOR = new Color(18, 96, 98);
     public static final Color HOVER_BACKGROUND_COLOR = new Color(87, 26, 128);
+    public static final Color SCORE_KEY_TEXT_COLOR = new Color(87, 26, 128);
+    public static final Color SCORE_VALUE_TEXT_COLOR = new Color(87, 26, 128);
+    public static final Color SCORE_VALUE_ALTERNATE_TEXT_COLOR = new Color(87, 26, 128);
     public static final Color DEFAULT_BORDER_COLOR = new Color(18, 144, 147);
     public static final Color HOVER_BORDER_COLOR = new Color(87, 26, 128);
     public static final Color INFO_TITLE_COLOR = new Color(18, 96, 98);
@@ -36,6 +63,8 @@ public final class GameConstants {
 
     // Fonts
     public static final Font INFO_TITLE_FONT = new Font("SansSerif", Font.BOLD, 42);
+    public static final Font SCORE_TEXT_KEY_FONT = new Font("SansSerif", Font.BOLD, 24);
+    public static final Font SCORE_TEXT_VALUE_FONT = new Font("SansSerif", Font.BOLD, 32);
     public static final Font INFO_MESSAGE_FONT = new Font("SansSerif", Font.BOLD, 18);
     public static final Font BUTTON_FONT = new Font("Arial", Font.PLAIN, 24);
     public static final Color BUTTON_TEXT_COLOR = Color.WHITE;
@@ -46,17 +75,22 @@ public final class GameConstants {
 
     // Button Text
     public static final String RETURN_BUTTON_TEXT = "Main Menu";
+    public static final int MAXIMUM_FOOD_ON_SCREEN = 5;
+    public static final int SPOILED_FOOD_THRESHOLD = 60;
+    public static final int SPOILEDFOOD_REMOVE_DELAY = 15;
 
     // Game Panel constants
-    public static final int STATUS_LABEL_Y_FROM_BOTTOM = 80;
-    public static final int GAME_PLAY_WIDTH = 850;
-    public static final int GAME_PLAY_HEIGHT = 500;
+    public static final int GAME_UNITS = (GAME_PLAY_WIDTH * GAME_PLAY_HEIGHT) / (UNIT_SQUARES * UNIT_SQUARES);
+    public static final int INITIAL_SNAKE_PARTS = 4;
+    public static final int APPLE_EATEN_SCORE = 10;
+    public static final int ORANGE_EATEN_SCORE = 10;
+    public static final int CHERRY_EATEN_SCORE = 10;
+    public static final int WATERMELON_EATEN_SCORE = 10;
+    public static final int INITIAL_GAME_DELAY = 175;
+    public static final int INITIAL_SNAKE_X = 15;
+    public static final int INITIAL_SNAKE_Y = 8;
 
     // InformationPanel constants
-    public static final int INFO_TITLE_Y = 200;
-    public static final int INFO_TEXT_WIDTH = 500;
-    public static final int INFO_TEXT_HEIGHT = 200;
-    public static final int INFO_TEXT_Y = 300;
     public static final String GAME_RULES_TITLE = "How to Play";
     public static final String ABOUT_ME_TITLE = "About";
     public static final String[] GAME_RULES_MESSAGES = {
@@ -70,9 +104,8 @@ public final class GameConstants {
             "Credits",
             "Music: Fesliyan Studios (www.FesliyanStudios.com)",
             "Logo: Sean 2023",
-    "Background: Matthew Picone 2023"};
-
-    public static final int RETURN_BUTTON_Y = 490;
+            "Background: Matthew Picone 2023"
+    };
 
     // Constructor - private to prevent instantiation
     private GameConstants() {}
