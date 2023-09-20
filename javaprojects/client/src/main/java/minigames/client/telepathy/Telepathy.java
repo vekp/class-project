@@ -738,6 +738,10 @@ public class Telepathy implements GameClient, Tickable{
         this.eliminatedColumns = new HashSet<>();
         this.eliminatedRows = new HashSet<>();
 
+        // Set the player labels
+        this.currentPlayer.setText(this.player);
+        this.opponent.setText("Waiting...");
+
 
         telepathyNotificationManager = mnClient.getDialogManager();
 
@@ -788,7 +792,41 @@ public class Telepathy implements GameClient, Tickable{
             case BUTTONUPDATE -> updateButton(jsonCommand);
             case ELIMINATETILES -> handleNoResonse(jsonCommand);
             case PARTIALMATCH -> handleYesResponse(jsonCommand);
+            case MODIFYPLAYER -> handlePlayerChange(jsonCommand);
+            case PLAYERLIST -> handlePlayerList(jsonCommand);
             default -> logger.info("{} not handled", jsonCommand);
+        }
+    }
+
+    /**
+     * Get the player list from the server and set the opponent text.
+     * 
+     * @param jsonCommand: PLAYERLIST command containing the list of conneted players.
+     */
+    private void handlePlayerList(JsonObject jsonCommand){
+        ArrayList<String> players = TelepathyCommandHandler.getAttributes(jsonCommand);
+        for(String p: players){
+            if(!p.equals(this.player)){
+                this.opponent.setText(p);
+            }
+        }
+    }
+
+    /**
+     * Handle changes to other players status. When a player joins their name
+     * should be displayed and when they leave they're name needs to be removed.
+     * @param jsonCommand: Command received with MODIFYPLAYER command.
+     */
+    private void handlePlayerChange(JsonObject jsonCommand){
+        ArrayList<String> attributes = TelepathyCommandHandler.getAttributes(jsonCommand);
+
+        switch(attributes.get(0)){
+            case "joined" -> {
+                this.opponent.setText(attributes.get(1));
+            }
+            case "leaving" -> {
+                this.opponent.setText("");
+            }
         }
     }
 
@@ -930,12 +968,6 @@ public class Telepathy implements GameClient, Tickable{
                 }else {
                     this.componentList.get("readyButton").setBackground(Color.RED);
                 }
-            }
-            case "playerLabel" -> {
-               this.currentPlayer.setText(attributes.get(1));
-            }
-            case "opponentLabel" -> {
-                this.opponent.setText("Opponent");
             }
             case "board" -> {
                 // Alter all tiles on board

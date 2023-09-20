@@ -42,6 +42,8 @@ public enum TelepathyCommands {
     * PARTIALMATCH: Inform the client that their question tile had a match with
     *       the target tile.
     *       Attributes: The X and Y coordinate of the question tile used.
+    * PLAYERLIST: Pass a list of all the players currently connected to the server.
+    *       Attributes: 
     * TESTCOMMAND: A simple command used for testing/debugging purposes.
     * INVALIDCOMMAND: Used to respond to an invalid CommandPackage.
     */
@@ -49,7 +51,7 @@ public enum TelepathyCommands {
     JOINGAMESUCCESS, JOINGAMEFAIL, TOGGLEREADY, ASKQUESTION, FINALGUESS, 
     CHOOSETILE, BUTTONUPDATE, REQUESTUPDATE, NOUPDATE, GAMEOVER, SYSTEMQUIT, 
     ELIMINATETILES, QUIT, MODIFYPLAYER, POPUP, PARTIALMATCH, TESTCOMMAND, 
-    INVALIDCOMMAND, DEFAULT;
+    INVALIDCOMMAND, PLAYERLIST, DEFAULT;
 
     public String toString(){
         return switch(this){
@@ -69,6 +71,7 @@ public enum TelepathyCommands {
             case POPUP -> "POPUP";
             case PARTIALMATCH -> "PARTIALMATCH";
             case ELIMINATETILES -> "ELIMINATETILES";
+            case PLAYERLIST -> "PLAYERLIST";
             case INVALIDCOMMAND -> "INVALIDCOMMAND";
             case TESTCOMMAND -> "TESTCOMMAND";
             default -> "NO-STRING-CONFIGURED";

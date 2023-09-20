@@ -160,11 +160,7 @@ public class TelepathyGame {
             renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
                     TelepathyCommands.BUTTONUPDATE,
                     "readyButton",
-                    String.valueOf(this.players.get(playerName).isReady())));
-            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
-                TelepathyCommands.BUTTONUPDATE, 
-                "playerLabel",
-                playerName));        
+                    String.valueOf(this.players.get(playerName).isReady())));        
             renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
                 TelepathyCommands.BUTTONUPDATE, 
                 "board",
@@ -172,16 +168,24 @@ public class TelepathyGame {
             renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
                     TelepathyCommands.POPUP,
                     "welcomeMessage"));
+            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
+                    TelepathyCommands.PLAYERLIST,
+                    this.telepathyGameMetadata().players()));
 
             // TODO: Send initial board state - assign Symbols/Colours and buttons are disabled?
 
             // Inform other players a player has joined the game
             for(String p : this.players.keySet()){
-                if (!p.equals(this.gameName)) {this.players.get(p).addUpdate(
-                    TelepathyCommandHandler.makeJsonCommand(
-                        TelepathyCommands.MODIFYPLAYER, 
-                        playerName, 
-                        "joined"));}
+                if (!p.equals(playerName)) {
+                    this.players.get(p).addUpdate(
+                        TelepathyCommandHandler.makeJsonCommand(
+                            TelepathyCommands.MODIFYPLAYER, 
+                            "joined",
+                            playerName 
+                            ));
+                } else{
+                    // Give the joining player the player list
+                }               
             }
         }
            
@@ -670,7 +674,7 @@ public class TelepathyGame {
         this.players.remove(name);
 
         // Inform other players of player leaving
-        updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.MODIFYPLAYER, name, "leaving"));
+        updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.MODIFYPLAYER, "leaving", name));
 
         // End the game if a player leaves while game is RUNNING
         transitionToGameOver("playerLeave");
