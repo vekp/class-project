@@ -311,11 +311,6 @@ public class GameShowUI {
 
                 JPanel testingButtons = new JPanel(new BorderLayout(0, 10));
 
-                wordScramble = new JButton("Word Scramble");
-                // wordScramble.setAlignmentX(Component.CENTER_ALIGNMENT);
-                wordScramble.addActionListener((evt) -> WordScramble.welcome(GameShow.Main));
-                testingButtons.add(wordScramble, BorderLayout.PAGE_START);
-
                 imageGuesserStart = new JButton("Image Guesser");
                 // imageGuesserStart.setAlignmentX(Component.CENTER_ALIGNMENT);
                 imageGuesserStart.addActionListener(
