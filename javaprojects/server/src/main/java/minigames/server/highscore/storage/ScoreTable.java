@@ -19,9 +19,9 @@ public class ScoreTable extends DatabaseTable<ScoreRecord> {
     private GameTable gameTable;
 
 
-    public ScoreTable(Database database, DatabaseTable referencedTable) {
+    public ScoreTable(Database database, GameTable referencedTable) {
         super(database, TABLE_NAME);
-        this.gameTable = (GameTable) referencedTable;
+        this.gameTable = referencedTable;
     }
 
 
@@ -32,10 +32,29 @@ public class ScoreTable extends DatabaseTable<ScoreRecord> {
 
 
     @Override
-    protected List<Object> getPrimaryKeyValues(ScoreRecord record) {
+    public List<String> getColumnNames() {
         return Arrays.asList(
-            record.getPlayerId(),
-            record.getGameName()
+            COLUMN_PLAYER_ID,
+            COLUMN_GAME_NAME,
+            COLUMN_SCORE
+        );
+    }
+
+
+    @Override
+    public List<String> getKeyColumnNames() {
+        return Arrays.asList(
+            COLUMN_PLAYER_ID,
+            COLUMN_GAME_NAME
+        );
+    }
+
+
+    @Override
+    protected List<Object> getPrimaryKeyValues(Object record) {
+        return Arrays.asList(
+            ((ScoreRecord) record).getPlayerId(),
+            ((ScoreRecord) record).getGameName()
         );
     }
 
@@ -140,9 +159,9 @@ public class ScoreTable extends DatabaseTable<ScoreRecord> {
         );
     }
     @Override
-    protected List<Object> getRetrieveManyKeyValues(Object record) {
+    protected List<Object> getRetrieveManyKeyValues(Object gameName) {
         return Arrays.asList(
-            ((ScoreRecord) record).getGameName()
+            gameName
         );
     }
 

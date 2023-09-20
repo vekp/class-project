@@ -77,11 +77,30 @@ public class ExampleTable extends DatabaseTable<ExampleRecord> {
     // ... Add more getters for other columns
 
 
+    @Override
+    public List<String> getColumnNames() {
+        return Arrays.asList(
+            COLUMN_EXAMPLE1,
+            COLUMN_EXAMPLE2
+            // ... Add more columns as required
+        );
+    }
+
+
+    @Override
+    public List<String> getKeyColumnNames() {
+        return Arrays.asList(
+            COLUMN_EXAMPLE1
+            // ... Add more columns if using a compensate key structure
+        );
+    }
+
+
     // Return a list containing the value(s) of the primary key or compensate keys
     @Override
-    protected List<Object> getPrimaryKeyValues(ExampleRecord record) {
+    protected List<Object> getPrimaryKeyValues(Object record) {
         return Arrays.asList(
-            record.getKey()
+            ((ExampleRecord) record).getKey()
             // ... Add more values if using a compensate key structure
         );
     }

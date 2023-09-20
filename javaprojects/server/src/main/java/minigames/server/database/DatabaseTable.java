@@ -9,8 +9,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,11 +30,12 @@ import minigames.server.utilities.Utilities;
 public abstract class DatabaseTable<T> implements DatabaseCRUDOperations<T> {
 
     protected final Logger logger = LogManager.getLogger(this.getClass());
-    private final String BACKUP_DIR = System.getProperty("user.dir") + "/database/backup/";
+    private static final String BACKUP_DIR = System.getProperty("user.dir") + "/database/backup/";
 
     protected Database database;
-    protected String tableName;
+    protected String backupDir;
     protected String filename;
+    protected String tableName;
 
     /**
      * Constructs a new table object tied to the default database with the specified table name.
@@ -41,7 +43,7 @@ public abstract class DatabaseTable<T> implements DatabaseCRUDOperations<T> {
      * @param tableName  the name of the database table
      */
     protected DatabaseTable(String tableName) {
-        this(DatabaseConfig.getDefaultInstance(), tableName);
+        this(Database.getInstance(), tableName);
     }
 
 
@@ -53,8 +55,9 @@ public abstract class DatabaseTable<T> implements DatabaseCRUDOperations<T> {
      */
     protected DatabaseTable(Database database, String tableName) {
         this.database  = database;
-        this.tableName = tableName;
-        this.filename  = BACKUP_DIR + sanitizeFilename(tableName) + ".sql";
+        this.backupDir = BACKUP_DIR;
+        this.tableName = sanitizeString(tableName).toUpperCase();
+        this.filename  = this.backupDir + this.tableName + ".sql";
         this.database.registerTable(this);
         restore();
     }
@@ -71,15 +74,31 @@ public abstract class DatabaseTable<T> implements DatabaseCRUDOperations<T> {
     /**Backs-up the table data from the default backup location.
      * @throws IOException if backup directory creation fails. */
     public synchronized void backup() throws IOException {
-        backup(new File(BACKUP_DIR));
+        backup(new File(backupDir));
     }
 
 
     public synchronized void createTable() {
-        if (!tableExists()) {
+        createTable(tableName);
+    }
+
+
+    public synchronized void createTable(String tableName) {
+        if (!tableExists(tableName)) {
+            if (database.isTest()) {
+                logger.info("Attempting to create table '{}'...", tableName);
+            }
+            String createTableSQL = getTableCreationSQL();
+            // Use specified table name
+            if (!this.tableName.equals(tableName)) {
+                createTableSQL = createTableSQL.replace(
+                    this.tableName, tableName);
+            }
             try {
-                execute(getTableCreationSQL());
-                logger.info("Table '{}' has been created.", tableName);
+                execute(createTableSQL);
+                if (database.isTest()) {
+                    logger.info("Table '{}' has been created.", tableName);
+                }
             } catch (DatabaseAccessException e) {
                 throw new DatabaseAccessException(
                     "Error creating " + tableName, e);
@@ -92,6 +111,9 @@ public abstract class DatabaseTable<T> implements DatabaseCRUDOperations<T> {
 
     @Override
     public synchronized void create(T record) {
+        if (database.isTest()) {
+            logger.info("Attempting to create new record in table '{}'...", tableName);
+        }
         executeUpdate(
             getInsertSQL(),
             getInsertValues(record)
@@ -100,17 +122,23 @@ public abstract class DatabaseTable<T> implements DatabaseCRUDOperations<T> {
 
     @Override
     public synchronized void update(T record) {
+        if (database.isTest()) {
+            logger.info("Attempting to update record in table '{}'...", tableName);
+        }
         List<Object> combinedValues = new ArrayList<>();
         combinedValues.addAll(getUpdateSetValues(record));
-        combinedValues.addAll(getPrimaryKeyValues(record));
+        combinedValues.addAll(getPrimaryKeyValues((Object) record));
         executeUpdate(getUpdateSQL(), combinedValues);
     }
 
     @Override
-    public synchronized T retrieveOne(T key) {
+    public synchronized T retrieveOne(Object filterCriteria) {
+        if (database.isTest()) {
+            logger.info("Attempting to get a record from table '{}'...", tableName);
+        }
         List<T> results = executeQuery(
             getRetrieveOneSQL(),
-            getPrimaryKeyValues(key),
+            getPrimaryKeyValues(filterCriteria),
             this::mapResultSetToEntity
         );
         return (
@@ -122,15 +150,21 @@ public abstract class DatabaseTable<T> implements DatabaseCRUDOperations<T> {
 
     @Override
     public synchronized List<T> retrieveMany(Object filterCriteria) {
+        if (database.isTest()) {
+            logger.info("Attempting to get records from table '{}'...", tableName);
+        }
         return executeQuery(
             getRetrieveManySQL(),
-            getRetrieveManyKeyValues((T) filterCriteria),
+            getRetrieveManyKeyValues(filterCriteria),
             this::mapResultSetToEntity
         );
     }
 
     @Override
     public synchronized List<T> retrieveAll() {
+        if (database.isTest()) {
+            logger.info("Attempting to get all records from table '{}'...", tableName);
+        }
         return executeQuery(
             getRetrieveAllSQL(),
             null,
@@ -140,20 +174,56 @@ public abstract class DatabaseTable<T> implements DatabaseCRUDOperations<T> {
 
     @Override
     public synchronized void delete(T record) {
+        if (database.isTest()) {
+            logger.info("Attempting to delete record from table '{}'...", tableName);
+        }
         executeUpdate(
             getDeleteSQL(),
-            getPrimaryKeyValues(record)
+            getPrimaryKeyValues((Object) record)
         );
     }
 
 
+    public synchronized void clearTable() {
+        clearTable(tableName);
+    }
+
+
+    public synchronized void clearTable(String tableName) {
+        if (tableExists(tableName)) {
+            if (database.isTest()) {
+                logger.info("Attempting to clear all records from table '{}'...", tableName);
+            }
+            try {
+                execute("DELETE FROM " + tableName);
+                if (database.isTest()) {
+                    logger.info("Table '{}' has been successfully cleared.", tableName);
+                }
+            } catch (DatabaseAccessException e) {
+                String message = "Error while clearing table " + tableName;
+                logger.error(message, e);
+                throw new DatabaseAccessException(message, e);
+            }
+        }
+    }
+
+
     public synchronized void destroyTable() {
+        destroyTable(tableName);
+    }
+
+
+    public synchronized void destroyTable(String tableName) {
         database.unregisterTable(this);
-        if (tableExists()) {
-            logger.info("Attempting to destroy table: {}", tableName);
+        if (tableExists(tableName)) {
+            if (database.isTest()) {
+                logger.info("Attempting to destroy table '{}'...", tableName);
+            }
             try {
                 execute("DROP TABLE " + tableName);
-                logger.info("Table '{}' has been successfully destroyed.", tableName);
+                if (database.isTest()) {
+                    logger.info("Table '{}' has been successfully destroyed.", tableName);
+                }
             } catch (DatabaseAccessException e) {
                 String message = "Error while destroying table " + tableName;
                 logger.error(message, e);
@@ -164,7 +234,9 @@ public abstract class DatabaseTable<T> implements DatabaseCRUDOperations<T> {
 
 
     // Abstract methods to be implemented by extended table classes
-    protected abstract List<Object> getPrimaryKeyValues(T record);
+    public abstract List<String> getColumnNames();
+    public abstract List<String> getKeyColumnNames();
+    protected abstract List<Object> getPrimaryKeyValues(Object obj);
     protected abstract String getTableCreationSQL();
     protected abstract String getInsertSQL();
     protected abstract List<Object> getInsertValues(T record);
@@ -189,9 +261,8 @@ public abstract class DatabaseTable<T> implements DatabaseCRUDOperations<T> {
         R map(ResultSet rs) throws SQLException;
     }
 
-
     // Replaces invalid characters in the table name to produce a valid filename
-    private String sanitizeFilename(String tableName) {
+    private String sanitizeString(String tableName) {
         return tableName.replaceAll("[^a-zA-Z0-9.-]", "_");
     }
 
@@ -210,7 +281,7 @@ public abstract class DatabaseTable<T> implements DatabaseCRUDOperations<T> {
                 "null, " +          // Column delimiter (use default: ',' )
                 "null, " +          // Character delimiter (use default: '"'
                 "null, " +          // Code-set (use default)
-                "0)"                // Mode: INSERT (ie, don't overwrite)
+                "1)"                // Mode: REPLACE (ie, overwrite)
         );
     }
 
@@ -235,62 +306,69 @@ public abstract class DatabaseTable<T> implements DatabaseCRUDOperations<T> {
     // Restores table data from the specified backup file.
     void restore(File file) {
         if (file.exists()) {
-            String tempTableName = tableName + "_temp";
-            // restore to temporary table
-            execute(getRestoreCommand(tempTableName, file.getAbsolutePath()));
-            if (hasDuplicates(tempTableName)) {
-                logger.error("Backup contains duplicates and cannot be restored.");
+            if (database.isTest()) {
+                logger.info("Attempting to restore table '{}' from backup...", tableName);
+            }
+            if (tableExists()) {
+                clearTable();
             } else {
-                // Append Data from the Temporary Table
-                execute("INSERT INTO " + tableName + " SELECT * FROM " + tempTableName);
-                logger.info("Data from backup appended to table: {}", tableName);
+                createTable();
             }
-            // Drop the temporary table
-            execute("DROP TABLE " + tempTableName);
-        }
-    }
-
-    private boolean hasDuplicates(String tempTableName) {
-        String checkDuplicatesSQL = String.format(
-            // Assuming the primary key column is id
-            "SELECT COUNT(*) FROM %s WHERE id IN (SELECT id FROM %s)",
-            tableName, tempTableName
-        );
-    
-        try (
-            Connection connection = database.getConnection();
-            PreparedStatement stmt = connection.prepareStatement(checkDuplicatesSQL);
-            ResultSet rs = stmt.executeQuery()
-        ) {
-            if (rs.next()) {
-                return rs.getInt(1) > 0;
+            // Load data into the main table from the backup file.
+            execute(getRestoreCommand(tableName, file.getAbsolutePath()));
+            if (database.isTest()) {
+                logger.info("table '{}' successfully restored to backup state", tableName);
             }
-        } catch (SQLException e) {
-            logger.error("Error checking duplicates for table: {}", tableName, e);
+        } else {
+            if (database.isTest()) {
+                logger.error("Backup file '{}' does not exist.", file.getAbsolutePath());
+            }
         }
-        return false;
     }
 
 
     // Initiates backup to the provided directory.
     void backup(File dir) throws IOException {
         if (tableExists()) {
+            if (database.isTest()) {
+                logger.info("Attempting to backup table '{}' to file...", tableName);
+            }
             if (!dir.exists() && !dir.mkdirs()) {
                 // Could not create the directory
                 logger.error("Failed to create backup directory: {}", dir);
                 throw new IOException("Unable to create backup directory.");
             }
-            execute(getBackupCommand());
+            // Append a unique identifier to the filename for the new backup
+            String tempFilename = filename.replace(
+                ".sql",
+                "_" + System.currentTimeMillis() + ".sql");
+            execute(getBackupCommand(tableName, tempFilename));
+            // Once backup is successful, delete the old backup and rename the new one
+            File oldBackup = new File(filename);
+            if (oldBackup.exists()) {
+                oldBackup.delete();
+            }
+            new File(tempFilename).renameTo(oldBackup);
+            if (database.isTest()) {
+                logger.info("Table '{}' successfully backed up", tableName);
+            }
         }
     }
 
+
+    public synchronized boolean tableExists() {
+        return tableExists(tableName);
+    }
 
     /**
      * Checks whether the represented table exists in the database.
      * 
      * @return true if table exists, otherwise false.
      */
-    public synchronized boolean tableExists() {
+    public synchronized boolean tableExists(String tableName) {
+        if (database.isTest()) {
+            logger.info("Checking if table '{}' exists...", tableName);
+        }
         try (
             Connection connection = database.getConnection();
             ResultSet resultSet = connection.getMetaData()
@@ -298,8 +376,9 @@ public abstract class DatabaseTable<T> implements DatabaseCRUDOperations<T> {
         ) {
             return resultSet.next();
         } catch (SQLException e) {
-            throw new DatabaseAccessException(
-                "Error while checking if " + tableName + " table exists", e);
+            String message = "Error while checking if " + tableName + " table exists";
+            logger.error(message, e);
+            throw new DatabaseAccessException(message, e);
         }
     }
 
@@ -307,9 +386,7 @@ public abstract class DatabaseTable<T> implements DatabaseCRUDOperations<T> {
      * Ensures that the represented table exists in the database.
      */
     public synchronized void ensureTableExists() {
-        if (!tableExists()) {
-            createTable();
-        }
+        createTable();
     }
 
 
@@ -352,10 +429,10 @@ public abstract class DatabaseTable<T> implements DatabaseCRUDOperations<T> {
     private synchronized void execute(String sql) {
         executeTransactional(connection -> {
             try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-                stmt.execute();
                 if (database.isTest()) {
                     logger.info("Executing SQL: " + sql);
                 }
+                stmt.execute();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }

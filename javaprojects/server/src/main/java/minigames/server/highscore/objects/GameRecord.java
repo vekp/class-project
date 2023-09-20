@@ -13,20 +13,20 @@ package minigames.server.highscore;
  * It also aids in the process of ranking scores for leaderboard generation.
  * </p>
  */
-public class GameMetadata {
+public class GameRecord {
 
     private String gameName;        // The name of the game
     private boolean isLowerBetter;  // Flag indicating if a lower score is better for this game
 
 
     /**
-     * Constructor to initialise a GameMetadata object with its game name and scoring preference.
+     * Constructor to initialise a GameRecord object with its game name and scoring preference.
      *
      * @param gameName The name of the game.
      * @param isLowerBetter A boolean flag indicating if a lower score is better for this game.
      *                      True if a lower score is better, false otherwise.
      */
-    public GameMetadata(String gameName, boolean isLowerBetter) {
+    public GameRecord(String gameName, boolean isLowerBetter) {
         this.gameName = gameName;
         this.isLowerBetter = isLowerBetter;
     }
