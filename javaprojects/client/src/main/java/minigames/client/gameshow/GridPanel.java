@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-
 /**
  * The GridPanel class represents a custom JPanel for displaying an image grid
  * with fading cells. It is used to reveal portions of an image during gameplay.
@@ -17,7 +16,6 @@ import java.awt.image.BufferedImage;
  * underlying image content.
  */
 class GridPanel extends JPanel {
-
     private int[][] fadedCells;   // 2D array to store faded cell coordinates
     private ImageIcon imageIcon;  // The image icon to display
 
@@ -55,7 +53,10 @@ class GridPanel extends JPanel {
      * @return True if the cell is visible; otherwise, false.
      */
     public boolean isCellVisible(int row, int column) {
-        return fadedCells[row][column] != 1;
+        if (fadedCells[row][column] == 1) {
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -73,7 +74,10 @@ class GridPanel extends JPanel {
             for (int j = 0; j < cols; j++) {
                 int x = j * cellWidth;
                 int y = i * cellHeight;
-                float opacity = (fadedCells[i][j] == 1) ? 0 : 1;
+                float opacity = 1;
+                if (fadedCells[i][j] == 1) {
+                    opacity = 0;
+                }
                 ((Graphics2D) g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
                 g.fillRect(x, y, cellWidth, cellHeight);
             }
