@@ -52,6 +52,9 @@ public class MinigameNetworkServer {
           ctx.response().end("");
         });*/
 
+        SurveyRoutesHandler surveyRoutesHandler = new SurveyRoutesHandler();
+        surveyRoutesHandler.setupRoutes(router);
+
         // A basic ping route to check if there is contact
         router.get("/ping").handler((ctx) -> {
             ctx.response().end("pong");
@@ -152,6 +155,24 @@ public class MinigameNetworkServer {
             return resp;
         });
 
+        // Receives name of Active User, returns whether user is active/added to active list.
+        router.post("/user").respond((ctx) -> {
+            String userName = ctx.body().asString();
+            //if the player list didn't already have this name, add it
+            //todo add to player account feature when implemented
+            if (!Main.players.contains(userName)) {
+                Main.players.add(userName);
+            }
+            Main.activePlayer = userName;
+            logger.info(Main.activePlayer + " has been updated server side!");
+            return Future.succeededFuture(userName);
+        });
+
+        // responds to request to get username of the active player.
+        router.get("/userGet").handler((ctx) -> {
+            ctx.response().end(Main.activePlayer);     
+        });
+
         // Starts a new game on the server
         router.post("/joinGame/:gameServer/:game").respond((ctx) -> {
             String serverName = ctx.pathParam("gameServer");
@@ -188,39 +209,6 @@ public class MinigameNetworkServer {
                 promise.complete(r);
             }));
             return resp;
-        });
-
-        // Saves submissions from Survey
-        router.post("/sendSurveyData").handler((ctx) -> {
-            // JSON data from the request body
-            JsonObject jsonData = ctx.getBodyAsJson();
-            SurveyDatabaseHandler databaseHandler = new SurveyDatabaseHandler();
-            
-            if (jsonData != null) {                
-                databaseHandler.saveToSurveyDatabase(jsonData);
-                ctx.response().end("JSON data received and logged.");
-            } else {
-                ctx.response()
-                   .setStatusCode(400) 
-                   .end("Invalid JSON data.");
-            }
-        });
-
-        // Gets submissions data from survey submissions
-        router.get("/surveyData").handler((ctx) -> {
-            SurveyDatabaseHandler databaseHandler = new SurveyDatabaseHandler();
-            String jsonData = databaseHandler.getFeedbackData().toJSONString();
-            
-            if (jsonData != null) {          
-                // String jsonData = feedbackData.toJSONString();      
-                ctx.response()
-                    .putHeader("content-type", "application/json")
-                    .end(jsonData);
-            } else {
-                ctx.response()
-                   .setStatusCode(400) 
-                   .end("No data read from the file.");
-            }
         });
 
         server.requestHandler(router).listen(port, (http) -> {

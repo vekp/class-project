@@ -3,9 +3,16 @@ package minigames.client;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import minigames.client.battleship.Battleship;
+import minigames.client.memory.Memory;
 import minigames.client.muddletext.MuddleText;
+import minigames.client.useraccount.UserServerAction;
+import minigames.client.peggle.PeggleUI;
+import minigames.client.tictactoe.TicTacToeClient;
 import minigames.client.spacemaze.SpaceMaze;
 import minigames.client.telepathy.Telepathy;
+import minigames.client.snake.SnakeGameText;
+import minigames.client.noughtsandcrosses.NoughtsAndCrosses;
+import minigames.client.krumgame.KrumGameClient;
 import io.vertx.core.Launcher;
 
 import org.apache.logging.log4j.LogManager;
@@ -21,10 +28,14 @@ public class Main extends AbstractVerticle {
     /** A logger for logging output */
     private static final Logger logger = LogManager.getLogger(Main.class);
 
+    public static UserServerAction user;
+
     /** Where GameClients should register themselves in doWiring */
     public static final ClientRegistry clientRegistry = new ClientRegistry();
 
     MinigameNetworkClient client;
+    
+
 
     /**
      * A place for groups to put code that registers their GameClient with the ClientRegistry, etc.
@@ -33,7 +44,14 @@ public class Main extends AbstractVerticle {
         clientRegistry.registerGameClient("MuddleText", new MuddleText());
         clientRegistry.registerGameClient("SpaceMaze", new SpaceMaze());
         clientRegistry.registerGameClient("Battleship", new Battleship());
+        clientRegistry.registerGameClient("Memory", new Memory());
         clientRegistry.registerGameClient("Telepathy", new Telepathy());
+        clientRegistry.registerGameClient("Snake", new SnakeGameText());
+        clientRegistry.registerGameClient("Peggle", new PeggleUI());
+        clientRegistry.registerGameClient("Tic Tac Toe", new TicTacToeClient());
+        clientRegistry.registerGameClient("NoughtsAndCrosses", new NoughtsAndCrosses());
+        clientRegistry.registerGameClient("KrumGame", new KrumGameClient());
+
     }
 
     public static void main(String... args) {

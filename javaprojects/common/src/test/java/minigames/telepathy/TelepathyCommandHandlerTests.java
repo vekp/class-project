@@ -24,4 +24,19 @@ public class TelepathyCommandHandlerTests {
         assertTrue(TelepathyCommandHandler.getAttributes(renderingCommand).get(1).equals("attribute2"));
     }
 
+    @Test
+    @DisplayName("Test getting attributes from Telepathy commands")
+    public void testGetAttributes(){
+        JsonObject command = TelepathyCommandHandler.makeJsonCommand(
+            TelepathyCommands.TESTCOMMAND, "attribute1", "attribute2");
+        assertTrue(TelepathyCommandHandler.getAttributes(command).get(0).equals("attribute1"));
+        assertTrue(TelepathyCommandHandler.getAttributes(command).get(1).equals("attribute2"));
+
+        // Check invalid JsonObjects
+        JsonObject invalidObject = new JsonObject().put("command", " ");
+        TelepathyCommandException e = assertThrows(TelepathyCommandException.class, () -> {
+            TelepathyCommandHandler.getAttributes(invalidObject);
+        });
+    }
+
 }

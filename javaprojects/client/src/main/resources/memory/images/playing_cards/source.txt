@@ -1,0 +1,9 @@
+Card images obtained from:
+
+* Card Fronts - By Byron Knoll (Made available on OpenGameArt by Curt)
+https://opengameart.org/content/playing-cards-vector-png 
+
+* Card Back - By jeffshee on OpenGameArt
+https://opengameart.org/content/colorful-poker-card-back 
+
+Public - Open source.
