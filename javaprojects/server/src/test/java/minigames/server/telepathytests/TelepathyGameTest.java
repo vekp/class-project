@@ -139,9 +139,9 @@ public class TelepathyGameTest {
             Collections.singletonList(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.REQUESTUPDATE))));
 
         // Updates expected
-        //          MODIFYPLAYER from joining game
+        //          NOUPDATE for first starting a game
         System.out.println(response.renderingCommands().get(0).getString("command"));
-        assertTrue(response.renderingCommands().get(0).getString("command").equals("MODIFYPLAYER"));
+        assertTrue(response.renderingCommands().get(0).getString("command").equals("NOUPDATE"));
         
     }
 
