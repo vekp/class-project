@@ -347,6 +347,18 @@ public class GameDisplay extends JPanel implements ActionListener {
         }
     }
 
+    // New method to play the self-collision sound
+private void playSelfCollisionSound() {
+    try {
+        InputStream audioInputStream = getClass().getResourceAsStream("/sounds/selfCollision.wav");
+        AudioInputStream stream = AudioSystem.getAudioInputStream(audioInputStream);
+        Clip clip = AudioSystem.getClip();
+        clip.open(stream);
+        clip.start();
+    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+        e.printStackTrace();
+    }
+
     /**
      * Checks for potential collisions in the game.
      *
@@ -358,6 +370,7 @@ public class GameDisplay extends JPanel implements ActionListener {
         for (int i = snakeParts; i > 0; i--) {
             if ((x[0] == x[i]) && (y[0] == y[i])) {
                 running = false; // Game over
+                playSelfCollisionSound(); // Play the self-collision sound
             }
         }
         // Check if head touches borders
