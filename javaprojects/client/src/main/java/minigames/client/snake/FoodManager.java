@@ -13,13 +13,12 @@ public class FoodManager {
     private ItemType type;  // Type of the food (e.g., APPLE, CHERRY, etc.)
     private final GameBoard gameBoard;  // The game board on which the food is placed
     private ImageResource foodImage;  // The image representing the food
-    private boolean isEaten;  // Whether the food has been eaten by the snake
     private boolean isSpoiled;  // Whether the food has spoiled
     private int creationTime;  // Time when the food was created (or regenerated)
     private int spoilThreshold = GameConstants.SPOILED_FOOD_THRESHOLD;
 
     /**
-     * Constructor for the Food class.
+     * Constructor for the FoodManager class.
      *
      * @param gameBoard The game board on which the food is to be placed.
      */
@@ -29,6 +28,8 @@ public class FoodManager {
 
     /**
      * Randomly selects a food type and its associated image.
+     * The food type is selected from a predefined set of food images.
+     * The selected image is associated with the food type.
      */
     private void selectRandomFoodTypeAndImage() {
         Random rand = new Random();
@@ -54,44 +55,45 @@ public class FoodManager {
         }
     }
 
+    /**
+     * Gets the X-coordinate of the food on the game board.
+     *
+     * @return The X-coordinate of the food.
+     */
     public int getX() {
         return x;
     }
 
+    /**
+     * Gets the Y-coordinate of the food on the game board.
+     *
+     * @return The Y-coordinate of the food.
+     */
     public int getY() {
         return y;
     }
 
+    /**
+     * Gets the type of the food (e.g., APPLE, CHERRY, etc.).
+     *
+     * @return The type of the food.
+     */
     public ItemType getType() {
         return type;
     }
 
-    public ImageResource getFoodImage() {
-        return foodImage;
-    }
-
-    public boolean isEaten() {
-        return isEaten;
-    }
-
-    public void setEaten(boolean isEaten) {
-        this.isEaten = isEaten;
-    }
-
+    /**
+     * Checks if the food has spoiled.
+     *
+     * @return True if the food has spoiled, otherwise false.
+     */
     public boolean isSpoiled() {
         return isSpoiled;
     }
 
-    public void setSpoiled(boolean isSpoiled) {
-        this.isSpoiled = isSpoiled;
-    }
-
-    public int getCreationTime() {
-        return creationTime;
-    }
-
     /**
      * Sets the position of the food on the game board.
+     * If the specified position is vacant, the food is placed at that position.
      *
      * @param x The X-coordinate for the food's position.
      * @param y The Y-coordinate for the food's position.
@@ -110,8 +112,8 @@ public class FoodManager {
     }
 
     /**
-     * Regenerates the food: selects a new random type and places it at a vacant position on the
-     * board.
+     * Regenerates the food: selects a new random type and places it at a vacant position on the board.
+     * The food type and position are randomly chosen, and the food is marked as not spoiled.
      */
     public void regenerate() {
         selectRandomFoodTypeAndImage();
@@ -124,18 +126,18 @@ public class FoodManager {
         } while (gameBoard.getItemTypeAt(randX, randY) != ItemType.VACANT);
 
         setPosition(randX, randY);
-        this.isEaten = false;
+        // Whether the food has been eaten by the snake
         this.isSpoiled = false;
         this.creationTime = (int) System.currentTimeMillis();
     }
 
     /**
      * Updates the status of the food based on elapsed time.
-     * The food spoils after the spoilThreshold duration and becomes vacant after an additional
+     * The food spoils after the specified spoilThreshold duration and becomes vacant after an additional
      * spoiledDelay seconds.
      */
     public void updateFoodStatus() {
-        if (!isSpoiled && hasSpoiled()) {
+        if (!isSpoiled && hasSpoiled(this.spoilThreshold)) {
             isSpoiled = true;
             type = ItemType.SPOILED_FOOD;
             gameBoard.setItemTypeAt(x, y, type);
@@ -145,7 +147,6 @@ public class FoodManager {
         }
     }
 
-    // TODO REVIEW SPOILED LOGIC AND INTERACTIONS - NOT SHOWING AS SPOILED FOR VERY LONG
     /**
      * Checks if the food has spoiled based on a provided threshold.
      *
@@ -156,21 +157,5 @@ public class FoodManager {
         int currentTime = (int) System.currentTimeMillis();
         int elapsedTime = (currentTime - creationTime) / 1000;
         return elapsedTime > customThreshold;
-    }
-
-    /**
-     * Checks if the food has spoiled based on the default spoilThreshold.
-     *
-     * @return True if the food has spoiled, otherwise false.
-     */
-    public boolean hasSpoiled() {
-        return hasSpoiled(spoilThreshold);
-    }
-
-    /**
-     * Decreases the spoil threshold by 1 second, ensuring it never goes below 10.
-     */
-    public void decreaseSpoilThreshold() {
-        spoilThreshold--;
     }
 }
