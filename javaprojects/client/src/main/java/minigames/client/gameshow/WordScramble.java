@@ -160,7 +160,7 @@ public class WordScramble {
                 guessBox.setFont(pixelFont.deriveFont(18f));
                 guessBox.setColumns(20);
                 // guessBox.setHorizontalAlignment(SwingConstants.CENTER);
-                guessBox.addActionListener((evt) -> sendGuess(gs, guessBox.getText(), 1));
+                guessBox.addActionListener((evt) -> sendGuess(gs, guessBox.getText()));
 
                 // gbc.insets = new Insets(20, 20, 20, 20);
                 gbc.anchor = GridBagConstraints.LINE_START;
@@ -176,7 +176,7 @@ public class WordScramble {
                 submitButton.setContentAreaFilled(false);
                 submitButton.setFocusPainted(false);
                 submitButton.setBorderPainted(false);
-                submitButton.addActionListener((evt) -> sendGuess(gs, guessBox.getText(), gs.round));
+                submitButton.addActionListener((evt) -> sendGuess(gs, guessBox.getText()));
 
                 gbc.insets = new Insets(0, 80, 0, 30);
                 gbc.anchor = GridBagConstraints.LINE_END;
@@ -248,11 +248,12 @@ public class WordScramble {
         /**
          * Sends a guess to the server
          */
-        private static void sendGuess(GameShow gs, String guess, int gameId) {
+        private static void sendGuess(GameShow gs, String guess) {
                 gs.sendCommand(new JsonObject()
                                 .put("command", "guess")
                                 .put("game", "WordScramble")
                                 .put("guess", guess)
-                                .put("round", gs.round));
+                                .put("round", gs.round)
+                                .put("score", gs.gameTimer.calculateScore()));
         }
 }

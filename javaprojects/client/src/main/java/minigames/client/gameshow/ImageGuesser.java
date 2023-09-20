@@ -194,6 +194,7 @@ public class ImageGuesser {
                 .put("command", "guess")
                 .put("game", "ImageGuesser")
                 .put("guess", guess)
-                .put("round", gs.round));
+                .put("round", gs.round)
+                .put("score", gs.gameTimer.calculateScore()));
     }
 }
