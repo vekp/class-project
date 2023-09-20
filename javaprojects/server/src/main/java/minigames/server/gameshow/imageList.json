@@ -1,0 +1,14 @@
+[
+  {
+    "imageFileName": "gameshow_image_1.jpg",
+    "imageAnswer": "Rhino"
+  },
+  {
+    "imageFileName": "gameshow_image_2.jpg",
+    "imageAnswer": "Fox"
+  },
+  {
+    "imageFileName": "gameshow_image_3.jpg",
+    "imageAnswer": "Tiger"
+  }
+]

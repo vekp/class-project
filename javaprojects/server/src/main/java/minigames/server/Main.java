@@ -11,6 +11,8 @@ import minigames.server.snake.SnakeServer;
 import minigames.server.peggle.PeggleServer;
 import minigames.server.spacemaze.SpaceMazeServer;
 import minigames.server.telepathy.TelepathyServer;
+import minigames.server.gameshow.GameShowServer;
+
 import minigames.server.tictactoe.TicTacToeServer;
 import minigames.server.noughtsandcrosses.NoughtsAndCrossesServer;
 import minigames.server.krumgame.KrumGameServer;
@@ -63,10 +65,12 @@ public class Main extends AbstractVerticle {
      */
     public static HighScoreAPI highScoreAPI;
 
-    //todo replace this with a proper user profile/account system
+    // todo replace this with a proper user profile/account system
     /**
-     * This is a makeshift 'player database' holding currently-known players (basically just names that
-     * have been entered into the client to join a game, plus a few default names for filling out the achievement
+     * This is a makeshift 'player database' holding currently-known players
+     * (basically just names that
+     * have been entered into the client to join a game, plus a few default names
+     * for filling out the achievement
      * window). THIS SHOULD BE REPLACED WITH THE USER PROFILE SYSTEM WHEN READY
      */
     public static Set<String> players = new HashSet<>();
@@ -86,6 +90,7 @@ public class Main extends AbstractVerticle {
         gameRegistry.registerGameServer("Battleship", new BattleshipServer());
         gameRegistry.registerGameServer("Memory", new MemoryServer());
         gameRegistry.registerGameServer("Telepathy", new TelepathyServer());
+        gameRegistry.registerGameServer("GameShow", new GameShowServer());
         gameRegistry.registerGameServer("Snake", new SnakeServer());
         gameRegistry.registerGameServer("Peggle", new PeggleServer());
         gameRegistry.registerGameServer("TicTacToe", new TicTacToeServer());
@@ -94,7 +99,7 @@ public class Main extends AbstractVerticle {
         // Initialise the HighScoreAPI
         highScoreAPI = new HighScoreAPI();
 
-        //adding some dummy/default names to the player list
+        // adding some dummy/default names to the player list
         players.add("James");
         players.add("Sarah");
         players.add("Andrew");

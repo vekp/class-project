@@ -198,7 +198,8 @@ public class MinigameNetworkServer {
         router.post("/command").respond((ctx) -> {
             JsonObject data = ctx.body().asJsonObject();
             CommandPackage cp = CommandPackage.fromJson(data);
-
+            logger.info("Responding to command");
+            logger.info("Server {}", cp.gameServer());
             GameServer gs = Main.gameRegistry.getGameServer(cp.gameServer());
 
             /*
