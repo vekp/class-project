@@ -25,7 +25,7 @@ public class NotificationManager implements Tickable {
     private Insets margins;
     // Alignment of notification panel
     private float alignmentX, alignmentY;
-    private int notificationHeight;
+    private int notificationWidth, notificationHeight;
     // Notification panel's position
     private int currentX;
     private double currentY;
@@ -102,24 +102,31 @@ public class NotificationManager implements Tickable {
                 }
             });
         }
-        // Notification dimensions
-        int notificationWidth = (int) notification.getPreferredSize().getWidth();
-        notificationHeight = (int) notification.getPreferredSize().getHeight();
-        // calculate start position
-        int maxX = layeredPane.getWidth() - notificationWidth - margins.right;
-        int minX = margins.left;
-        currentX = minX + (int) (alignmentX * (maxX - minX));
+        // calculate and set initial position
         currentY = -notificationHeight;
+        setPosition();
         // calculate target Y position
         int minY = margins.top;
         int maxY = layeredPane.getHeight() - notificationHeight - margins.bottom;
         targetY = minY + (int) (alignmentY * (maxY - minY));
-        // set bounds, add to layer
-        notification.setBounds(currentX, (int) currentY, notificationWidth, notificationHeight);
+        // add to layer, start animating
         layeredPane.add(notification, JLayeredPane.POPUP_LAYER);
-        // start animating
         animator.requestTick(this);
         return this;
+    }
+
+    /**
+     * Set the position of the current notification based on its dimensions, margins and alignment settings.
+     */
+    private void setPosition() {
+        // Notification dimensions
+        notificationWidth = (int) notification.getPreferredSize().getWidth();
+        notificationHeight = (int) notification.getPreferredSize().getHeight();
+        // Calculate position
+        int maxX = layeredPane.getWidth() - notificationWidth - margins.right;
+        int minX = margins.left;
+        currentX = minX + (int) (alignmentX * (maxX - minX));
+        notification.setBounds(currentX, (int) currentY, notificationWidth, notificationHeight);
     }
 
     // Animate the notification panel depending on its current status
@@ -194,6 +201,7 @@ public class NotificationManager implements Tickable {
             layeredPane.add(notification);
             applyStyling(notification);
             applyBorder(notification);
+            setPosition();
         }
         setApplyColourAndFontStyling(false);
         return this;
@@ -217,10 +225,12 @@ public class NotificationManager implements Tickable {
         parent.add(pane, index);
         parent.revalidate();
         this.layeredPane = pane;
+        // Apply styling and reposition existing notification
         if (notification != null) {
             pane.add(notification);
             applyStyling(notification);
             applyBorder(notification);
+            setPosition();
         }
         return this;
     }
