@@ -36,7 +36,7 @@ public class BasePanel extends JPanel implements MainMenuPanel.PanelSwitcher {
 
         initUI();
         configureMainWindow(mnClient);
-        MultimediaManager.playBackgroundSound(GameConstants.MAIN_MENU_PANEL);
+        MultimediaManager.playBackgroundSound(GameConstants.MENU_MUSIC);
 
     }
 
