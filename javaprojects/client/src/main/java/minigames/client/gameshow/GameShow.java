@@ -21,16 +21,8 @@ import minigames.rendering.GameMetadata;
 import minigames.commands.CommandPackage;
 
 /**
- * A very simple interface for a text-based game.
- *
- * It understands three commands:
- * { "command": "clearText" } to clear the contents of the text area
- * { "command": "appendText", "text": text } to add contents to the text area
- * { "command": "setDirections", "directions": directions} to enable/disable the
- * N, S, E, W buttons
- * depending on whether the directions string contains "N", "S", "E", "W"
- * (e.g. { "command": "setDirections", "directions": "NS" } would enable only N
- * and S)
+ * The `GameShow` class represents a text-based game client for a game show minigame.
+ * It provides a simple interface for interacting with the game and communicates with the server.
  */
 public class GameShow implements GameClient, Tickable {
     private static final Logger logger = LogManager.getLogger(GameShow.class);
@@ -42,7 +34,7 @@ public class GameShow implements GameClient, Tickable {
      */
     GameMetadata gm;
 
-    /** Your name */
+    /** The name of the player */
     String player;
 
     JPanel homeScreen;
@@ -65,6 +57,9 @@ public class GameShow implements GameClient, Tickable {
 
     public static GameShow Main;
 
+    /**
+     * Initializes a new instance of the `GameShow` class.
+     */
     public GameShow() {
         Main = this;
         this.lastPoll = System.nanoTime();
@@ -72,6 +67,11 @@ public class GameShow implements GameClient, Tickable {
         this.started = false;
     }
 
+    /**
+     * Creates a "Quit" button for the game.
+     *
+     * @return A JButton representing the "Quit" button.
+     */
     public static JButton quit() {
         JButton quitGame;
 
@@ -87,21 +87,21 @@ public class GameShow implements GameClient, Tickable {
     }
 
     /**
-     * Sends a command to the game at the server.
-     * This being a text adventure, all our commands are just plain text strings our
-     * gameserver will interpret.
-     * We're sending these as
-     * { "command": command }
+     * Sends a command to the game server.
+     *
+     * @param json The JSON object representing the command to send.
      */
     public void sendCommand(JsonObject json) {
-        // Collections.singletonList() is a quick way of getting a "list of one item"
-        // logger.log(Level.INFO, "sendCommand called with command: {0}", command);
         logger.info("Sending JSON: {}", json.toString());
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), this.player, Collections.singletonList(json)));
     }
 
     /**
-     * What we do when our client is loaded into the main screen
+     * Loads the game client into the main screen and prepares it for gameplay.
+     *
+     * @param mnClient The MinigameNetworkClient used for communication.
+     * @param game     The game metadata.
+     * @param player   The name of the player.
      */
     @Override
     public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {
@@ -110,12 +110,9 @@ public class GameShow implements GameClient, Tickable {
         this.gm = game;
         this.player = player;
 
-        // Add our components to the north, south, east, west, or centre of the main
-        // window's BorderLayout
         homeScreen = GameShowUI.generateIntroPanel(this);
         mnClient.getMainWindow().addCenter(homeScreen);
         mnClient.getMainWindow().pack();
-        // mnClient.getMainWindow().setVisible(true)
 
         mnClient.getAnimator().requestTick(this); // Start receiving ticks
 
@@ -123,6 +120,12 @@ public class GameShow implements GameClient, Tickable {
 
     }
 
+    /**
+     * Executes a game command received from the server.
+     *
+     * @param game    The game metadata.
+     * @param command The JSON object representing the command to execute.
+     */
     @Override
     public void execute(GameMetadata game, JsonObject command) {
         this.gm = game;
@@ -142,6 +145,11 @@ public class GameShow implements GameClient, Tickable {
         }
     }
 
+    /**
+     * Starts the next round of the game.
+     *
+     * @param command The JSON object representing the command to start the next round.
+     */
     private void startNextRound(JsonObject command) {
         logger.info("Starting minigame {}", command.getString("game"));
         logger.info("Starting round {}", command.getInteger("round"));
@@ -164,8 +172,12 @@ public class GameShow implements GameClient, Tickable {
         this.gameTimer.start();
     }
 
+    /**
+     * Starts a specific game based on the provided command.
+     *
+     * @param command The JSON object representing the command to start the game.
+     */
     private void startGame(JsonObject command) {
-        // String game = command.getString("game");
         String game = command.getString("game");
         this.started = true;
         switch (game) {
@@ -182,6 +194,11 @@ public class GameShow implements GameClient, Tickable {
         }
     }
 
+    /**
+     * Processes the outcome of a guess in the game.
+     *
+     * @param command The JSON object representing the command with the guess outcome.
+     */
     private void processGuessOutcome(JsonObject command) {
         String game = command.getString("game");
         switch (game) {
@@ -196,6 +213,11 @@ public class GameShow implements GameClient, Tickable {
         }
     }
 
+    /**
+     * Logs the ready state of a player.
+     *
+     * @param command The JSON object representing the command with the player's ready state.
+     */
     private void logReadyState(JsonObject command) {
         logger.info(
                 "Player '{}' is now ready: {}",
@@ -203,7 +225,9 @@ public class GameShow implements GameClient, Tickable {
         );
     }
 
-
+    /**
+     * Closes the game client and exits the game.
+     */
     @Override
     public void closeGame() {
         this.isActive = false;
