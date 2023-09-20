@@ -4,13 +4,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.RenderingHints.Key;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
 import java.awt.BorderLayout;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,8 +16,6 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Random;
-import java.util.HashMap;
 
 /**
  * Class to display the maze, handle key input and do basic validation
@@ -45,14 +41,14 @@ public class MazeDisplay extends JPanel {
 
     // ArrayList of SpaceBot objects in the maze
     private ArrayList<SpaceBot> bots;
-    // Delay in milliseconds between bot movement
-    private int botDelay = 300;
+    // Delay in milliseconds between bot movement 300
+    private int botDelay = 400;
 
     // Game window and tile dimensions
-    int jPanelWidth = 800;
-    int jPanelHeight = 600;
-    int tileWidth;
-    int tileHeight;
+    private int jPanelWidth = 800;
+    private int jPanelHeight = 600;
+    private int tileWidth;
+    private int tileHeight;
 
     // Direction of the player, used for selecting player image
     private String playerDirection;
@@ -118,30 +114,21 @@ public class MazeDisplay extends JPanel {
      * Timer for automating parts of the game
      * Primarily the bots movement
      */
-    public void startTimer(){
+    public void startTimer() {
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 for (SpaceBot bot : bots ) {
-                    // moving randomly - gets stuck at deadends.
-                    /*
-                    Random ran = new Random();
-                    bot.moveRandom(ran);
-                    */
-                    // always moving closer
                     bot.move(playerPos);
-                   
                     detectAndSendCollisions();
                 }
-
                 // For controlling the cycling of images with multiple pngs
                 if (imageCycle < 60) {
                     imageCycle++;
                 } else {
                     imageCycle = 1;
                 }
-
                 repaint();
             }
             }, 0, botDelay);
@@ -161,7 +148,7 @@ public class MazeDisplay extends JPanel {
      * Handles key pressed and if the movement is valid, gets spaceMaze to send to server
      * @param e the Event
      */
-    public void requestFocusInPanel(){
+    public void requestFocusInPanel() {
         this.setFocusable(true);
         this.requestFocusInWindow();
     }
@@ -170,7 +157,7 @@ public class MazeDisplay extends JPanel {
      * Called from SpaceMaze class when a command is received to updateMaze
      * @param mazeMap char[][] of the current maze layout
      */
-    public void updateMaze(char[][] mazeArray){
+    public void updateMaze(char[][] mazeArray) {
         this.mazeMap = mazeArray;
         playerPos = findCharOnMap(mazeArray, 'P');
         mazeMap[startPos.y][startPos.x] = 'S';
@@ -181,7 +168,7 @@ public class MazeDisplay extends JPanel {
      * To be called when we start a new level.
      * @param mazeMap the new level
      */
-    public void newLevel(char[][] mazeArray, ArrayList<SpaceBot> newBots){
+    public void newLevel(char[][] mazeArray, ArrayList<SpaceBot> newBots) {
         this.mazeMap = mazeArray;
         this.startPos = findCharOnMap(mazeMap, 'P');
         this.playerPos = findCharOnMap(mazeMap, 'P');
@@ -201,6 +188,7 @@ public class MazeDisplay extends JPanel {
 
         if (playerPos.equals(exitPoint)) {
             logger.info("playerPos == exit");
+            SpaceMazeSound.play("newlevel");
             spaceMaze.sendCommand("onExit");
             this.stopTimer();
         }
@@ -268,12 +256,13 @@ public class MazeDisplay extends JPanel {
      * @param direction Direction the player is moving
      * @param nextPoint Next point the player is moving to
      */
-    public void handleDirection(String info, String direction, Point nextPoint){
+    public void handleDirection(String info, String direction, Point nextPoint) {
         logger.info(info);
-        if (isMoveValid(nextPoint)){
+        if (isMoveValid(nextPoint)) {
             // This command currently only tells the server where the player is moving
             spaceMaze.sendCommand("playerMoved" + direction);
-            if ((mazeMap[moveTo.y][moveTo.x] != '.') && (mazeMap[moveTo.y][moveTo.x] != 'U')){
+            if ((mazeMap[moveTo.y][moveTo.x] != '.') && (mazeMap[moveTo.y][moveTo.x] != 'U')) {
+                playSound();
                 spaceMaze.sendCommand("collision");
             } else {
                 // Moves the player image
@@ -316,7 +305,7 @@ public class MazeDisplay extends JPanel {
      * @param r row number
      * @param c column number
      */
-    public void charToImage(Graphics g, int r, int c){
+    public void charToImage(Graphics g, int r, int c) {
         switch (mazeMap[r][c]) {
             case 'W':
                 g.drawImage(Images.getImage("wallImages", (r+c) % 4), c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);
@@ -409,6 +398,28 @@ public class MazeDisplay extends JPanel {
     }
 
     /**
+     * Method to play a sound based on collision character
+     */
+    private void playSound() {
+        switch (mazeMap[moveTo.y][moveTo.x]) {
+            case 'K':
+                SpaceMazeSound.play("key");
+                break;
+            case '$':
+                SpaceMazeSound.play("chest");
+                break;
+            case 'H':
+                SpaceMazeSound.play("wormhole");
+                break;
+            case 'M':
+                SpaceMazeSound.play("bomb");
+                break;
+            default:
+                // do nothing
+        }
+    }
+
+    /**
      * Method to check whether a move is valid
      * Used to save time by not sending invalid moves to the server
      * @param moveTo point to move to
@@ -428,22 +439,20 @@ public class MazeDisplay extends JPanel {
         return (!outOfBounds && !isWallOrExit);
     }
 
-    /*
+    /**
      * Method for detecting collisions between bots and players.
-     * 
      */
     public void detectAndSendCollisions() {
-
         // iterate through the bots and compare position with the players.
             for (SpaceBot bot : bots) {
                 Point botPosition = bot.getLocation();
 
                 if(playerPos.equals(botPosition)) {
                     logger.info("Collision detected");
+                    SpaceMazeSound.play("lifedown");
                     spaceMaze.sendCommand("botCollision");
                     bot.reset();
                 }
-                
             }
     }
 }

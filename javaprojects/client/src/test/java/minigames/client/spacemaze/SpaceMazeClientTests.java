@@ -2,43 +2,49 @@ package minigames.client.spacemaze;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.*;
-import java.awt.Point;
-import java.util.ArrayList;
 
-import org.junit.jupiter.api.Disabled;
-import java.io.*;
-import static org.mockito.Mockito.*;
-import org.junit.jupiter.api.extension.ExtendWith;
+import java.awt.Point;
+import java.util.*;
 
 public class SpaceMazeClientTests {
 
     private MazeDisplay maze;
+    private SpaceMaze spaceMazeFontLoader;
+
 
     /**
      * Setting up a maze display for testing logic
      */
     @BeforeEach
-    public void dummyMazeArray(){
+    public void dummyMazeArray() {
         SpaceMaze spaceMaze = new SpaceMaze();
         ArrayList<SpaceBot> bots = new ArrayList<>();
         char [][] mazeMap = {
-                {'S','.', 'U'},
-                {'K', 'B','?'},
-                {'M', '$', 'T'},
-                {'H', 'E', 'W'},
-                {'P', '.', '.'},
+                {'S','.', 'U', '.'},
+                {'K', 'B','?', '.'},
+                {'M', '$', 'T', '.'},
+                {'H', 'E', '.', '.'},
+                {'P', '.', 'W', '.'},
+                {'W', '.', '.', '.'},
+                {'W', 'W', '.', 'W'},
+                {'.', 'W', '.', 'W'},
+                {'.', '.', '.', 'W'},
         };
         maze = new MazeDisplay(mazeMap, spaceMaze, bots);
+        spaceMazeFontLoader = spaceMaze;
     }
 
-    Point startLocation = new Point(0,0);
-    // Bot class tests
+    //-------------------Bot class tests------------------------//
+
+    /**
+     * Test to check the bot constructor
+     * @author Nik Olins
+     */
+    Point startLocation = new Point(1,8);
+
     private SpaceBot bot = new SpaceBot(startLocation);
     @DisplayName("Check the bot constructor")
     @Test
@@ -47,84 +53,216 @@ public class SpaceMazeClientTests {
         
         assertEquals(startLocation.x, cLoc.x);
         assertEquals(startLocation.y, cLoc.y);
-        //assertEquals('.', bot.getTile());
+        assertNotNull(bot.testingGetMovesList(), "bot move ArrayList is null");
+        assertTrue(bot.testingIsSeeking(), "bot is not seeking");
+        assertNotNull(bot.getBotImage(), "bot image is null");
 
     }
-
+    /**
+     * Test to check an up move
+     * @author Nik Olins
+     */
     @DisplayName("Check the bot movement up")
     @Test
     public void testBotMoveUp() {
         Point cLoc = bot.getLocation(); 
-        Point moveUp = bot.getMoveAttempt(0);
+        Point moveUp = bot.testingGetMoveAttempt(0);
         
         assertEquals(cLoc.x, moveUp.x);
         assertEquals((cLoc.y-1), moveUp.y);
         
     }
-
+    /**
+     * Test to check a right move
+     * @author Nik Olins
+     */
     @DisplayName("Check the bot movement right")
     @Test
     public void testBotMoveRight() {
         Point cLoc = bot.getLocation();
-        Point moveRight = bot.getMoveAttempt(1);
+        Point moveRight = bot.testingGetMoveAttempt(1);
        
         assertEquals((cLoc.x+1), moveRight.x);
         assertEquals(cLoc.y, moveRight.y);
 
     }
-
+    /**
+     * Test to check a down move
+     * @author Nik Olins
+     */
     @DisplayName("Check the bot movement down")
     @Test
     public void testBotMoveDown() {
         Point cLoc = bot.getLocation();
-        Point moveDown = bot.getMoveAttempt(2);
+        Point moveDown = bot.testingGetMoveAttempt(2);
        
         assertEquals(cLoc.x, moveDown.x);
         assertEquals((cLoc.y+1), moveDown.y);
 
     }
-
+    /**
+     * Test to check a left move
+     * @author Nik Olins
+     */
     @DisplayName("Check the bot movement left")
     @Test
     public void testBotMoveLeft() {
         Point cLoc = bot.getLocation();
-        Point moveLeft = bot.getMoveAttempt(3);
+        Point moveLeft = bot.testingGetMoveAttempt(3);
        
         assertEquals((cLoc.x-1), moveLeft.x);
         assertEquals(cLoc.y, moveLeft.y);
 
     }
-
+    /**
+     * Test to check all legal move commands are accepted. 0 : Up, 1 : Right, 2 : Down, 3 : Left
+     * @author Nik Olins
+     */
     @DisplayName("Check for legal move commands")
     @Test
     public void testBotMoveCommand() {
 
         // up, right, down, left
-        assertDoesNotThrow(() -> { bot.getMoveAttempt(0); });
-        assertDoesNotThrow(() -> { bot.getMoveAttempt(1); });
-        assertDoesNotThrow(() -> { bot.getMoveAttempt(2); });
-        assertDoesNotThrow(() -> { bot.getMoveAttempt(3); });
+        assertDoesNotThrow(() -> { bot.testingGetMoveAttempt(0); });
+        assertDoesNotThrow(() -> { bot.testingGetMoveAttempt(1); });
+        assertDoesNotThrow(() -> { bot.testingGetMoveAttempt(2); });
+        assertDoesNotThrow(() -> { bot.testingGetMoveAttempt(3); });
 
     }
-
+    /**
+     * Test to check for an illegal move command <0 or >3
+     * @author Nik Olins
+     */
     @DisplayName("Check for illegal move commands")
     @Test
     public void testIllegalBotMoveCommand() {
 
        // a command not between 0 - 3 inclusive
-       assertThrows(RuntimeException.class, () -> { bot.getMoveAttempt(4); });
+       assertThrows(RuntimeException.class, () -> { bot.testingGetMoveAttempt(4); });
     }
-    /*
-    @DisplayName("Check setting of occupied tile")
+    /**
+     * Test to check the seeking movement chooses the move to close the distance to the player.
+     * @author Nik Olins
+     */
+    @DisplayName("Testing seeking move selection behaviour.")
     @Test
-    public void testBotUpdateTile() {
-        char testChar = 'K';
-       // a command not between 0 - 3 inclusive
-       char currChar = bot.getTile();
-       bot.updateTile(testChar);
-       assertEquals(bot.getTile(), testChar);
+    public void testDistanceCloser() {
+        // Map for reference
+        /*
+         char [][] mazeMap = {
+                {'S','.', 'U', '.'},
+                {'K', 'B','?', '.'},
+                {'M', '$', 'T', '.'},
+                {'H', 'E', '.', '.'},
+                {'P', '.', 'W', '.'},
+                {'W', '.', '.', '.'},
+                {'W', 'W', '.', 'W'},
+                {'.', 'W', '.', 'W'},
+                {'W', 'W', '.', 'W'},
+         */
+        // Test when two moves valid moves have the same closure distance.
+        Point playerPosOne = new Point(2,3);
+        bot.updateLocation(new Point(2,5));
+        ArrayList<Point> validMovesOne = new ArrayList<Point>();
+        Point posOneInvalidMove = new Point(3,5);
+        validMovesOne.add(posOneInvalidMove);
+        validMovesOne.add(new Point(2,6));
+        Point posOneValidMove = new Point(1,5);
+        validMovesOne.add(posOneValidMove);
+        Point seekingMoveDecisionOne = bot.testingDistanceCloser(playerPosOne, validMovesOne);
+         // test 3, 2, 1, 0 preference order
+        assertTrue(posOneValidMove.equals(seekingMoveDecisionOne), "should have selected move 3");
+        // Test invalid move choice (0, 1, 2, 3) counter preference
+        assertFalse(posOneInvalidMove.equals(seekingMoveDecisionOne), "move 1 should have been invalid");
+
+        // Test when there are no valid moves to get to the player, returns Point(-1,-1)
+        Point playerPosTwo = new Point(2,7);
+        bot.updateLocation(new Point(0,7));
+        ArrayList<Point> validMovesTwo = new ArrayList<Point>();
+        Point seekingMoveDecisionTwo = bot.testingDistanceCloser(playerPosTwo, validMovesTwo);
+        Point expectedResult = new Point(-1,-1);
+        assertTrue(expectedResult.equals(seekingMoveDecisionTwo), "expected Point(-1,-1)");
     }
-    */
+
+     /**
+     * Test to check the bot chooses to switch between seeking and random mode correctly.
+     * @author Nik Olins
+     */
+    @DisplayName("Testing the bot's decision to seek or move randomly")
+    @Test
+    public void testChooseSeeking() {
+
+        // move bot around with < 3 moves stored , bot is currently seeking and should choose seeking
+        bot.updateLocation(new Point(6,2));
+        bot.updateLocation(new Point(5,2));
+        assertTrue(bot.testingChooseSeeking(), "bot should choose seeking with <3 stored moves and seeking true");
+        assertTrue(bot.testingIsSeeking(), "bot should currently be seeking with <3 stored moves");
+
+        // move bot around with >= 3 moves stored with trigger sequence. seeking is true and moves list cleared
+        bot.updateLocation(new Point(6,2));
+        assertFalse(bot.testingChooseSeeking(), "should not choose seeking with aba sequence detected");
+        assertFalse(bot.testingIsSeeking(), "bot should not currently be seeking with >=3 stored moves and aba detected");
+        int storedMoves = bot.testingGetMovesList().size();
+        assertEquals(storedMoves, 0, "the stored moves should be cleared to zero when changing between seeking and non seeking behaviour.");
+        // move bot around with <5 moves and no seeking - choose seeking should be false.
+        bot.updateLocation(new Point(6,2));
+        bot.updateLocation(new Point(5,2));
+        bot.updateLocation(new Point(5,3));
+        assertFalse(bot.testingIsSeeking(), "bot should not be seeking once random is triggered and <5 moves are recorded.");
+        assertFalse(bot.testingChooseSeeking(), "should not choose seeking when seeking is false and stored moves are <5");
+        
+        // move bot around with >=5 moves, choose seeking and clear moves list.
+        bot.updateLocation(new Point(5,2));
+        bot.updateLocation(new Point(5,3));
+        assertTrue(bot.testingChooseSeeking(), "bot should choose to seek when seeking is false and stored moves >=5");
+        assertTrue(bot.testingIsSeeking(), "bot should be seeking after making 5 random moves.");
+
+    }
+
+     /**
+     * Test to check the seeking mode move generation. If there are valid moves, choose the one which reduces the distance.
+     * If there is a tie, choose counter clockwise from Left.
+     * If there are no valid moves, attempt to move randomly. If there are no ramdom moves, do not move.
+     * @author Nik Olins
+     */
+    @DisplayName("Testing the bot's decision to seek or move randomly")
+    @Test
+    public void testMoveCloser() {
+
+        Point playerPosOne = new Point(2,3);
+        ArrayList<Point> validMoves = new ArrayList<Point>();
+        // no valid moves , cannot close distance attempt random move. AS there are no valid options, do not move.
+        Point botPositionOne = bot.getLocation();
+        Point closestMove = bot.testingDistanceCloser(playerPosOne, validMoves);
+        bot.testingMoveCloser(playerPosOne, closestMove, validMoves);
+        assertTrue(botPositionOne.equals(bot.getLocation()), "the bot should not have moved.");
+
+        // a valid move to close the distance, move to that position.
+        validMoves.add(new Point(3,3));
+        Point nextMove = bot.testingDistanceCloser(playerPosOne, validMoves);
+        bot.testingMoveCloser(playerPosOne, nextMove, validMoves);
+        Point botPositionTwoPost = bot.getLocation();
+        assertFalse(botPositionOne.equals(botPositionTwoPost), "the bot should have moved to 3,3");
+        
+    }
+
+    /**
+     * Test to confirm random movement works.
+     * @author Nik Olins
+     */
+    @DisplayName("Testing the bot's random move behaviour.")
+    @Test
+    public void testMoveRandom() {
+        ArrayList<Point> validMoves = new ArrayList<Point>();
+        validMoves.add(new Point(0,8));
+        validMoves.add(new Point(2,8));
+        Point botStartLoc = bot.getLocation();
+
+        // Randomly move the bot, confirm the position changed from the start location.
+        bot.testingMoveRandom(new Random(), validMoves);
+        assertFalse(botStartLoc.equals(bot.getLocation()), "the bot should have moved from its start location.");
+
+    }
 
     /**
      * Test to check if moving on to a locked exit or wall is
@@ -138,12 +276,12 @@ public class SpaceMazeClientTests {
         // Locked Exit
         assertFalse(maze.isMoveValid(new Point(1, 3)));
         // Wall
-        assertFalse(maze.isMoveValid(new Point(2, 3)));
+        assertFalse(maze.isMoveValid(new Point(2, 4)));
         // Out of bounds in all four directions
         assertFalse(maze.isMoveValid(new Point(0, -1)));
         assertFalse(maze.isMoveValid(new Point(-1, 0)));
-        assertFalse(maze.isMoveValid(new Point(1, 5)));
-        assertFalse(maze.isMoveValid(new Point(3, 0)));
+        assertFalse(maze.isMoveValid(new Point(1, 9)));
+        assertFalse(maze.isMoveValid(new Point(4, 0)));
     }
 
     /**
@@ -191,4 +329,29 @@ public class SpaceMazeClientTests {
         assertTrue(testExit.equals(actualExit));
     }
 
+    /**
+     * Test to confirm loadCustomFonts loads public Pixel font and is of correct size.
+     * 
+     * @author Niraj Rana Bhat
+     */
+    @Test
+    @DisplayName("Test Public pixel fonts loaded with correct size")
+    public void testLoadCustomFontPublicPixel(){
+        spaceMazeFontLoader.loadCustomFont();
+        assertNotNull(spaceMazeFontLoader.getCustomFont());
+        assertEquals(40f, spaceMazeFontLoader.getCustomFont().getSize2D(), 0.01);
+    }
+
+     /**
+     * Test to confirm loadCustomFonts loads Aquire font and is of correct size.
+     * 
+     * @author Niraj Rana Bhat
+     */
+    @Test
+    @DisplayName("Test Aquire fonts loaded with correct size")
+    public void testLoadCustomFontAquire(){
+        spaceMazeFontLoader.loadCustomFont();
+        assertNotNull(spaceMazeFontLoader.getAquireFont());
+        assertEquals(13f, spaceMazeFontLoader.getAquireFont().getSize2D(), 0.01);
+    }
 }
