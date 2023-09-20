@@ -20,9 +20,6 @@ public class AchievementHandler {
     //manager class responsible for holding all the player achievement profiles
     private final static PlayerAchievementProfileManager playerManager = new PlayerAchievementProfileManager();
 
-    //This stores recently unlocked achievements, so that notifications can be played on the client.
-    private static final List<Achievement> recentUnlocks = new ArrayList<>();
-
     //the game server name associated with this handler. It is unique for each game server (though multiple
     //handlers can have this same id - they just access and handle achievements for the same server)
     private final String handlerID;
@@ -100,21 +97,14 @@ public class AchievementHandler {
      * @param achievementID The ID of the achievement
      */
     public void unlockAchievement(String playerID, String achievementID) {
-        //throw an error if we try to unlock an achievement that either doesnt exist, or isnt ours
+        //throw an error if we try to unlock an achievement that either doesn't exist, or isn't ours
         if (database.getAchievement(handlerID, achievementID) == null) {
             throw new IllegalArgumentException("Achievement { " + achievementID + " } does not exist for this game { " +
                     handlerID + " }. Please ensure all achievements are registered before trying to use");
         }
         //this will either add the player, or they were already there
         playerManager.addPlayer(playerID);
-
         PlayerAchievementProfile player = playerManager.getPlayer(playerID);
-        if (!player.hasEarnedAchievement(handlerID, achievementID)) {
-            //if the player has not unlocked this achievement before, it is a new achievement and needs to have a
-            //notification popup, so we add it to our recents list
-            Achievement result = database.getAchievement(handlerID, achievementID);
-            recentUnlocks.add(result);
-        }
         //this won't add duplicates if player already has achievement
         player.addAchievement(handlerID, achievementID);
     }
