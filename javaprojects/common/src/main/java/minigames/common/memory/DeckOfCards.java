@@ -87,6 +87,10 @@ public class DeckOfCards {
         }
     }
 
+    public DeckOfCards(DeckOfCards deckOfCards){
+        cardStack = new PlayingCard[deckOfCards.getCards().length];
+    }
+
     /**
      * This is the original constructor if you want a non-standard length deck or deck of pairs 
      * This constructor will create slightly modified card decks, with fewer cards, or with pairs of cards for example
