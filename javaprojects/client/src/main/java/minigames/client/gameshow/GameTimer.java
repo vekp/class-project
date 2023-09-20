@@ -5,13 +5,21 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * Represents a game timer component for tracking time and score in a game.
+ */
 public class GameTimer extends JPanel {
-    private long startTime;
-    private long timeLimit;
-    private boolean isRunning;
-    private Timer timer;
-    private long remainingTime;
+    private long startTime;            // The time when the timer was started
+    private long timeLimit;            // The maximum time limit for the game
+    private boolean isRunning;         // Flag to indicate whether the timer is running
+    private Timer timer;               // Swing Timer to trigger periodic updates
+    private long remainingTime;        // The remaining time on the timer
 
+    /**
+     * Constructs a new GameTimer with the specified time limit.
+     *
+     * @param timeLimit The time limit in milliseconds for the game.
+     */
     public GameTimer(long timeLimit) {
         this.timeLimit = timeLimit;
         isRunning = false;
@@ -23,6 +31,9 @@ public class GameTimer extends JPanel {
         });
     }
 
+    /**
+     * Starts the game timer.
+     */
     public void start() {
         if (!isRunning) {
             startTime = System.currentTimeMillis();
@@ -31,6 +42,9 @@ public class GameTimer extends JPanel {
         }
     }
 
+    /**
+     * Stops the game timer.
+     */
     public void stop() {
         if (isRunning) {
             isRunning = false;
@@ -38,6 +52,11 @@ public class GameTimer extends JPanel {
         }
     }
 
+    /**
+     * Paints the game timer component.
+     *
+     * @param g The Graphics context used for painting.
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -52,6 +71,12 @@ public class GameTimer extends JPanel {
         g.drawString("Score: " + score, 250, 10);
     }
 
+    /**
+     * Formats time in milliseconds into a "MM:SS" string.
+     *
+     * @param milliseconds The time in milliseconds to be formatted.
+     * @return The formatted time string.
+     */
     private String formatTime(long milliseconds) {
         long seconds = milliseconds / 1000;
         long minutes = seconds / 60;
@@ -59,6 +84,11 @@ public class GameTimer extends JPanel {
         return String.format("%02d:%02d", minutes, seconds);
     }
 
+    /**
+     * Gets the current time on the game timer.
+     *
+     * @return The current time in milliseconds.
+     */
     public long getCurrentTime() {
         if (isRunning) {
             return System.currentTimeMillis() - startTime;
@@ -67,6 +97,11 @@ public class GameTimer extends JPanel {
         }
     }
 
+    /**
+     * Gets the remaining time on the game timer.
+     *
+     * @return The remaining time in milliseconds.
+     */
     public long getRemainingTime() {
         if (isRunning) {
             long elapsedTime = System.currentTimeMillis() - startTime;
@@ -76,6 +111,20 @@ public class GameTimer extends JPanel {
         }
     }
 
+    /**
+     * Gets the time limit for the game timer.
+     *
+     * @return The time limit in milliseconds.
+     */
+    public long getTimeLimit() {
+        return timeLimit;
+    }
+
+    /**
+     * Calculates the score based on the remaining time.
+     *
+     * @return The calculated score.
+     */
     public int calculateScore() {
         remainingTime = getRemainingTime();
         int score = (int) (remainingTime / 1000); // Convert milliseconds to seconds
