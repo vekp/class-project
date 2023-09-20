@@ -50,6 +50,8 @@ public class GameShow implements GameClient, Tickable {
     JPanel inputPanel;
     JPanel outcomeContainer;
 
+    /** Stores whether the game is active on the client */
+    private boolean isActive;
     /** Whether the game has started */
     private boolean started;
     /** When the last server poll occurred */
@@ -66,6 +68,7 @@ public class GameShow implements GameClient, Tickable {
     public GameShow() {
         Main = this;
         this.lastPoll = System.nanoTime();
+        this.isActive = true;
         this.started = false;
     }
 
@@ -202,13 +205,19 @@ public class GameShow implements GameClient, Tickable {
 
     @Override
     public void closeGame() {
+        this.isActive = false;
         logger.info("Exited GameShow '{}' as '{}'", new Object[] { this.gm.name(), this.player });
     }
 
-    /** The client polls the server once per second in order to detect when the game has started */
+    /**
+     * GameShow clients poll the server once per second in order to detect when the game has started.
+     * To reduce server load, clients will poll only if
+     *   - the game is active on the client
+     *   - the game has not already started
+     */
     @Override
     public void tick(Animator al, long now, long delta) {
-        if (!this.started) {
+        if (this.isActive && !this.started) {
             if (now - this.lastPoll > 1000000000) {
                 this.lastPoll = now;
                 sendCommand(new JsonObject().put("command", "allReady"));
