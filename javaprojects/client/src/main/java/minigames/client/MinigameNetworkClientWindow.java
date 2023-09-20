@@ -9,6 +9,7 @@ import minigames.client.achievements.AchievementNotificationHandler;
 import minigames.client.achievements.AchievementUI;
 import minigames.client.survey.Survey;
 import minigames.client.backgrounds.Starfield;
+import minigames.client.useraccount.UserAccountFrame;
 import minigames.client.krumgame.KrumGameClient;
 import minigames.client.krumgame.KrumMenu;
 import minigames.rendering.GameMetadata;
@@ -49,24 +50,27 @@ public class MinigameNetworkClientWindow {
 
     public MinigameNetworkClientWindow(MinigameNetworkClient networkClient) {
         // Use LookandFeel to change the SwingUI theme
-        try {
+        /*try {
             for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
                     UIManager.setLookAndFeel(info.getClassName());
-                    UIManager.put("nimbusBase", Color.BLACK); // Set base colour
-                    UIManager.put("nimbusBlueGrey", Color.BLACK); // Set blue/grey colour
-                    UIManager.put("control", Color.BLACK); // Set control background colour
-                    UIManager.put("text", Color.WHITE); // Set text colour
-                    UIManager.put("List.background", Color.BLACK); // Set list background
-                    UIManager.put("TextField.textForeground", Color.BLACK); // Set text field text colour
-                    UIManager.put("List.foreground", Color.BLACK); // Set JList text colour
-                    UIManager.put("ComboBox.foreground", Color.BLACK); // Set JComboBox text colour
+                    //UIManager.put("nimbusBase", Color.BLACK); // Set base colour
+                    //UIManager.put("nimbusBlueGrey", Color.BLACK); // Set blue/grey colour
+                    //UIManager.put("control", Color.BLACK); // Set control background colour
+                    //UIManager.put("text", Color.WHITE); // Set text colour
+                    //UIManager.put("List.background", Color.BLACK); // Set list background
+                    //UIManager.put("TextField.textForeground", Color.BLACK); // Set text field text colour
+                    //UIManager.put("TextField.foreground", Color.BLACK); // Set JTextField text colour
+                    //UIManager.put("TextField.background", Color.WHITE); // Set JTextField background colour
+                    //UIManager.put("TextPane.foreground", Color.BLACK); // Set Font colour in text field
+                    //UIManager.put("List.foreground", Color.WHITE); // Set JList text colour
+                    //UIManager.put("ComboBox.foreground", Color.BLACK); // Set JComboBox text colour
                     break;
                 }
             }
         } catch (Exception e) {
 
-        }
+        }*/
 
         this.networkClient = networkClient;
 
@@ -96,7 +100,7 @@ public class MinigameNetworkClientWindow {
         nameField = new JTextField(20);
         nameField.setText("Algernon");
 
-        frame.setLocationRelativeTo(null);
+
 
     }
 
@@ -157,6 +161,7 @@ public class MinigameNetworkClientWindow {
     public void pack() {
         frame.pack();
         parent.repaint();
+        frame.setLocationRelativeTo(null);
     }
 
     /**
@@ -224,7 +229,7 @@ public class MinigameNetworkClientWindow {
         buttonPanel.setLayout(new BorderLayout());
 
         JPanel serverButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10)); // FlowLayout with spacing
-        serverButtonPanel.setBackground(Color.BLACK); // Set background color to black
+        //serverButtonPanel.setBackground(Color.BLACK); // Set background color to black
 
         for (GameServerDetails gsd : servers) {
             JButton newG = new JButton(
@@ -266,6 +271,16 @@ public class MinigameNetworkClientWindow {
             pack();
         });
         south.add(surveyButton);
+
+        // Create a button for the User Account UI
+        JButton userAccountButton = new JButton("User Account");
+        userAccountButton.addActionListener(e -> {
+            // TODO implement properly. tests to run the UI on init.
+            UserAccountFrame login = new UserAccountFrame();
+            login.userLogin(networkClient);
+            login.setVisible(true);
+        });
+        south.add(userAccountButton);
 
         pack();
 
@@ -317,13 +332,13 @@ public class MinigameNetworkClientWindow {
             networkClient.newGame(gameServer, nameField.getText());
         });
 
-        JButton returnToMainMenu = new JButton("Return to Main Menu");
+        //JButton returnToMainMenu = new JButton("Return to Main Menu");
         // TODO
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
         buttonPanel.add(newG);
-        buttonPanel.add(returnToMainMenu);
+        //buttonPanel.add(returnToMainMenu);
 
         // Create a main panel with BorderLayout
         JPanel mainPanel = new JPanel(new BorderLayout());
