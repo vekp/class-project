@@ -13,17 +13,20 @@ import java.util.Objects;
 public class MultimediaManager {
 
     // ImageResources for all the images
-    private static final ImageResource PHONE_BACKGROUND = new ImageResource("/images/snake/GameBackground.png");
-    private static final ImageResource BACKGROUND_COLOR_BLOCK = new ImageResource("/images/snake/backgroundColorBlock.png");
-    private static final ImageResource SNAKE_LOGO = new ImageResource("/images/snake/snakeLogo.png");
-    private static final ImageResource IMAGE_APPLE = new ImageResource("/images/snake/apple.png");
-    private static final ImageResource IMAGE_CHERRY = new ImageResource("/images/snake/cherry.png");
-    private static final ImageResource IMAGE_ORANGE = new ImageResource("/images/snake/orange.png");
-    private static final ImageResource IMAGE_WATERMELON = new ImageResource("/images/snake/watermelon.png");
-
-    // Background sound clip
-    private static Clip backgroundSound;
-
+    private static final ImageResource PHONE_BACKGROUND = new ImageResource(
+            "/images/snake/GameBackground.png");
+    private static final ImageResource BACKGROUND_COLOR_BLOCK = new ImageResource(
+            "/images/snake/backgroundColorBlock.png");
+    private static final ImageResource SNAKE_LOGO = new ImageResource(
+            "/images/snake/snakeLogo.png");
+    private static final ImageResource IMAGE_APPLE = new ImageResource(
+            "/images/snake/apple.png");
+    private static final ImageResource IMAGE_CHERRY = new ImageResource(
+            "/images/snake/cherry.png");
+    private static final ImageResource IMAGE_ORANGE = new ImageResource(
+            "/images/snake/orange.png");
+    private static final ImageResource IMAGE_WATERMELON = new ImageResource(
+            "/images/snake/watermelon.png");
     // Paths to sounds
     private static final String SOUND_8_BIT = "/sounds/8Bit.wav";
     private static final String SOUND_EAT_APPLE = "/sounds/eatApple.wav";
@@ -31,6 +34,11 @@ public class MultimediaManager {
     private static final String SOUND_RETRO = "/sounds/retro1.wav";
     private static final String SOUND_SMOOTH = "/sounds/smooth.wav";
     private static final String SOUND_SURF = "/sounds/surf.wav";
+    // Image collection
+    private static final ImageResource[] FOOD_IMAGES = {IMAGE_APPLE, IMAGE_CHERRY,
+            IMAGE_WATERMELON, IMAGE_ORANGE};
+    // Background sound clip
+    private static Clip backgroundSound;
 
     /**
      * Constructs a MultimediaManager.
@@ -147,7 +155,8 @@ public class MultimediaManager {
 
         try {
             // Load the audio file using the determined sound path
-            AudioInputStream audioStream = AudioSystem.getAudioInputStream(Objects.requireNonNull(MultimediaManager.class.getResource(soundPath)));
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(
+                    Objects.requireNonNull(MultimediaManager.class.getResource(soundPath)));
             backgroundSound = AudioSystem.getClip();
             backgroundSound.open(audioStream);
 
@@ -165,7 +174,6 @@ public class MultimediaManager {
         }
     }
 
-
     /**
      * Stops the currently playing background sound if there's any sound playing.
      * This method ensures that the sound is stopped gracefully without causing any
@@ -173,9 +181,40 @@ public class MultimediaManager {
      */
     public static void stopBackgroundSound() {
         if (backgroundSound != null && backgroundSound.isRunning()) {
-            // TODO : Test this over normal close - issue with stop method before
             backgroundSound.close();
             backgroundSound = null;
         }
     }
+
+    /**
+     * Gets the array of distinct food images.
+     *
+     * @return An array of ImageResource containing the food images.
+     */
+    public static ImageResource[] getFoodImages() {
+        return FOOD_IMAGES.clone(); // Return a clone to prevent external modification
+    }
+
+    /**
+     * Gets the number of distinct food images.
+     *
+     * @return The size of the FOOD_IMAGES array.
+     */
+    public static int getFoodImagesSize() {
+        return FOOD_IMAGES.length;
+    }
+
+    /**
+     * Gets a food image based on the provided index.
+     *
+     * @param index The index of the desired food image.
+     * @return The ImageResource at the specified index in the FOOD_IMAGES array.
+     */
+    public static ImageResource getFoodImageByIndex(int index) {
+        if (index >= 0 && index < FOOD_IMAGES.length) {
+            return FOOD_IMAGES[index];
+        }
+        throw new IndexOutOfBoundsException("Index " + index + " out of bounds for FOOD_IMAGES");
+    }
+
 }
