@@ -163,6 +163,10 @@ public class TelepathyGame {
                     String.valueOf(this.players.get(playerName).isReady())));
             renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
                 TelepathyCommands.BUTTONUPDATE, 
+                "playerLabel",
+                playerName));        
+            renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
+                TelepathyCommands.BUTTONUPDATE, 
                 "board",
                 "disableAll"));
             renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
