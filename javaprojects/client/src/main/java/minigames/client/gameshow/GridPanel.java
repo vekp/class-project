@@ -19,15 +19,19 @@ class GridPanel extends JPanel {
     private int[][] fadedCells;   // 2D array to store faded cell coordinates
     private ImageIcon imageIcon;  // The image icon to display
 
-    int rows = 10;  // Number of rows in the grid
-    int cols = 10;  // Number of columns in the grid
+    int rows;  // Number of rows in the grid
+    int cols;  // Number of columns in the grid
 
     /**
-     * Constructs a new GridPanel instance with the provided image icon.
+     * Constructs a new GridPanel instance with the provided image icon and specified row and column count.
      *
      * @param imageIcon The ImageIcon to display within the grid.
+     * @param rowCount  The number of rows in the grid.
+     * @param colCount  The number of columns in the grid.
      */
-    public GridPanel(ImageIcon imageIcon) {
+    public GridPanel(ImageIcon imageIcon, int rowCount, int colCount) {
+        rows = rowCount;
+        cols = colCount;
         this.imageIcon = imageIcon;
         fadedCells = new int[rows][cols]; // Initialize the fadedCells array
     }
