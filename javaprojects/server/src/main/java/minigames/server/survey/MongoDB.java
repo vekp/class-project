@@ -1,8 +1,13 @@
 package minigames.server;
 
+import static com.mongodb.client.model.Filters.eq;
 import com.mongodb.ConnectionString;
 import com.mongodb.client.*;
+import com.mongodb.client.model.Projections;
+import com.mongodb.client.model.Filters;
 import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 import org.json.simple.*;
 import org.json.simple.parser.*;
 import java.time.LocalDateTime;
@@ -76,7 +81,40 @@ public class MongoDB {
             }
         }
         return jsonArray;
-    }
+    }        
+
+    // Gets all entries in a collection (table)
+    public JSONArray getAllDocumentsByGameId(String collectionName, String gameId) {
+        JSONArray jsonArray = new JSONArray();
+        MongoCollection<Document> collection = database.getCollection(collectionName);
+
+        // ObjectId game_id = new ObjectId(gameId);
+        // Bson projectionFields = Filters.eq("game_id", gameId);
+
+        // Get all documents in the collection
+        try (MongoCursor<Document> cursor = collection.find(eq("game_id", new ObjectId(gameId))).iterator()) {
+            while (cursor.hasNext()) {
+                Document document = cursor.next();
+                try {
+                    JSONParser jsonParser = new JSONParser();
+                    JSONObject jsonObject = (JSONObject) jsonParser.parse(document.toJson());
+
+                    // Remove the object in _id and only leave the _id string
+                    Object idField = jsonObject.get("_id");
+                    if (idField instanceof JSONObject) {
+                        JSONObject idObject = (JSONObject) idField;
+                        if (idObject.containsKey("$oid")) {
+                            jsonObject.put("_id", idObject.get("$oid"));
+                        }
+                    }
+                    jsonArray.add(jsonObject);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return jsonArray;
+    }  
 
     private String getCurrentTimestamp() {
         LocalDateTime now = LocalDateTime.now();

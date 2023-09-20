@@ -13,11 +13,12 @@ import java.util.List;
 public class SurveyRoutesHandler {
     //Establish connection to DB
     private MongoDB mongoDB = new MongoDB();
-    
+
     public void setupRoutes(Router router) {
         router.post("/survey/sendSurveyData").handler(this::handleSendSurveyData);
         router.get("/survey/surveyData").handler(this::getAllSurveyData);
         router.post("/survey/registerGame").handler(this::registerGame);
+        router.post("/survey/getSummary").handler(this::getSurveySummary);
     }
 
     // Save Submission from Survey
@@ -101,5 +102,33 @@ public class SurveyRoutesHandler {
                .setStatusCode(400) 
                .end("No data read from the file. Error: "+ dataTest);
         }
+    };
+
+    /*
+     * Function to return a summary of all survey responses for a specific game ID
+     */
+    private void getSurveySummary(RoutingContext ctx) {
+        JsonObject jsonData = ctx.getBodyAsJson();
+    
+        if (jsonData != null) {
+            String gameId = jsonData.getString("game_id");
+
+            String dataTest = mongoDB.getAllDocumentsByGameId("feedback", gameId).toJSONString();
+
+            if (dataTest != null) {
+                JsonObject averageRatings = SurveyHelperFunctions.calculateAverageRatings(dataTest);
+                ctx.response()
+                    .putHeader("content-type", "application/json")
+                    .end(averageRatings.toString());
+            } else {
+                ctx.response()
+                .setStatusCode(400) 
+                .end("No data read from the file. Error: " + dataTest);
+            }
+        } else {
+            ctx.response()
+                    .setStatusCode(400)
+                    .end("Invalid JSON data.");
+        }        
     };
 }
