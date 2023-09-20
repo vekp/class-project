@@ -183,7 +183,7 @@ public class HangmanClient implements GameClient {
         g.gridy = 1;
         helpPanel.add(helpText, g);
 
-        helpText1 = new JLabel("- Collect lives for better game play");
+        helpText1 = new JLabel("- Save lives for better game play");
         helpText1.setFont(customSmallFont);
         helpText1.setForeground(Color.white);
 
@@ -196,7 +196,7 @@ public class HangmanClient implements GameClient {
         helpText2.setFont(customSmallFont);
         helpText2.setForeground(Color.white);
 
-        g.insets = new Insets(-450, -160, 0, 0);
+        g.insets = new Insets(-350, -160, 0, 0);
         g.gridx = 0;
         g.gridy = 1;
         helpPanel.add(helpText2, g);
