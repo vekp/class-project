@@ -54,4 +54,16 @@ public class SurveyServerRequestService {
                     logger.error("Failed to retrieve survey data: {}", resp.getMessage());
                 });
     }
+
+    public Future<String> getAllGames() {
+        return webClient.get(port, host, "/survey/tableData?table=games")
+                .send()
+                .onSuccess((resp) -> {
+                    logger.info("Survey data received successfully.");
+                })
+                .map((resp) -> resp.bodyAsString())
+                .onFailure((resp) -> {
+                    logger.error("Failed to retrieve survey data: {}", resp.getMessage());
+                });
+    }
 }

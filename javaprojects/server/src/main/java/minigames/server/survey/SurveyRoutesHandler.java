@@ -16,7 +16,7 @@ public class SurveyRoutesHandler {
 
     public void setupRoutes(Router router) {
         router.post("/survey/sendSurveyData").handler(this::handleSendSurveyData);
-        router.get("/survey/surveyData").handler(this::getAllSurveyData);
+        router.get("/survey/tableData").handler(this::getAllSurveyData);
         router.post("/survey/registerGame").handler(this::registerGame);
         router.post("/survey/getSummary").handler(this::getSurveySummary);
     }
@@ -91,7 +91,8 @@ public class SurveyRoutesHandler {
 
     // Gets submissions data from survey submissions
     private void getAllSurveyData(RoutingContext ctx) {
-        String dataTest = mongoDB.getAllDocuments("feedback").toJSONString();
+        String tableName = ctx.request().getParam("table");
+        String dataTest = mongoDB.getAllDocuments(tableName).toJSONString();
         
         if (dataTest != null) {          
             ctx.response()

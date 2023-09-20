@@ -4,6 +4,7 @@ import minigames.client.MinigameNetworkClient;
 import minigames.client.survey.Survey;
 
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.Future;
 
 import org.owasp.html.PolicyFactory;
@@ -59,8 +60,6 @@ public class SurveyResults extends JPanel implements ActionListener{
         mnClientGlobal = mnClient;
         gameIdGlobal = gameId;
 
-        gameNameToIdMap.put("Muddle", "64fec6296849f97cdc19f017");
-        gameNameToIdMap.put("Battleships", "650a6db6ed70971c22601416");
         gameNames = gameNameToIdMap.keySet().toArray(new String[0]);
 
         this.setPreferredSize(new Dimension(800, 600));
@@ -291,6 +290,12 @@ public class SurveyResults extends JPanel implements ActionListener{
         super.paintComponent(g);
         updateSurveyData(gameIdGlobal);
 
+        Future<String> gameDataFuture = mnClientGlobal.getAllGames();
+        gameDataFuture.onSuccess((gameData) -> {
+            JsonArray gameDataArray = new JsonArray(gameData);
+            populateGameNameToIdMap(gameDataArray);
+        });
+
         if(image != null) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.drawImage(image, 0, 0, getWidth(), getHeight(), this);
@@ -303,7 +308,7 @@ public class SurveyResults extends JPanel implements ActionListener{
 
     private void updateSurveyData(String selectedGameId) {
         Future<String> surveyDataFuture = mnClientGlobal.getSurveyResultSummary(selectedGameId);
-
+        
         surveyDataFuture.onSuccess((surveyData) -> {
             JsonObject surveyResults = new JsonObject(surveyData);
 
@@ -329,9 +334,23 @@ public class SurveyResults extends JPanel implements ActionListener{
         surveyDataFuture.onFailure((error) -> {
             // Handle the error, e.g., display an error message
             SwingUtilities.invokeLater(() -> {
-                feedbackText.setText("Failed to retrieve survey data.");
+                feedbackText.setText("Error: Failed to retrieve survey data.");
             });
         });
+    }
+
+    private void populateGameNameToIdMap(JsonArray gameDataArray) {
+        for (int i = 0; i < gameDataArray.size(); i++) {
+            JsonObject gameData = gameDataArray.getJsonObject(i);
+            String gameName = gameData.getString("game_name");
+            String gameId = gameData.getString("_id");
+            System.out.println(gameId);
+            gameNameToIdMap.put(gameName, gameId);
+        }
+        gameNames = gameNameToIdMap.keySet().toArray(new String[0]);
+
+        DefaultComboBoxModel<String> comboBoxModel = new DefaultComboBoxModel<>(gameNames);
+        gameNameComboBox.setModel(comboBoxModel);
     }
 
 }

@@ -330,6 +330,10 @@ public class MinigameNetworkClient {
     public Future<String> getSurveyResultSummary(String gameId) {
         return surveyServerRequestService.getSurveyResultSummary(gameId);
     }
+
+    public Future<String> getAllGames() {
+        return surveyServerRequestService.getAllGames();
+    }
     /*
      * ----- END SURVEY REQUESTS -----
      */
