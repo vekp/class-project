@@ -73,7 +73,7 @@ public class ImageGuesser {
         loadAndDisplayImage(imageFileName);
 
         // Start the timer for cell visibility
-        startCellVisibilityTimer();
+        startCellVisibilityTimer(gs);
 
         // Create the input panel for user guesses
         createInputPanel(gs);
@@ -110,7 +110,7 @@ public class ImageGuesser {
         JLabel imageLabel = new JLabel(imageIcon);
 
         // Initialize the grid panel with the image
-        gridPanel = new GridPanel(imageIcon);
+        gridPanel = new GridPanel(imageIcon, 10, 10);
         gridPanel.setPreferredSize(new Dimension(400, 215));
 
         // Add the grid panel to the game container
@@ -132,19 +132,31 @@ public class ImageGuesser {
 
     /**
      * Starts a timer to periodically make random cells visible.
+     *  @param gs           The GameShow instance.
      */
-    public static void startCellVisibilityTimer() {
+    public static void startCellVisibilityTimer(GameShow gs) {
+        long timeLimit = gs.gameTimer.getTimeLimit();
+        int rows = gridPanel.getRowCount();
+        int cols = gridPanel.getColCount();
+
+        // Divide timeLimit by rows * cols
+        long interval = timeLimit / (rows * cols);
+        int intInterval = (int) interval;
+
         gameRunning = true;
-        Timer timer = new Timer(1000, e -> {
+        Timer timer = new Timer(intInterval, e -> {
             if (gameRunning) {
-                boolean cellVisible = true;
-                while (cellVisible) {
-                    Random random = new Random();
-                    int randomX = random.nextInt(10);
-                    int randomY = random.nextInt(10);
+                Random random = new Random();
+                int randomX;
+                int randomY;
+                boolean cellVisible = false;
+                // Keep generating random coordinates until we find a non-visible cell
+                while (!cellVisible) {
+                    randomX = random.nextInt(rows);
+                    randomY = random.nextInt(cols);
                     if (!gridPanel.isCellVisible(randomX, randomY)) {
                         gridPanel.setFadeCell(randomX, randomY);
-                        cellVisible = false;
+                        cellVisible = true;
                     }
                 }
             }

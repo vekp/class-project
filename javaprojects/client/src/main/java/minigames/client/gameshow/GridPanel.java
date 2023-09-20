@@ -36,6 +36,14 @@ class GridPanel extends JPanel {
         fadedCells = new int[rows][cols]; // Initialize the fadedCells array
     }
 
+    public int getRowCount() {
+        return rows;
+    }
+
+    public int getColCount() {
+        return cols;
+    }
+
     /**
      * Marks the specified cell as faded, updating its opacity and triggering a repaint.
      *
