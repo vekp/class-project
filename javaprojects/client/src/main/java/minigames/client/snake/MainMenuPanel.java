@@ -31,8 +31,6 @@ public class MainMenuPanel extends JPanel {
         setLayout(null);
         backgroundLabel = createBackgroundLabel();
         setupButtons();
-        // Play menu music
-        MultimediaManager.playBackgroundSound(GameConstants.MENU_MUSIC);
     }
 
     /**
