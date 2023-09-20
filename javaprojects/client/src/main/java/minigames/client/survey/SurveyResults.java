@@ -288,6 +288,7 @@ public class SurveyResults extends JPanel implements ActionListener{
                 String functionalityRating = surveyResults.getString("functionality_rating");
                 String uiRating = surveyResults.getString("ui_rating");
                 String overallRating = surveyResults.getString("overall_rating");
+                String feedback = surveyResults.getString("feedback");
             
                 // Update the JLabels with the retrieved ratings
                 SwingUtilities.invokeLater(() -> {
@@ -296,6 +297,7 @@ public class SurveyResults extends JPanel implements ActionListener{
                     functionalityRatingLabel.setText(functionalityRating);
                     uiRatingRatingLabel.setText(uiRating);
                     overallRatingLabelRight.setText(overallRating);
+                    feedbackText.setText(feedback);
                 });
                 // Update the feedbackText with the retrieved survey data
                 // SwingUtilities.invokeLater(() -> {

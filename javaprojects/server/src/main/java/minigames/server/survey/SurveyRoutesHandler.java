@@ -117,9 +117,15 @@ public class SurveyRoutesHandler {
 
             if (dataTest != null) {
                 JsonObject averageRatings = SurveyHelperFunctions.calculateAverageRatings(dataTest);
+                JsonObject summarisedFeedback = SurveyHelperFunctions.getFeedbackText(dataTest);
+
+                JsonObject combinedData = new JsonObject();
+                combinedData.mergeIn(averageRatings);
+                combinedData.mergeIn(summarisedFeedback);
+
                 ctx.response()
                     .putHeader("content-type", "application/json")
-                    .end(averageRatings.toString());
+                    .end(combinedData.toString());
             } else {
                 ctx.response()
                 .setStatusCode(400) 

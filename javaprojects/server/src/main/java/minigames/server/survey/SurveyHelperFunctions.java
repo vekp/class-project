@@ -43,5 +43,21 @@ public class SurveyHelperFunctions {
     
         return averageRatings;
     }
+
+    public static JsonObject getFeedbackText(String jsonData) {
+        JsonArray dataArray = new JsonArray(jsonData);
+        StringBuilder feedbackStringBuilder = new StringBuilder();
+    
+        for (int i = 0; i < dataArray.size(); i++) {
+            JsonObject entry = dataArray.getJsonObject(i);
+            String feedbackText = entry.getString("feedback_text");
+            feedbackStringBuilder.append((i + 1) + ". ").append(feedbackText).append("\n");
+        }
+    
+        JsonObject resultObject = new JsonObject();
+        resultObject.put("feedback", feedbackStringBuilder.toString().trim());
+    
+        return resultObject;
+    }
     
 }
