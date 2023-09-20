@@ -647,6 +647,9 @@ public class Telepathy implements GameClient, Tickable{
      }
 
 
+     /**
+      * a method that generates a JPanel representing the Game Lobby
+      */
 
     public JPanel gameLobby(){
 
@@ -656,38 +659,41 @@ public class Telepathy implements GameClient, Tickable{
 
         JPanel lobby = new JPanel();
         lobby.setBorder(border);
-        lobby.setLayout(new BoxLayout(lobby, BoxLayout.Y_AXIS));
+        lobby.setLayout(new BorderLayout());
+        lobby.setMaximumSize(new Dimension(300, 400));
 
-        JPanel player1 = new JPanel();
-        player1.setLayout(new BoxLayout(player1, BoxLayout.X_AXIS));
-        JButton currentPlayer = new JButton("  > Your Turn <  ");
+        JPanel players = new JPanel();
+        players.setLayout(new BoxLayout(players, BoxLayout.Y_AXIS));
+        players.setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10));
+        this.opponent.setText("Waiting...");
+        
+        players.add(this.currentPlayer);
+        players.add(Box.createRigidArea(new Dimension(0, 10)));
+        players.add(this.opponent);
+
+        JPanel turns = new JPanel();
+        turns.setLayout(new BoxLayout(turns, BoxLayout.Y_AXIS));
+        turns.setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10));
+       
         setButtonColour(this.player1Turn, Color.RED);
-        this.player1Turn.setPreferredSize(new Dimension(30, 6));
-
-        player1.add(currentPlayer);
-        player1.add(Box.createRigidArea(new Dimension(6, 0)));
-        player1.add(this.player1Turn);
-
-
-        JPanel player2 = new JPanel();
-        player2.setLayout(new BoxLayout(player2, BoxLayout.X_AXIS));
-        JButton opponent = new JButton("Opponent's Turn");
+        this.player1Turn.setMaximumSize(new Dimension(15, 15));
         setButtonColour(this.player2Turn, Color.RED);
-        this.player2Turn.setPreferredSize(new Dimension(30, 6));
-        player2.add(opponent);
-        player2.add(Box.createRigidArea(new Dimension(5, 0)));
-        player2.add(this.player2Turn);
+        this.player2Turn.setMaximumSize(new Dimension(15, 15));
+      
+        turns.add(this.player1Turn);
+        turns.add(Box.createRigidArea(new Dimension(0, 10)));
+        turns.add(this.player2Turn);
 
 
-       // lobby.add(headings);
-        lobby.add(Box.createRigidArea(new Dimension(0, 10)));
-        lobby.add(player1);
-        lobby.add(Box.createRigidArea(new Dimension(0, 18)));
-        lobby.add(player2);
+        lobby.add(players, BorderLayout.WEST);
+        lobby.add(turns, BorderLayout.EAST);
 
         return lobby;
 
     }
+
+
+  
 
 
     /**
@@ -911,6 +917,20 @@ public class Telepathy implements GameClient, Tickable{
                     this.componentList.get("readyButton").setBackground(Color.RED);
                 }
             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
             case "board" -> {
                 // Alter all tiles on board
                 if(attributes.get(1).equals("disableAll")){
