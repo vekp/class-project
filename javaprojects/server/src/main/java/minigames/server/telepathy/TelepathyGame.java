@@ -468,7 +468,9 @@ public class TelepathyGame {
         updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(
             TelepathyCommands.POPUP,
             "tileSelect"));
-        
+        updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(
+            TelepathyCommands.BUTTONUPDATE,
+            "opponentLabel"));
         updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(
             TelepathyCommands.BUTTONUPDATE, 
             "board",

@@ -923,16 +923,12 @@ public class Telepathy implements GameClient, Tickable{
                     this.componentList.get("readyButton").setBackground(Color.RED);
                 }
             }
-
-            }
             case "playerLabel" -> {
                this.currentPlayer.setText(attributes.get(1));
             }
-
             case "opponentLabel" -> {
                 this.opponent.setText("Opponent");
             }
-            
             case "board" -> {
                 // Alter all tiles on board
                 if(attributes.get(1).equals("disableAll")){
