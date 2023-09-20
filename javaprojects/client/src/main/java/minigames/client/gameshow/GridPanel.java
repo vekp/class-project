@@ -4,19 +4,52 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-
+/**
+ * The GridPanel class represents a custom JPanel for displaying an image grid
+ * with fading cells. It is used to reveal portions of an image during gameplay.
+ *
+ * This class extends JPanel and provides functionality to mark and display
+ * specific cells of the grid as faded, effectively reducing their opacity.
+ *
+ * The grid consists of rows and columns, and each cell can be marked as faded
+ * or visible. When marked as faded, the cell's opacity is reduced to reveal
+ * underlying image content.
+ */
 class GridPanel extends JPanel {
     private int[][] fadedCells;   // 2D array to store faded cell coordinates
     private ImageIcon imageIcon;  // The image icon to display
 
-    int rows = 10;  // Number of rows in the grid
-    int cols = 10;  // Number of columns in the grid
+    int rows;  // Number of rows in the grid
+    int cols;  // Number of columns in the grid
 
-    public GridPanel(ImageIcon imageIcon) {
+    /**
+     * Constructs a new GridPanel instance with the provided image icon and specified row and column count.
+     *
+     * @param imageIcon The ImageIcon to display within the grid.
+     * @param rowCount  The number of rows in the grid.
+     * @param colCount  The number of columns in the grid.
+     */
+    public GridPanel(ImageIcon imageIcon, int rowCount, int colCount) {
+        rows = rowCount;
+        cols = colCount;
         this.imageIcon = imageIcon;
         fadedCells = new int[rows][cols]; // Initialize the fadedCells array
     }
 
+    public int getRowCount() {
+        return rows;
+    }
+
+    public int getColCount() {
+        return cols;
+    }
+
+    /**
+     * Marks the specified cell as faded, updating its opacity and triggering a repaint.
+     *
+     * @param row    The row index of the cell to fade.
+     * @param column The column index of the cell to fade.
+     */
     public void setFadeCell(int row, int column) {
         if (row >= 0 && row < rows && column >= 0 && column < cols) {
             fadedCells[row][column] = 1;  // Store the faded cell coordinates
@@ -24,6 +57,13 @@ class GridPanel extends JPanel {
         }
     }
 
+    /**
+     * Checks if the specified cell is visible (not faded).
+     *
+     * @param row    The row index of the cell to check.
+     * @param column The column index of the cell to check.
+     * @return True if the cell is visible; otherwise, false.
+     */
     public boolean isCellVisible(int row, int column) {
         if (fadedCells[row][column] == 1) {
             return true;
@@ -35,6 +75,7 @@ class GridPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        // Draw the image
         g.drawImage(imageIcon.getImage(), 0, 0, getWidth(), getHeight(), this);
 
         int cellWidth = getWidth() / cols;

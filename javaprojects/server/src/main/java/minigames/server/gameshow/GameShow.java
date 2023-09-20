@@ -2,6 +2,7 @@ package minigames.server.gameshow;
 
 import java.util.*;
 
+import minigames.server.Main;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -63,7 +64,6 @@ public class GameShow {
     public GameShow(String name) {
         this.name = name;
         this.inProgress = false;
-        this.initialiseGames();
         this.achievementHandler = new AchievementHandler(GameShowServer.class);
     }
 
@@ -92,6 +92,11 @@ public class GameShow {
                 allReady = false;
                 break;
             }
+        }
+
+        if (allReady) {
+            this.initialiseGames();
+            this.inProgress = true;
         }
 
         return allReady;
@@ -142,22 +147,17 @@ public class GameShow {
         JsonObject msg = cp.commands().get(0);
 
         switch (msg.getString("command")) {
-            case "ready" -> {
-                players.get(cp.player()).toggleReady();
-                if (allPlayersReady()) { // Log (for testing purposes)
-                    logger.info("All players in game '{}' are ready", this.name);
-                    this.inProgress = true;
-                } else { // Log (for testing purposes)
-                    logger.info("There are players in game '{}' who are not yet ready", this.name);
-                }
-            }
-            case "allReady" -> {
+            case "ready" -> players.get(cp.player()).toggleReady();
+            case "allReady" -> { // A client has polled the server to check if all players are ready
+                // Check if all players in the game have their ready states set to true
                 if (allPlayersReady()) {
                     renderingCommands.add(nextRound(0));
+                } else { // Log a message
+                    logger.info("There are players who are not yet ready");
                 }
             }
             case "nextRound" -> renderingCommands.add(nextRound(cp.commands().get(0).getInteger("round")));
-            case "startGame" -> {
+            case "startGame" -> { // For testing minigames; to be removed later
                 switch (msg.getString("game")) {
                     case "WordScramble" -> {
                         String fileName = "words_"
@@ -196,13 +196,23 @@ public class GameShow {
                 }
 
             }
-            case "guess" -> {
+            case "guess" -> { // A player has submitted a guess
                 String guess = msg.getString("guess");
                 switch (msg.getString("game")) {
                     case "WordScramble" -> {
                         boolean correct = games.get(msg.getInteger("round")).guessIsCorrect(guess);
                         achievementUnlocker(correct, cp);
 
+                        if (correct) {
+                            this.players.get(cp.player()).addToScore(msg.getInteger("score"));
+                            logger.info( // Logging for testing during development
+                                "Player '{}' guessed correctly! They have added {} points to their score, which is now {}.",
+                                new Object[] { cp.player(),
+                                               msg.getInteger("score"),
+                                               players.get(cp.player()).score()
+                                }
+                            );
+                        }
 
                         renderingCommands.
                             add(new JsonObject()
@@ -213,6 +223,18 @@ public class GameShow {
                     case "ImageGuesser" -> {
                         boolean correct = games.get(msg.getInteger("round")).guessIsCorrect(guess);
                         achievementUnlocker(correct, cp);
+
+                        if (correct) {
+                            this.players.get(cp.player()).addToScore(msg.getInteger("score"));
+                            logger.info( // Logging for testing during development
+                              "Player '{}' guessed correctly! They have added {} points to their score, which is now {}.",
+                              new Object[] { cp.player(),
+                                msg.getInteger("score"),
+                                players.get(cp.player()).score()
+                              }
+                            );
+                        }
+
                         renderingCommands.
                             add(new JsonObject()
                                 .put("command", "guessOutcome")
@@ -221,9 +243,18 @@ public class GameShow {
                     }
                 }
             }
-            case "quit" -> {
+            case "quit" -> { // A player has activated the quit button
+                // Remove the player who activated the button
                 players.remove(cp.player());
                 logger.info("Player '{}' has quit GameShow '{}'", new Object[] { cp.player(), this.name });
+
+                // If no players remain in the game instance, remove it from the server
+                if (players.isEmpty()) {
+                    GameShowServer s = (GameShowServer) Main.gameRegistry.getGameServer(cp.gameServer());
+                    s.endGame(this.name);
+                }
+
+                // Issue the command to the client to return to the main menu
                 renderingCommands.add(new NativeCommands.QuitToMenu().toJson());
             }
         }
