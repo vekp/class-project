@@ -4,6 +4,7 @@ import minigames.client.MinigameNetworkClient;
 import minigames.client.survey.Survey;
 
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.Future;
 
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
@@ -49,9 +50,10 @@ public class SurveyResults extends JPanel implements ActionListener{
 
     // Our called games names will be stored here for use in a combo box
     public String[] gameNames = {"testGame1", "testGame2", "testGame3", "testGame4"};
+    MinigameNetworkClient mnClientGlobal;
 
     public SurveyResults(MinigameNetworkClient mnClient, String gameId) {
-
+        mnClientGlobal = mnClient;
 
         this.setPreferredSize(new Dimension(800, 600));
         this.setLayout(new GridLayout(0, 1));
@@ -183,17 +185,25 @@ public class SurveyResults extends JPanel implements ActionListener{
         feedbackText.setLineWrap(true);
         feedbackText.setRows(5);
         feedbackText.setEditable(false);
-        feedbackText.setText("DB results listed as items 1. 2. 3. etc");
+        // feedbackText.setText("DB results listed as items 1. 2. 3. etc");
         feedbackText.setWrapStyleWord(true);
         feedbackText.setFont(fontText);
         feedbackText.setMargin(new Insets(5,15,5,5));
         feedbackText.setBackground(Color.BLACK);
+        feedbackText.setForeground(Color.WHITE);
+
+        // Create a JScrollPane to enable scrolling
+        JScrollPane scrollPane = new JScrollPane(feedbackText);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setPreferredSize(new Dimension(300, 60)); // Adjust the dimensions as needed
+
+
         Border border = BorderFactory.createLineBorder(Color.BLACK, 1);
         feedbackText.setBorder(BorderFactory.createCompoundBorder(border, 
         BorderFactory.createEmptyBorder(10, 10, 10, 10)));
         // scrollPane = new JScrollPane(feedbackText);
-        // feedbackPanel.add(scrollPane);
-        feedbackPanel.add(feedbackText);
+        feedbackPanel.add(scrollPane);
+        // feedbackPanel.add(feedbackText);
 
         // surveyResultsPanelRight (incorporates all Question responses for the survey)
         surveyResultsPanelRight = new JPanel();
@@ -261,9 +271,27 @@ public class SurveyResults extends JPanel implements ActionListener{
     // Override Functions
     @Override
     public void actionPerformed(ActionEvent e) {
+        // if (e.getSource() == gameNameComboBox) {
+        //     System.out.println(gameNameComboBox.getSelectedItem().toString());
+        //     // mnClient.setGameId(gameNameComboBox.getSelectedItem().toString());
+        // }
         if (e.getSource() == gameNameComboBox) {
-            System.out.println(gameNameComboBox.getSelectedItem().toString());
-            // mnClient.setGameId(gameNameComboBox.getSelectedItem().toString());
+            String selectedGameId = gameNameComboBox.getSelectedItem().toString();
+            Future<String> surveyDataFuture = mnClientGlobal.getSurveyData();
+    
+            surveyDataFuture.onSuccess((surveyData) -> {
+                // Update the feedbackText with the retrieved survey data
+                SwingUtilities.invokeLater(() -> {
+                    feedbackText.setText(surveyData);
+                });
+            });
+    
+            surveyDataFuture.onFailure((error) -> {
+                // Handle the error, e.g., display an error message
+                SwingUtilities.invokeLater(() -> {
+                    feedbackText.setText("Failed to retrieve survey data.");
+                });
+            });
         }
     }
 

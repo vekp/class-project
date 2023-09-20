@@ -69,10 +69,14 @@ public class MinigameNetworkClient {
     NotificationManager notificationManager;
     DialogManager dialogManager;
 
+    private final SurveyServerRequestService surveyServerRequestService;
+
     public MinigameNetworkClient(Vertx vertx) {
         this.vertx = vertx;
         this.webClient = WebClient.create(vertx);
         this.gameClient = Optional.empty();
+
+        surveyServerRequestService = new SurveyServerRequestService(webClient, port, host);
 
         animator = new Animator();
         vertx.setPeriodic(16, (id) -> animator.tick());
@@ -313,18 +317,22 @@ public class MinigameNetworkClient {
     }
 
     /*
-     * Sends a JSON object of survey responses to the server for saving to a database
+     *----- START SURVEY REQUESTS -----
+     *
+     * Server request handlers for game survey related requests
+     * NOTE: The code for requests to server can be found in the directory:
+     * client/survey/SurveyServerRequestService.java
      */
     public Future<HttpResponse<Buffer>> sendSurveyData(JsonObject surveyData) {
-        return webClient.post(port, host, "/survey/sendSurveyData")
-                .sendJson(surveyData)
-                .onSuccess((resp) -> {
-                    logger.info("Survey data sent successfully.");
-                })
-                .onFailure((resp) -> {
-                    logger.error("Failed to send survey data: {}", resp.getMessage());
-                });
+        return surveyServerRequestService.sendSurveyData(surveyData);
     }
+
+    public Future<String> getSurveyData() {
+        return surveyServerRequestService.getSurveyData();
+    }
+    /*
+     * ----- END SURVEY REQUESTS -----
+     */
 
     /**
      * Sends a username string to the server, receives the username back referenced from the updated variable on the server.
@@ -463,5 +471,4 @@ public class MinigameNetworkClient {
             interpretCommand(gm, json);
         }
     }
-
 }
