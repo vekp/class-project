@@ -53,6 +53,11 @@ public class GameShowServer implements GameServer {
     /** Holds the games in progress in memory (no db) */
     HashMap<String, GameShow> games = new HashMap<>();
 
+    /** Used to remove a stale game (i.e. one which has no players) from the server) */
+    public void endGame(String game) {
+        games.remove(game);
+    }
+
     @Override
     public GameServerDetails getDetails() {
         return new GameServerDetails("GameShow", "It's a game show!");
