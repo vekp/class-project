@@ -20,27 +20,24 @@ public class BasePanel extends JPanel implements MainMenuPanel.PanelSwitcher {
     private final AchievementsPanel achievementsPanel;
 
     /**
-     * Initializes the BasePanel with various subpanels and configures the UI.
+     * Initializes the BasePanel with various sub panels and configures the UI.
      *
      * @param mnClient        The MinigameNetworkClient for communication with the game server.
      * @param closeGameAction A Runnable action to close the game.
      */
     public BasePanel(MinigameNetworkClient mnClient, Runnable closeGameAction) {
+        GameLogic gameLogic = new GameLogic();
+
         mainMenuPanel = new MainMenuPanel(closeGameAction, this);
-        gameViewPanel = new GamePlayPanel(this);
+        gameViewPanel = new GamePlayPanel(this, gameLogic); // Pass gameLogic here
         gameRules = new InformationPanel(this, GameConstants.GAME_RULES_TITLE, GameConstants.GAME_RULES_MESSAGES);
         aboutMePanel = new InformationPanel(this, GameConstants.ABOUT_ME_TITLE, GameConstants.ABOUT_ME_MESSAGES);
         achievementsPanel = new AchievementsPanel(this);
 
         initUI();
         configureMainWindow(mnClient);
-    }
-
-    /**
-     * Starts playing the menu background music.
-     */
-    private void startMenuMusic() {
         MultimediaManager.playBackgroundSound(GameConstants.MAIN_MENU_PANEL);
+
     }
 
     /**
@@ -74,10 +71,14 @@ public class BasePanel extends JPanel implements MainMenuPanel.PanelSwitcher {
     public void switchToPanel(String panelName) {
         CardLayout cl = (CardLayout) mainPanel.getLayout();
         cl.show(mainPanel, panelName);
+
+        if (GameConstants.PLAY_PANEL.equals(panelName)) {
+            gameViewPanel.startGame();
+        }
+
         mainPanel.revalidate();
         mainPanel.repaint();
     }
-
 
     /**
      * Configures the main window's properties and size.
@@ -99,19 +100,5 @@ public class BasePanel extends JPanel implements MainMenuPanel.PanelSwitcher {
     public Dimension getBackgroundDimension() {
         ImageIcon backgroundIcon = MultimediaManager.getPhoneBackground().getImageResource();
         return new Dimension(backgroundIcon.getIconWidth(), backgroundIcon.getIconHeight());
-    }
-
-    /**
-     * Retrieves the name of the currently displayed panel.
-     *
-     * @return The name of the currently displayed panel.
-     */
-    private String getCurrentPanelName() {
-        for (Component component : mainPanel.getComponents()) {
-            if (component.isVisible() && component instanceof JComponent) {
-                return component.getName();
-            }
-        }
-        return null;
     }
 }
