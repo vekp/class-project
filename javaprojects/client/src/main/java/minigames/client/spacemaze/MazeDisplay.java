@@ -4,13 +4,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.RenderingHints.Key;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
 import java.awt.BorderLayout;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,8 +16,6 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Random;
-import java.util.HashMap;
 
 /**
  * Class to display the maze, handle key input and do basic validation
@@ -118,7 +114,7 @@ public class MazeDisplay extends JPanel {
      * Timer for automating parts of the game
      * Primarily the bots movement
      */
-    public void startTimer(){
+    public void startTimer() {
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -152,7 +148,7 @@ public class MazeDisplay extends JPanel {
      * Handles key pressed and if the movement is valid, gets spaceMaze to send to server
      * @param e the Event
      */
-    public void requestFocusInPanel(){
+    public void requestFocusInPanel() {
         this.setFocusable(true);
         this.requestFocusInWindow();
     }
@@ -161,7 +157,7 @@ public class MazeDisplay extends JPanel {
      * Called from SpaceMaze class when a command is received to updateMaze
      * @param mazeMap char[][] of the current maze layout
      */
-    public void updateMaze(char[][] mazeArray){
+    public void updateMaze(char[][] mazeArray) {
         this.mazeMap = mazeArray;
         playerPos = findCharOnMap(mazeArray, 'P');
         mazeMap[startPos.y][startPos.x] = 'S';
@@ -172,7 +168,7 @@ public class MazeDisplay extends JPanel {
      * To be called when we start a new level.
      * @param mazeMap the new level
      */
-    public void newLevel(char[][] mazeArray, ArrayList<SpaceBot> newBots){
+    public void newLevel(char[][] mazeArray, ArrayList<SpaceBot> newBots) {
         this.mazeMap = mazeArray;
         this.startPos = findCharOnMap(mazeMap, 'P');
         this.playerPos = findCharOnMap(mazeMap, 'P');
@@ -260,12 +256,12 @@ public class MazeDisplay extends JPanel {
      * @param direction Direction the player is moving
      * @param nextPoint Next point the player is moving to
      */
-    public void handleDirection(String info, String direction, Point nextPoint){
+    public void handleDirection(String info, String direction, Point nextPoint) {
         logger.info(info);
-        if (isMoveValid(nextPoint)){
+        if (isMoveValid(nextPoint)) {
             // This command currently only tells the server where the player is moving
             spaceMaze.sendCommand("playerMoved" + direction);
-            if ((mazeMap[moveTo.y][moveTo.x] != '.') && (mazeMap[moveTo.y][moveTo.x] != 'U')){
+            if ((mazeMap[moveTo.y][moveTo.x] != '.') && (mazeMap[moveTo.y][moveTo.x] != 'U')) {
                 playSound();
                 spaceMaze.sendCommand("collision");
             } else {
@@ -309,7 +305,7 @@ public class MazeDisplay extends JPanel {
      * @param r row number
      * @param c column number
      */
-    public void charToImage(Graphics g, int r, int c){
+    public void charToImage(Graphics g, int r, int c) {
         switch (mazeMap[r][c]) {
             case 'W':
                 g.drawImage(Images.getImage("wallImages", (r+c) % 4), c * tileWidth, r * tileHeight, tileWidth, tileHeight, null);

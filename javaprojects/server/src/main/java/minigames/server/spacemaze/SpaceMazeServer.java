@@ -23,7 +23,7 @@ public class SpaceMazeServer implements GameServer {
 
     static final String chars = "abcdefghijklmopqrstuvwxyz";
 
-    // Achievements API integration
+    // Achievements API integration Nik & Natasha
     AchievementHandler achievementHandler;
     public SpaceMazeServer() {
         achievementHandler = new AchievementHandler(SpaceMazeServer.class);
@@ -45,6 +45,7 @@ public class SpaceMazeServer implements GameServer {
         
         achievementHandler.registerAchievement(new Achievement(achievements.THE_COLLECTORS_COLLECTION.toString(), 
             "Collect all the keys AND all the chests.", 1000, "", false));
+
     }
 
 
@@ -101,7 +102,7 @@ public class SpaceMazeServer implements GameServer {
 
 /**
  * Achievements API Implementation
- * @author Nik Olins
+ * @author Nik & Natasha 
  */
 enum achievements {
     DETERMINED_COLLECTOR, SEASONED_MAZE_RUNNER, FAST_AS_LIGHTNING, KEEPER_OF_THE_KEYS, TIME_LORD,
