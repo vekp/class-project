@@ -26,7 +26,7 @@ public class GridPanelTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         ImageIcon imageIcon = new ImageIcon(new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB));
-        gridPanel = new GridPanel(imageIcon);
+        gridPanel = new GridPanel(imageIcon, 10, 10);
     }
 
     @Test
