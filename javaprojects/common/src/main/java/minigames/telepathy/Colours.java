@@ -9,7 +9,7 @@ import java.awt.*;
 
 public enum Colours{
 
-RED, PINK, BLUE, CYAN, YELLOW, ORANGE, MAGENTA, GREEN, GREY;
+RED, PINK, BLUE, CYAN, YELLOW, ORANGE, MAGENTA, GREEN, LILAC;
 
     public String toString(){
         switch (this){
@@ -21,7 +21,7 @@ RED, PINK, BLUE, CYAN, YELLOW, ORANGE, MAGENTA, GREEN, GREY;
             case ORANGE: return "Orange";
             case MAGENTA: return "Magenta";
             case GREEN: return "Green";
-            case GREY: return "Grey";
+            case LILAC: return "Lilac";
             default: return "NA";
         }
     }
@@ -31,12 +31,13 @@ RED, PINK, BLUE, CYAN, YELLOW, ORANGE, MAGENTA, GREEN, GREY;
      * @return A Color Object for the current enum
      */
     public Color getColor(){
+       Color lilac = new Color(210, 175, 255);
         switch (this){
             case RED: return Color.RED;
             case GREEN: return Color.GREEN;
             case PINK: return Color.PINK;
             case BLUE: return Color.BLUE;
-            case GREY: return Color.GRAY;
+            case LILAC: return lilac;
             case YELLOW: return Color.YELLOW;
             case CYAN: return Color.CYAN;
             case MAGENTA: return Color.MAGENTA;

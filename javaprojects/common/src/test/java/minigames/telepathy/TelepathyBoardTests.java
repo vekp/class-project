@@ -102,7 +102,7 @@ public class TelepathyBoardTests{
         expectedList.add(Colours.ORANGE);
         expectedList.add(Colours.MAGENTA);
         expectedList.add(Colours.GREEN);
-        expectedList.add(Colours.GREY);
+        expectedList.add(Colours.LILAC);
 
         ArrayList<Colours> actualList = board.generateColours();
 
