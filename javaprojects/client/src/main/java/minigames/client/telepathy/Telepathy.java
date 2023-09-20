@@ -802,7 +802,7 @@ public class Telepathy implements GameClient, Tickable{
         this.eliminatedColumns.add(xElim);
         this.eliminatedRows.add(yElim);
 
-        this.componentList.get(cElim).setEnabled(false);
+        setButtonBorder((JButton)this.componentList.get(cElim), Color.BLACK);
         this.componentList.get(sElim).setEnabled(false);
     
     }
