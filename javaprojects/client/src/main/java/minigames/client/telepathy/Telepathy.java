@@ -581,6 +581,8 @@ public class Telepathy implements GameClient, Tickable{
             colourButton.setMaximumSize(new Dimension(80, 40));
             setButtonBorder(colourButton, color);
             buttonColour.add(colourButton);
+
+            componentList.put(colour.toString(), colourButton);
         }
        
        // adds buttons to the JPanel
@@ -612,6 +614,8 @@ public class Telepathy implements GameClient, Tickable{
             ImageIcon icon = MinigameUtils.scaledImage(path, 21);
             JButton iconButton = new JButton(icon);
             buttonSymbols.add(iconButton);
+
+            componentList.put(symbol.toString(), iconButton);
         }
 
        // adds buttons to the JPanel
@@ -810,6 +814,9 @@ public class Telepathy implements GameClient, Tickable{
 
         this.eliminatedColumns.add(xElim);
         this.eliminatedRows.add(yElim);
+
+        setButtonBorder((JButton)this.componentList.get(cElim), Color.BLACK);
+        this.componentList.get(sElim).setEnabled(false);
     
     }
 
