@@ -327,8 +327,8 @@ public class MinigameNetworkClient {
         return surveyServerRequestService.sendSurveyData(surveyData);
     }
 
-    public Future<String> getSurveyData() {
-        return surveyServerRequestService.getSurveyData();
+    public Future<String> getSurveyResultSummary(String gameId) {
+        return surveyServerRequestService.getSurveyResultSummary(gameId);
     }
     /*
      * ----- END SURVEY REQUESTS -----

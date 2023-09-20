@@ -42,9 +42,10 @@ public class SurveyServerRequestService {
                 });
     }
 
-    public Future<String> getSurveyData() {
-        return webClient.get(port, host, "/survey/surveyData")
-                .send()
+    public Future<String> getSurveyResultSummary(String gameId) {
+        JsonObject gameIdJson = new JsonObject().put("game_id", gameId);
+        return webClient.post(port, host, "/survey/getSummary")
+                .sendJson(gameIdJson)
                 .onSuccess((resp) -> {
                     logger.info("Survey data received successfully.");
                 })

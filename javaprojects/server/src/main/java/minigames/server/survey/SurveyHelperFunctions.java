@@ -11,10 +11,10 @@ public class SurveyHelperFunctions {
         JsonArray dataArray = new JsonArray(jsonData);
         JsonObject averageRatings = new JsonObject();
         int totalCount = dataArray.size();
-
+    
         // Create a DecimalFormat object to format the average values
         DecimalFormat decimalFormat = new DecimalFormat("#.##");
-
+    
         for (int i = 0; i < totalCount; i++) {
             JsonObject entry = dataArray.getJsonObject(i);
             for (String key : entry.fieldNames()) {
@@ -26,12 +26,22 @@ public class SurveyHelperFunctions {
                 }
             }
         }
-
+    
+        // Calculate the overall average rating
+        double overallValue = 0.0;
         for (String key : averageRatings.fieldNames()) {
             double averageValue = averageRatings.getDouble(key) / totalCount;
-            averageRatings.put(key, Double.parseDouble(decimalFormat.format(averageValue)));
+            overallValue += averageValue;
+            double averageValueDecimal = Double.parseDouble(decimalFormat.format(averageValue));
+            averageRatings.put(key, averageValueDecimal + "/5");
         }
-
+    
+        // Calculate the overall average rating and add it to the JsonObject
+        double overallAverage = overallValue / averageRatings.fieldNames().size();
+        double overallAverageDecimal = Double.parseDouble(decimalFormat.format(overallAverage));
+        averageRatings.put("overall_rating", overallAverageDecimal + "/5");
+    
         return averageRatings;
     }
+    
 }

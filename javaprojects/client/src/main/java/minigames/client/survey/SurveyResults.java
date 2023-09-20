@@ -277,13 +277,30 @@ public class SurveyResults extends JPanel implements ActionListener{
         // }
         if (e.getSource() == gameNameComboBox) {
             String selectedGameId = gameNameComboBox.getSelectedItem().toString();
-            Future<String> surveyDataFuture = mnClientGlobal.getSurveyData();
+            Future<String> surveyDataFuture = mnClientGlobal.getSurveyResultSummary("64fec6296849f97cdc19f017");
     
             surveyDataFuture.onSuccess((surveyData) -> {
-                // Update the feedbackText with the retrieved survey data
+                JsonObject surveyResults = new JsonObject(surveyData);
+
+                // Get each rating value from the JSON object
+                String difficultyRating = surveyResults.getString("difficulty_rating");
+                String enjoymentRating = surveyResults.getString("enjoyment_rating");
+                String functionalityRating = surveyResults.getString("functionality_rating");
+                String uiRating = surveyResults.getString("ui_rating");
+                String overallRating = surveyResults.getString("overall_rating");
+            
+                // Update the JLabels with the retrieved ratings
                 SwingUtilities.invokeLater(() -> {
-                    feedbackText.setText(surveyData);
+                    difficultyRatingLabel.setText(difficultyRating);
+                    enjoymentRatingLabel.setText(enjoymentRating);
+                    functionalityRatingLabel.setText(functionalityRating);
+                    uiRatingRatingLabel.setText(uiRating);
+                    overallRatingLabelRight.setText(overallRating);
                 });
+                // Update the feedbackText with the retrieved survey data
+                // SwingUtilities.invokeLater(() -> {
+                //     feedbackText.setText(surveyData);
+                // });
             });
     
             surveyDataFuture.onFailure((error) -> {
