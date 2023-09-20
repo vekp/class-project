@@ -14,8 +14,8 @@ public final class GameConstants {
     public static final int START_BUTTON_Y = 250;
     public static final int BUTTON_GAP = 10;
     public static final int LOGO_Y = 20;
-    public static final int MINIMUM_FOOD_GENERATION_DELAY = 5;
-    public static final int MAXIMUM_FOOD_GENERATION_DELAY = 30;
+    public static final int MINIMUM_FOOD_GENERATION_DELAY = 1;
+    public static final int MAXIMUM_FOOD_GENERATION_DELAY = 8;
     public static final int SQUARE_SIZE = 20;
     public static final int GAME_PLAY_WIDTH = 850;
     public static final int GAME_PLAY_HEIGHT = 590;
@@ -36,12 +36,6 @@ public final class GameConstants {
     public static final int INFO_TEXT_HEIGHT = 200;
     public static final int INFO_TEXT_Y = 300;
     public static final int RETURN_BUTTON_Y = 490;
-
-    // Music
-    public static final String MENU_MUSIC = "8Bit";
-    public static final String GAME_PLAY_MUSIC = "Menu";
-    public static final String GAME_PAUSE_MUSIC = "Smooth";
-    public static final String EXIT_GAME = "Exit";
 
     // Colors
     public static final Color DEFAULT_BACKGROUND_COLOR = new Color(18, 96, 98);
@@ -86,7 +80,8 @@ public final class GameConstants {
     public static final int ORANGE_EATEN_SCORE = 10;
     public static final int CHERRY_EATEN_SCORE = 10;
     public static final int WATERMELON_EATEN_SCORE = 10;
-    public static final int INITIAL_GAME_DELAY = 175;
+    public static final int GAME_LOOP_DELAY = 200;
+    public static final int LEVEL_CHANGE_THRESHOLD = 30;
     public static final int INITIAL_SNAKE_X = 15;
     public static final int INITIAL_SNAKE_Y = 8;
 
@@ -102,11 +97,32 @@ public final class GameConstants {
     public static final String[] ABOUT_ME_MESSAGES = {
             "Developed by Luke, Sean & Matt (Group 15) COSC220 A3, 2023.", "",
             "Credits",
-            "Music: Fesliyan Studios (www.FesliyanStudios.com)",
+            "Sounds: Fesliyan Studios (www.FesliyanStudios.com)",
             "Logo: Sean 2023",
             "Background: Matthew Picone 2023"
     };
 
+    //Media
+    public static final String PHONE_BACKGROUND = "/images/snake/GameBackground.png";
+    public static final String BACKGROUND_COLOR_BLOCK = "/images/snake/backgroundColorBlock.png";
+    public static final String SNAKE_LOGO = "/images/snake/snakeLogo.png";
+    public static final String IMAGE_APPLE = "/images/snake/apple.png";
+    public static final String IMAGE_CHERRY = "/images/snake/cherry.png";
+    public static final String IMAGE_ORANGE = "/images/snake/orange.png";
+    public static final String IMAGE_WATERMELON = "/images/snake/watermelon.png";
+// Paths to sounds
+// Music
+public static final String MENU_MUSIC = "8Bit";
+    public static final String GAME_PLAY_MUSIC = "Menu";
+    public static final String GAME_PAUSE_MUSIC = "Smooth";
+    public static final String EXIT_GAME = "Exit";
+public static final String SOUND_8_BIT = "/sounds/8Bit.wav";
+    public static final String SOUND_POSTITIVE = "/sounds/eatApple.wav";
+    public static final String SOUND_NEGATIVE = "/sounds/grunt.wav";
+    public static final String SOUND_MENU = "/sounds/menu.wav";
+    public static final String SOUND_RETRO = "/sounds/retro1.wav";
+    public static final String SOUND_SMOOTH = "/sounds/smooth.wav";
+    public static final String SOUND_SURF = "/sounds/surf.wav";
     // Constructor - private to prevent instantiation
     private GameConstants() {}
 }
