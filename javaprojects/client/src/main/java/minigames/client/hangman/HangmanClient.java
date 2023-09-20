@@ -14,7 +14,7 @@ import minigames.rendering.GameMetadata;
 import minigames.commands.CommandPackage;
 
 /**
- * A very simple interface for a snake game.
+ * A very simple interface for a hangman game.
  * 
  */
 public class HangmanClient implements GameClient {
@@ -31,7 +31,11 @@ public class HangmanClient implements GameClient {
     /**Buttons, JLabels and JPanels */
     JButton start, score, help, back, back1, exit, newGameButton, stopGameButton, exitButton;
     JLabel headerText, footerText, helpText, helpText1, helpText2, controlText, highScore, playerName, scoreText, playerNumber;
+    static JLabel point;
     JPanel headerPanel, footerPanel, mainMenuPanel, buttonPanel, helpPanel, scorePanel;
+
+    static JPanel gamePanel;
+
     HangmanPanel gameArea;
     private JLabel[] pointInses;
     private JLabel[] pointLabels;
@@ -290,7 +294,7 @@ public class HangmanClient implements GameClient {
             case "game" -> displayHangmanGame();
             case "play" -> logger.info("PLAY MUSIC");
             case "stop" -> logger.info("STOP MUSIC");
-            case "exit" -> logger.info("Exit");
+            case "exit" -> mnClient.runMainMenuSequence();
 
         };
 
@@ -361,7 +365,7 @@ public class HangmanClient implements GameClient {
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
 
         
-        JPanel gamePanel = new JPanel();
+        gamePanel = new JPanel();
         gamePanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		gamePanel.setLayout(new BoxLayout(gamePanel, BoxLayout.Y_AXIS));
         gamePanel.setPreferredSize(new Dimension(250, 800));
@@ -395,7 +399,7 @@ public class HangmanClient implements GameClient {
             pointIns.setForeground(Color.BLACK);
 			pointInses[i] = pointIns;
 
-			JLabel point = new JLabel("Score: " + "0");
+            point = new JLabel("Score: " + "0");
             point.setBorder(new EmptyBorder(5, 5, 5, 5));
 			point.setFont(fontBold);
             point.setForeground(Color.BLACK);
@@ -422,13 +426,19 @@ public class HangmanClient implements GameClient {
 
         exitButton = new JButton("Exit");
 		exitButton.setFont(btnFont);
-		exitButton.addActionListener((evt) -> sendCommand("EXIT"));
+		exitButton.addActionListener((evt) -> sendCommand("BACK"));
 		gamePanel.add(exitButton);
 		gamePanel.add(Box.createVerticalGlue());
 
 		return mainPanel; 
 
     }
+
+    public static void updatePoint(int playerScore){
+        point.setText("Score: " + String.valueOf(playerScore));
+        gamePanel.repaint();
+    }
+
 
    
    

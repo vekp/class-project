@@ -44,6 +44,7 @@ public class HangmanPanel extends JPanel {
     boolean gameWon = false;
     Color borderColour = new Color(146, 106, 61);
     int score = 0;
+
     public static final Logger logger = LogManager.getLogger(HangmanPanel.class);
 
     public HangmanPanel() {
@@ -174,23 +175,21 @@ public class HangmanPanel extends JPanel {
     private void playAgain() {
         JFrame playAgainFrame = new JFrame();
         if (gameLost) {
+            score = 0;
+            HangmanClient.updatePoint(score);
             JOptionPane.showMessageDialog(
                     playAgainFrame,
                     "Opps! The word was " + solution + ".\n Would you like to play again?");
+
         } else {
-            score++;
-            userSubmitScore("Hangman", score);
+            score = score + 50;
+            HangmanClient.updatePoint(score);
             JOptionPane.showMessageDialog(
                     playAgainFrame,
                     "Congratulations! You made it" + "\nWould you like to play again?");
         }
     }
 
-    
-    void userSubmitScore(String gameId, int highScore) {
-        logger.info("Score submitted");
-        logger.info("Score: ", highScore);
-    }
 
     /**
      * Register a pressed key, delegate the response if it's a valid key Pressing a letter is
