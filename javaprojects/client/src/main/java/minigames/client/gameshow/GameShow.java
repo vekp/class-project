@@ -1,5 +1,6 @@
 package minigames.client.gameshow;
 
+
 import java.awt.Image;
 import java.awt.Insets;
 import java.util.Collections;
@@ -25,7 +26,7 @@ import minigames.commands.CommandPackage;
  * It provides a simple interface for interacting with the game and communicates with the server.
  */
 public class GameShow implements GameClient, Tickable {
-    private static final Logger logger = LogManager.getLogger(GameShow.class);
+    public static final Logger logger = LogManager.getLogger(GameShow.class);
 
     static MinigameNetworkClient mnClient;
 
@@ -43,17 +44,17 @@ public class GameShow implements GameClient, Tickable {
     JPanel outcomeContainer;
 
     /** Stores whether the game is active on the client */
-    private boolean isActive;
+    public boolean isActive;
     /** Whether the game has started */
-    private boolean started;
+    public boolean started;
     /** When the last server poll occurred */
-    private long lastPoll;
+    public long lastPoll;
     /** The current round for this player, zero-indexed */
     protected int round;
     JPanel gamePanel;
     GameTimer gameTimer;
-    private final static String dir = "./src/main/java/minigames/client/gameshow/GameShowImages/";
-    private static final ImageIcon quitButton = new ImageIcon(dir + "quit-button.png");
+    public final static String dir = "./src/main/java/minigames/client/gameshow/GameShowImages/";
+    public static final ImageIcon quitButton = new ImageIcon(dir + "quit-button.png");
 
     public static GameShow Main;
 
@@ -150,7 +151,7 @@ public class GameShow implements GameClient, Tickable {
      *
      * @param command The JSON object representing the command to start the next round.
      */
-    private void startNextRound(JsonObject command) {
+    public void startNextRound(JsonObject command) {
         logger.info("Starting minigame {}", command.getString("game"));
         logger.info("Starting round {}", command.getInteger("round"));
         this.started = true;
@@ -177,7 +178,7 @@ public class GameShow implements GameClient, Tickable {
      *
      * @param command The JSON object representing the command to start the game.
      */
-    private void startGame(JsonObject command) {
+    public void startGame(JsonObject command) {
         String game = command.getString("game");
         this.started = true;
         switch (game) {
@@ -199,7 +200,7 @@ public class GameShow implements GameClient, Tickable {
      *
      * @param command The JSON object representing the command with the guess outcome.
      */
-    private void processGuessOutcome(JsonObject command) {
+    public void processGuessOutcome(JsonObject command) {
         String game = command.getString("game");
         switch (game) {
             case "WordScramble":
@@ -218,7 +219,7 @@ public class GameShow implements GameClient, Tickable {
      *
      * @param command The JSON object representing the command with the player's ready state.
      */
-    private void logReadyState(JsonObject command) {
+    public void logReadyState(JsonObject command) {
         logger.info(
                 "Player '{}' is now ready: {}",
                 new Object[] { player, command.getBoolean("state")}
