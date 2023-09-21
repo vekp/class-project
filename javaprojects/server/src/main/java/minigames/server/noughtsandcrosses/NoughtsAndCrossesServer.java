@@ -40,7 +40,7 @@ public class NoughtsAndCrossesServer implements GameServer {
 
     @Override
     public GameServerDetails getDetails() {
-        return new GameServerDetails("NoughtsAndCrosses", "Single Player Noughts and Crosses Game");
+        return new GameServerDetails("Noughts And Crosses", "Single Player Noughts and Crosses Game");
     }
 
     @Override

@@ -54,20 +54,22 @@ public class MinigameNetworkClientWindow {
             for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
                     UIManager.setLookAndFeel(info.getClassName());
-                    //UIManager.put("nimbusBase", Color.BLACK); // Set base colour
-                    //UIManager.put("nimbusBlueGrey", Color.BLACK); // Set blue/grey colour
-                    //UIManager.put("control", Color.BLACK); // Set control background colour
-                    //UIManager.put("text", Color.WHITE); // Set text colour
-                    //UIManager.put("List.background", Color.BLACK); // Set list background
-                    //UIManager.put("TextField.textForeground", Color.BLACK); // Set text field text colour
-                    //UIManager.put("TextField.foreground", Color.BLACK); // Set JTextField text colour
-                    //UIManager.put("TextField.background", Color.WHITE); // Set JTextField background colour
-                    //UIManager.put("TextPane.foreground", Color.BLACK); // Set Font colour in text field
-                    //UIManager.put("List.foreground", Color.WHITE); // Set JList text colour
-                    //UIManager.put("ComboBox.foreground", Color.BLACK); // Set JComboBox text colour
+                    UIManager.put("nimbusBase", Color.BLACK); // Set base colour
+                    UIManager.put("nimbusBlueGrey", Color.BLACK); // Set blue/grey colour
+                    UIManager.put("control", Color.BLACK); // Set control background colour
+                    UIManager.put("text", Color.WHITE); // Set text colour
+                    UIManager.put("List.background", Color.BLACK); // Set list background
+                    UIManager.put("TextField.textForeground", Color.BLACK); // Set text field text colour
+                    UIManager.put("TextField.foreground", Color.BLACK); // Set JTextField text colour
+                    UIManager.put("TextField.background", Color.WHITE); // Set JTextField background colour
+                    UIManager.put("TextPane.foreground", Color.BLACK); // Set Font colour in text field
+                    UIManager.put("List.foreground", Color.WHITE); // Set JList text colour
+                    UIManager.put("ComboBox.foreground", Color.BLACK); // Set JComboBox text colour
                     break;
                 }
             }
+
+
         } catch (Exception e) {
 
         }*/
@@ -236,7 +238,7 @@ public class MinigameNetworkClientWindow {
             );
 
             // Set button styles
-            newG.setPreferredSize(new Dimension(150, 200)); // Adjust the preferred size as needed
+            newG.setPreferredSize(new Dimension(150, 190)); // Adjust the preferred size as needed
             newG.setBorderPainted(false); // Remove button borders
             newG.setFocusPainted(false); // Remove focus border
 
