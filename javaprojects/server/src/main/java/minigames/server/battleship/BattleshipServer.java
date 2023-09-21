@@ -9,6 +9,7 @@ import minigames.rendering.RenderingPackage;
 import minigames.server.ClientType;
 import minigames.server.GameServer;
 import minigames.server.achievements.AchievementHandler;
+import minigames.server.gameNameGenerator.GameNameGenerator;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -44,7 +45,8 @@ enum achievements{
 }
 
 public class BattleshipServer implements GameServer {
-    static final String chars = "abcdefghijklmopqrstuvwxyz";
+//    static final String chars = "abcdefghijklmopqrstuvwxyz";
+    static GameNameGenerator gameNameGenerator;
     AchievementHandler achievementHandler;    // Nathan's Handler for implementing achievement features
 
     public BattleshipServer(){
@@ -73,16 +75,12 @@ public class BattleshipServer implements GameServer {
         achievementHandler.registerAchievement(new Achievement(achievements.MISSION_COMPLETE.toString(),
                 "Destroy all enemy ships.", 100, "", false));
 
+        gameNameGenerator = new GameNameGenerator("battleAdjectives", "battleNouns");
     }
 
     // A random name. We could do with something more memorable, like Docker has
     static String randomName() {
-        Random r = new Random();
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < 12; i++) {
-            sb.append(chars.charAt(r.nextInt(chars.length())));
-        }
-        return sb.toString();
+        return gameNameGenerator.randomName().replace("_", " ");
     }
 
     // Add the game to a HashMap in memory containing all in-progress games
