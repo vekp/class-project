@@ -17,8 +17,12 @@ import minigames.telepathy.State;
 import minigames.telepathy.Tile;
 import minigames.telepathy.Board;
 
+import minigames.server.highscore.HighScoreAPI;
+import minigames.server.highscore.ScoreRecord;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.Collectors;
 import java.util.concurrent.ThreadLocalRandom;
@@ -743,7 +747,7 @@ public class TelepathyGame {
         return highScoreAPI.getHighScores(GAME_NAME);
     }
 
-    public List<ScoreRecord> getHighScoresToString() {
+    public String getHighScoresToString() {
         return highScoreAPI.getHighScoresToString(GAME_NAME);
     }
 
