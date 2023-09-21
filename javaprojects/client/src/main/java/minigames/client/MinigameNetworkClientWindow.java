@@ -233,11 +233,11 @@ public class MinigameNetworkClientWindow {
 
         for (GameServerDetails gsd : servers) {
             JButton newG = new JButton(
-                    String.format("<html><h1>%s</h1><p>%s</p></html>", gsd.name(), gsd.description())
+                    String.format("<html><center><h1>%s</h1><p>%s</p></center></html>", gsd.name(), gsd.description())
             );
 
             // Set button styles
-            newG.setPreferredSize(new Dimension(150, 250)); // Adjust the preferred size as needed
+            newG.setPreferredSize(new Dimension(150, 190)); // Adjust the preferred size as needed
             newG.setBorderPainted(false); // Remove button borders
             newG.setFocusPainted(false); // Remove focus border
 
