@@ -82,14 +82,14 @@ public class Telepathy implements GameClient, Tickable{
     JPanel sidePanel; // board game side panel
     JPanel colourSymbolPanel; //  nested panel listing the colours and symbols in the gameboard
 
-    ArrayList<JButton> buttonColour; // list of colours used in game
+    ArrayList<JButton> buttonColour; // list of colours as buttons used in game
     ArrayList<JButton> buttonSymbols; // list of buttons with symbol icons used in game
 
-    JLabel currentPlayer;
-    JLabel opponent;
+    JLabel currentPlayer; // a label to display current player's name in game lobby
+    JLabel opponent; //  a label to display oppoenet's name in game lobby
 
-    JButton player1Turn; 
-    JButton player2Turn;
+    JButton player1Turn; // a colour switch button to indicate current player's turn
+    JButton player2Turn; // a colour switch button to indicate opponent's turn
     
     ArrayList<ImageIcon> allIcons; // ordered list of icons
     ArrayList<Point> allCoordinatesList; // list of board coordinates
@@ -123,8 +123,8 @@ public class Telepathy implements GameClient, Tickable{
     HashSet<Tile> guessedTiles;
 
     /**
-     * A Telepathy board UI, a 9 x 9 2D array of Jbuttons with coordinates around the 
-     * border.
+     * A Telepathy board UI including a 9 x 9 2D array of Jbuttons with coordinates around the 
+     * border and a side panel to display colour / symbol lists and a game lobby. 
      */
     public Telepathy(){
         this.ticking = true;
@@ -137,6 +137,8 @@ public class Telepathy implements GameClient, Tickable{
 
         this.componentList = new HashMap<>();
         this.buttonGrid = new JButton[COLS][ROWS];
+
+        this.buttonColour = new ArrayList<>();
 
         this.currentPlayer = new JLabel();
         this.opponent = new JLabel();
@@ -217,15 +219,7 @@ public class Telepathy implements GameClient, Tickable{
                             activateQuestionGuessMessage();
                         }
                     }
-                    /* Old version of selecting buttons
-                    if (this.buttonGrid[col][row] == selectedBtn && this.serverState == State.TILESELECTION) {
-                        
-                        disableButtonGrid();
-                         
-                    }else if (this.buttonGrid[col][row] == selectedBtn && this.serverState == State.RUNNING){
-                        disableButtonGrid();
-                        activateQuestOrGuessMessage(col, row); 
-                    }*/
+                  
                 }
             }
         };
@@ -273,8 +267,8 @@ public class Telepathy implements GameClient, Tickable{
         colourSymbolPanel.setLayout(new FlowLayout());
         colourSymbolPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         colourSymbolPanel.setOpaque(true);
-        JPanel colours = colourSideTiles();
         JPanel symbols = symbolSideTiles();
+        JPanel colours = colourSideTiles();
        
         colourSymbolPanel.add(colours);
         colourSymbolPanel.add(symbols);
@@ -289,10 +283,8 @@ public class Telepathy implements GameClient, Tickable{
         
     }
 
-
-
     /**
-     * a method that disables all buttons on the board
+     * a method that disables all buttons on the game board
      */
 
     public void disableButtonGrid(){
@@ -302,11 +294,10 @@ public class Telepathy implements GameClient, Tickable{
                 this.buttonGrid[col][row].setEnabled(false);
             }
         }
-
     }
 
     /**
-     * a method that enables all buttons on the board
+     * a method that enables all buttons on the game board
      */
 
     public void enableButtonGrid(){
@@ -561,12 +552,13 @@ public class Telepathy implements GameClient, Tickable{
 
     /**
      * a method that generates a panel of buttons displaying game colours
+     * @return JPanel of JButtons representing colours
      */
    
     public JPanel colourSideTiles(){
 
         // a list to store buttons with coloured backgrounds
-        buttonColour = new ArrayList<>();
+        //buttonColour = new ArrayList<>();
         JPanel colours = new JPanel();
         colours.setLayout(new BoxLayout(colours, BoxLayout.Y_AXIS));
 
@@ -580,13 +572,13 @@ public class Telepathy implements GameClient, Tickable{
             JButton colourButton = new JButton(buttonLabel);
             colourButton.setMaximumSize(new Dimension(80, 40));
             setButtonBorder(colourButton, color);
-            buttonColour.add(colourButton);
+            this.buttonColour.add(colourButton);
 
             componentList.put(colour.toString(), colourButton);
         }
        
        // adds buttons to the JPanel
-        for(JButton button: buttonColour){
+        for(JButton button: this.buttonColour){
             colours.add(button);
             colours.add(Box.createRigidArea(new Dimension(0, 8)));
         }
@@ -596,6 +588,7 @@ public class Telepathy implements GameClient, Tickable{
     
     /**
      * a method that generates a panel of buttons displaying game symbols
+     * @return JPanel of JButtons representing symbols
      */
    
     public JPanel symbolSideTiles(){
@@ -628,7 +621,7 @@ public class Telepathy implements GameClient, Tickable{
     }
     
     /**
-     * a method to set a coloured border around a button
+     * MacOS workaround: a method to set a coloured border around a button
      */
      public void setButtonBorder(JButton button, Color color){
         button.setBackground(color);
@@ -639,7 +632,7 @@ public class Telepathy implements GameClient, Tickable{
     }
 
      /**
-     * a method to set a button's colour
+     * MacOS workaround: a method to set a button's colour
      */
      public void setButtonColour(JButton button, Color color){
         button.setBackground(color);
@@ -659,7 +652,32 @@ public class Telepathy implements GameClient, Tickable{
 
 
      /**
+      * a method that resets the eliminated symbols
+      */
+     public void resetSymbolDisplay(){
+        for (JComponent button: this.componentList.values()){
+            button.setEnabled(true);
+        }
+     }
+
+
+     /**
+      * a method that resets the eliminated colours
+      */
+     public void resetColourDisplay(){
+        
+        ArrayList<Colours> coloursList = new ArrayList<>(List.of(Colours.values()));
+        
+        for (int i = 0; i < this.buttonColour.size(); i++){
+            Color color = coloursList.get(i).getColor();
+            setButtonBorder(this.buttonColour.get(i), color);
+        }
+    }
+
+
+     /**
       * a method that generates a JPanel representing the Game Lobby
+      * @return JPanel that represents a Game Lobby
       */
 
     public JPanel gameLobby(){
@@ -703,8 +721,6 @@ public class Telepathy implements GameClient, Tickable{
 
     }
 
-
-  
 
 
     /**
@@ -881,6 +897,8 @@ public class Telepathy implements GameClient, Tickable{
         setButtonBorder(buttonGrid[x][y], Color.GREEN);
     }
 
+
+
     /**
      * Take POPUP renderingCommands from the server and trigger the correct popup
      * based on attribute values.
@@ -892,7 +910,10 @@ public class Telepathy implements GameClient, Tickable{
         // First attribute is the identifier for popup
         if (popups.get(0).equals("welcomeMessage")) {
             activateWelcomeMessage();
+            // methods to reset game state on welcome message
             resetTurnButtons();
+            resetSymbolDisplay();
+            resetColourDisplay(); 
             this.serverState = State.INITIALISE;
         }
         
