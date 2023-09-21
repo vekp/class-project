@@ -40,6 +40,11 @@ public class PlayerAchievementProfile {
     public void addAchievement(String gameID, String achievementID) {
         if (!achievements.containsKey(gameID))
             achievements.put(gameID, new HashSet<>());
+
+        //if player has already unlocked this achievement there is no need to add it again (and also no need to
+        //add it to the recent unlock list for a popup - only new achievements should get those)
+        if(achievements.get(gameID).contains(achievementID)) return;
+
         achievements.get(gameID).add(achievementID);
 
         //also add to recent unlocks for popups
