@@ -38,7 +38,14 @@ public class ShufflingFrameworkTest {
         return list;
     }
 
+    public PlayingCard[] copyCardArray(PlayingCard[] cards){
+        PlayingCard[] cardCopies = new PlayingCard[cards.length];
 
+        for(int i = 0; i < cards.length; i++){
+            cardCopies[i] = cards[i];
+        }
+        return cardCopies;
+    }
 
 
     @Test
@@ -113,6 +120,7 @@ public class ShufflingFrameworkTest {
         PlayingCard[] controlDeck = new DeckOfCards(5, false).getCards();
         PlayingCard[] deckOfCards = copyCardArray(controlDeck);
         List<PlayingCard> controlLinkedList = arrayToLinkedList(controlDeck);
+        // PlayingCard[] deckOfCards = new DeckOfCards(5, false).getCards();
         List<PlayingCard> cardLinkedList = arrayToLinkedList(deckOfCards);
 
         ShufflingFramework.shuffle(controlLinkedList, random);
@@ -131,6 +139,7 @@ public class ShufflingFrameworkTest {
         Random random2 = new Random(seed);
         PlayingCard[] controlDeck = new DeckOfCards(5, false).getCards();
         PlayingCard[] deckOfCards = copyCardArray(controlDeck);
+        // PlayingCard[] deckOfCards = new DeckOfCards(5, false).getCards();
 
         ShufflingFramework.shuffle(deckOfCards, random);
         ShufflingFramework.shuffle(controlDeck, random2);
