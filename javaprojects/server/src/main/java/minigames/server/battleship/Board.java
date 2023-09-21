@@ -15,6 +15,8 @@ public class Board {
     private int turnNumber;  // The current turn number
 
     private GameState gameState;
+    private int lastRowShot;
+    private int lastColShot;
 
 
     /**
@@ -30,7 +32,9 @@ public class Board {
         this.gameState = GameState.SHIP_PLACEMENT;
         // Set the player to be the owner for all ships on this board
         this.setPlayerOwner();
-
+        // Initialise last shot to invalid coordinates.
+        this.lastRowShot = -1;
+        this.lastColShot = -1;
     }
 
 
@@ -146,10 +150,9 @@ public class Board {
     /**
      * Function to create a grid of strings to be displayed
      * @param boardTitle String value for the board title
-     * @param grid 2D cell array values are retrieved from
-     * @return formatted string to be displayed
+     * @return HTML formatted string to be displayed
      */
-    public static String generateBoard(String boardTitle, Cell[][] grid) {
+    public String generateBoard(String boardTitle, boolean isEnemy) {
         StringBuilder gridStrings = new StringBuilder();
         String chars = "ABCDEFGHIJ";
 
@@ -169,16 +172,26 @@ public class Board {
                 if (i==0) gridStrings.append(j).append(" ");
                 if (j==0 && i!=0) gridStrings.append(" ").append(chars.charAt(i-1)).append(" ");
                 if (i>0) {
-                    gridStrings.append(grid[i-1][j].getCellTypeString()).append(" ");
-                    //System.out.print(grid[i-1][j].getCellTypeString());
+                    String cellString = getGrid()[i-1][j].getCellTypeString();
+                    // Replace boats with water if enemy board
+                    if (isEnemy && !("X.".contains(cellString))) cellString = "~";
+                    // Most recent shot is coloured red
+                    if (i-1 == lastRowShot && j == lastColShot) {
+                        cellString = "<span style='color:red'>" + cellString + "</span>";
+                    }
+                    gridStrings.append(cellString).append(" ");
                 }
             }
             if (i<10) gridStrings.append("\n");
         }
-        return gridStrings.toString();
+        // Put string into HTML format
+        return "<html><body>"
+                + gridStrings.toString().replace(" ", "&nbsp;").replace("\n", "<br>")
+                + "</body></html>";
     }
 
-    public static String showEnemyBoard(String boardTitle, Cell[][] grid) {
+    //TODO: remove this function if not needed.
+    public String showEnemyBoard(String boardTitle) {
         StringBuilder gridStrings = new StringBuilder();
         String chars = "ABCDEFGHIJ";
 
@@ -198,18 +211,23 @@ public class Board {
                 if (i==0) gridStrings.append(j).append(" ");
                 if (j==0 && i!=0) gridStrings.append(" ").append(chars.charAt(i-1)).append(" ");
                 if (i>0) {
-                    if(grid[i-1][j].getCellTypeString().equals(".") || grid[i-1][j].getCellTypeString().equals("X")){
-                        gridStrings.append(grid[i-1][j].getCellTypeString()).append(" ");
+                    String cellString = getGrid()[i-1][j].getCellTypeString();
+                    if(cellString.equals(".") || cellString.equals("X")){
+                        if (i-1 == lastColShot && j == lastRowShot) {
+                            cellString = "<span style='color:red'>" + cellString + "</span>";
+                        }
+                        gridStrings.append(cellString).append(" ");
                     } else {
                         gridStrings.append("~ ");
                     }
-
-                    //System.out.print(grid[i-1][j].getCellTypeString());
                 }
             }
             if (i<10) gridStrings.append("\n");
         }
-        return gridStrings.toString();
+        // Put string into HTML format
+        return "<html><body>"
+                + gridStrings.toString().replace(" ", "&nbsp;").replace("\n", "<br>")
+                + "</body></html>";
     }
 
     /**
@@ -246,4 +264,11 @@ public class Board {
         return this.getGrid();
     }
 
+    /**
+     * Sets the most recent shot fields to the given coordinates.
+     */
+    public void setLastShot(int row, int col) {
+        this.lastRowShot = row;
+        this.lastColShot = col;
+    }
 }

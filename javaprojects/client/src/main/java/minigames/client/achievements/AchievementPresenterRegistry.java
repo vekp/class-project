@@ -4,7 +4,6 @@ import minigames.achievements.Achievement;
 import minigames.achievements.GameAchievementState;
 import minigames.client.Animator;
 import minigames.client.notifications.DialogManager;
-import minigames.client.notifications.NotificationManager;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
