@@ -4,6 +4,8 @@ import minigames.client.MinigameNetworkClient;
 import minigames.client.survey.Survey;
 
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.Future;
 
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
@@ -46,12 +48,19 @@ public class SurveyResults extends JPanel implements ActionListener{
     private Image image;
     private final String imageFolderPath = "src/main/resources/images/backgrounds/";
     private final String background = "space_planet_asteroids.jpg";
+    private String gameIdGlobal;
 
     // Our called games names will be stored here for use in a combo box
-    public String[] gameNames = {"testGame1", "testGame2", "testGame3", "testGame4"};
+    public String[] gameNames;
+    private Map<String, String> gameNameToIdMap = new HashMap<>();
+    
+    MinigameNetworkClient mnClientGlobal;
 
     public SurveyResults(MinigameNetworkClient mnClient, String gameId) {
+        mnClientGlobal = mnClient;
+        gameIdGlobal = gameId;
 
+        gameNames = gameNameToIdMap.keySet().toArray(new String[0]);
 
         this.setPreferredSize(new Dimension(800, 600));
         this.setLayout(new GridLayout(0, 1));
@@ -183,17 +192,25 @@ public class SurveyResults extends JPanel implements ActionListener{
         feedbackText.setLineWrap(true);
         feedbackText.setRows(5);
         feedbackText.setEditable(false);
-        feedbackText.setText("DB results listed as items 1. 2. 3. etc");
+        // feedbackText.setText("DB results listed as items 1. 2. 3. etc");
         feedbackText.setWrapStyleWord(true);
         feedbackText.setFont(fontText);
         feedbackText.setMargin(new Insets(5,15,5,5));
         feedbackText.setBackground(Color.BLACK);
+        feedbackText.setForeground(Color.WHITE);
+
+        // Create a JScrollPane to enable scrolling
+        JScrollPane scrollPane = new JScrollPane(feedbackText);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setPreferredSize(new Dimension(300, 60)); // Adjust the dimensions as needed
+
+
         Border border = BorderFactory.createLineBorder(Color.BLACK, 1);
         feedbackText.setBorder(BorderFactory.createCompoundBorder(border, 
         BorderFactory.createEmptyBorder(10, 10, 10, 10)));
         // scrollPane = new JScrollPane(feedbackText);
-        // feedbackPanel.add(scrollPane);
-        feedbackPanel.add(feedbackText);
+        feedbackPanel.add(scrollPane);
+        // feedbackPanel.add(feedbackText);
 
         // surveyResultsPanelRight (incorporates all Question responses for the survey)
         surveyResultsPanelRight = new JPanel();
@@ -262,14 +279,22 @@ public class SurveyResults extends JPanel implements ActionListener{
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == gameNameComboBox) {
-            System.out.println(gameNameComboBox.getSelectedItem().toString());
-            // mnClient.setGameId(gameNameComboBox.getSelectedItem().toString());
+            String selectedGameName = gameNameComboBox.getSelectedItem().toString();
+            String selectedGameId = gameNameToIdMap.get(selectedGameName);
+            updateSurveyData(selectedGameId);
         }
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        updateSurveyData(gameIdGlobal);
+
+        Future<String> gameDataFuture = mnClientGlobal.getAllGames();
+        gameDataFuture.onSuccess((gameData) -> {
+            JsonArray gameDataArray = new JsonArray(gameData);
+            populateGameNameToIdMap(gameDataArray);
+        });
 
         if(image != null) {
             Graphics2D g2 = (Graphics2D) g.create();
@@ -279,6 +304,53 @@ public class SurveyResults extends JPanel implements ActionListener{
         else {
             System.out.println("no image to process");
         }
+    }
+
+    private void updateSurveyData(String selectedGameId) {
+        Future<String> surveyDataFuture = mnClientGlobal.getSurveyResultSummary(selectedGameId);
+        
+        surveyDataFuture.onSuccess((surveyData) -> {
+            JsonObject surveyResults = new JsonObject(surveyData);
+
+            // Get each rating value from the JSON object
+            String difficultyRating = surveyResults.getString("difficulty_rating");
+            String enjoymentRating = surveyResults.getString("enjoyment_rating");
+            String functionalityRating = surveyResults.getString("functionality_rating");
+            String uiRating = surveyResults.getString("ui_rating");
+            String overallRating = surveyResults.getString("overall_rating");
+            String feedback = surveyResults.getString("feedback");
+
+            // Update the JLabels with the retrieved ratings
+            SwingUtilities.invokeLater(() -> {
+                difficultyRatingLabel.setText(difficultyRating);
+                enjoymentRatingLabel.setText(enjoymentRating);
+                functionalityRatingLabel.setText(functionalityRating);
+                uiRatingRatingLabel.setText(uiRating);
+                overallRatingLabelRight.setText(overallRating);
+                feedbackText.setText(feedback);
+            });
+        });
+
+        surveyDataFuture.onFailure((error) -> {
+            // Handle the error, e.g., display an error message
+            SwingUtilities.invokeLater(() -> {
+                feedbackText.setText("Error: Failed to retrieve survey data.");
+            });
+        });
+    }
+
+    private void populateGameNameToIdMap(JsonArray gameDataArray) {
+        for (int i = 0; i < gameDataArray.size(); i++) {
+            JsonObject gameData = gameDataArray.getJsonObject(i);
+            String gameName = gameData.getString("game_name");
+            String gameId = gameData.getString("_id");
+            System.out.println(gameId);
+            gameNameToIdMap.put(gameName, gameId);
+        }
+        gameNames = gameNameToIdMap.keySet().toArray(new String[0]);
+
+        DefaultComboBoxModel<String> comboBoxModel = new DefaultComboBoxModel<>(gameNames);
+        gameNameComboBox.setModel(comboBoxModel);
     }
 
 }
