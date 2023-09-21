@@ -1,12 +1,19 @@
 package minigames.client.hangman;
 
+import minigames.utils.Tools;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
+import javax.sound.midi.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
+
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
@@ -20,17 +27,17 @@ import minigames.commands.CommandPackage;
 public class HangmanClient implements GameClient {
     private static final Logger logger = LogManager.getLogger(HangmanClient.class);
 
-    MinigameNetworkClient mnClient;
+     static MinigameNetworkClient mnClient;
 
     /** We hold on to this because we'll need it when sending commands to the server */
-    GameMetadata gm;
+     static GameMetadata gm;
 
     /** Player name */
-    String player;
+     static String player;
 
     /**Buttons, JLabels and JPanels */
     JButton start, score, help, back, back1, exit, newGameButton, stopGameButton, exitButton;
-    JLabel headerText, footerText, helpText, helpText1, helpText2, controlText, highScore, playerName, scoreText, playerNumber;
+    JLabel headerText, footerText, helpText, helpText1, helpText2, controlText, scoreText, playerNumber;
     static JLabel point;
     JPanel headerPanel, footerPanel, mainMenuPanel, buttonPanel, helpPanel, scorePanel;
 
@@ -39,6 +46,15 @@ public class HangmanClient implements GameClient {
     HangmanPanel gameArea;
     private JLabel[] pointInses;
     private JLabel[] pointLabels;
+
+    static Sequence sequence;
+
+    static Sequencer sequencer;
+
+    static {
+        loadSequence();
+        getSequence();
+    }
 
     private static final String[] playerString = { "Player Name:" };
 
@@ -215,31 +231,12 @@ public class HangmanClient implements GameClient {
         scorePanel.setLayout(new GridBagLayout());
 
        /**Score Text */
-        highScore = new JLabel("High Score");
-        highScore.setAlignmentX(Component.CENTER_ALIGNMENT);
-        highScore.setFont(customSmallFont);
-        highScore.setForeground(Color.WHITE);
-        
-        g.insets = new Insets(-400, 100, 0, 0);
-        g.gridx = 0;
-        g.gridy = 0;
-        scorePanel.add(highScore, g);
 
-
-        playerName = new JLabel("Player Name: ");
-        playerName.setFont(customSmallFont);
-        playerName.setForeground(Color.white);
-
-        g.insets = new Insets(-400, -300, 0, 0);
-        g.gridx = 0;
-        g.gridy = 1;
-        scorePanel.add(playerName, g);
-
-        scoreText= new JLabel("Score: ");
+        scoreText= new JLabel("Feature Eliminated because of some issue");
         scoreText.setFont(customSmallFont);
         scoreText.setForeground(Color.white);
 
-        g.insets = new Insets(-400, 80, 0, 0);
+        g.insets = new Insets(-50, -150, 0, 0);
         g.gridx = 1;
         g.gridy = 1;
         scorePanel.add(scoreText, g);
@@ -257,7 +254,7 @@ public class HangmanClient implements GameClient {
      * We're sending these as
      * { "command": command }
      */
-    public void sendCommand(String command) {
+    public static void sendCommand(String command) {
         JsonObject json = new JsonObject().put("command", command);
         // Collections.singletonList() is a quick way of getting a "list of one item"
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
@@ -292,17 +289,20 @@ public class HangmanClient implements GameClient {
             case "howToPlay" -> displayHelpPanel();
             case "backToMenu" -> displayMainMenu();
             case "game" -> displayHangmanGame();
-            case "play" -> logger.info("PLAY MUSIC");
-            case "stop" -> logger.info("STOP MUSIC");
+            case "play" -> {
+                try{
+                    playMIDI();
+                } catch(MidiUnavailableException | InvalidMidiDataException e){
+                    throw new RuntimeException(e);
+                }
+            }
+            case "stop" -> {
+                stopMIDI();
+            }
+
             case "exit" -> mnClient.runMainMenuSequence();
 
         };
-
-        // We should only be receiving messages that our game understands
-        // Note that this uses the -> version of case statements, not the : version
-        // (which means we don't nead to say "break;" at the end of our cases)
-
-
     }
 
     @Override
@@ -399,7 +399,7 @@ public class HangmanClient implements GameClient {
             pointIns.setForeground(Color.BLACK);
 			pointInses[i] = pointIns;
 
-            point = new JLabel("Score: " + "0");
+            point = new JLabel("Score: " + 0);
             point.setBorder(new EmptyBorder(5, 5, 5, 5));
 			point.setFont(fontBold);
             point.setForeground(Color.BLACK);
@@ -439,6 +439,59 @@ public class HangmanClient implements GameClient {
         gamePanel.repaint();
     }
 
+
+    /**
+     * The loadSequence function loads a MIDI sequence from a file into the variable sequence. It
+     * does this by calling MidiSystem's getSequence function, which takes in a File object and
+     * returns a Sequence object.
+     *
+     * @author Sushil Kandel
+     */
+    private static void loadSequence() {
+        try {
+            sequence =
+                    MidiSystem.getSequence(
+                            new File(Tools.getFileURI("hangmanSound/hangman.mid")));
+        } catch (InvalidMidiDataException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * The getSequence function creates a new MidiSequence object.
+     *
+     * @author Sushil Kandel
+     */
+    private static void getSequence() {
+        try {
+            sequencer = MidiSystem.getSequencer();
+        } catch (MidiUnavailableException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    /**
+     * The playMIDI function plays the MIDI file that is stored in the sequence variable.
+     *
+     * @author Sushil Kandel
+     */
+    private void playMIDI() throws MidiUnavailableException, InvalidMidiDataException {
+        sequencer.open();
+        sequencer.setSequence(sequence);
+        sequencer.start();
+        sequencer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY);
+    }
+
+
+    /**
+     * The stopMIDI function stops the MIDI sequencer.
+     *
+     * @author Sushil Kandel
+     */
+    private void stopMIDI() {
+        sequencer.stop();
+    }
 
    
    

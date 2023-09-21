@@ -9,18 +9,6 @@ enum HangmanGameAchievement {
     MUDDLER (
             "You opened Hangman Game for the first time!",
             false
-    ),
-    SOUTH_BUTTON_PUSHER(
-            "You pushed the south button!",
-            false
-    ),
-    EAST_BUTTON_PUSHER(
-            "You pushed the east button!",
-            false
-    ),
-    SAY_THE_MAGIC_WORD(
-            "You said the magic word, Abracadabra!",
-            true
     );
     final Achievement achievement;
 

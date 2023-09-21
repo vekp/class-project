@@ -44,6 +44,8 @@ public class HangmanPanel extends JPanel {
     boolean gameWon = false;
     Color borderColour = new Color(146, 106, 61);
     int score = 0;
+    
+    
 
     public static final Logger logger = LogManager.getLogger(HangmanPanel.class);
 
@@ -82,8 +84,8 @@ public class HangmanPanel extends JPanel {
 
         GridBagConstraints keyboardConstraints = new GridBagConstraints();
         keyboardConstraints.fill = GridBagConstraints.BOTH;
-        keyboardConstraints.weightx = 0.3;
-        keyboardConstraints.weighty = 0.3;
+        keyboardConstraints.weightx = 0.4;
+        keyboardConstraints.weighty = 0.5;
         keyboardConstraints.gridx = 1;
         keyboardConstraints.gridy = 0;
         keyboardConstraints.gridwidth = 1;
@@ -210,6 +212,8 @@ public class HangmanPanel extends JPanel {
         repaint();
     }
 
+    
+    
     /**
      * The getRandomWord function returns a random word from the list of words.
      *
@@ -222,6 +226,6 @@ public class HangmanPanel extends JPanel {
     public void setFocusOnPanel(){
         this.setFocusable(true);
         this.requestFocusInWindow();
-
     }
+    
 }
