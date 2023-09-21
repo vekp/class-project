@@ -39,8 +39,7 @@ public class PlayableCharacter {
      * @throws CollisionException If a collision occurs (e.g., with walls, food, or itself).
      */
     public void move(Direction direction) throws CollisionException {
-        this.direction = direction;
-
+this.setDirection(direction);
         // Shift the position of body parts to follow the head.
         for (int i = bodyParts; i > 0; i--) {
             x[i] = x[i - 1];
@@ -94,10 +93,15 @@ public class PlayableCharacter {
     }
 
     public void setDirection(Direction direction) {
-        this.direction = direction;
+        // Prevent the snake from reversing direction and colliding with itself.
+        if ((this.direction == Direction.UP && direction != Direction.DOWN) ||
+                (this.direction == Direction.DOWN && direction != Direction.UP) ||
+                (this.direction == Direction.LEFT && direction != Direction.RIGHT) ||
+                (this.direction == Direction.RIGHT && direction != Direction.LEFT)) {
+            this.direction = direction;
+        }
     }
 
-    // Private Methods
 
     /**
      * Initializes the snake to its starting position and size.
