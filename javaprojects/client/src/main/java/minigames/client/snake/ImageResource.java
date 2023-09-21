@@ -49,12 +49,4 @@ public class ImageResource {
         return imageWidth;
     }
 
-    /**
-     * Returns the height of the resource image.
-     *
-     * @return The height of the image in pixels.
-     */
-    public int getImageResouceHeight() {
-        return imageHeight;
-    }
 }

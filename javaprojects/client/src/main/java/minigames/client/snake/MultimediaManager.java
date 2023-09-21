@@ -12,8 +12,6 @@ public class MultimediaManager {
     // ImageResources for all the images
     private static final ImageResource PHONE_BACKGROUND = new ImageResource(
             GameConstants.PHONE_BACKGROUND);
-    private static final ImageResource BACKGROUND_COLOR_BLOCK = new ImageResource(
-            GameConstants.BACKGROUND_COLOR_BLOCK);
     private static final ImageResource SNAKE_LOGO = new ImageResource(
             GameConstants.SNAKE_LOGO);
     private static final ImageResource IMAGE_APPLE = new ImageResource(
@@ -26,7 +24,7 @@ public class MultimediaManager {
             GameConstants.IMAGE_WATERMELON);
     // Paths to sounds
     private static final String SOUND_8_BIT = GameConstants.SOUND_8_BIT;
-    private static final String SOUND_POSTITIVE = GameConstants.SOUND_POSTITIVE;
+    private static final String SOUND_POSITIVE = GameConstants.SOUND_POSTITIVE;
     private static final String SOUND_NEGATIVE = GameConstants.SOUND_NEGATIVE;
     private static final String SOUND_MENU = GameConstants.SOUND_MENU;
     private static final String SOUND_RETRO = GameConstants.SOUND_RETRO;
@@ -54,15 +52,6 @@ public class MultimediaManager {
      */
     public static ImageResource getPhoneBackground() {
         return PHONE_BACKGROUND;
-    }
-
-    /**
-     * Gets the ImageResource for the background color block image.
-     *
-     * @return ImageResource for the background color block image.
-     */
-    public static ImageResource getBackgroundColorBlockResource() {
-        return BACKGROUND_COLOR_BLOCK;
     }
 
     /**
@@ -133,7 +122,7 @@ public class MultimediaManager {
                 soundPath = SOUND_8_BIT;
                 break;
             case "Positive":
-                soundPath = SOUND_POSTITIVE;
+                soundPath = SOUND_POSITIVE;
                 break;
             case "Negative":
                 soundPath = SOUND_NEGATIVE;
@@ -198,7 +187,7 @@ public class MultimediaManager {
         // Determine the sound file path based on the provided sound name
         switch (soundName) {
             case "Positive":
-                soundPath = SOUND_POSTITIVE;
+                soundPath = SOUND_POSITIVE;
                 break;
             case "Negative":
                 soundPath = SOUND_NEGATIVE;

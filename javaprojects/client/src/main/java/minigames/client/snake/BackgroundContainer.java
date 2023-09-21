@@ -18,7 +18,7 @@ public class BackgroundContainer extends JLabel {
      * Configures the background image and positions the logo centrally.
      */
     private void setupBackgroundWithLogo() {
-        // Setup the background image
+        // Set up the background image
         ImageIcon backgroundIcon = MultimediaManager.getPhoneBackground().getImageResource();
         this.setIcon(backgroundIcon);
         this.setBounds(0, 0, backgroundIcon.getIconWidth(), backgroundIcon.getIconHeight());

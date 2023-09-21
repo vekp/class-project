@@ -19,13 +19,11 @@ public class GameLogic {
     private Random random;
     private int timeLeft;
     private int level;
-    private boolean levelUpTrigger;
     private int livesLeft;
     private int minimumFoodDelay;
     private int maximumFoodDelay;
     private int foodGenerationDelay;
     private int foodConsumed = 0;
-    private FoodManager foodManager;
     private long lastFoodAddedTime = 0;
     private final LinkedList<FoodManager> foodList = new LinkedList<>();
 
@@ -43,7 +41,6 @@ public class GameLogic {
         this.gameStarted = false;
         this.isGamePaused = false;
         this.isGameOver = false;
-        this.levelUpTrigger = false;
         this.score = 0;
         this.timeLeft = 90;
         this.level = 1;
@@ -66,15 +63,11 @@ public class GameLogic {
                 if (foodType != ItemType.SPOILED_FOOD) {
                     timeLeft += 15;
                     foodConsumed++;
-//                    MultimediaManager.playSoundEffect("Positive");
                     if (foodConsumed % GameConstants.LEVEL_CHANGE_THRESHOLD == 0) {
                         levelUp();
                     }
                 }
-                else {
-//                    MultimediaManager.playSoundEffect("Negative");
 
-                }
                 switch (foodType) {
                     case SPOILED_FOOD -> score -= 100;
                     case APPLE -> {
@@ -116,7 +109,6 @@ public class GameLogic {
 
     private void levelUp() {
         level++;
-        levelUpTrigger = true;
         score += 100;
 //        maximumFoodDelay--;
     }
@@ -176,20 +168,6 @@ public class GameLogic {
         gameStarted = true;
     }
 
-    /**
-     * Pauses the game.
-     */
-    public void pauseGame() {
-        isGamePaused = true;
-    }
-
-    /**
-     * Resumes the game.
-     */
-    public void resumeGame() {
-        isGamePaused = false;
-    }
-
     // Getter and Setter methods...
 
     public boolean isGameOver() {
@@ -204,21 +182,9 @@ public class GameLogic {
         return snake;
     }
 
-    public GameBoard getGameBoard() {
-        return gameBoard;
-    }
-
     public void setGameBoard(GameBoard gameBoard) {
         this.gameBoard = gameBoard;
         this.snake = new PlayableCharacter(gameBoard);
-    }
-
-    public boolean isGameStarted() {
-        return gameStarted;
-    }
-
-    public void setGameStarted(boolean gameStarted) {
-        this.gameStarted = gameStarted;
     }
 
     public boolean isGamePaused() {

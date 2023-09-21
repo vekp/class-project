@@ -32,6 +32,7 @@ public class AchievementsPanel extends JPanel {
         int buttonX = (MultimediaManager.getPhoneBackground().getImageResourceWidth() - GameConstants.BUTTON_WIDTH) / 2;
 
         // Use the UIHelper to create the return button and add it to the background container
-        UIHelper.setupReturnButton(panelSwitcher, backgroundContainer, buttonX, GameConstants.RETURN_BUTTON_Y, GameConstants.RETURN_BUTTON_TEXT);
+        ButtonFactory.setupReturnButton(panelSwitcher, backgroundContainer, buttonX,
+                            GameConstants.RETURN_BUTTON_Y, GameConstants.RETURN_BUTTON_TEXT);
     }
 }

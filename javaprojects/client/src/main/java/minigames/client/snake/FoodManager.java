@@ -12,10 +12,8 @@ public class FoodManager {
     private int y;  // Y-coordinate of the food on the game board
     private ItemType type;  // Type of the food (e.g., APPLE, CHERRY, etc.)
     private final GameBoard gameBoard;  // The game board on which the food is placed
-    private ImageResource foodImage;  // The image representing the food
     private boolean isSpoiled;  // Whether the food has spoiled
     private int creationTime;  // Time when the food was created (or regenerated)
-    private int spoilThreshold = GameConstants.SPOILED_FOOD_THRESHOLD;
 
     /**
      * Constructor for the FoodManager class.
@@ -35,7 +33,8 @@ public class FoodManager {
         Random rand = new Random();
         int foodIndex = rand.nextInt(MultimediaManager.getFoodImagesSize());
 
-        foodImage = MultimediaManager.getFoodImageByIndex(foodIndex);
+        // The image representing the food
+        ImageResource foodImage = MultimediaManager.getFoodImageByIndex(foodIndex);
 
         // Setting the ItemType based on the chosen ImageResource
         if (foodImage == MultimediaManager.getAppleResource()) {
@@ -137,7 +136,8 @@ public class FoodManager {
      * spoiledDelay seconds.
      */
     public void updateFoodStatus() {
-        if (!isSpoiled && hasSpoiled(this.spoilThreshold)) {
+        int spoilThreshold = GameConstants.SPOILED_FOOD_THRESHOLD;
+        if (!isSpoiled && hasSpoiled(spoilThreshold)) {
             isSpoiled = true;
             type = ItemType.SPOILED_FOOD;
             gameBoard.setItemTypeAt(x, y, type);

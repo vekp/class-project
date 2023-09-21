@@ -1,8 +1,9 @@
 package minigames.client.snake;
 
 class GameBoard {
-    private int width, height;
-    private ItemType[][] board;
+    private final int width;
+    private final int height;
+    private final ItemType[][] board;
 
     public GameBoard(int width, int height) {
         this.width = width;
@@ -31,9 +32,7 @@ class GameBoard {
     public void setItemTypeAt(int x, int y, ItemType type) {
         board[x][y] = type;
     }
-    public ItemType[][] getBoard(){
-        return board;
-    }
+
     public void clearTilesOfType(ItemType typeToClear) {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {

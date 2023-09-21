@@ -80,6 +80,6 @@ public class InformationPanel extends JPanel {
      * Sets up the return button using the UIHelper class for consistency.
      */
     private void setupReturnButton() {
-        backgroundLabel.add(UIHelper.setupReturnButton(panelSwitcher, backgroundLabel));
+        backgroundLabel.add(ButtonFactory.setupReturnButton(panelSwitcher, backgroundLabel));
     }
 }

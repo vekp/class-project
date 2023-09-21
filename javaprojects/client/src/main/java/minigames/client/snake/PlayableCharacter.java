@@ -49,18 +49,10 @@ public class PlayableCharacter {
 
         // Determine the next position based on direction
         switch (this.direction) {
-            case UP:
-                y[0] -= 1;
-                break;
-            case DOWN:
-                y[0] += 1;
-                break;
-            case LEFT:
-                x[0] -= 1;
-                break;
-            case RIGHT:
-                x[0] += 1;
-                break;
+            case UP -> y[0] -= 1;
+            case DOWN -> y[0] += 1;
+            case LEFT -> x[0] -= 1;
+            case RIGHT -> x[0] += 1;
         }
 
         // Check for out-of-bounds
@@ -95,35 +87,7 @@ public class PlayableCharacter {
         bodyParts++;
     }
 
-    /**
-     * Checks if the snake occupies a specific position.
-     *
-     * @param x The x-coordinate to check.
-     * @param y The y-coordinate to check.
-     * @return True if the snake occupies the position, false otherwise.
-     */
-    public boolean occupiesPosition(int x, int y) {
-        for (int i = 0; i < bodyParts; i++) {
-            if (this.x[i] == x && this.y[i] == y) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     // Getters and Setters
-
-    public int getX(int index) {
-        return x[index];
-    }
-
-    public int getY(int index) {
-        return y[index];
-    }
-
-    public int getBodyParts() {
-        return bodyParts;
-    }
 
     public Direction getDirection() {
         return direction;
@@ -131,14 +95,6 @@ public class PlayableCharacter {
 
     public void setDirection(Direction direction) {
         this.direction = direction;
-    }
-
-    public int getHeadX() {
-        return x[0];
-    }
-
-    public int getHeadY() {
-        return y[0];
     }
 
     // Private Methods

@@ -15,13 +15,9 @@ public class GamePlayPanel extends JPanel implements ActionListener {
     private final BackgroundContainer backgroundContainer;
     private final MainMenuPanel.PanelSwitcher panelSwitcher;
     private JPanel gamePlayArea;
-    private JLabel scoreKeyLabel;
     private JLabel scoreValueLabel;
-    private JLabel livesKeyLabel;
     private JLabel livesValueLabel;
-    private JLabel timeKeyLabel;
     private JLabel timeValueLabel;
-    private JLabel levelKeyLabel;
     private JLabel levelValueLabel;
     private JButton playAgainButton;
     private JButton resumeGameButton;
@@ -33,7 +29,7 @@ public class GamePlayPanel extends JPanel implements ActionListener {
     private GameBoard gameBoard;
 
     // Timers
-    private Timer gameLoopTimer;
+    private final Timer gameLoopTimer;
 
     /**
      * Constructor for the GamePlayPanel.
@@ -173,36 +169,48 @@ public class GamePlayPanel extends JPanel implements ActionListener {
      */
     private void setupLabels() {
         // Score Key Label
-        scoreKeyLabel = createLabel("SCORE", GameConstants.SCORE_KEY_TEXT_COLOR, GameConstants.SCORE_TEXT_KEY_FONT);
-        setBackgroundAndPosition(scoreKeyLabel, GameConstants.SCORE_TEXT_POSITION_X, GameConstants.STATUS_LABEL_KEYS_Y, GameConstants.LABEL_WIDTH, GameConstants.STANDARD_LABEL_HEIGHT);
+        JLabel scoreKeyLabel = createLabel(
+                "SCORE", GameConstants.SCORE_KEY_TEXT_COLOR, GameConstants.SCORE_TEXT_KEY_FONT);
+        setBackgroundAndPosition(scoreKeyLabel, GameConstants.SCORE_TEXT_POSITION_X, GameConstants.STATUS_LABEL_KEYS_Y,
+                                 GameConstants.STANDARD_LABEL_HEIGHT);
 
         // Score Value Label
         scoreValueLabel = createLabel("0", GameConstants.SCORE_VALUE_TEXT_COLOR, GameConstants.SCORE_TEXT_VALUE_FONT);
-        setBackgroundAndPosition(scoreValueLabel, GameConstants.SCORE_TEXT_POSITION_X, GameConstants.STATUS_LABEL_VALUES_Y, GameConstants.LABEL_WIDTH, GameConstants.VALUE_LABEL_HEIGHT);
+        setBackgroundAndPosition(scoreValueLabel, GameConstants.SCORE_TEXT_POSITION_X, GameConstants.STATUS_LABEL_VALUES_Y,
+                                 GameConstants.VALUE_LABEL_HEIGHT);
 
         // Lives Key Label
-        livesKeyLabel = createLabel("LIVES", GameConstants.SCORE_KEY_TEXT_COLOR, GameConstants.SCORE_TEXT_KEY_FONT);
-        setBackgroundAndPosition(livesKeyLabel, GameConstants.LIVES_TEXT_POSITION_X, GameConstants.STATUS_LABEL_KEYS_Y, GameConstants.LABEL_WIDTH, GameConstants.STANDARD_LABEL_HEIGHT);
+        JLabel livesKeyLabel = createLabel(
+                "LIVES", GameConstants.SCORE_KEY_TEXT_COLOR, GameConstants.SCORE_TEXT_KEY_FONT);
+        setBackgroundAndPosition(livesKeyLabel, GameConstants.LIVES_TEXT_POSITION_X, GameConstants.STATUS_LABEL_KEYS_Y,
+                                 GameConstants.STANDARD_LABEL_HEIGHT);
 
         // Lives Value Label
         livesValueLabel = createLabel("0", GameConstants.SCORE_VALUE_TEXT_COLOR, GameConstants.SCORE_TEXT_VALUE_FONT);
-        setBackgroundAndPosition(livesValueLabel, GameConstants.LIVES_TEXT_POSITION_X, GameConstants.STATUS_LABEL_VALUES_Y, GameConstants.LABEL_WIDTH, GameConstants.VALUE_LABEL_HEIGHT);
+        setBackgroundAndPosition(livesValueLabel, GameConstants.LIVES_TEXT_POSITION_X, GameConstants.STATUS_LABEL_VALUES_Y,
+                                 GameConstants.VALUE_LABEL_HEIGHT);
 
         // Time Key Label
-        timeKeyLabel = createLabel("TIME", GameConstants.SCORE_KEY_TEXT_COLOR, GameConstants.SCORE_TEXT_KEY_FONT);
-        setBackgroundAndPosition(timeKeyLabel, GameConstants.TIME_TEXT_POSITION_X, GameConstants.STATUS_LABEL_KEYS_Y, GameConstants.LABEL_WIDTH, GameConstants.STANDARD_LABEL_HEIGHT);
+        JLabel timeKeyLabel = createLabel(
+                "TIME", GameConstants.SCORE_KEY_TEXT_COLOR, GameConstants.SCORE_TEXT_KEY_FONT);
+        setBackgroundAndPosition(timeKeyLabel, GameConstants.TIME_TEXT_POSITION_X, GameConstants.STATUS_LABEL_KEYS_Y,
+                                 GameConstants.STANDARD_LABEL_HEIGHT);
 
         // Time Value Label
         timeValueLabel = createLabel("00:00", GameConstants.SCORE_VALUE_TEXT_COLOR, GameConstants.SCORE_TEXT_VALUE_FONT);
-        setBackgroundAndPosition(timeValueLabel, GameConstants.TIME_TEXT_POSITION_X, GameConstants.STATUS_LABEL_VALUES_Y, GameConstants.LABEL_WIDTH, GameConstants.VALUE_LABEL_HEIGHT);
+        setBackgroundAndPosition(timeValueLabel, GameConstants.TIME_TEXT_POSITION_X, GameConstants.STATUS_LABEL_VALUES_Y,
+                                 GameConstants.VALUE_LABEL_HEIGHT);
 
         // Level Key Label
-        levelKeyLabel = createLabel("LEVEL", GameConstants.SCORE_KEY_TEXT_COLOR, GameConstants.SCORE_TEXT_KEY_FONT);
-        setBackgroundAndPosition(levelKeyLabel, GameConstants.LEVEL_TEXT_POSITION_X, GameConstants.STATUS_LABEL_KEYS_Y, GameConstants.LABEL_WIDTH, GameConstants.STANDARD_LABEL_HEIGHT);
+        JLabel levelKeyLabel = createLabel(
+                "LEVEL", GameConstants.SCORE_KEY_TEXT_COLOR, GameConstants.SCORE_TEXT_KEY_FONT);
+        setBackgroundAndPosition(levelKeyLabel, GameConstants.LEVEL_TEXT_POSITION_X, GameConstants.STATUS_LABEL_KEYS_Y,
+                                 GameConstants.STANDARD_LABEL_HEIGHT);
 
         // Level Value Label
         levelValueLabel = createLabel("0", GameConstants.SCORE_VALUE_TEXT_COLOR, GameConstants.SCORE_TEXT_VALUE_FONT);
-        setBackgroundAndPosition(levelValueLabel, GameConstants.LEVEL_TEXT_POSITION_X, GameConstants.STATUS_LABEL_VALUES_Y, GameConstants.LABEL_WIDTH, GameConstants.VALUE_LABEL_HEIGHT);
+        setBackgroundAndPosition(levelValueLabel, GameConstants.LEVEL_TEXT_POSITION_X, GameConstants.STATUS_LABEL_VALUES_Y,
+                                 GameConstants.VALUE_LABEL_HEIGHT);
     }
 
     /**
@@ -225,21 +233,20 @@ public class GamePlayPanel extends JPanel implements ActionListener {
     /**
      * Helper method to set position and size for a JLabel.
      *
-     * @param label    The label to be adjusted.
+     * @param label     The label to be adjusted.
      * @param positionX The X position.
      * @param positionY The Y position.
-     * @param width    The width of the label.
-     * @param height   The height of the label.
+     * @param height    The height of the label.
      */
-    private void setBackgroundAndPosition(JLabel label, int positionX, int positionY, int width, int height) {
-        label.setBounds(positionX, positionY, width, height);
+    private void setBackgroundAndPosition(JLabel label, int positionX, int positionY, int height) {
+        label.setBounds(positionX, positionY, GameConstants.LABEL_WIDTH, height);
     }
 
     /**
      * Sets up the exit button functionality utilizing the UIHelper's method for return button.
      */
     private void setupExitButton() {
-            UIHelper.setupReturnButton(
+                    ButtonFactory.setupReturnButton(
                     panelSwitcher, backgroundContainer, 0, 0, GameConstants.EXIT_GAME,
                     GameConstants.MENU_MUSIC);
     }
@@ -324,27 +331,13 @@ public class GamePlayPanel extends JPanel implements ActionListener {
                 ItemType type = gameBoard.getItemTypeAt(x, y);
                 gridLabels[x][y].setOpaque(true);
                 switch (type) {
-                    case SNAKE:
-                        gridLabels[x][y].setBackground(Color.BLACK);
-                        break;
-                    case APPLE:
-                        gridLabels[x][y].setBackground(Color.RED);
-                        break;
-                    case CHERRY:
-                        gridLabels[x][y].setBackground(Color.MAGENTA);
-                        break;
-                    case ORANGE:
-                        gridLabels[x][y].setBackground(Color.ORANGE);
-                        break;
-                    case WATERMELON:
-                        gridLabels[x][y].setBackground(Color.YELLOW);
-                        break;
-                    case SPOILED_FOOD:
-                        gridLabels[x][y].setBackground(Color.BLUE);
-                        break;
-                    case VACANT:
-                        gridLabels[x][y].setOpaque(false);
-                        break;
+                    case SNAKE -> gridLabels[x][y].setBackground(Color.BLACK);
+                    case APPLE -> gridLabels[x][y].setBackground(Color.RED);
+                    case CHERRY -> gridLabels[x][y].setBackground(Color.MAGENTA);
+                    case ORANGE -> gridLabels[x][y].setBackground(Color.ORANGE);
+                    case WATERMELON -> gridLabels[x][y].setBackground(Color.YELLOW);
+                    case SPOILED_FOOD -> gridLabels[x][y].setBackground(Color.BLUE);
+                    case VACANT -> gridLabels[x][y].setOpaque(false);
                 }
             }
         }
