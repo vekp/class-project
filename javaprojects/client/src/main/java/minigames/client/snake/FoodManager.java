@@ -1,3 +1,4 @@
+
 package minigames.client.snake;
 
 import java.util.Random;
@@ -19,9 +20,15 @@ public class FoodManager {
      * Constructor for the FoodManager class.
      *
      * @param gameBoard The game board on which the food is to be placed.
+     * @throws IllegalArgumentException if gameBoard is null.
      */
     public FoodManager(GameBoard gameBoard) {
+        if (gameBoard == null) {
+            throw new IllegalArgumentException("GameBoard cannot be null.");
+        }
         this.gameBoard = gameBoard;
+        this.x = -1;  // Initialize to an invalid value
+        this.y = -1;  // Initialize to an invalid value
     }
 
     /**
