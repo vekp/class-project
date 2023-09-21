@@ -11,12 +11,10 @@ public class ImagePanel extends JPanel {
     final BufferedImage[] hangman = new BufferedImage[8];
     final BufferedImage[] background = new BufferedImage[5];
     int errors;
-
     ImagePanel() {
         loadImages();
         setErrors(0);
     }
-
     /**
      * The loadImages function loads the images for the hangman.
      *
@@ -42,7 +40,6 @@ public class ImagePanel extends JPanel {
             e.printStackTrace();
         }
     }
-
     /**
      * The setErrors function sets the number of errors to a new value.
      *
@@ -52,7 +49,6 @@ public class ImagePanel extends JPanel {
         this.errors = errors;
         repaint();
     }
-
     @Override
     protected void paintComponent(Graphics g) {
         int backgroundIndex = (int) Math.ceil((double) errors /2);

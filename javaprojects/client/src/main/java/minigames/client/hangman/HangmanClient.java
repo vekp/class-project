@@ -260,7 +260,6 @@ public class HangmanClient implements GameClient {
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
     }
 
-
     /**
      * What we do when our client is loaded into the main screen
      */
@@ -278,7 +277,6 @@ public class HangmanClient implements GameClient {
         mnClient.getMainWindow().pack();
         mnClient.getNotificationManager().setMargins(15, 10, 10);
     }
-
     @Override
     public void execute(GameMetadata game, JsonObject command) {
         this.gm = game;
@@ -292,24 +290,28 @@ public class HangmanClient implements GameClient {
             case "play" -> {
                 try{
                     playMIDI();
+                    gameArea.repaint();
+                    gamePanel.repaint();
                 } catch(MidiUnavailableException | InvalidMidiDataException e){
                     throw new RuntimeException(e);
                 }
             }
             case "stop" -> {
                 stopMIDI();
+                gameArea.repaint();
+                gamePanel.repaint();
+
+
             }
 
             case "exit" -> mnClient.runMainMenuSequence();
 
         };
     }
-
     @Override
     public void closeGame() {
         displayGamePanel().requestFocusInWindow();
     }
-
     public void displayHelpPanel(){
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(helpPanel);
@@ -317,7 +319,6 @@ public class HangmanClient implements GameClient {
         mnClient.getMainWindow().addNorth(headerPanel);
         mnClient.getMainWindow().pack();
     }
-
     public void displayMainMenu(){
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(mainMenuPanel.add(buttonPanel));
@@ -325,7 +326,6 @@ public class HangmanClient implements GameClient {
         mnClient.getMainWindow().addNorth(headerPanel);
         mnClient.getMainWindow().pack();
     }
-
     public void displayHighScore(){
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(scorePanel);
@@ -333,7 +333,6 @@ public class HangmanClient implements GameClient {
         mnClient.getMainWindow().addNorth(headerPanel);
         mnClient.getMainWindow().pack();
     }
-
     public void displayHangmanGame(){
         mnClient.getMainWindow().clearAll();
         mnClient.getMainWindow().addCenter(displayGamePanel());
@@ -341,19 +340,18 @@ public class HangmanClient implements GameClient {
         mnClient.getMainWindow().addSouth(footerPanel);
         mnClient.getMainWindow().pack();
         gameArea.setFocusOnPanel();
+        gameArea.repaint();
     }
 
     public JPanel displayGame(){
         mnClient.getMainWindow().clearAll();
-
         gameArea = new HangmanPanel();
         gameArea.setAlignmentX(Component.CENTER_ALIGNMENT);
         gameArea.setPreferredSize(new Dimension(800, 580));
         gameArea.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, borderColour));
-        
+        gameArea.repaint();
 
         return gameArea;
-        
     }
  
     public JPanel displayGamePanel(){
@@ -364,7 +362,6 @@ public class HangmanClient implements GameClient {
         mainPanel.setBackground(Color.GRAY);
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
 
-        
         gamePanel = new JPanel();
         gamePanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		gamePanel.setLayout(new BoxLayout(gamePanel, BoxLayout.Y_AXIS));
@@ -374,9 +371,10 @@ public class HangmanClient implements GameClient {
 
         mainPanel.add(gamePanel);
         mainPanel.add(displayGame());
+        mainPanel.setFocusable(true);
+        mainPanel.repaint();
 
         
-
         playerNumber = new JLabel("Start your game.");
         playerNumber.setBorder(new EmptyBorder(2, 5, 5, 5));
 		playerNumber.setFont(new Font("TimesRoman", Font.PLAIN, 16));
@@ -430,16 +428,15 @@ public class HangmanClient implements GameClient {
 		gamePanel.add(exitButton);
 		gamePanel.add(Box.createVerticalGlue());
 
-		return mainPanel; 
+        mainPanel.repaint();
 
+		return mainPanel;
     }
 
     public static void updatePoint(int playerScore){
         point.setText("Score: " + String.valueOf(playerScore));
         gamePanel.repaint();
     }
-
-
     /**
      * The loadSequence function loads a MIDI sequence from a file into the variable sequence. It
      * does this by calling MidiSystem's getSequence function, which takes in a File object and
@@ -456,7 +453,6 @@ public class HangmanClient implements GameClient {
             throw new RuntimeException(e);
         }
     }
-
     /**
      * The getSequence function creates a new MidiSequence object.
      *
@@ -469,8 +465,6 @@ public class HangmanClient implements GameClient {
             throw new RuntimeException(e);
         }
     }
-
-
     /**
      * The playMIDI function plays the MIDI file that is stored in the sequence variable.
      *
@@ -481,18 +475,16 @@ public class HangmanClient implements GameClient {
         sequencer.setSequence(sequence);
         sequencer.start();
         sequencer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY);
+        gameArea.repaint();
     }
-
-
     /**
      * The stopMIDI function stops the MIDI sequencer.
      *
      * @author Sushil Kandel
      */
-    private void stopMIDI() {
+    private void stopMIDI(){
         sequencer.stop();
+        gameArea.repaint();
     }
-
-   
    
 }

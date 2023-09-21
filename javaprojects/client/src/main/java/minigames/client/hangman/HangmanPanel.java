@@ -22,7 +22,6 @@ public class HangmanPanel extends JPanel {
      * game.
      */
     static List<String> lines = null;
-
     static {
         try {
             Path path = Paths.get(Tools.getFileURI("hangManWords/words.txt"));
@@ -31,9 +30,7 @@ public class HangmanPanel extends JPanel {
             e.printStackTrace();
         }
     }
-
     final boolean[] letterUsed = new boolean[26];
-
     private final Random random = new Random();
     ImagePanel imagePanel = new ImagePanel();
     KeywordPanel keywordPanel = new KeywordPanel();
@@ -44,11 +41,7 @@ public class HangmanPanel extends JPanel {
     boolean gameWon = false;
     Color borderColour = new Color(146, 106, 61);
     int score = 0;
-    
-    
-
     public static final Logger logger = LogManager.getLogger(HangmanPanel.class);
-
     public HangmanPanel() {
         addKeyListener(
             new KeyAdapter() {
@@ -64,7 +57,6 @@ public class HangmanPanel extends JPanel {
         setupLayout();
         setFocusable(true);
     }
-
     /**
      * The setupLayout function sets up the layout of the puzzle. It sets up a GridBagLayout for
      * this JPanel\
@@ -104,12 +96,12 @@ public class HangmanPanel extends JPanel {
         add(keywordPanel, keyboardConstraints);
         add(riddlePanel, riddleConstraints);
     }
-
     /**
      * Create a new game with initialised values. Clears old guesses, error count, and win/lose
      * status.
      *
      * @param puzzle The string that a player must guess in the new game.
+     * Author: Sushil Kandel
      */
     public void reset(String puzzle) {
         errors = 0;
@@ -119,9 +111,12 @@ public class HangmanPanel extends JPanel {
         Arrays.fill(letterUsed, false);
 
         imagePanel.setErrors(0);
+        imagePanel.repaint();
         riddlePanel.setLabelText(censorSolution());
         riddlePanel.setLabelColour(Color.BLACK);
+        riddlePanel.repaint();
         keywordPanel.resetLetters();
+        keywordPanel.repaint();
     }
 
     /**
@@ -158,7 +153,6 @@ public class HangmanPanel extends JPanel {
         }
         letterUsed[letter - 'A'] = true;
         keywordPanel.useLetter(letter);
-
         if (solution.toUpperCase().indexOf(letter) == -1) errors++;
         imagePanel.setErrors(errors);
         if (errors >= 8) {
@@ -168,12 +162,11 @@ public class HangmanPanel extends JPanel {
         } else {
             riddlePanel.setLabelText(censorSolution());
         }
+        repaint();
     }
-
     public void setScore(int score) {
         this.score = score;
     }
-
     private void playAgain() {
         JFrame playAgainFrame = new JFrame();
         if (gameLost) {
@@ -182,7 +175,6 @@ public class HangmanPanel extends JPanel {
             JOptionPane.showMessageDialog(
                     playAgainFrame,
                     "Opps! The word was " + solution + ".\n Would you like to play again?");
-
         } else {
             score = score + 50;
             HangmanClient.updatePoint(score);
@@ -191,8 +183,6 @@ public class HangmanPanel extends JPanel {
                     "Congratulations! You made it" + "\nWould you like to play again?");
         }
     }
-
-
     /**
      * Register a pressed key, delegate the response if it's a valid key Pressing a letter is
      * treated as a guess in this game
@@ -211,9 +201,6 @@ public class HangmanPanel extends JPanel {
         }
         repaint();
     }
-
-    
-    
     /**
      * The getRandomWord function returns a random word from the list of words.
      *
@@ -222,10 +209,8 @@ public class HangmanPanel extends JPanel {
     public String getRandomWord() {
         return Tools.toTitleCase(lines.get(random.nextInt(lines.size())));
     }
-
     public void setFocusOnPanel(){
         this.setFocusable(true);
         this.requestFocusInWindow();
     }
-    
 }

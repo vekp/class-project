@@ -7,24 +7,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-
 public class RiddlePanel extends JPanel {
-    boolean gameLost = false;
-    boolean gameWon = true;
     JLabel riddleLabel = new JLabel("Default text", SwingConstants.CENTER);
-
-    RiddlePanel(String riddleString) {
-        add(riddleLabel);
-        setLabelText(riddleString);
-        myResize();
-    }
-
     RiddlePanel() {
         add(riddleLabel);
         addComponentListener(new ResizeListener());
         myResize();
     }
-
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -38,7 +27,6 @@ public class RiddlePanel extends JPanel {
         g2d.setPaint(gradient);
         g2d.fillRect(0, 0, w, h);
     }
-
     /**
      * The setLabelText function sets the text of the label to a given String.
      *
@@ -56,7 +44,6 @@ public class RiddlePanel extends JPanel {
     void setLabelColour(Color col) {
         riddleLabel.setForeground(col);
     }
-
     /**
      * The myResize function is called whenever the window is resized. It sets the font size of
      * puzzleLabel to be proportional to the width and height of this JFrame, but no larger than 20

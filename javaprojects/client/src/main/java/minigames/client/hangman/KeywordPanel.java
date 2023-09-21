@@ -5,12 +5,10 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.Arrays;
 import javax.swing.*;
-
 public class KeywordPanel extends JPanel {
     JLabel[] letterLabels = new JLabel[26];
     boolean[] letterUsed = new boolean[26];
     Color borderColour = new Color(146, 106, 61);
-
     KeywordPanel() {
         Arrays.fill(letterUsed, false);
         setLayout(null);
@@ -24,7 +22,6 @@ public class KeywordPanel extends JPanel {
         addComponentListener(new ResizeListener());
         this.setBorder(BorderFactory.createMatteBorder(10, 0, 10, 10, borderColour));
     }
-
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -38,7 +35,6 @@ public class KeywordPanel extends JPanel {
         g2d.setPaint(gradient);
         g2d.fillRect(0, 0, w, h);
     }
-
     /**
      * The resetLetters function resets the letterUsed array to false.
      *
@@ -47,7 +43,6 @@ public class KeywordPanel extends JPanel {
         Arrays.fill(letterUsed, false);
         updatePanel();
     }
-
     /**
      * The useLetter function accepts a character and sets the corresponding element of letterUsed
      * to true.
@@ -58,7 +53,6 @@ public class KeywordPanel extends JPanel {
         letterUsed[letter - 'A'] = true;
         updatePanel();
     }
-
     /**
      * The updatePanel function updates the panel by changing the font size and position of each
      * letter label. 
@@ -66,7 +60,6 @@ public class KeywordPanel extends JPanel {
     void updatePanel() {
         int fontSize = getWidth() / 8;
         Font letterFont = new Font("Monospaced", Font.PLAIN, fontSize);
-
         // Print black or greyed out letters in their positions
         for (int i = 0; i < 26; i++) {
             if (letterUsed[i]) {
@@ -84,7 +77,6 @@ public class KeywordPanel extends JPanel {
                     getHeight() / 5);
         }
     }
-
     class ResizeListener extends ComponentAdapter {
         @Override
         public void componentResized(ComponentEvent e) {
