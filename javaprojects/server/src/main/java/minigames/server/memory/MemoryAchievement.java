@@ -15,8 +15,8 @@ enum MemoryAchievement{
             "Flip your first card!",
             false
     ),
-    PERFECT_MATCH (
-            "Earned by matching all of the cards in one turn.",
+    DOUBLE_FLIPPER (
+            "Already flipped you Mongoose.",
             false
     ),
 
@@ -28,8 +28,8 @@ enum MemoryAchievement{
             "Earned by matching all of the cards in a single game.",
             false
     ),
-    ACE_MATCHER (
-            "Earned by earning all of the achievements in the game.",
+    CARD_MATCHER (
+            "Earned by making your first match. Well done.",
             false
     );
 

@@ -91,8 +91,6 @@ public class MinigameNetworkClientWindow {
         nameField = new JTextField(20);
         nameField.setText("Algernon");
 
-        frame.setLocationRelativeTo(null);
-
     }
 
     /**
@@ -160,6 +158,7 @@ public class MinigameNetworkClientWindow {
     public void show() {
         pack();
         frame.setVisible(true);
+        frame.setLocationRelativeTo(null);
     }
 
     /**
@@ -306,13 +305,13 @@ public class MinigameNetworkClientWindow {
             networkClient.newGame(gameServer, nameField.getText());
         });
 
-        JButton returnToMainMenu = new JButton("Return to Main Menu");
+        //JButton returnToMainMenu = new JButton("Return to Main Menu");
         // TODO
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
         buttonPanel.add(newG);
-        buttonPanel.add(returnToMainMenu);
+        //buttonPanel.add(returnToMainMenu);
 
         // Create a main panel with BorderLayout
         JPanel mainPanel = new JPanel(new BorderLayout());
