@@ -78,14 +78,7 @@ public class ShufflingFrameworkTest {
     }
 
     
-    public PlayingCard[] copyCardArray(PlayingCard[] cards){
-        PlayingCard[] cardCopies = new PlayingCard[cards.length];
 
-        for(int i = 0; i < cards.length; i++){
-            cardCopies[i] = cards[i];
-        }
-        return cardCopies;
-    }
 
     @Test
     @DisplayName("Test shuffle with ArrayList")
