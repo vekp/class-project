@@ -45,7 +45,7 @@ public class MemoryServer implements GameServer {
 
     @Override
     public GameServerDetails getDetails() {
-        return new GameServerDetails("Memory", "Find the hideen pairs in Memory!");
+        return new GameServerDetails("Memory", "Find the hidden pairs in Memory!");
     }
 
     @Override
