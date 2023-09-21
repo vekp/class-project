@@ -78,5 +78,13 @@ public class Cell {
         this.verticalCoord = verticalCoord;
     }
 
-    public void shoot(){this.shotAt = true;}
+    /**
+     * Set CellType to HIT/MISS depending on what is in it, and set shotAt to true
+     */
+    public void shoot() {
+        if (this.hasBeenShot()) return;
+        if (getCellType().equals(CellType.OCEAN)) setCellType(CellType.MISS);
+        else setCellType(CellType.HIT);
+        this.shotAt = true;
+    }
 }

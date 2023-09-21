@@ -60,24 +60,53 @@ public class BattleshipTests {
         // shoot at the ocean cell
         testCell.shoot();
         // assert that the cell is now a "miss" cell
+        assert testCell.getCellType().equals(CellType.MISS);
+        assert testCell.getCellTypeString().equals(".");
+    }
 
-        //TODO : shooting cell type change is handled by BattleshipPlayer, cannot be tested with just a Cell.
-//        assert testCell.getCellType().equals(CellType.MISS);
-//        assert testCell.getCellTypeString().equals(".");
+    /**
+     * Create a Cell array of 5 elements, one for each of the ship parts.
+     */
+    private Cell[] makeTestShipCells() {
+        Cell[] cells = new Cell[5];
+        for (int i = 0; i < 5; i++) {
+            Cell cell = new Cell(i, 0);
+            // first 5 values of CellTypes are ship parts
+            cell.setCellType(CellType.values()[i]);
+            cells[i] = cell;
+        }
+        return cells;
     }
 
     /** Tests whether hitting any of the ship hull types will register a hit, and the cell is changed as appropriate*/
+    @Test
     public void hitDetected(){
         // create cells for each of the ship hull types and add to an array
-        // shoot at each of the cells in the array
-        // assert that all the cells within the array are now "hit" cells
+        Cell[] cells = makeTestShipCells();
+        // assert each cell is not hit yet, then shoot at each one and assert it is now hit
+        for (Cell cell : cells) {
+            assert !cell.getCellType().equals(CellType.HIT);
+            cell.shoot();
+            assert cell.getCellType().equals(CellType.HIT);
+        }
     }
 
     /** Tests whether destroying all cells of a ship will cause the ship to be considered "sunk"*/
+    @Test
     public void shipSinks(){
         // create a ship
+        Cell[] cells = makeTestShipCells();
+        Ship ship = new Ship("TestShip", cells,0, 0, true);
         // shoot at all cells in ship
+        for (int i = 0; i < cells.length; i++) {
+            assert !ship.isSunk();
+            assert !ship.isJustSunk();
+            cells[i].shoot();
+            ship.updateShipStatus(i, 0, "TestName");
+        }
         // assert that the ship is sunk
+        assert ship.isSunk();
+        assert ship.isJustSunk();
     }
 
     // Rounds, game-over, etc.

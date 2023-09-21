@@ -62,7 +62,7 @@ public class BattleshipPlayer {
         if (!validateInput(input)) {
             return BattleshipTurnResult.invalidInput(input);
         }
-        // Get formatted input and spit it to be passed into shotOutcome()
+        // Get formatted input and split it to be passed into shotOutcome()
         String[] validatedInput = formatInput(input).split(",");
 
         int row = BattleshipGame.chars.indexOf(validatedInput[0]);
@@ -98,7 +98,8 @@ public class BattleshipPlayer {
         CellType currentState = grid[x][y].getCellType();
         // If player hit ocean set CellType to Miss and return false
         if (currentState.equals(CellType.OCEAN)) {
-            opponent.setGridCell(x, y, CellType.MISS);
+//            opponent.setGridCell(x, y, CellType.MISS);
+            opponent.getGrid()[x][y].shoot();
             return BattleshipTurnResult.missTarget(input);
             // If the Cell is a MISS cell, return false and check for Slow Learner Achievement
         } else if (currentState.equals(CellType.MISS)) {
@@ -114,7 +115,8 @@ public class BattleshipPlayer {
             return BattleshipTurnResult.alreadyHitCell(input);
         } else {
             // If the cell is not an ocean, miss, or hit cell, set the cell to a "hit"
-            opponent.setGridCell(x, y, CellType.HIT);
+//            opponent.setGridCell(x, y, CellType.HIT);
+            opponent.getGrid()[x][y].shoot();
 
             // Update the ships to include the hit in their cells
             HashMap<String, Ship> vessels = opponent.getVessels();
