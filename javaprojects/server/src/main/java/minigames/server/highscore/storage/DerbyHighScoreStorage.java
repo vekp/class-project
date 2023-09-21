@@ -4,37 +4,24 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import minigames.server.database.DatabaseTable;
-import minigames.server.database.DatabaseShutdownException;
-import minigames.server.database.DerbyDatabase;
-
-import minigames.server.highscore.GameMetadata;
-import minigames.server.highscore.ScoreRecord;
+import minigames.server.database.*;
 
 
 /**
- * An implementation of the HighScoreStorage interface using the Derby Database.
- * <p>
- * This class provides functionality to interact with the Derby Database system for storing
- * and retrieving game high scores. The implementation leverages Java's JDBC API to manage
- * database connections, perform CRUD operations, and retrieve data.
- * </p>
- * Example usage can be found in the {@link HighScoreAPI} class.
+ * Derby Database implementation of HighScoreStorage.
  */
 public class DerbyHighScoreStorage implements HighScoreStorage {
 
     private DerbyDatabase database;
-    private DatabaseTable games, scores;
+    private GameTable gameTable;
+    private ScoreTable scoreTable;
 
 
     /**
-     * Constructs a new DerbyHighScoreStorage object.
-     * 
-     * @param database The DerbyDatabase instance to be used for database operations.
+     * @param database Database for operations.
      */
     public DerbyHighScoreStorage(DerbyDatabase database) {
         if (!(database instanceof DerbyDatabase)) {
@@ -43,84 +30,138 @@ public class DerbyHighScoreStorage implements HighScoreStorage {
             );
         }
         this.database = database;
-        games = new GameTable(this.database);
-        scores = new ScoreTable(this.database, games);
+        gameTable = new GameTable(this.database);
+        scoreTable = new ScoreTable(this.database, gameTable);
     }
 
 
+    /**
+     * For testing only.
+     * @param gameTable Game table reference.
+     * @param scoreTable Score table reference.
+     */
+    DerbyHighScoreStorage(DatabaseTable gameTable, DatabaseTable scoreTable) {
+        this.gameTable  = (GameTable)  gameTable;
+        this.scoreTable = (ScoreTable) scoreTable;
+    }
+
+
+    /**
+     * Inserts or updates a given game.
+     * 
+     * @param gameName Game name.
+     * @param isLowerBetter Game's score ordering preference.
+     */
     @Override
     public void registerGame(String gameName, Boolean isLowerBetter) {
-        GameMetadata game = new GameMetadata(gameName, isLowerBetter);
-        GameMetadata prev = (GameMetadata) games.retrieveOne((Object) game);
-        if (prev == null) {
-            games.create(game);
-        } else if (Boolean.compare(prev.isLowerBetter(), isLowerBetter) != 0) {
-            games.update(game);
+        GameRecord prevRecord = getGame(gameName);
+        GameRecord gameRecord = new GameRecord(gameName, isLowerBetter);
+        if (prevRecord == null) {
+            gameTable.create(gameRecord);
+        } else if (Boolean.compare(prevRecord.isLowerBetter(), isLowerBetter) != 0) {
+            gameTable.update(gameRecord);
         }
     }
 
 
     /**
-     * Stores a score record in the database.
+     * Checks if a given game exists in the database.
      * 
-     * @param record The score record to be stored.
+     * @param gameName Game name.
+     * @return True if exists, false otherwise.
      */
     @Override
-    public void storeScore(ScoreRecord record) {
-        ScoreRecord prev = (ScoreRecord) scores.retrieveOne((Object) record);
-        if (prev == null) {
-            scores.create(record);
-        } else if (prev.getScore() != record.getScore()) {
-            scores.update(record);
+    public boolean isGameRegistered(String gameName) {
+        return getGame(gameName) != null;
+    }
+
+
+    /**
+     * Inserts or updates a given score.
+     * 
+     * @param playerId Player ID.
+     * @param gameName Game name.
+     * @param score Score value.
+     */
+    @Override
+    public void storeScore(String playerId, String gameName, int score) {
+        ScoreRecord prevRecord = getScore(playerId, gameName);
+        ScoreRecord scoreRecord = new ScoreRecord(playerId, gameName, score);
+        if (prevRecord == null) {
+            scoreTable.create(scoreRecord);
+        } else if (prevRecord.getScore() != score) {
+            scoreTable.update(scoreRecord);
         }
     }
 
 
     /**
-     * Retrieves a list of top scores for a given game
+     * Retrieves all the high scores for a given game.
      * 
-     * @param gameName The name of the game to retrieve scores for.
-     * @return A list of ScoreRecord objects representing the top scores.
+     * @param gameName Game name.
+     * @return List of top scores.
      */
     @Override
-    public List<ScoreRecord> retrieveTopScores(String gameName) {
-        return scores.retrieveMany((Object) gameName);
+    public List<ScoreRecord> getHighScores(String gameName) {
+        return scoreTable.retrieveMany(gameName);
     }
 
 
     /**
-     * Retrieves the best score for a given player and game.
+     * Retrieves the best score for player in a game.
      * 
-     * @param playerId The ID of the player to retrieve the score for.
-     * @param gameName The name of the game to retrieve the score for.
-     * @return A ScoreRecord object representing the player's best score.
+     * @param playerId Player ID.
+     * @param gameName Game name.
+     * @return Best score.
      */
     @Override
-    public ScoreRecord retrievePersonalBest(String playerId, String gameName) {
-        return (ScoreRecord) scores
-            .retrieveOne((Object) new ScoreRecord(playerId, gameName, 0));
+    public ScoreRecord getScore(String playerId, String gameName) {
+        return scoreTable.retrieveOne(new ScoreRecord(playerId, gameName, 0));
     }
 
 
     /**
-     * Retrieves all scores across all games from the database.
+     * Retrieves all scores for all games.
      * 
-     * @return A list of ScoreRecord objects representing all scores.
+     * @return All scores.
      */
     @Override
-    public List<ScoreRecord> retrieveAllScores() {
-        return scores.retrieveAll();
+    public List<ScoreRecord> getAllScores() {
+        return scoreTable.retrieveAll();
     }
 
 
     /**
-     * Retrieves the metadata for a given game from the database.
+     * Retrieves a game's metadata record.
      * 
-     * @param gameName The name of the game to retrieve metadata for.
-     * @return A GameMetadata object representing the game's metadata.
+     * @param gameName Game name.
+     * @return Game metadata record.
      */
     @Override
-    public GameMetadata getGameMetadata(String gameName) {
-        return (GameMetadata) games.retrieveOne((Object) gameName);
+    public GameRecord getGame(String gameName) {
+        return gameTable.retrieveOne(new GameRecord(gameName, false));
+    }
+
+
+    /**
+     * Deletes a score record.
+     * 
+     * @param playerId Player ID.
+     * @param gameName Game name.
+     */
+    @Override
+    public void deleteScore(String playerId, String gameName) {
+        scoreTable.delete(new ScoreRecord(playerId, gameName, 0));
+    }
+
+
+    /**
+     * Deletes a game and its scores.
+     * 
+     * @param gameName Game name.
+     */
+    @Override
+    public void deleteGame(String gameName) {
+        gameTable.delete(new GameRecord(gameName, false));
     }
 }

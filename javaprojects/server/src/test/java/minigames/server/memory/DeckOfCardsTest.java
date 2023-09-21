@@ -25,7 +25,7 @@ public class DeckOfCardsTest {
         minigames.common.memory.DeckOfCards.PlayingCard[] cardDeck = new DeckOfCards().getCards();
         int counter = 0;
         for(int i = 0; i < suits.length; i++){
-            for(int j = 0; j < values.length; j++ ){
+            for(int j = 0; j < values.length; j++){
                 assertTrue(cardDeck[counter].getSuit() == suits[i] && cardDeck[counter].getValue() == values[j]);
                 counter++;
             }

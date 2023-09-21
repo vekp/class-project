@@ -77,6 +77,15 @@ public class ShufflingFrameworkTest {
         }
     }
 
+    
+    public PlayingCard[] copyCardArray(PlayingCard[] cards){
+        PlayingCard[] cardCopies = new PlayingCard[cards.length];
+
+        for(int i = 0; i < cards.length; i++){
+            cardCopies[i] = cards[i];
+        }
+        return cardCopies;
+    }
 
     @Test
     @DisplayName("Test shuffle with ArrayList")
@@ -95,6 +104,7 @@ public class ShufflingFrameworkTest {
         ShufflingFramework.shuffle(cardArrayList, random2);
 
         for(int i = 0; i < controlArrayList.size(); i++){
+            System.out.println(i);
             assertTrue(controlArrayList.get(i).equals(cardArrayList.get(i)));
         }
 

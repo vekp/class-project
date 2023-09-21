@@ -9,8 +9,14 @@ import minigames.client.achievements.AchievementNotificationHandler;
 import minigames.client.achievements.AchievementUI;
 import minigames.client.survey.Survey;
 import minigames.client.backgrounds.Starfield;
+import minigames.client.useraccount.UserAccountFrame;
+import minigames.client.krumgame.KrumGameClient;
+import minigames.client.krumgame.KrumMenu;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.GameServerDetails;
+import minigames.client.krumgame.KrumGameClient;
+import minigames.client.krumgame.KrumMenu;
+
 
 import java.awt.*;
 import java.util.List;
@@ -44,24 +50,27 @@ public class MinigameNetworkClientWindow {
 
     public MinigameNetworkClientWindow(MinigameNetworkClient networkClient) {
         // Use LookandFeel to change the SwingUI theme
-        try {
+        /*try {
             for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
                     UIManager.setLookAndFeel(info.getClassName());
-                    UIManager.put("nimbusBase", Color.BLACK); // Set base color
-                    UIManager.put("nimbusBlueGrey", Color.BLACK); // Set blue/grey color
-                    UIManager.put("control", Color.BLACK); // Set control background color
-                    UIManager.put("text", Color.WHITE); // Set text color
-                    UIManager.put("List.background", Color.BLACK); // Set list background
-                    UIManager.put("TextField.textForeground", Color.BLACK); // Set text field text color
-                    UIManager.put("List.foreground", Color.BLACK); // Set JList text color
-                    UIManager.put("ComboBox.foreground", Color.BLACK); // Set JComboBox text color
+                    //UIManager.put("nimbusBase", Color.BLACK); // Set base colour
+                    //UIManager.put("nimbusBlueGrey", Color.BLACK); // Set blue/grey colour
+                    //UIManager.put("control", Color.BLACK); // Set control background colour
+                    //UIManager.put("text", Color.WHITE); // Set text colour
+                    //UIManager.put("List.background", Color.BLACK); // Set list background
+                    //UIManager.put("TextField.textForeground", Color.BLACK); // Set text field text colour
+                    //UIManager.put("TextField.foreground", Color.BLACK); // Set JTextField text colour
+                    //UIManager.put("TextField.background", Color.WHITE); // Set JTextField background colour
+                    //UIManager.put("TextPane.foreground", Color.BLACK); // Set Font colour in text field
+                    //UIManager.put("List.foreground", Color.WHITE); // Set JList text colour
+                    //UIManager.put("ComboBox.foreground", Color.BLACK); // Set JComboBox text colour
                     break;
                 }
             }
         } catch (Exception e) {
 
-        }
+        }*/
 
         this.networkClient = networkClient;
 
@@ -150,6 +159,7 @@ public class MinigameNetworkClientWindow {
     public void pack() {
         frame.pack();
         parent.repaint();
+        frame.setLocationRelativeTo(null);
     }
 
     /**
@@ -218,7 +228,7 @@ public class MinigameNetworkClientWindow {
         buttonPanel.setLayout(new BorderLayout());
 
         JPanel serverButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10)); // FlowLayout with spacing
-        serverButtonPanel.setBackground(Color.BLACK); // Set background color to black
+        //serverButtonPanel.setBackground(Color.BLACK); // Set background color to black
 
         for (GameServerDetails gsd : servers) {
             JButton newG = new JButton(
@@ -261,6 +271,16 @@ public class MinigameNetworkClientWindow {
         });
         south.add(surveyButton);
 
+        // Create a button for the User Account UI
+        JButton userAccountButton = new JButton("User Account");
+        userAccountButton.addActionListener(e -> {
+            // TODO implement properly. tests to run the UI on init.
+            UserAccountFrame login = new UserAccountFrame();
+            login.userLogin(networkClient);
+            login.setVisible(true);
+        });
+        south.add(userAccountButton);
+
         pack();
 
     }
@@ -274,6 +294,12 @@ public class MinigameNetworkClientWindow {
      * @param inProgress
      */
     public void showGames(String gameServer, List<GameMetadata> inProgress) {
+        if (gameServer.equals("KrumGame")) {            
+            KrumMenu.initialise();
+            showKrumTitle(inProgress);
+            return;
+        }
+
         clearAll();
 
         // Remove the nameField from the north panel
@@ -336,6 +362,114 @@ public class MinigameNetworkClientWindow {
      */
     public JFrame getFrame() {
         return frame;
+    }
+
+
+    // KrumGame title & instructions screens
+
+    private JButton krumNewGameButton() {
+        JButton newGameButton = KrumMenu.invisibleButton("newgame");
+        newGameButton.addActionListener((evt) -> {
+            networkClient.newGame("KrumGame", KrumMenu.nameField.getText());
+        });
+        return newGameButton;
+    }
+
+    private void krumListGames(JLabel screen, List<GameMetadata> games) {
+        int numListed = 0;
+        int x = KrumMenu.gameListX;
+        int y = KrumMenu.gameListYStart;
+        int yInc = KrumMenu.gameListYIncrement;
+        int w = KrumMenu.gameListWidth;
+        int h = KrumMenu.gameListButtonHeight;
+        for (GameMetadata gm : games) {
+            if (gm.joinable() && gm.players().length > 0) {
+                JButton jb = new JButton(gm.players()[0]);
+                jb.setFont(new Font(KrumMenu.gameListFontName, KrumMenu.gameListFontStyle, KrumMenu.gameListFontSize));
+                jb.setForeground(KrumMenu.gameListFontColour);
+                jb.setOpaque(false);
+                jb.setContentAreaFilled(false);
+                jb.setBorderPainted(false);
+                jb.setBounds(x, y, w, h);
+                jb.addActionListener((evt) -> {
+                    networkClient.joinGame("KrumGame", gm.name(), KrumMenu.nameField.getText());
+                });
+                screen.add(jb);
+                y += yInc;
+                numListed++;
+            }
+            if (numListed >= 3) break;
+        }
+    }
+
+    private void showKrumAchievements(List<GameMetadata> games) {
+        clearAll();
+        JLabel screen = new JLabel(new ImageIcon(KrumMenu.getScreen("achievements")));
+        JButton instructionsButton = KrumMenu.invisibleButton("instructions");
+        instructionsButton.addActionListener((evt) -> {
+            showKrumInstructions(games);
+        });
+        screen.add(instructionsButton);
+        screen.add(krumNewGameButton());
+        krumListGames(screen, games);    
+        KrumMenu.nameField.setBounds(KrumMenu.nameFieldBoundsInstructions);     
+        screen.add(KrumMenu.nameField);
+        center.add(screen);
+        pack();
+        parent.repaint();
+    }
+
+    private void showKrumInstructions(List<GameMetadata> games) {
+        clearAll();
+        JLabel screen = new JLabel(new ImageIcon(KrumMenu.getScreen("instructions")));
+        JButton achievementsButton =  KrumMenu.invisibleButton("achievements");        
+        achievementsButton.addActionListener((evt) -> {
+            showKrumAchievements(games);
+        });
+        screen.add(achievementsButton); 
+        screen.add(krumNewGameButton());     
+        krumListGames(screen, games);
+        KrumMenu.nameField.setBounds(KrumMenu.nameFieldBoundsInstructions); 
+        screen.add(KrumMenu.nameField);
+        center.add(screen);
+        pack();
+        parent.repaint();
+    }
+
+    private void showKrumTitle(List<GameMetadata> games) {
+        clearAll();        
+        JLabel screen = new JLabel(new ImageIcon(KrumMenu.getScreen("title")));
+        JButton optionsButton = KrumMenu.invisibleButton("options");
+        optionsButton.addActionListener((evt) -> {
+            showKrumInstructions(games);
+        });
+        screen.add(optionsButton);
+        JButton quickPlayButton = KrumMenu.invisibleButton("quickplay");
+                quickPlayButton.addActionListener((evt) -> {
+            // todo: work out why game list seems to be in random order
+            // intention here is to join the oldest open game
+            // but the list doesn't seem to be sorted by age in either direction
+            String gameToJoin = null;
+            for (GameMetadata gm : games) {
+                if (gm.joinable() && gm.players().length > 0) {
+                    gameToJoin = gm.name();
+                }
+            }
+            if (gameToJoin != null) {
+                networkClient.joinGame("KrumGame", gameToJoin, KrumMenu.nameField.getText());
+            }
+            else {
+                networkClient.newGame("KrumGame", KrumMenu.nameField.getText());
+            }            
+            return;
+        });
+        screen.add(quickPlayButton);  
+        KrumMenu.nameField.setBounds(KrumMenu.nameFieldBoundsTitle);  
+        screen.add(KrumMenu.nameField);     
+        center.add(screen);
+        pack();
+        parent.repaint();
+        KrumGameClient.getGameClient().createKrumGame();
     }
 
 }

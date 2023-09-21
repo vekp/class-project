@@ -1,166 +1,180 @@
 package minigames.server.highscore;
 
-import minigames.server.database.Database;
-import minigames.server.database.DerbyDatabase;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.List;
-import java.util.Map;
+import minigames.server.database.Database;
+import minigames.server.database.DerbyDatabase;
 
 
 /**
- * The HighScoreAPI provides a high-level interface for game servers to interact 
- * with the high score system. It allows game servers to record and retrieve 
- * high scores, both for individual games and across all games in the system.
- * 
+ * Main interface for game servers to engage with the high score system.
+ * Provides methods for game-specific and system-wide score operations.
  * <p>
- * This API acts as an abstraction over the underlying storage mechanism, 
- * which can be a database like the Derby database, or any other storage system.
- * The current implementation of this API uses the Derby database as its storage,
- * but it can be extended to use other storage systems in the future if needed.
- * </p>
- * 
- * <p>
- * Example usage:
+ * Usage:
  * <pre>
- *     HighScoreAPI api = new HighScoreAPI(new DerbyDatabase());
- *     api.recordScore("player123", "GameA", 100);
- *     List<ScoreRecord> topScores = api.getTopScores("GameA", 10);
+ *     HighScoreAPI highscore = new HighScoreAPI();
+ *     highscore.registerGame("GameName", true);  // For games where lower score is better
+ *     highscore.recordScore("playerName", "GameName", 9001);
+ *     List<ScoreRecord> topScores = highscore.getHighScores("GameName");
+ *     // or
+ *     List<ScoreRecord> highScores = highscore.getHighScores("GameName");
  * </pre>
- * </p>
  * 
  * @author Kieran Hillier (Group: Merge Mavericks)
  */
 public class HighScoreAPI {
 
-    private HighScoreStorage storage;               // Persistent data storage
-    private HighScoreManager manager;               // HighScoreAPI logic
-    private GlobalLeaderboard globalLeaderboard;    // Global leaderboard logic
     private static final Logger logger = LogManager.getLogger(HighScoreAPI.class);
+    private HighScoreStorage storage;
+    private HighScoreManager manager;
+    private GlobalLeaderboard globalLeaderboard;
 
 
-    /**
-     * Default constructor using the pre-defined database type.
-     */
+// Constructors
+
+    /** Constructor. */
     public HighScoreAPI() {
         this(DerbyDatabase.getInstance());
     }
 
-    /**
-     * Constructs a new HighScoreAPI using the specified DerbyDatabase as the storage mechanism.
-     *
-     * @param database The DerbyDatabase used for storing and retrieving scores.
-     */
+    /** Constructor.
+     *  @param database Custom database setup for testing. */
     HighScoreAPI(Database database) {
-        if (database instanceof DerbyDatabase) {
+        if (database instanceof DerbyDatabase)
             storage = new DerbyHighScoreStorage((DerbyDatabase)database);
-        } else {
-            throw new IllegalArgumentException(
-                "Provided database is not supported"
-            );
-        }
+        else
+            throw new IllegalArgumentException("Provided database is not supported");
         manager = new HighScoreManager(storage);
         globalLeaderboard = new GlobalLeaderboard(storage);
     }
 
-
-    /**
-     * Constructs a new HighScoreAPI using the specified manager and global leaderboard.
-     *
-     * @param manager The high score manager used for managing scores.
-     * @param globalLeaderboard The global leaderboard computation mechanism.
-     * 
-     * @deprecated This constructor will be removed in future updates. 
-     * Use {@link #HighScoreAPI(DerbyDatabase)} instead
-     */
-    @Deprecated
+    /** Constructor.
+     *  @param manager Custom manager setup for testing.
+     *  @param globalLeaderboard Custom leaderboard setup for testing. */
     HighScoreAPI(HighScoreManager manager, GlobalLeaderboard globalLeaderboard) {
         this.manager = manager;
         this.globalLeaderboard = globalLeaderboard;
     }
 
+// Game registration
 
+    /** 
+     * @param gameName Game identifier.
+     * @param isLowerBetter True if lower scores are better for this game.
+     */
     public void registerGame(String gameName, Boolean isLowerBetter) {
         manager.registerGame(gameName, isLowerBetter);
     }
 
+    /** 
+     * @param gameName Game identifier.
+     * @return True if the game is already registered.
+     */
+    public boolean isGameRegistered(String gameName) {
+        return manager.isGameRegistered(gameName);
+    }
 
-    /**
-     * Records a new score for a player in a specific game. If the score is better than
-     * the player's previous best for the game (based on game metadata), it will be stored.
-     *
-     * @param playerId The ID of the player.
-     * @param gameName The name of the game.
-     * @param score The score achieved by the player.
-     * @throws HighScoreException If an error occurs while recording the score.
+    /** 
+     * @param gameName Game identifier.
+     */
+    public void deleteGame(String gameName) {
+        manager.deleteGame(gameName);
+    }
+
+
+// Record scores
+
+    /** 
+     * Records a player's score for a game.
+     * @param playerId Player identifier.
+     * @param gameName Game identifier.
+     * @param score Player's score.
      */
     public void recordScore(String playerId, String gameName, int score) {
         try {
             manager.recordScore(playerId, gameName, score);
-        } catch (HighScoreException ex) {
-            logger.error("Failed to record score for player {} in game {}: {}",
-                playerId, gameName, ex.getMessage());
-            throw ex;  // Rethrow the exception so that the caller is aware of the failure.
+        } catch (HighScoreException e) {
+            logger.error("Failed to record score for player {} in game {}: {}", playerId, gameName, e.getMessage());
+            throw e;
         }
     }
 
-
-    /**
-     * Retrieves a list of the top scores for a specific game, limited to a specified number.
-     *
-     * @param gameName The name of the game.
-     * @param limit The maximum number of top scores to retrieve.
-     * @return A list of the top scores for the game, sorted in descending order.
-     * @throws HighScoreException If an error occurs while retrieving the scores.
+    /** 
+     * @param playerId Player identifier.
+     * @param gameName Game identifier.
      */
-    public List<ScoreRecord> getTopScores(String gameName) {
-        try {
-            return manager.getTopScores(gameName);
-        } catch (HighScoreException ex) {
-            logger.error("Failed to retrieve top scores for game {}: {}",
-                gameName, ex.getMessage());
-            throw ex;  // Rethrow the exception so that the caller is aware of the failure.
-        }
+    public void deleteScore(String playerId, String gameName) {
+        manager.deleteScore(playerId, gameName);
     }
 
 
-    /**
-     * Retrieves the personal best score of a player for a specific game.
-     *
-     * @param playerId The ID of the player.
-     * @param gameName The name of the game.
-     * @return A ScoreRecord representing the player's best score for the game, 
-     *         or null if the player has no score for the game.
-     * @throws HighScoreException If an error occurs while retrieving the score.
+// Get scores for a game
+
+    /** 
+     * @param playerId Player identifier.
+     * @param gameName Game identifier.
+     * @return Player's best score for the game.
      */
     public ScoreRecord getPersonalBest(String playerId, String gameName) {
         try {
             return manager.getPersonalBest(playerId, gameName);
-        } catch (HighScoreException ex) {
-            logger.error("Failed to retrieve personal best for player {} in game {}: {}",
-                playerId, gameName, ex.getMessage());
-            throw ex;  // Rethrow the exception so that the caller is aware of the failure.
+        } catch (HighScoreException e) {
+            logger.error("Failed to retrieve personal best for player {} in game {}: {}", playerId, gameName, e.getMessage());
+            throw e;
+        }
+    }
+
+    /** 
+     * @param gameName Game identifier.
+     * @return Top scores for the game.
+     */
+    public List<ScoreRecord> getHighScores(String gameName) {
+        try {
+            return manager.getHighScores(gameName);
+        } catch (HighScoreException e) {
+            logger.error("Failed to retrieve top scores for game {}: {}", gameName, e.getMessage());
+            throw e;
+        }
+    }
+
+    /** 
+     * @param gameName Game identifier.
+     * @return String representation of top scores for the game.
+     */
+    public String getHighScoresToString(String gameName) {
+        try {
+            return manager.getHighScoresToString(gameName);
+        } catch (HighScoreException e) {
+            logger.error("Failed to retrieve top scores for game {}: {}", gameName, e.getMessage());
+            throw e;
         }
     }
 
 
-    /**
-     * Computes and retrieves the global leaderboard, which ranks players based on 
-     * their aggregated performance across all games in the system.
-     *
-     * @return A sorted map of player IDs to their global scores, with players ranked 
-     *         in ascending order of their aggregated performance.
-     * @throws HighScoreException If an error occurs while computing the leaderboard.
+// Get global rankings
+
+    /** 
+     * @return Players' rankings across all games.
      */
     public Map<String, Integer> getGlobalLeaderboard() {
         try {
             return globalLeaderboard.computeGlobalScores();
-        } catch (HighScoreException ex) {
-            logger.error("Failed to compute the global leaderboard: {}",
-                ex.getMessage());
-            throw ex;  // Rethrow the exception so that the caller is aware of the failure.
+        } catch (HighScoreException e) {
+            logger.error("Failed to compute the global leaderboard: {}",e.getMessage());
+            throw e;
         }
+    }
+
+
+// Deprecated methods, don't use.
+
+    /** @deprecated Use getHighScores instead. */
+    @Deprecated
+    public List<ScoreRecord> getTopScores(String gameName) {
+        return getHighScores(gameName);
     }
 }
