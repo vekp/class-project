@@ -34,7 +34,7 @@ public class Memory implements GameClient, ActionListener {
 
     // Send commands to server
     GameMetadata gm;
-    Animator animator;
+    //Animator animator;
 
     // Player
     String player;
@@ -42,8 +42,8 @@ public class Memory implements GameClient, ActionListener {
     PlayingCard[] deck;
 
     /** Swing components */
-    private JPanel mainPanel, gameMenuPanel, headingPanel, playerPanel, gameOptionsPanel, cardGridPanel;
-    private JLabel title, playerName, matches, stopwatch, difficulty;
+    private JPanel mainPanel, gameMenuPanel, headingPanel, playerPanel, gameOptionsPanel;//, cardGridPanel;
+    private JLabel title, playerName, matches, stopwatch;//, difficulty;
     private JButton newGameButton, restartLevelButton, exitButton, achievementsButton;
     private Border margin;
     private int rows = 3;
@@ -69,8 +69,8 @@ public class Memory implements GameClient, ActionListener {
     JPanel GUI;
     JFrame MemoryWindow;
 
-    private long last = System.nanoTime();
-    private long interval = 2500000000L;
+    //private long last = System.nanoTime();
+    //private long interval = 2500000000L;
 
     /** Initialize Swing components */
     public Memory() {
