@@ -52,16 +52,12 @@ public class AchievementHandler {
      */
     public static List<Achievement> getRecentUnlocks(String player) {
         List<Achievement> result = new ArrayList<>();
-        PlayerAchievementProfile profile = playerManager.getPlayer(player);
-        //if this profile exists, we grab their recent unlocks, and loop through it, retrieving
-        //the achievement data for each game from the database and putting it in the results
-        if (profile != null) {
-            for (Map.Entry<String, HashSet<String>> entry : profile.getRecentUnlocks().entrySet()) {
-                for (String achievementName : entry.getValue()) {
-                    Achievement achievement = database.getAchievement(entry.getKey(), achievementName);
-                    if (achievement != null)
-                        result.add(achievement);
-                }
+        Map<String, HashSet<String>> playerRecentUnlocks = playerManager.getPlayerUnlocks(player);
+        for (Map.Entry<String, HashSet<String>> entry : playerRecentUnlocks.entrySet()) {
+            for (String achievementName : entry.getValue()) {
+                Achievement achievement = database.getAchievement(entry.getKey(), achievementName);
+                if (achievement != null)
+                    result.add(achievement);
             }
         }
         //this will be empty if there are no unlocks (or no existing player)
@@ -82,15 +78,6 @@ public class AchievementHandler {
     }
 
     /**
-     * Returns a list of all achievements available for this handler
-     *
-     * @return An ArrayList containing all available achievements
-     */
-    public List<Achievement> getAllAchievements() {
-        return database.getAchievementsByGame(handlerID);
-    }
-
-    /**
      * Adds an achievement and the playerID of the player who has unlocked it to the playerUnlockList Map
      *
      * @param playerID      The ID of the player who has unlocked the achievement
@@ -102,24 +89,7 @@ public class AchievementHandler {
             throw new IllegalArgumentException("Achievement { " + achievementID + " } does not exist for this game { " +
                     handlerID + " }. Please ensure all achievements are registered before trying to use");
         }
-        //this will either add the player, or they were already there
-        playerManager.addPlayer(playerID);
-        PlayerAchievementProfile player = playerManager.getPlayer(playerID);
-        //this won't add duplicates if player already has achievement
-        player.addAchievement(handlerID, achievementID);
-    }
-
-    /**
-     * Checks whether a certain achievement has already been unlocked by a certain player
-     *
-     * @param playerID      The ID of the player to be checked
-     * @param achievementID The ID of the achievement being checked
-     * @return Whether the achievement has been unlocked by the player
-     */
-    public boolean playerHasEarnedAchievement(String playerID, String achievementID) {
-        PlayerAchievementProfile player = playerManager.getPlayer(playerID);
-        if (player != null) return player.hasEarnedAchievement(handlerID, achievementID);
-        else return false;
+        playerManager.addPlayerAchievement(playerID, getHandlerID(), achievementID);
     }
 
     /**
@@ -144,7 +114,7 @@ public class AchievementHandler {
         List<Achievement> hiddenLocked = new ArrayList<>();
         //the list used depends on whether the player has this achievement or not
         for (Achievement current : gameAchievements) {
-            if (playerHasEarnedAchievement(playerID, current.name())) {
+            if (playerManager.doesPlayerHaveAchievement(playerID, this.getHandlerID(), current.name())) {
                 state.unlocked().add(current);
             } else {
                 //If player hasn't unlocked it, and it's a hidden achievement, we do not send the 'real'
@@ -159,7 +129,7 @@ public class AchievementHandler {
                 }
             }
         }
-        //once we are done sorting through achievments, add any hidden locked achievements to the end of the
+        //once we are done sorting through achievements, add any hidden locked achievements to the end of the
         // locked list to show up at the bottom.
         state.locked().addAll(hiddenLocked);
         return state;
