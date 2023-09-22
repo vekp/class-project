@@ -4,6 +4,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import minigames.server.database.DerbyDatabase;
 import minigames.server.battleship.BattleshipServer;
+import minigames.server.hangman.HangmanGameServer;
 import minigames.server.highscore.*;
 import minigames.server.memory.MemoryServer;
 import minigames.server.muddle.MuddleServer;
@@ -90,11 +91,15 @@ public class Main extends AbstractVerticle {
         gameRegistry.registerGameServer("Battleship", new BattleshipServer());
         gameRegistry.registerGameServer("Memory", new MemoryServer());
         gameRegistry.registerGameServer("Telepathy", new TelepathyServer());
+
+        gameRegistry.registerGameServer("Hangman", new HangmanGameServer());
+
         gameRegistry.registerGameServer("GameShow", new GameShowServer());
         gameRegistry.registerGameServer("Snake", new SnakeServer());
         gameRegistry.registerGameServer("Peggle", new PeggleServer());
         gameRegistry.registerGameServer("TicTacToe", new TicTacToeServer());
         gameRegistry.registerGameServer("NoughtsAndCrosses", new NoughtsAndCrossesServer());
+
 
         // Initialise the HighScoreAPI
         highScoreAPI = new HighScoreAPI();

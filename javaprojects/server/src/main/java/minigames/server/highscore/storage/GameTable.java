@@ -9,13 +9,20 @@ import java.util.List;
 import minigames.server.database.*;
 
 
-public class GameTable extends DatabaseTable<GameMetadata> {
+/**
+ * Handles database operations for game metadata records.
+ */
+public class GameTable extends DatabaseTable<GameRecord> {
 
     private static final String TABLE_NAME = "high_score_game_metadata";
     private static final String COLUMN_GAME_NAME = "game_name";
     private static final String COLUMN_IS_LOWER_BETTER = "is_lower_better";
 
 
+    /**
+     * Constructor.
+     * @param database The database instance.
+     */
     public GameTable(Database database) {
         super(database, TABLE_NAME);
     }
@@ -27,12 +34,26 @@ public class GameTable extends DatabaseTable<GameMetadata> {
 
 
     @Override
-    protected List<Object> getPrimaryKeyValues(GameMetadata record) {
+    public List<String> getColumnNames() {
         return Arrays.asList(
-            record.getGameName()
+            COLUMN_GAME_NAME,
+            COLUMN_IS_LOWER_BETTER
         );
     }
 
+    @Override
+    public List<String> getKeyColumnNames() {
+        return Arrays.asList(
+            COLUMN_GAME_NAME
+        );
+    }
+
+    @Override
+    protected List<Object> getPrimaryKeyValues(Object record) {
+        return Arrays.asList(
+            ((GameRecord) record).getGameName()
+        );
+    }
 
     @Override
     protected String getTableCreationSQL() {
@@ -46,7 +67,6 @@ public class GameTable extends DatabaseTable<GameMetadata> {
         );
     }
 
-
     @Override
     protected String getInsertSQL() {
         return (
@@ -59,13 +79,12 @@ public class GameTable extends DatabaseTable<GameMetadata> {
         );
     }
     @Override
-    protected List<Object> getInsertValues(GameMetadata record) {
+    protected List<Object> getInsertValues(GameRecord record) {
         return Arrays.asList(
             record.getGameName(),
             record.isLowerBetter()
         );
     }
-
 
     @Override
     protected String getUpdateSQL() {
@@ -77,15 +96,13 @@ public class GameTable extends DatabaseTable<GameMetadata> {
                     COLUMN_GAME_NAME + " = ?";
     }
     @Override
-    protected List<Object> getUpdateSetValues(GameMetadata record) {
+    protected List<Object> getUpdateSetValues(GameRecord record) {
         return Arrays.asList(
             record.isLowerBetter(),
             record.getGameName()
         );
     }
 
-
-    // Retrieve One
     @Override
     protected String getRetrieveOneSQL() {
         return (
@@ -99,8 +116,6 @@ public class GameTable extends DatabaseTable<GameMetadata> {
         );
     }
 
-
-    // Retrieve Many
     @Override
     protected String getRetrieveManySQL() {
         return getRetrieveAllSQL();
@@ -110,8 +125,6 @@ public class GameTable extends DatabaseTable<GameMetadata> {
         return null;
     }
 
-
-    // Retrieve All
     @Override
     protected String getRetrieveAllSQL() {
         return (
@@ -123,8 +136,6 @@ public class GameTable extends DatabaseTable<GameMetadata> {
         );
     }
 
-
-    // Delete
     @Override
     protected String getDeleteSQL() {
         return (
@@ -135,10 +146,9 @@ public class GameTable extends DatabaseTable<GameMetadata> {
         );
     }
 
-
     @Override
-    protected GameMetadata mapResultSetToEntity(ResultSet rs) throws SQLException {
-        return new GameMetadata(
+    protected GameRecord mapResultSetToEntity(ResultSet rs) throws SQLException {
+        return new GameRecord(
             rs.getString(COLUMN_GAME_NAME),
             rs.getBoolean(COLUMN_IS_LOWER_BETTER)
         );
