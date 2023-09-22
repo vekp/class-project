@@ -265,8 +265,8 @@ public class MinigameNetworkClientWindow {
         JButton surveyButton = new JButton("Survey");
         surveyButton.addActionListener(e -> {
             clearAll();
-            String gameId = "64fec6296849f97cdc19f017";
-            JPanel survey = new Survey(networkClient, gameId, "Muddle");
+            String gameId = "650a6db6ed70971c22601416";
+            JPanel survey = new Survey(networkClient, gameId, "Battleship");
             frame.setTitle(Survey.FRAME_TITLE);
             center.add(survey);
             pack();

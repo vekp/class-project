@@ -345,21 +345,43 @@ public class SurveyResults extends JPanel implements ActionListener{
     }
 
     private void populateGameNameToIdMap(JsonArray gameDataArray) {
+        gameNameToIdMap.clear(); 
+    
+        // Add the game associated with gameIdGlobal first
+        String selectedGameId = gameIdGlobal;
+        String selectedGameName = null;
         for (int i = 0; i < gameDataArray.size(); i++) {
             JsonObject gameData = gameDataArray.getJsonObject(i);
             String gameName = gameData.getString("game_name");
             String gameId = gameData.getString("_id");
             gameNameToIdMap.put(gameName, gameId);
+    
+            if (gameId.equals(selectedGameId)) {
+                selectedGameName = gameName;
+            }
         }
+    
+        // Remove the selected game from the map temporarily
+        gameNameToIdMap.remove(selectedGameName);
+    
+        // Add the selected game to the beginning of the map
+        gameNameToIdMap = new LinkedHashMap<>(Collections.singletonMap(selectedGameName, selectedGameId));
+    
+        // Add the remaining games back to the map
+        for (int i = 0; i < gameDataArray.size(); i++) {
+            JsonObject gameData = gameDataArray.getJsonObject(i);
+            String gameName = gameData.getString("game_name");
+            String gameId = gameData.getString("_id");
+            if (!gameId.equals(selectedGameId)) {
+                gameNameToIdMap.put(gameName, gameId);
+            }
+        }
+    
+        // Update the gameNames array
         gameNames = gameNameToIdMap.keySet().toArray(new String[0]);
-
-        // if (gameIdGlobal = gameNameToIdMap._id)
-        // gameNameToIdMap.game_name
-
-        // OR Try switch case
-
+    
         DefaultComboBoxModel<String> comboBoxModel = new DefaultComboBoxModel<>(gameNames);
         gameNameComboBox.setModel(comboBoxModel);
     }
-
+    
 }
