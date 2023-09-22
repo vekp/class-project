@@ -2,12 +2,23 @@ package minigames.achievements;
 
 import io.vertx.core.json.JsonObject;
 
+/**
+ * Main data record for a game achievement
+ *
+ * @param name          The achievement ID/name - must be unique within a game server (e.g no game server can have 2
+ *                      achievements with the same ID
+ * @param description   A player-friendly description of the achievement, will be shown to players on the achievement UI
+ * @param xpValue       experience-point value for unlocking this achievement, for use with player level-up system
+ * @param mediaFileName optional filename for custom images and sound files
+ * @param hidden        if true, this achievement will not display its name or description in the achievement menu until it is
+ *                      unlocked, instead it will be replaced by a 'secret achievement' placeholder panel.
+ */
 public record Achievement(
-        String name, //Achievement ID / Name - Must be unique per game server
-        String description, //Description - shown to players (describe how to unlock, or add flavour text)
+        String name,
+        String description,
         int xpValue,
-        String mediaFileName,//a file name (no extension) to search for custom media for icons/popup sounds, etc
-        boolean hidden   //Hidden/Secret achievements - can prevent users from seeing hidden achievements until unlocked
+        String mediaFileName,
+        boolean hidden
 ) {
 
     //The below converters were mainly needed as there were some issues getting the built-in mapping working with

@@ -1,5 +1,6 @@
 package minigames.client;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,7 +11,9 @@ import minigames.achievements.GameAchievementState;
 import minigames.achievements.PlayerAchievementRecord;
 import minigames.client.achievements.AchievementPresenterRegistry;
 import minigames.client.achievements.AchievementUI;
+import minigames.client.notifications.DialogManager;
 import minigames.client.notifications.NotificationManager;
+import minigames.client.useraccount.UserServerAction;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,6 +31,8 @@ import minigames.rendering.NativeCommands.LoadClient;
 import minigames.rendering.NativeCommands.QuitToMenu;
 import minigames.rendering.NativeCommands.ShowMenuError;
 import minigames.rendering.RenderingPackage;
+
+
 
 /**
  * The central cub of the client.
@@ -58,20 +63,27 @@ public class MinigameNetworkClient {
     WebClient webClient;
     MinigameNetworkClientWindow mainWindow;
     Animator animator;
+    UserServerAction user;
 
     Optional<GameClient> gameClient;
     NotificationManager notificationManager;
+    DialogManager dialogManager;
+
+    private final SurveyServerRequestService surveyServerRequestService;
 
     public MinigameNetworkClient(Vertx vertx) {
         this.vertx = vertx;
         this.webClient = WebClient.create(vertx);
         this.gameClient = Optional.empty();
 
+        surveyServerRequestService = new SurveyServerRequestService(webClient, port, host);
+
         animator = new Animator();
         vertx.setPeriodic(16, (id) -> animator.tick());
 
         mainWindow = new MinigameNetworkClientWindow(this);
         notificationManager = new NotificationManager(this);
+        dialogManager = new DialogManager(this);
         mainWindow.show();
     }
 
@@ -97,10 +109,17 @@ public class MinigameNetworkClient {
     }
 
     /**
-     * Get a reference to the notification manager
+     * Getter for system NotificationManager. Intended for system notifications in the top right corner of the frame.
      */
     public NotificationManager getNotificationManager() {
         return this.notificationManager;
+    }
+
+    /**
+     * Getter for dialog NotificationManager. Intended for dialogs in the centre of the frame.
+     */
+    public DialogManager getDialogManager() {
+        return this.dialogManager;
     }
 
     /**
@@ -187,7 +206,7 @@ public class MinigameNetworkClient {
                     //display it in a message dialog in a background thread
                     vertx.executeBlocking(getGameAchievements -> {
                         AchievementPresenterRegistry ac = new AchievementPresenterRegistry(GameAchievementState.fromJSON(resp.bodyAsString()), getAnimator());
-                        ac.showGameAchievements(getMainWindow().getFrame());
+                        ac.showGameAchievements(dialogManager);
                         getGameAchievements.complete();
                     });
                     logger.info(resp.bodyAsString());
@@ -239,7 +258,6 @@ public class MinigameNetworkClient {
                     logger.error("Failed: {} ", resp.getMessage());
                 });
     }
-
 
     /**
      * Creates a new game on the server, running any commands that come back
@@ -299,16 +317,62 @@ public class MinigameNetworkClient {
     }
 
     /*
-     * Sends a JSON object of survey responses to the server for saving to a database
+     *----- START SURVEY REQUESTS -----
+     *
+     * Server request handlers for game survey related requests
+     * NOTE: The code for requests to server can be found in the directory:
+     * client/survey/SurveyServerRequestService.java
      */
     public Future<HttpResponse<Buffer>> sendSurveyData(JsonObject surveyData) {
-        return webClient.post(port, host, "/sendSurveyData")
-                .sendJson(surveyData)
+        return surveyServerRequestService.sendSurveyData(surveyData);
+    }
+
+    public Future<String> getSurveyResultSummary(String gameId) {
+        return surveyServerRequestService.getSurveyResultSummary(gameId);
+    }
+
+    public Future<String> getAllGames() {
+        return surveyServerRequestService.getAllGames();
+    }
+    /*
+     * ----- END SURVEY REQUESTS -----
+     */
+
+    /**
+     * Sends a username string to the server, receives the username back referenced from the updated variable on the server.
+     */
+    public Future<String> login(String userName) {
+        return webClient.post(port, host, "/user")
+                .sendBuffer(Buffer.buffer(userName))
                 .onSuccess((resp) -> {
-                    logger.info("Survey data sent successfully.");
+                    logger.info(resp.bodyAsString());
+                })
+                .map((resp) -> {
+                    String rpj = resp.bodyAsString();
+                    this.user = new UserServerAction(this, rpj);
+                    Main.user = this.user;
+                    return rpj;
                 })
                 .onFailure((resp) -> {
-                    logger.error("Failed to send survey data: {}", resp.getMessage());
+                    logger.error("Failed: {} ", resp.getMessage());
+                });
+    }
+
+    /**
+     * Sends a request to get the active username from the server.
+     */
+    public Future<String> userNameGet() {
+        return webClient.get(port, host, "/userGet")
+                .send()
+                .onSuccess((resp) -> {
+                    logger.info(resp.bodyAsString() + " Sent from Client");
+                })
+                .map((resp) -> {
+                    String rpj = resp.bodyAsString();
+                    return rpj;
+                })
+                .onFailure((resp) -> {
+                    logger.error("Failed: {} ", resp.getMessage());
                 });
     }
 
@@ -317,6 +381,9 @@ public class MinigameNetworkClient {
      * the server to get a list of available games.
      */
     public void runMainMenuSequence() {
+        notificationManager.resetToDefaultSettings();
+        dialogManager.dismissCurrentNotification()
+                .resetToDefaultSettings();
         mainWindow.showStarfieldMessage("Minigame Network");
 
         ping().flatMap((s) -> getGameServers()).map((list) -> {
@@ -408,5 +475,4 @@ public class MinigameNetworkClient {
             interpretCommand(gm, json);
         }
     }
-
 }

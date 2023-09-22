@@ -1,6 +1,7 @@
 package minigames.server.telepathytests;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.DisplayName;
@@ -8,9 +9,12 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import io.vertx.core.json.JsonObject;
-
+import minigames.server.telepathy.Colours;
 import minigames.server.telepathy.Player;
+import minigames.server.telepathy.Symbols;
 import minigames.telepathy.TelepathyCommandException;
+
+import minigames.server.telepathy.Tile;
 
 
 
@@ -71,5 +75,37 @@ public class TelepathyPlayerTests {
         // Toggle when ready sets back to false
         testPlayer.toggleReady();
         assertTrue(testPlayer.isReady() == false);
+    }
+
+    @Test
+    @DisplayName("Test player turn counter")
+    public void testPlayerTurnCounter(){
+        // Create a test player
+        Player testPlayer = new Player("Bob");
+
+        // Check the counter is being incremented correctly
+        assertTrue(testPlayer.getTurnCounter() == 0);
+        testPlayer.incrementTurns();
+        assertTrue(testPlayer.getTurnCounter() == 1);
+        testPlayer.incrementTurns();
+        assertFalse(testPlayer.getTurnCounter() == 1);
+    }
+
+    @Test
+    @DisplayName("Test player set 'chosen tile'")
+    public void testSettingPlayerTile(){
+        Player testPlayer = new Player("Bob");
+
+        assertTrue(testPlayer.getChosenTile() == null);
+        
+        // Test tile to set as players tile
+        Tile testTile = new Tile(0, 0, Colours.BLUE, Symbols.CIRCLES);
+        assertTrue(testPlayer.setChosenTile(testTile));
+        assertTrue(testPlayer.getChosenTile() == testTile);
+
+        Tile secondTestTile = new Tile(0, 1, Colours.CYAN, Symbols.CLUBS);
+        assertFalse(testPlayer.setChosenTile(secondTestTile));
+        assertTrue(testPlayer.getChosenTile() == testTile);
+
     }
 }

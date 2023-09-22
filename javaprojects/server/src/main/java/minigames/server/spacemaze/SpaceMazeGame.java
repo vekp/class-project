@@ -9,12 +9,13 @@ import io.vertx.core.json.JsonObject;
 import minigames.commands.CommandPackage;
 import minigames.rendering.*;
 import minigames.rendering.NativeCommands.LoadClient;
+import minigames.server.achievements.AchievementHandler;
+import static minigames.server.spacemaze.achievements.*;
 import java.awt.Point;
 
+
 /**
- * Represents an actual Space Maze game in progress
- *
- * @author Andrew McKenzie
+ * SpaceMazeGame class represents an actual Space Maze game in progress
  */
 public class SpaceMazeGame {
 
@@ -85,30 +86,49 @@ public class SpaceMazeGame {
                     JsonObject serializedMazeArray = new JsonObject()
                             .put("command", "updateMaze")
                             .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()));
+                    switch (mazeControl.getNextTile()) {
+                        case 'M' -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.DYNAMITE.toString());
+                        case 'H' -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.WORM_HOLE.toString());
+                        case '$' ->  {
+                                boolean awardFastAsLightning = mazeControl.awardFastAsLightning();
+                                if(awardFastAsLightning) { 
+                                    AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
+                                    handler.unlockAchievement(getPlayerNames()[0],FAST_AS_LIGHTNING.toString());
+
+                                }
+                                serializedMazeArray.put("interactiveResponse", InteractiveResponses.TREASURE_CHEST.toString()); 
+                            }
+                        case 'K' -> {
+                            int keysRemaining = mazeControl.getKeysRemaining();
+                            switch (keysRemaining) {
+                                case 0 -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.ALL_KEY_OBTAINED.toString());
+                                case 1 -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.ONE_KEY_REMAINING.toString());
+                                case 2 -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.TWO_KEY_REMAINING.toString());
+                                case 3 -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.THREE_KEY_REMAINING.toString());
+                                case 4 -> serializedMazeArray.put("interactiveResponse", InteractiveResponses.FOUR_KEY_REMAINING.toString());
+                            }
+                        }
+                    }
                     renderingCommands.add(serializedMazeArray);
                 }
                 case "botCollision" -> {
-                    logger.info("bot collision detected on server from client");
-                    // I'll look into this repition, the issue is the bots can move
-                    // too fast and trigger this call more times than allowed before
-                    // the server sends the playerDead message back.
                     int playerLives = player.getLives();
                     if (playerLives > 0) {
                         player.removeLife(1);
                         playerLives = player.getLives();
                         if (playerLives > 0) {
                             renderingCommands.add(new JsonObject().put("command", "playerLives")
-                                    .put("lives", playerLives));
+                                    .put("lives", playerLives)
+                                    .put("interactiveResponse", InteractiveResponses.BOTS_COLLISION.toString()));
                         } else {
-                            String playerScoreString = String.valueOf(player.getPlayerScore());
                             int time = mazeControl.timeTaken;
                             int minutes = time / 60;
                             int seconds = time % 60;
                             String timeTaken = String.format("%d:%02d", minutes, seconds);
                             mazeControl.playerDead();
                             renderingCommands.add(new JsonObject().put("command", "playerDead")
-                            .put("totalScore", playerScoreString)
-                            .put("timeTaken", timeTaken)
+                                .put("timeTaken", timeTaken)
+                                .put("level", Integer.toString(mazeControl.getCurrentLevel()))
                             );
                         }
                     }
@@ -127,21 +147,29 @@ public class SpaceMazeGame {
                             .put("command", "firstLevel")
                             .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()))
                             .put("botStartLocations", mazeControl.getBotStartLocations())
-                            .put("playerLives", player.getLives());
+                            .put("playerLives", player.getLives())
+                            .put("interactiveResponse", InteractiveResponses.GAME_STARTED.toString());
                     renderingCommands.add(serializedMazeArray);
                 }
                 case "onExit" -> {
                     mazeControl.newLevel();
                     player.calculateScore(mazeControl.timeTaken, 8000);
                     String playerScoreString = String.valueOf(player.getPlayerScore());
-                    if (!mazeControl.gameFinished) {
+                    if (!mazeControl.isGameFinished()) {
                         JsonObject serializedMazeArray = new JsonObject()
                                 .put("command", "nextLevel")
                                 .put("mazeArray", serialiseNestedCharArray(mazeControl.getMazeArray()))
                                 .put("botStartLocations", mazeControl.getBotStartLocations())
                                 .put("totalScore", playerScoreString)
-                                .put("level", Integer.toString(mazeControl.getCurrentLevel()));
+                                .put("level", Integer.toString(mazeControl.getCurrentLevel()))
+                                .put("interactiveResponse", InteractiveResponses.NEW_LEVEL.toString());
                         renderingCommands.add(serializedMazeArray);
+                        // Set level achievements
+                        Boolean isPlayerADeterminedCollector = mazeControl.getLevelAllKeyBonusStatus();
+                        if (isPlayerADeterminedCollector) {
+                            AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
+                            handler.unlockAchievement(getPlayerNames()[0],DETERMINED_COLLECTOR.toString());
+                        }
                     } else {
                         int time = mazeControl.timeTaken;
                         int minutes = time / 60;
@@ -150,6 +178,29 @@ public class SpaceMazeGame {
                         renderingCommands.add(new JsonObject().put("command", "gameOver")
                                 .put("totalScore", playerScoreString)
                                 .put("timeTaken", timeTaken));
+                        // Set endgame achievements
+                        Boolean isPlayerATimeLord = mazeControl.getAllBonusStatus();
+                        Boolean isPlayerAKeyKeeper = mazeControl.getAllKeysStatus();
+                        if (isPlayerATimeLord) {
+                            AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
+                            handler.unlockAchievement(getPlayerNames()[0],TIME_LORD.toString());
+                        }
+                        if (isPlayerAKeyKeeper) {
+                            AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
+                            handler.unlockAchievement(getPlayerNames()[0],KEEPER_OF_THE_KEYS.toString());
+                        }
+                        if (isPlayerAKeyKeeper && isPlayerATimeLord) {
+                            AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
+                            handler.unlockAchievement(getPlayerNames()[0],THE_COLLECTORS_COLLECTION.toString());
+                        }
+
+                        Boolean isPlayerASeasonedMazeRunner = !player.hasLostLives();
+                        if(isPlayerASeasonedMazeRunner) {
+                            AchievementHandler handler = new AchievementHandler(SpaceMazeServer.class);
+                            handler.unlockAchievement(getPlayerNames()[0],SEASONED_MAZE_RUNNER.toString());
+                            
+                        }
+                        
                     }
                 }
             }
