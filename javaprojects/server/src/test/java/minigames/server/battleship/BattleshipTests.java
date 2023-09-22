@@ -1,6 +1,7 @@
 package minigames.server.battleship;
 
 import org.junit.jupiter.api.Test;
+import static org.mockito.Mockito.*;
 
 /**
  * Ensures that Battleship is performing as expected
@@ -12,10 +13,10 @@ public class BattleshipTests {
     /** Tests whether a default board is created for the player*/
     @Test
     public void boardDefaultPopulates(){
-        // create a board using the default method
+        // create boards using the default methods
         Board testBoard = new Board(0);
         Board otherTestBoard = new Board(1);
-        // check that the appropriate number of ships are present on the board (maybe have a checker function)
+        // check that the appropriate number of ships are present on the boards
         assert isBoardValid(testBoard);
         assert isBoardValid(otherTestBoard);
     }
@@ -107,6 +108,32 @@ public class BattleshipTests {
         // assert that the ship is sunk
         assert ship.isSunk();
         assert ship.isJustSunk();
+    }
+
+
+    /**
+     * Test that valid user input is accepted and invalid input is rejected
+     */
+    @Test
+    public void testInputValidation() {
+        // create a test player
+        Board testBoard = new Board(0);
+        Board opponentBoard = new Board(1);
+        BattleshipPlayer testPlayer = new BattleshipPlayer("test", testBoard, true, "");
+        // test invalid inputs
+        String[] invalidInputs = {"a11", "k5", "1a", "7j", "4", "c", "Your mama", "COSC220 is awesome!", "Is anyone reading this?"};
+        for (String invalidInput : invalidInputs) {
+            BattleshipTurnResult result = testPlayer.processTurn(invalidInput, opponentBoard);
+            System.out.println(result.playerMessage());
+            assert result.playerMessage().endsWith("is an invalid entry. Please enter a coordinate in the form 'A7'");
+        }
+        // test valid inputs
+        String[] validInputs = {"A0", "a5", "A9", "e2", "E4", "g7", "J0", "j5", "J9"};
+        for (String validInput : validInputs) {
+            BattleshipTurnResult result = testPlayer.processTurn(validInput, opponentBoard);
+            assert result.playerMessage().endsWith("Prepare for incoming fire!");
+        }
+
     }
 
     // Rounds, game-over, etc.
