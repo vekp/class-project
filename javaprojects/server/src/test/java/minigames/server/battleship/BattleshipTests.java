@@ -97,7 +97,7 @@ public class BattleshipTests {
     public void shipSinks(){
         // create a ship
         Cell[] cells = makeTestShipCells();
-        Ship ship = new Ship("TestShip", cells,0, 0, true);
+        Ship ship = new Ship("TestShip", 0, cells,0, 0, true);
         // shoot at all cells in ship
         for (int i = 0; i < cells.length; i++) {
             assert !ship.isSunk();
@@ -124,8 +124,7 @@ public class BattleshipTests {
         String[] invalidInputs = {"a11", "k5", "1a", "7j", "4", "c", "Your mama", "COSC220 is awesome!", "Is anyone reading this?"};
         for (String invalidInput : invalidInputs) {
             BattleshipTurnResult result = testPlayer.processTurn(invalidInput, opponentBoard);
-            System.out.println(result.playerMessage());
-            assert result.playerMessage().endsWith("is an invalid entry. Please enter a coordinate in the form 'A7'");
+            assert result.playerMessage().startsWith(invalidInput + " is an invalid entry. Please enter a coordinate in the form 'A7'");
         }
         // test valid inputs
         String[] validInputs = {"A0", "a5", "A9", "e2", "E4", "g7", "J0", "j5", "J9"};
