@@ -10,11 +10,9 @@ import minigames.server.ClientType;
 import minigames.server.GameServer;
 import minigames.server.achievements.AchievementHandler;
 import minigames.server.gameNameGenerator.GameNameGenerator;
+import org.apache.logging.log4j.core.appender.rolling.action.DeleteAction;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 /**
  * An enum containing all Achievements to be passed to the AchievementHandler for tracking
@@ -114,11 +112,26 @@ public class BattleshipServer implements GameServer {
     @Override
     public GameMetadata[] getGamesInProgress() {
         HashMap<String, BattleshipGame> joinableGames = new HashMap<>();
+        ArrayList<String> deletableGames = new ArrayList<>();
         //we only add game that have not already started
         for (Map.Entry<String, BattleshipGame> battleshipGameEntry : games.entrySet()) {
+            //we can join games that have only 1 player, and they are in the waiting state.
+            //if there is 1 player after the game has progressed, that means the other player
+            //has been informed an opponent has left, and we are waiting for them to close the game. Those
+            //games are NOT joinable in that case.
             if(battleshipGameEntry.getValue().getGameState() == GameState.WAITING_JOIN){
                 joinableGames.put(battleshipGameEntry.getKey(), battleshipGameEntry.getValue());
             }
+
+            //if there are no players left in the game, both players have exited and we can delete it
+            if(battleshipGameEntry.getValue().getPlayerNames().length == 0){
+                deletableGames.add(battleshipGameEntry.getKey());
+            }
+        }
+
+        //remove all the deletable games we found
+        for (String deletableGame : deletableGames) {
+            games.remove(deletableGame);
         }
 
         return joinableGames.keySet().stream().map((name) -> {

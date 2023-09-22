@@ -69,7 +69,9 @@ public class BattleshipGame {
      * @return An array containing the names of current players
      */
     public String[] getPlayerNames() {
-        return bPlayers.keySet().toArray(String[]::new);
+        if (bPlayers.size() > 0)
+            return bPlayers.keySet().toArray(String[]::new);
+        else return new String[0];
     }
 
     /**
@@ -458,7 +460,7 @@ public class BattleshipGame {
             renderingCommands.add(new JsonObject().put("command", "waitForJoin"));
 
         } else if (currentPlayers.length == 1) {
-            if(currentPlayers[0].equals(playerName)){
+            if (currentPlayers[0].equals(playerName)) {
                 //if the player is trying to double-join their own game, this should fail
                 return new RenderingPackage(
                         gameMetadata(),
