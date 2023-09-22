@@ -3,11 +3,11 @@ package minigames.client;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import minigames.client.battleship.Battleship;
-<<<<<<< HEAD
+
 import minigames.client.hangman.HangmanClient;
-=======
+
 import minigames.client.memory.Memory;
->>>>>>> origin/main
+
 import minigames.client.muddletext.MuddleText;
 import minigames.client.gameshow.FadePanel;
 import minigames.client.gameshow.GameShow;
@@ -52,9 +52,9 @@ public class Main extends AbstractVerticle {
         clientRegistry.registerGameClient("Battleship", new Battleship());
         clientRegistry.registerGameClient("Memory", new Memory());
         clientRegistry.registerGameClient("Telepathy", new Telepathy());
-<<<<<<< HEAD
+
         clientRegistry.registerGameClient("Hangman", new HangmanClient());
-=======
+
         clientRegistry.registerGameClient("GameShow", new GameShow());
         clientRegistry.registerGameClient("Snake", new SnakeGameText());
         clientRegistry.registerGameClient("Peggle", new PeggleUI());
@@ -62,7 +62,7 @@ public class Main extends AbstractVerticle {
         clientRegistry.registerGameClient("NoughtsAndCrosses", new NoughtsAndCrosses());
         clientRegistry.registerGameClient("KrumGame", new KrumGameClient());
 
->>>>>>> origin/main
+
     }
 
     public static void main(String... args) {

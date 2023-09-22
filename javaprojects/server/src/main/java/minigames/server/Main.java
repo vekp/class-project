@@ -91,15 +91,15 @@ public class Main extends AbstractVerticle {
         gameRegistry.registerGameServer("Battleship", new BattleshipServer());
         gameRegistry.registerGameServer("Memory", new MemoryServer());
         gameRegistry.registerGameServer("Telepathy", new TelepathyServer());
-<<<<<<< HEAD
+
         gameRegistry.registerGameServer("Hangman", new HangmanGameServer());
-=======
+
         gameRegistry.registerGameServer("GameShow", new GameShowServer());
         gameRegistry.registerGameServer("Snake", new SnakeServer());
         gameRegistry.registerGameServer("Peggle", new PeggleServer());
         gameRegistry.registerGameServer("TicTacToe", new TicTacToeServer());
         gameRegistry.registerGameServer("NoughtsAndCrosses", new NoughtsAndCrossesServer());
->>>>>>> origin/main
+
 
         // Initialise the HighScoreAPI
         highScoreAPI = new HighScoreAPI();
