@@ -119,17 +119,17 @@ public class BattleshipGame {
         //Handle exit game commands
         if (userInput.equals("exitGame")) {
             System.out.println("This should exit that game");
-            //todo this shouldnt clear list, just remove 1 player?
+            //remove the exiting player. This will leave just 1 player (if it is a human player), and when they
+            //send their own command package, they will hit the below else condition and be told that this player has
+            //left
             bPlayers.remove(cp.player());
             System.out.println(getPlayerNames().length);
-
             return new RenderingPackage(gameMetadata(), commands);
+
         } else if (bPlayers.size() < 2 && gameState != GameState.WAITING_JOIN) {
             //Here is where a player has left a running game
-            //todo change this to test if other player has left
-            //todo here is where we should check if the OTHER player had left the game, and tell this client
             //to pop up a window saying other player has left
-            //also just return a render package immediately here
+            //also just return a render package immediately here as the game is over
             commands.add(new JsonObject().put("command", "playerExited"));
             return new RenderingPackage(gameMetadata(), commands);
         }
