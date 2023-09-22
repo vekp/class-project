@@ -1,3 +1,3 @@
 public class Rummy {
-    // Make GUI
+    // Make GUI and API
 }
