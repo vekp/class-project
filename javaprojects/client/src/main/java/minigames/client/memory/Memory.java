@@ -1,24 +1,19 @@
 package minigames.client.memory;
 
-import io.vertx.core.json.Json;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
+import io.vertx.core.json.*;
 
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
-import minigames.client.Animator;
 import minigames.common.memory.DeckOfCards.*;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.Border;
+import javax.swing.border.*;
 import javax.swing.Timer;
 
 /**
@@ -38,33 +33,26 @@ public class Memory implements GameClient, ActionListener {
     // Player
     String player;
 
+    // Deck of playing cards
     PlayingCard[] deck;
 
-    /** Swing components */
-    private JPanel mainPanel, gameMenuPanel, headingPanel, playerPanel, gameOptionsPanel;
+    /** Swing components and variables used in the GUI*/
+    private JFrame MemoryWindow;
+    private JPanel GUI, mainPanel, gameMenuPanel, headingPanel, playerPanel, gameOptionsPanel, buttonPanel;
     private JLabel title, playerName, matches, stopwatch;
     private JButton newGameButton, restartLevelButton, exitButton, achievementsButton;
+    private JButton btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9, btn10, btn11, btn12, btn13, btn14, btn15, btn16, btn17, btn18;
     private Border margin;
-    private int rows = 3;
-    private int columns = 6;
-    JButton btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9, btn10, btn11, btn12, btn13, btn14, btn15, btn16,
-            btn17, btn18;
+    private int rows = 3, columns = 6, btnContainerWidth, btnContainerHeight;
+    private ImageIcon cardBackImage = new ImageIcon(getClass().getResource("/memory/images/playing_cards/back/card_back_black.png"));
+    private ImageIcon[] cardFrontImages = new ImageIcon[18];
 
-    JPanel buttonPanel;
-    int btnContainerWidth, btnContainerHeight;
+    // Game variables
+    private boolean gameStarted = false, newGame, exiting;
+    private int matchesCounter = 0;
+    private int[] timeElapsed = { 1, 30 }; // {mins, seconds}
+    private Timer timer;
 
-    ImageIcon cardBackImage = new ImageIcon(getClass().getResource("/memory/images/playing_cards/back/card_back_black.png"));
-    ImageIcon[] cardFrontImages = new ImageIcon[18];
-
-    // Game variable
-    boolean gameStarted = false;
-    int matchesCounter = 0;
-    int[] timeElapsed = { 1, 30 }; // {mins, seconds}
-    Timer timer;
-    boolean newGame, exiting;
-
-    JPanel GUI;
-    JFrame MemoryWindow;
 
     /** Initialize Swing components */
     public Memory() {
@@ -192,111 +180,76 @@ public class Memory implements GameClient, ActionListener {
 
         btn1.addActionListener((evt) -> {
             sendCommand("Flip_Card_1");
-            if (!gameStarted) {
-                startTimer();
-            }
+            checkIfTimerStarted();
         });
         btn2.addActionListener((evt) -> {
             sendCommand("Flip_Card_2");
-            if (!gameStarted) {
-                startTimer();
-            }
+            checkIfTimerStarted();
         });
         btn3.addActionListener((evt) -> {
             sendCommand("Flip_Card_3");
-            if (!gameStarted) {
-                startTimer();
-            }
+            checkIfTimerStarted();
         });
         btn4.addActionListener((evt) -> {
             sendCommand("Flip_Card_4");
-            if (!gameStarted) {
-                startTimer();
-            }
+            checkIfTimerStarted();
+
         });
         btn5.addActionListener((evt) -> {
             sendCommand("Flip_Card_5");
-            if (!gameStarted) {
-                startTimer();
-            }
+            checkIfTimerStarted();
         });
         btn6.addActionListener((evt) -> {
             sendCommand("Flip_Card_6");
-            if (!gameStarted) {
-                startTimer();
-            }
+            checkIfTimerStarted();
         });
         btn7.addActionListener((evt) -> {
             sendCommand("Flip_Card_7");
-            if (!gameStarted) {
-                startTimer();
-            }
+            checkIfTimerStarted();
         });
         btn8.addActionListener((evt) -> {
             sendCommand("Flip_Card_8");
-            if (!gameStarted) {
-                startTimer();
-            }
+            checkIfTimerStarted();
         });
         btn9.addActionListener((evt) -> {
             sendCommand("Flip_Card_9");
-            if (!gameStarted) {
-                startTimer();
-            }
+            checkIfTimerStarted();
         });
         btn10.addActionListener((evt) -> {
             sendCommand("Flip_Card_10");
-            if (!gameStarted) {
-                startTimer();
-            }
+            checkIfTimerStarted();
         });
         btn11.addActionListener((evt) -> {
             sendCommand("Flip_Card_11");
-            if (!gameStarted) {
-                startTimer();
-            }
+            checkIfTimerStarted();
         });
         btn12.addActionListener((evt) -> {
             sendCommand("Flip_Card_12");
-            if (!gameStarted) {
-                startTimer();
-            }
+            checkIfTimerStarted();
         });
         btn13.addActionListener((evt) -> {
             sendCommand("Flip_Card_13");
-            if (!gameStarted) {
-                startTimer();
-            }
+            checkIfTimerStarted();
         });
         btn14.addActionListener((evt) -> {
             sendCommand("Flip_Card_14");
-            if (!gameStarted) {
-                startTimer();
-            }
+            checkIfTimerStarted();
         });
         btn15.addActionListener((evt) -> {
             sendCommand("Flip_Card_15");
-            if (!gameStarted) {
-                startTimer();
-            }
+            checkIfTimerStarted();
         });
         btn16.addActionListener((evt) -> {
             sendCommand("Flip_Card_16");
-            if (!gameStarted) {
-                startTimer();
-            }
+            checkIfTimerStarted();
         });
         btn17.addActionListener((evt) -> {
             sendCommand("Flip_Card_17");
-            if (!gameStarted) {
-                startTimer();
-            }
+            checkIfTimerStarted();
         });
         btn18.addActionListener((evt) -> {
             sendCommand("Flip_Card_18");
-            if (!gameStarted) {
-                startTimer();
-            }
+            checkIfTimerStarted();
         });
 
         buttonPanel.add(btn1);
@@ -338,7 +291,8 @@ public class Memory implements GameClient, ActionListener {
                 Image.SCALE_SMOOTH);
         return new ImageIcon(resizedImage);
     }
-
+    
+    // ActionListener for button press
     @Override
     public void actionPerformed(ActionEvent e) {
         JButton button = (JButton) e.getSource();
@@ -375,6 +329,13 @@ public class Memory implements GameClient, ActionListener {
         }
     }
 
+    // Check if Timer has been started. Start Timer if not already running
+    private void checkIfTimerStarted(){
+        if (!gameStarted) {
+            startTimer();
+        }
+    }
+
     // Method to update stopwatch
     private void updateStopwatch() {
         stopwatch.setText(String.format("Time: %02d:%02d", timeElapsed[0], timeElapsed[1]));
@@ -405,13 +366,15 @@ public class Memory implements GameClient, ActionListener {
         matches.setText(String.format("Pairs Matched: %d/9", matchesCounter));
     }
 
-    // Run
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                new Memory();
+    // Return boolean array for solved cards
+    public boolean[] parseBooleanArray(JsonArray array){
+        boolean[] solvedCards = new boolean[18];
+        for(int i = 0; i < array.size(); i++){
+            if(array.getString(i) == "true"){
+                solvedCards[i] = true;
             }
-        });
+        }
+        return solvedCards;
     }
 
     // Reset card ImageIcon to card back image
@@ -441,6 +404,15 @@ public class Memory implements GameClient, ActionListener {
         return cardName.toString();
     }
 
+     // Run
+     public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new Memory();
+            }
+        });
+    }
+
     /**
      * Sends a command to the game at the server.
      * This being a text adventure, all our commands are just plain text strings our
@@ -455,7 +427,7 @@ public class Memory implements GameClient, ActionListener {
         mnClient.send(new CommandPackage(gm.gameServer(), gm.name(), player, Collections.singletonList(json)));
     }
 
-    // Send command method
+    // Send command method that takes a JsonObject as input
     public void sendCommand(JsonObject command) {
         if (exiting)
             return;
@@ -507,25 +479,7 @@ public class Memory implements GameClient, ActionListener {
         mnClient.getMainWindow().pack();
     }
 
-    // Print cards array
-    public void printArray(PlayingCard[] cards) {
-        for (int i = 0; i < cards.length; i++) {
-            System.out.println(cards[i].getValue() + " of " + cards[i].getSuit() + "\n");
-        }
-    }
-
-    // Return boolean array for solved cards
-    public boolean[] parseBooleanArray(JsonArray array){
-        boolean[] solvedCards = new boolean[18];
-        for(int i = 0; i < array.size(); i++){
-            if(array.getString(i) == "true"){
-                solvedCards[i] = true;
-            }
-        }
-        return solvedCards;
-    }
-
-
+    // execute rendering packages received from the server
     @Override
     public void execute(GameMetadata game, JsonObject command) {
         this.gm = game;
@@ -641,9 +595,9 @@ public class Memory implements GameClient, ActionListener {
         }
     }
 
+    // Exit game
     @Override
     public void closeGame() {
-        // Nothing to do
         sendCommand("exitGame");
         exiting = true;
     }
