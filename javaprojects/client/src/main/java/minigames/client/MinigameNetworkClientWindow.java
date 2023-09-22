@@ -7,7 +7,7 @@ import java.awt.event.ActionListener;
 
 import minigames.client.achievements.AchievementNotificationHandler;
 import minigames.client.achievements.AchievementUI;
-import minigames.client.survey.Survey;
+import minigames.client.survey.SurveyResults;
 import minigames.client.backgrounds.Starfield;
 import minigames.client.useraccount.UserAccountFrame;
 import minigames.client.krumgame.KrumGameClient;
@@ -262,14 +262,12 @@ public class MinigameNetworkClientWindow {
         });
         south.add(achievementsButton);
 
-        JButton surveyButton = new JButton("Survey");
+        JButton surveyButton = new JButton("Survey Results");
         surveyButton.addActionListener(e -> {
-            clearAll();
-            String gameId = "650a6db6ed70971c22601416";
-            JPanel survey = new Survey(networkClient, gameId, "Battleship");
-            frame.setTitle(Survey.FRAME_TITLE);
-            center.add(survey);
-            pack();
+            networkClient.getMainWindow().clearAll();
+            JPanel results = new SurveyResults(networkClient, "64fec6296849f97cdc19f017");
+            networkClient.getMainWindow().addCenter(results);
+            networkClient.getMainWindow().pack();
         });
         south.add(surveyButton);
 

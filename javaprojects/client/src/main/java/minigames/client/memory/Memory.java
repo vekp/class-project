@@ -10,6 +10,7 @@ import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 import minigames.client.Animator;
 import minigames.common.memory.DeckOfCards.*;
+import minigames.client.survey.Survey;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -501,7 +502,11 @@ public class Memory implements GameClient, ActionListener {
             sendCommand("resetToCardBacks");
             gameStarted = false;
             closeGame();
-            mnClient.runMainMenuSequence();
+            // Open survey on exit
+            mnClient.getMainWindow().clearAll();
+            JPanel results = new Survey(mnClient, "650d9ce567874876318474a1", "Memory");
+            mnClient.getMainWindow().addCenter(results);
+            mnClient.getMainWindow().pack();
         });
 
         // Add our components to the north, south, east, west, or centre of the main
