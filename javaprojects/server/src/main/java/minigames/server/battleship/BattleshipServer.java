@@ -12,6 +12,8 @@ import minigames.server.achievements.AchievementHandler;
 import minigames.server.gameNameGenerator.GameNameGenerator;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -80,7 +82,7 @@ public class BattleshipServer implements GameServer {
 
     // A random name. We could do with something more memorable, like Docker has
     static String randomName() {
-        return gameNameGenerator.randomName().replace("_", " ");
+        return gameNameGenerator.randomName();
     }
 
     // Add the game to a HashMap in memory containing all in-progress games
@@ -111,13 +113,16 @@ public class BattleshipServer implements GameServer {
      */
     @Override
     public GameMetadata[] getGamesInProgress() {
-        return games.keySet().stream().map((name) -> {
-            if (games.get(name).getPlayerNames().length == 2 && !games.get(name).getPlayerNames()[1].equals("Computer")) {
-                return new GameMetadata("Battleship", name, games.get(name).getPlayerNames(), false);
-            }if (games.get(name).getPlayerNames().length < 2) {
-                return new GameMetadata("Battleship", name, games.get(name).getPlayerNames(), false);
+        HashMap<String, BattleshipGame> joinableGames = new HashMap<>();
+        //we only add game that have not already started
+        for (Map.Entry<String, BattleshipGame> battleshipGameEntry : games.entrySet()) {
+            if(battleshipGameEntry.getValue().getGameState() == GameState.WAITING_JOIN){
+                joinableGames.put(battleshipGameEntry.getKey(), battleshipGameEntry.getValue());
             }
-            return new GameMetadata("Battleship", name, games.get(name).getPlayerNames(), true);
+        }
+
+        return joinableGames.keySet().stream().map((name) -> {
+            return new GameMetadata("Battleship", name, joinableGames.get(name).getPlayerNames(), true);
         }).toArray(GameMetadata[]::new);
     }
 

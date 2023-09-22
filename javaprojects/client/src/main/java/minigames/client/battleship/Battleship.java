@@ -643,6 +643,13 @@ public class Battleship implements GameClient, Tickable {
                 waiting = false;
                 mnClient.getDialogManager().showMessageDialog("Game Voided", generateExitPanel(), false);
             }
+            case "waitForJoin" -> {
+                messages.setText("Waiting for an opponent to join. Type 'Start' to begin vs AI");
+                userCommand.requestFocus();
+                //this isn't pretty but we're just going to keep pinging the server with refreshes until players have
+                //joined or a computer opponent is added
+                sendCommand("refresh");
+            }
         }
     }
 

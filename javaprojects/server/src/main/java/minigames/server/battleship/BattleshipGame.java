@@ -53,11 +53,7 @@ public class BattleshipGame {
         this.gameName = gameName;
         this.achievementHandler = new AchievementHandler(BattleshipServer.class);
         this.playerName = playerName;
-        this.gameState = GameState.SHIP_PLACEMENT;
-        bPlayers.put("Player", new BattleshipPlayer("Player",
-                new Board(0), true, welcomeMessage));
-        bPlayers.put("Computer", new BattleshipPlayer("Computer",
-                new Board(1), false, welcomeMessage));
+        this.gameState = GameState.WAITING_JOIN;
     }
 
     // Reference list of ship names and their size
@@ -91,6 +87,13 @@ public class BattleshipGame {
     }
 
     /**
+     * @return gets the state of the current game
+     */
+    public GameState getGameState() {
+        return this.gameState;
+    }
+
+    /**
      * Return the meta-data for the in-progress game
      *
      * @return a GameMetadata Object containing the information for the current game
@@ -113,10 +116,6 @@ public class BattleshipGame {
         // Get user input typed into the console
         String userInput = String.valueOf(cp.commands().get(0).getValue("command"));
 
-        BattleshipPlayer currentClient = bPlayers.get(cp.player());
-        BattleshipPlayer current = bPlayers.get(activePlayer);
-        BattleshipPlayer opponent = bPlayers.get(opponentPlayer);
-
         //Handle exit game commands
         if (userInput.equals("exitGame")) {
             System.out.println("This should exit that game");
@@ -125,8 +124,9 @@ public class BattleshipGame {
             System.out.println(getPlayerNames().length);
 
             return new RenderingPackage(gameMetadata(), commands);
-
-        } else if (bPlayers.size() < 2) { //todo change this to test if other player has left
+        } else if (bPlayers.size() < 2 && gameState != GameState.WAITING_JOIN) {
+            //Here is where a player has left a running game
+            //todo change this to test if other player has left
             //todo here is where we should check if the OTHER player had left the game, and tell this client
             //to pop up a window saying other player has left
             //also just return a render package immediately here
@@ -134,13 +134,39 @@ public class BattleshipGame {
             return new RenderingPackage(gameMetadata(), commands);
         }
 
+        if (gameState == GameState.WAITING_JOIN) {
+            //once 2 players are in the game, we can start
+            if (bPlayers.size() >= 2) {
+                gameState = GameState.SHIP_PLACEMENT;
+                String[] players = getPlayerNames();
+                if (players[0].equals(cp.player())) {
+                    commands.addAll(getGameRender(bPlayers.get(players[0]), bPlayers.get(players[1])));
+                } else {
+                    commands.addAll(getGameRender(bPlayers.get(players[1]), bPlayers.get(players[0])));
+                }
+            } else {
+                if (userInput.equalsIgnoreCase("Start")) {
+                    //if user enters start and there isn't another player, make a computer one
+                    bPlayers.put("Computer", new BattleshipPlayer("Computer",
+                            new Board(1), false, welcomeMessage));
+                }
+                commands.add(new JsonObject().put("command", "waitForJoin"));
+            }
+            return new RenderingPackage(gameMetadata(), commands);
+        }
+
+
+        BattleshipPlayer currentClient = bPlayers.get(cp.player());
+        BattleshipPlayer current = bPlayers.get(activePlayer);
+        BattleshipPlayer opponent = bPlayers.get(opponentPlayer);
+
         //if the game hasn't been aborted, we can move on to processing commands based on what the gamestate is
         switch (gameState) {
             case SHIP_PLACEMENT -> {
                 // List of available ships
                 String[] ships = {"Carrier", "Battleship", "Destroyer", "Submarine", "Patrol Boat"};
                 // Currently selected ship to move
-                int shipIndex  = currentClient.getBoard().getShipSelected();
+                int shipIndex = currentClient.getBoard().getShipSelected();
                 Ship currentShip = currentClient.getBoard().getVessels().get(ships[shipIndex]);
 //                System.out.println("Should be moving: "+currentShip.getShipClass());
                 // Orientation ---- probably not needed
@@ -212,6 +238,13 @@ public class BattleshipGame {
                 }
 
                 commands.add(new JsonObject().put("command", "shipPlacement"));
+                //getting the board/game render here
+                String[] players = getPlayerNames();
+                if (players[0].equals(cp.player())) {
+                    commands.addAll(getGameRender(bPlayers.get(players[0]), bPlayers.get(players[1])));
+                } else {
+                    commands.addAll(getGameRender(bPlayers.get(players[1]), bPlayers.get(players[0])));
+                }
                 return new RenderingPackage(gameMetadata(), commands);
             }
             case PENDING_START -> {
@@ -258,8 +291,10 @@ public class BattleshipGame {
             case IN_PROGRESS -> {
 //                BattleshipPlayer current = bPlayers.get(activePlayer);
 //                BattleshipPlayer opponent = bPlayers.get(opponentPlayer);
-                if (!current.getBoard().getGameState().equals(GameState.IN_PROGRESS)) current.getBoard().setGameState(GameState.IN_PROGRESS);
-                if (!opponent.getBoard().getGameState().equals(GameState.IN_PROGRESS)) opponent.getBoard().setGameState(GameState.IN_PROGRESS);
+                if (!current.getBoard().getGameState().equals(GameState.IN_PROGRESS))
+                    current.getBoard().setGameState(GameState.IN_PROGRESS);
+                if (!opponent.getBoard().getGameState().equals(GameState.IN_PROGRESS))
+                    opponent.getBoard().setGameState(GameState.IN_PROGRESS);
 
                 if (Objects.equals(current.getName(), cp.player())) {
                     //On this users turn, we process any non-refresh commands as an input coordinate
@@ -292,7 +327,7 @@ public class BattleshipGame {
                     //no other commands run here, player will continue waiting until their turn
                 }
 
-                if(opponent.getBoard().checkGameOver(current.getName()) || current.getBoard().checkGameOver(opponent.getName())){
+                if (opponent.getBoard().checkGameOver(current.getName()) || current.getBoard().checkGameOver(opponent.getName())) {
 
                     this.gameState = GameState.GAME_OVER;
                 }
@@ -398,7 +433,15 @@ public class BattleshipGame {
      * @return The RenderingPackage for the game in its current (or new) state
      */
     public RenderingPackage joinGame(String playerName) {
-
+        //once a game has started, nobody can join it
+        if (gameState != GameState.WAITING_JOIN) {
+            return new RenderingPackage(
+                    gameMetadata(),
+                    Arrays.stream(new RenderingCommand[]{
+                            new NativeCommands.ShowMenuError("This game has already started")
+                    }).map((r) -> r.toJson()).toList()
+            );
+        }
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         renderingCommands.add(new LoadClient("Battleship", "Battleship", gameName, playerName).toJson());
         renderingCommands.add(new JsonObject().put("command", "clearText"));
@@ -406,54 +449,39 @@ public class BattleshipGame {
         renderingCommands.add(new JsonObject().put("command", "updatePlayerName").put("player", playerName));
         renderingCommands.add(new JsonObject().put("command", "turnCountGameStart").put("turnCount", "- Place Ships -"));
 
-        // Don't allow a player to join if the player's name is already taken
-        if (bPlayers.containsKey(playerName)) {
-            return new RenderingPackage(
-                    gameMetadata(),
-                    Arrays.stream(new RenderingCommand[]{
-                            new NativeCommands.ShowMenuError("That name's not available")
-                    }).map((r) -> r.toJson()).toList()
-            );
-        } else if (gameState.equals(GameState.IN_PROGRESS)) {
-            // TODO: if current turn alternates between 1,0 it should be getting an overall turn value for the entire game
-            // Don't allow a player to join if the game has started
+        String[] currentPlayers = getPlayerNames();
+
+        if (currentPlayers.length == 0) {
+            BattleshipPlayer newPlayer = new BattleshipPlayer(playerName,
+                    new Board(0), true, welcomeMessage);
+            bPlayers.put(playerName, newPlayer);
+            renderingCommands.add(new JsonObject().put("command", "waitForJoin"));
+
+        } else if (currentPlayers.length == 1) {
+            if(currentPlayers[0].equals(playerName)){
+                //if the player is trying to double-join their own game, this should fail
+                return new RenderingPackage(
+                        gameMetadata(),
+                        Arrays.stream(new RenderingCommand[]{
+                                new NativeCommands.ShowMenuError("You are already in this game!")
+                        }).map((r) -> r.toJson()).toList()
+                );
+            }
+            //we can add a 2nd player as long as it's not the same player joining twice
+            BattleshipPlayer newPlayer2 = new BattleshipPlayer(playerName,
+                    new Board(0), true, welcomeMessage);
+            bPlayers.put(playerName, newPlayer2);
+        } else {
+            //shouldn't be able to get here as the game should start once 2 players join, but just
+            //tell the user that the game has already started
             return new RenderingPackage(
                     gameMetadata(),
                     Arrays.stream(new RenderingCommand[]{
                             new NativeCommands.ShowMenuError("This game has already started")
                     }).map((r) -> r.toJson()).toList()
             );
-        } else {
-            // First player to join - Replace the "Player","Computer" with actual player followed by new computer to maintain order
-            if (bPlayers.containsKey("Player")) {
-                bPlayers.remove("Player");
-                bPlayers.put(playerName, new BattleshipPlayer(playerName,
-                        new Board(0), true, welcomeMessage));
-                bPlayers.remove("Computer");
-                bPlayers.put("Computer", new BattleshipPlayer("Computer",
-                        new Board(1), false, welcomeMessage));
-                // For one player, show enemy board of computer
-                renderingCommands.add(new JsonObject()
-                        .put("command", "placePlayer1Board")
-                        .put("text", bPlayers.get(playerName).getBoard().generateBoard(player, false)));
-                renderingCommands.add(new JsonObject()
-                        .put("command", "placePlayer2Board")
-                        .put("text", bPlayers.get(getPlayerNames()[1]).getBoard().generateBoard(enemy, true)));
-            } else {
-                // Second player to join - Simply replaces the computer
-                bPlayers.remove("Computer");
-                bPlayers.put(playerName, new BattleshipPlayer(playerName,
-                        new Board(1), true, welcomeMessage));
-                // For two players, show enemy board of player 1
-                renderingCommands.add(new JsonObject()
-                        .put("command", "placePlayer1Board")
-                        .put("text", bPlayers.get(playerName).getBoard().generateBoard(player, false)));
-                renderingCommands.add(new JsonObject()
-                        .put("command", "placePlayer2Board")
-                        .put("text", bPlayers.get(getPlayerNames()[0]).getBoard().generateBoard(enemy, true)));
-            }
-
-            return new RenderingPackage(gameMetadata(), renderingCommands);
         }
+
+        return new RenderingPackage(gameMetadata(), renderingCommands);
     }
 }
