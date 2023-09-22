@@ -1,5 +1,4 @@
-public class Number {
-    package main.java.cosc220.minigame;
+package main.java.minigames.server.rummy;
 
 
 public enum Number {
@@ -42,7 +41,5 @@ public enum Number {
         }
         return "0";
     }
-
-}
 
 }

@@ -7,7 +7,7 @@ package main.java.minigame.server.rummy;
 
 
 public enum Suit {
-    spades("img/spades.png")
+    spades("img/spades.png"),
     club("img/club.png"),
     diamond("img/diamond.png"),
     heart(img/hearth.png);
