@@ -290,16 +290,14 @@ public class HangmanClient implements GameClient {
             case "play" -> {
                 try{
                     playMIDI();
-                    gameArea.repaint();
-                    gamePanel.repaint();
+                    gameArea.setFocusOnPanel();
                 } catch(MidiUnavailableException | InvalidMidiDataException e){
                     throw new RuntimeException(e);
                 }
             }
             case "stop" -> {
                 stopMIDI();
-                gameArea.repaint();
-                gamePanel.repaint();
+                gameArea.setFocusOnPanel();
 
 
             }
@@ -424,7 +422,7 @@ public class HangmanClient implements GameClient {
 
         exitButton = new JButton("Exit");
 		exitButton.setFont(btnFont);
-		exitButton.addActionListener((evt) -> sendCommand("BACK"));
+        exitButton.addActionListener((evt) -> sendCommand("BACK"));
 		gamePanel.add(exitButton);
 		gamePanel.add(Box.createVerticalGlue());
 
