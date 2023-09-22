@@ -55,11 +55,8 @@ public class Survey extends JPanel implements ActionListener {
     // Sets the Frame Title (top left corner)
     public static final String FRAME_TITLE = "Game Survey";
 
-    // Game that calls the survey (CHANGE TO BE REUSABLE)
-    public String callingGame = "(Your Game Name Here!)";
-
     // Main Survey Class
-    public Survey(MinigameNetworkClient mnClient, String gameId) {
+    public Survey(MinigameNetworkClient mnClient, String gameId, String gameName) {
 
         // Survey main panel layout
         this.setPreferredSize(new Dimension(800, 600));
@@ -104,7 +101,7 @@ public class Survey extends JPanel implements ActionListener {
 
         // gameName TextLabel
         gameNameTextLabel = new JLabel();
-        gameNameTextLabel.setText(callingGame);
+        gameNameTextLabel.setText(gameName);
         gameNameTextLabel.setFont(fontText);
         gameNameTextLabel.setHorizontalAlignment(JLabel.CENTER);
 
@@ -271,7 +268,7 @@ public class Survey extends JPanel implements ActionListener {
 
         // Back Button
         backPanel = new JPanel();
-        backButton = new JButton("Back");
+        backButton = new JButton("Exit");
         backButton.setFont(fontButton);
         backButton.addActionListener(e -> mnClient.runMainMenuSequence());
         backPanel.add(backButton);
@@ -375,7 +372,13 @@ public class Survey extends JPanel implements ActionListener {
             .put("difficulty_rating", difficultyRating)
             .put("feedback_text", sanitisedText);
 
-        mnClient.sendSurveyData(surveyData).onSuccess(e -> mnClient.runMainMenuSequence());
+        mnClient.sendSurveyData(surveyData).onSuccess(e -> {
+            mnClient.getMainWindow().clearAll();
+            JPanel results = new SurveyResults(mnClient, gameId);
+            // frame.setTitle(Survey.FRAME_TITLE);
+            mnClient.getMainWindow().addCenter(results);
+            mnClient.getMainWindow().pack();
+        });
     }
 
     // Change colour of labels (overrides singular setting of colour) Does not include helpLabel

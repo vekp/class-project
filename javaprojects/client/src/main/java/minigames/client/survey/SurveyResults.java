@@ -52,6 +52,9 @@ public class SurveyResults extends JPanel implements ActionListener{
 
     // Our called games names will be stored here for use in a combo box
     public String[] gameNames;
+
+    // If (gameId)
+
     private Map<String, String> gameNameToIdMap = new HashMap<>();
     
     MinigameNetworkClient mnClientGlobal;
@@ -166,23 +169,23 @@ public class SurveyResults extends JPanel implements ActionListener{
         gameNameComboBox = new JComboBox(gameNames);
         gameNameComboBox.setFont(fontRatingResult);
         gameNameComboBox.addActionListener(this);
-        uiRatingRatingLabel = new JLabel("DB result");
+        uiRatingRatingLabel = new JLabel("Loading...");
         uiRatingRatingLabel.setForeground(Color.BLACK);
         uiRatingRatingLabel.setFont(fontRatingResult);
         uiRatingRatingLabel.setHorizontalAlignment(JLabel.CENTER);
-        enjoymentRatingLabel = new JLabel("DB result");
+        enjoymentRatingLabel = new JLabel("Loading...");
         enjoymentRatingLabel.setForeground(Color.BLACK);
         enjoymentRatingLabel.setFont(fontRatingResult);
         enjoymentRatingLabel.setHorizontalAlignment(JLabel.CENTER);
-        functionalityRatingLabel = new JLabel("DB result");
+        functionalityRatingLabel = new JLabel("Loading...");
         functionalityRatingLabel.setForeground(Color.BLACK);
         functionalityRatingLabel.setFont(fontRatingResult);
         functionalityRatingLabel.setHorizontalAlignment(JLabel.CENTER);
-        difficultyRatingLabel = new JLabel("DB result");
+        difficultyRatingLabel = new JLabel("Loading...");
         difficultyRatingLabel.setForeground(Color.BLACK);
         difficultyRatingLabel.setFont(fontRatingResult);
         difficultyRatingLabel.setHorizontalAlignment(JLabel.CENTER);
-        overallRatingLabelRight = new JLabel("DB result");
+        overallRatingLabelRight = new JLabel("Loading...");
         overallRatingLabelRight.setForeground(Color.BLACK);
         overallRatingLabelRight.setFont(fontRatingResult);
         overallRatingLabelRight.setHorizontalAlignment(JLabel.CENTER);
@@ -294,6 +297,8 @@ public class SurveyResults extends JPanel implements ActionListener{
         gameDataFuture.onSuccess((gameData) -> {
             JsonArray gameDataArray = new JsonArray(gameData);
             populateGameNameToIdMap(gameDataArray);
+
+            System.out.println(gameDataArray);
         });
 
         if(image != null) {
@@ -344,10 +349,14 @@ public class SurveyResults extends JPanel implements ActionListener{
             JsonObject gameData = gameDataArray.getJsonObject(i);
             String gameName = gameData.getString("game_name");
             String gameId = gameData.getString("_id");
-            System.out.println(gameId);
             gameNameToIdMap.put(gameName, gameId);
         }
         gameNames = gameNameToIdMap.keySet().toArray(new String[0]);
+
+        // if (gameIdGlobal = gameNameToIdMap._id)
+        // gameNameToIdMap.game_name
+
+        // OR Try switch case
 
         DefaultComboBoxModel<String> comboBoxModel = new DefaultComboBoxModel<>(gameNames);
         gameNameComboBox.setModel(comboBoxModel);
