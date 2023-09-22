@@ -49,8 +49,9 @@ public class Board {
      * @return The 2D String Array in its current state
      */
     public Cell[][] getGrid() {
-        System.out.println(this.gameState.toString());
+//        System.out.println(this.gameState.toString());
         if (this.gameState == GameState.SHIP_PLACEMENT) {
+            System.out.println("Edited Grid");
             this.grid.generateGrid(this.vessels);
         }
         return this.grid.getGrid();
@@ -140,6 +141,7 @@ public class Board {
     public String generateBoard(String boardTitle, boolean isEnemy) {
         StringBuilder gridStrings = new StringBuilder();
         String chars = "ABCDEFGHIJ";
+        Cell[][] grd = getGrid();
 
         // Character width of the board
         int strLength = 24;
@@ -157,7 +159,7 @@ public class Board {
                 if (i==0) gridStrings.append(j).append(" ");
                 if (j==0 && i!=0) gridStrings.append(" ").append(chars.charAt(i-1)).append(" ");
                 if (i>0) {
-                    String cellString = getGrid()[i-1][j].getCellTypeString();
+                    String cellString = grd[i-1][j].getCellTypeString();
                     // Replace boats with water if enemy board
                     if (isEnemy && !("X.".contains(cellString))) cellString = "~";
                     // Most recent shot is coloured red
@@ -179,6 +181,7 @@ public class Board {
     public String showEnemyBoard(String boardTitle) {
         StringBuilder gridStrings = new StringBuilder();
         String chars = "ABCDEFGHIJ";
+        Cell[][] grd = getGrid();
 
         // Character width of the board
         int strLength = 24;
@@ -196,7 +199,7 @@ public class Board {
                 if (i==0) gridStrings.append(j).append(" ");
                 if (j==0 && i!=0) gridStrings.append(" ").append(chars.charAt(i-1)).append(" ");
                 if (i>0) {
-                    String cellString = getGrid()[i-1][j].getCellTypeString();
+                    String cellString = grd[i-1][j].getCellTypeString();
                     if(cellString.equals(".") || cellString.equals("X")){
                         if (i-1 == lastColShot && j == lastRowShot) {
                             cellString = "<span style='color:red'>" + cellString + "</span>";
@@ -279,7 +282,7 @@ public class Board {
 
         }
         // Returns a 'null' ship which will give false values required for the functions use
-        return new Ship("", new Cell[0], 0,0, true);
+        return new Ship("", 0, new Cell[0], 0,0, true);
     }
 
     /**

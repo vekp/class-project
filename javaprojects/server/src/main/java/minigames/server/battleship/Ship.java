@@ -14,6 +14,7 @@ public class Ship {
     private Cell[] shipParts;  // An Array containing all the Cells of the ship
     private boolean sunk;      // A boolean for whether the ship has been sunk
     private boolean justSunk;  // Boolean for whether the ship has just been sunk on that turn
+    private int identifier;    // int value representing its index for ship name lists
     int hits;
     int size;
     private int row;
@@ -29,11 +30,12 @@ public class Ship {
      * @param shipClass The class of the ship (Battleship, sub, etc)
      * @param shipParts The composition of the cells contained within the ship
      */
-    public Ship(String shipClass, Cell[] shipParts, int row, int col, boolean horizontal) {
+    public Ship(String shipClass, int identifier, Cell[] shipParts, int row, int col, boolean horizontal) {
         this.shipClass = shipClass;
         this.shipParts = shipParts;
         this.sunk = false;
         this.justSunk = false;
+        this.identifier = identifier;
         this.hits = 0;
         this.size = shipParts.length;
         this.row = row;
@@ -86,6 +88,10 @@ public class Ship {
      */
     public boolean isJustSunk() {
         return this.justSunk;
+    }
+
+    public int getIdentifier() {
+        return identifier;
     }
 
     public int getRow() {

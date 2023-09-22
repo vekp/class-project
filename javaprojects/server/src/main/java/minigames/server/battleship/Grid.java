@@ -143,7 +143,7 @@ public class Grid {
             parts[i].setVerticalCoord((horizontal)? row: row + i);
         }
 
-        return new Ship(shipClass[shipType], parts, col, row, horizontal);
+        return new Ship(shipClass[shipType], shipType, parts, col, row, horizontal);
     }
 
     /**
