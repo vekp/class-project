@@ -1,7 +1,5 @@
 package minigames.server.battleship;
 
-import java.awt.event.KeyEvent;
-import java.security.PublicKey;
 import java.util.*;
 
 import minigames.server.achievements.AchievementHandler;
@@ -39,8 +37,9 @@ public class BattleshipGame {
     static final String player = "Nautical Map";
     static final String enemy = "Target Map";
     static String welcomeMessage = """
-            Good evening Captain! Enter 'Ready' to start conquering the seas!
-            Use arrow keys to move ships around the grid. Press 'Tab' to switch vessel and 'Space' to rotate.
+            Good evening Captain! Use arrow keys to move ships around the grid.
+            Press 'S' to switch vessel, 'R' to rotate and 'C' to confirm.
+            Confirm, then enter 'Ready' to start conquering the seas!
             ...""";
     public static String chars = "ABCDEFGHIJ";
 
@@ -114,70 +113,108 @@ public class BattleshipGame {
         // Get user input typed into the console
         String userInput = String.valueOf(cp.commands().get(0).getValue("command"));
 
+        BattleshipPlayer currentClient = bPlayers.get(cp.player());
+        BattleshipPlayer current = bPlayers.get(activePlayer);
+        BattleshipPlayer opponent = bPlayers.get(opponentPlayer);
+
         //Handle exit game commands
         if (userInput.equals("exitGame")) {
             System.out.println("This should exit that game");
             //todo this shouldnt clear list, just remove 1 player?
-            bPlayers.clear();
+            bPlayers.remove(cp.player());
             System.out.println(getPlayerNames().length);
-            //probably just return a render package immediately here?
 
-        } else if (false) { //todo change this to test if other player has left
+            return new RenderingPackage(gameMetadata(), commands);
+
+        } else if (bPlayers.size() < 2) { //todo change this to test if other player has left
             //todo here is where we should check if the OTHER player had left the game, and tell this client
             //to pop up a window saying other player has left
             //also just return a render package immediately here
+            commands.add(new JsonObject().put("command", "playerExited"));
+            return new RenderingPackage(gameMetadata(), commands);
         }
 
         //if the game hasn't been aborted, we can move on to processing commands based on what the gamestate is
         switch (gameState) {
             case SHIP_PLACEMENT -> {
-
-                BattleshipPlayer currentClient = bPlayers.get(cp.player());
                 // List of available ships
                 String[] ships = {"Carrier", "Battleship", "Destroyer", "Submarine", "Patrol Boat"};
-                // Currently selected ship
+                // Currently selected ship to move
                 int shipIndex  = currentClient.getBoard().getShipSelected();
                 Ship currentShip = currentClient.getBoard().getVessels().get(ships[shipIndex]);
-                // Orientation
-                int orient = 0;
-                if (currentShip.getShipParts()[0].getCellType().equals(CellType.SHIP_UP)) orient = 1;
+//                System.out.println("Should be moving: "+currentShip.getShipClass());
+                // Orientation ---- probably not needed
                 switch (userInput) {
                     case "up" -> {
                         System.out.println("UP");
-                        if (currentClient.validPlacement(currentClient.getBoard().getShipSelected(), 0, -1, false)) {
+                        if (currentClient.isInsideGrid(currentShip, 0, -1, false)) {
                             currentClient.moveShip("UP", currentShip);
+                            commands.add(new JsonObject()
+                                    .put("command", "placePlayer1Board")
+                                    .put("text", currentClient.getBoard().generateBoard(player, false)));
+                            return new RenderingPackage(gameMetadata(), commands);
                         }
                     }
                     case "down" -> {
                         System.out.println("DOWN");
-                        if (currentClient.validPlacement(currentClient.getBoard().getShipSelected(), 0, 1, false)) {
+                        if (currentClient.isInsideGrid(currentShip, 0, 1, false)) {
                             currentClient.moveShip("DOWN", currentShip);
+                            commands.add(new JsonObject()
+                                    .put("command", "placePlayer1Board")
+                                    .put("text", currentClient.getBoard().generateBoard(player, false)));
+                            return new RenderingPackage(gameMetadata(), commands);
                         }
                     }
                     case "left" -> {
                         System.out.println("LEFT");
-                        if (currentClient.validPlacement(currentClient.getBoard().getShipSelected(), -1, 0, false)) {
-
+                        if (currentClient.isInsideGrid(currentShip, -1, 0, false)) {
+                            commands.add(new JsonObject()
+                                    .put("command", "placePlayer1Board")
+                                    .put("text", currentClient.getBoard().generateBoard(player, false)));
+                            return new RenderingPackage(gameMetadata(), commands);
                         }
                     }
                     case "right" -> {
                         System.out.println("RIGHT");
-                        if (currentClient.validPlacement(currentClient.getBoard().getShipSelected(), 1, 0, false)) {
-
+                        if (currentClient.isInsideGrid(currentShip, 1, 0, false)) {
+                            commands.add(new JsonObject()
+                                    .put("command", "placePlayer1Board")
+                                    .put("text", currentClient.getBoard().generateBoard(player, false)));
+                            return new RenderingPackage(gameMetadata(), commands);
                         }
                     }
                     case "rotate" -> {
-                        System.out.println("SPACE");
-                        if (currentClient.validPlacement(currentClient.getBoard().getShipSelected(), 0, 0, true)) {
-
+                        System.out.println("R");
+                        if (currentClient.isInsideGrid(currentShip, 0, 0, true)) {
+                            commands.add(new JsonObject()
+                                    .put("command", "placePlayer1Board")
+                                    .put("text", currentClient.getBoard().generateBoard(player, false)));
+                            return new RenderingPackage(gameMetadata(), commands);
+                        } else if (currentClient.isInsideGrid(currentShip, 0, 0, true)) {
+                            commands.add(new JsonObject()
+                                    .put("command", "placePlayer1Board")
+                                    .put("text", currentClient.getBoard().generateBoard(player, false)));
+                            return new RenderingPackage(gameMetadata(), commands);
                         }
                     }
                     case "switch" -> {
-                        System.out.println("R");
+                        System.out.println("S");
                         currentClient.getBoard().setShipSelected();
+                        return new RenderingPackage(gameMetadata(), commands);
                     }
+                    case "confirm" -> {
+                        System.out.println("Confirm");
+                        gameState = GameState.PENDING_START;
+                        commands.add(new JsonObject().put("command", "confirm"));
+                        return new RenderingPackage(gameMetadata(), commands);
+                    }
+
                 }
 
+                commands.add(new JsonObject().put("command", "shipPlacement"));
+                return new RenderingPackage(gameMetadata(), commands);
+            }
+            case PENDING_START -> {
                 if (userInput.equalsIgnoreCase("ready")) {
                     //set this player to ready
 
@@ -216,14 +253,11 @@ public class BattleshipGame {
                     } else {
                         commands.add(new JsonObject().put("command", "waitReady"));
                     }
-
                 }
-
-                commands.add(new JsonObject().put("command", "shipPlacement"));  // This isn't actually doing anything atm
             }
             case IN_PROGRESS -> {
-                BattleshipPlayer current = bPlayers.get(activePlayer);
-                BattleshipPlayer opponent = bPlayers.get(opponentPlayer);
+//                BattleshipPlayer current = bPlayers.get(activePlayer);
+//                BattleshipPlayer opponent = bPlayers.get(opponentPlayer);
                 if (!current.getBoard().getGameState().equals(GameState.IN_PROGRESS)) current.getBoard().setGameState(GameState.IN_PROGRESS);
                 if (!opponent.getBoard().getGameState().equals(GameState.IN_PROGRESS)) opponent.getBoard().setGameState(GameState.IN_PROGRESS);
 
@@ -259,6 +293,7 @@ public class BattleshipGame {
                 }
 
                 if(opponent.getBoard().checkGameOver(current.getName()) || current.getBoard().checkGameOver(opponent.getName())){
+
                     this.gameState = GameState.GAME_OVER;
                 }
 
@@ -266,6 +301,12 @@ public class BattleshipGame {
             }
             case GAME_OVER -> {
                 // TODO - Render a game-over screen
+//                BattleshipPlayer current = bPlayers.get(activePlayer);
+//                BattleshipPlayer opponent = bPlayers.get(opponentPlayer);
+                commands.addAll(getGameRender(opponent, current));
+                commands.add(new JsonObject().put("command", "gameOver"));
+
+                return new RenderingPackage(gameMetadata(), commands);
             }
         }
 

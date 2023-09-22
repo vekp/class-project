@@ -48,6 +48,9 @@ public class Battleship implements GameClient, Tickable {
 
     JPanel mainPanel;
     JPanel helpPanel;
+    JPanel menuPanel;
+    JButton panelMenuBtn;
+    JButton panelNGBtn;
     JPanel heading;
     JButton menuButton;
     JButton achievementButton;
@@ -71,7 +74,6 @@ public class Battleship implements GameClient, Tickable {
     boolean waiting;
     boolean shipPlacement;
 
-
     /**
      * Creates the panels and layout for the game
      */
@@ -79,6 +81,8 @@ public class Battleship implements GameClient, Tickable {
 
         // Generate help panel
         helpPanel = generateHelpPanel();
+        // Generate help panel
+        menuPanel = generateMenuPanel();
 
         // Heading
         heading = new JPanel(new GridBagLayout());  // Game title, Current player and Menu button
@@ -86,10 +90,7 @@ public class Battleship implements GameClient, Tickable {
 
         // Menu button
         menuButton = new JButton("Menu");
-        menuButton.addActionListener(e -> {
-            closeGame();
-            mnClient.runMainMenuSequence();
-        });
+        menuButton.addActionListener(e -> mnClient.getDialogManager().showMessageDialog("Menu", menuPanel, false));
         menuButton.setFont(fonts.get(1));
         // Achievement button
         achievementButton = new JButton("Achv");
@@ -102,14 +103,14 @@ public class Battleship implements GameClient, Tickable {
                 "Help Menu",
                 helpPanel,
                 e1 -> {
-                    userCommand.requestFocus();
+                    maps.requestFocus();
                 })
         );
 
         helpButton.setFont(fonts.get(1));
 
         // Style buttons
-        for (JButton b : new JButton[]{menuButton, achievementButton, helpButton}) {
+        for (JButton b : new JButton[]{menuButton, achievementButton, helpButton, panelMenuBtn, panelNGBtn}) {
             b.setOpaque(true);
             b.setBorder(buttonBorder);
             b.setFocusable(false);
@@ -178,14 +179,6 @@ public class Battleship implements GameClient, Tickable {
         targetText.setFont(fonts.get(1));
         targetMap.add(targetText);
         maps.add(targetMap);
-        maps.setFocusable(true);
-        maps.addKeyListener(new java.awt.event.KeyAdapter() {
-            @Override
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                keyboard(evt);
-            }
-        });
-
 
         // Terminal - Messages and input area
         terminal = new JPanel();
@@ -220,6 +213,13 @@ public class Battleship implements GameClient, Tickable {
         userCommand.setFont(fonts.get(3));
         terminal.add(userCommand, BorderLayout.CENTER);
 
+        userCommand.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                keyboard(evt);
+            }
+        });
+
         // Add everything to one panel
         mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -246,8 +246,9 @@ public class Battleship implements GameClient, Tickable {
                 case KeyEvent.VK_DOWN -> sendCommand("down");
                 case KeyEvent.VK_LEFT -> sendCommand("left");
                 case KeyEvent.VK_RIGHT -> sendCommand("right");
-                case KeyEvent.VK_SPACE -> sendCommand("rotate");
-                case KeyEvent.VK_R -> sendCommand("switch");
+                case KeyEvent.VK_R -> sendCommand("rotate");
+                case KeyEvent.VK_S -> sendCommand("switch");
+                case KeyEvent.VK_C -> sendCommand("confirm");
             }
         }
     }
@@ -271,7 +272,6 @@ public class Battleship implements GameClient, Tickable {
 
         JLabel title = new JLabel("Help Menu");
         title.setFont(fonts.get(0));
-
 
         JTextArea description = new JTextArea("""
                 ------------------------------------------------------------
@@ -365,8 +365,6 @@ public class Battleship implements GameClient, Tickable {
         description.setEditable(false);
         description.setHighlighter(null);
         description.setFont(fonts.get(3));
-//        Color c = panel.getBackground();
-//        description.setBackground(c);
         description.setSize(300, 300);
 
         JScrollPane content = new JScrollPane(description);
@@ -376,11 +374,88 @@ public class Battleship implements GameClient, Tickable {
         content.setWheelScrollingEnabled(true);
         content.setBorder(null);
 
-
         panel.add(title, gbc);
         gbc.gridx = 0;
         gbc.gridy = 1;
         panel.add(content, gbc);
+
+        return panel;
+    }
+
+    /**
+     * Panel to contain main menu or new game options
+     * TODO: New Game option is non functional
+     * @return panel containing menu/game options
+     */
+    public JPanel generateMenuPanel() {
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        panel.setSize(new Dimension(100, 200));
+
+        gbc.gridwidth = 1;
+        gbc.insets = new Insets(5, 5, 5, 5);
+
+        // Menu button
+        panelMenuBtn = new JButton("Main Menu");
+        panelMenuBtn.addActionListener(e -> {
+            closeGame();
+            mnClient.runMainMenuSequence();
+        });
+        panelMenuBtn.setFont(fonts.get(1));
+        // New Game button
+        panelNGBtn = new JButton("New Game");
+        panelNGBtn.addActionListener(e -> System.out.println("Create a new game"));
+        panelNGBtn.setFont(fonts.get(1));
+
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.fill = 1;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(panelMenuBtn, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        panel.add(panelNGBtn, gbc);
+
+        return panel;
+    }
+
+    /**
+     * Panel to contain message to exit
+     * @return panel containing menu/game options
+     */
+    public JPanel generateExitPanel() {
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        gbc.gridwidth = 1;
+        gbc.insets = new Insets(5, 5, 5, 5);
+
+        JTextArea msg = new JTextArea("""
+        Your opponent has left the session
+        
+          Please return to the main menu
+        """);
+        msg.setFont(fonts.get(1));
+        msg.setEditable(false);
+
+        // Menu button
+        JButton menu = new JButton("Main Menu");
+        menu.addActionListener(e -> {
+            closeGame();
+            mnClient.runMainMenuSequence();
+        });
+        menu.setFont(fonts.get(1));
+
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(msg, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        panel.add(menu, gbc);
 
         return panel;
     }
@@ -480,6 +555,7 @@ public class Battleship implements GameClient, Tickable {
 
         // Open help menu on launching the game - on closing it will focus the command terminal
         helpButton.doClick();
+        userCommand.setEditable(true);
 
         // Don't forget to call pack - it triggers the window to resize and repaint itself
         mnClient.getMainWindow().pack();
@@ -519,15 +595,20 @@ public class Battleship implements GameClient, Tickable {
                 waiting = true;
             }
             case "shipPlacement" -> {
-
+                shipPlacement = true;
+                waiting = true;
+                userCommand.requestFocus();
+            }
+            case "confirm" -> {
+                shipPlacement = false;
+                userCommand.requestFocus();
+                userCommand.setText("");
             }
             case "prepareTurn" -> {
                 //we only set this messaging on the first instance that we are told our turn is ready
                 waiting = false;
                 userCommand.setEditable(true);
                 userCommand.requestFocus();
-
-
                 // TODO: this cannot be done here as the instructional message should be added to the message history
                 //add a welcome/intro message for the first turn of the game - turn count won't always be sent with
                 //the prepare command
@@ -542,7 +623,6 @@ public class Battleship implements GameClient, Tickable {
 //                        System.out.println("Error: Turn count sent was not a number");
 //                    }
 //                }
-
             }
             case "updateTurnCount" -> {
                 String turnCount = command.getString("turnCount");
@@ -554,7 +634,15 @@ public class Battleship implements GameClient, Tickable {
             case "updatePlayerName" -> currentPlayerName.setText("Current Player: " + command.getString("player"));
             case "placePlayer1Board" -> nauticalText.setText(nauticalText.getText() + command.getString("text"));
             case "placePlayer2Board" -> targetText.setText(targetText.getText() + command.getString("text"));
-
+            case "gameOver" -> {
+                waiting = false;
+                userCommand.setEditable(false);
+                messages.append("\nGame Complete.");
+            }
+            case "playerExited" -> {
+                waiting = false;
+                mnClient.getDialogManager().showMessageDialog("Game Voided", generateExitPanel(), false);
+            }
         }
     }
 
@@ -566,6 +654,7 @@ public class Battleship implements GameClient, Tickable {
         // Nothing to do
         sendCommand("exitGame");
         isQuitting = true;
+        waiting = false;
         // JOptionPane.showMessageDialog(mainPanel, "You will be returned to the main menu", "Exit", JOptionPane.INFORMATION_MESSAGE, null);
     }
 
