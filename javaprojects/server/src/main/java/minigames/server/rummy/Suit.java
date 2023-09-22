@@ -1,3 +1,6 @@
+package main.java.minigame.server.rummy;
+
+
 /*
  * loading card images as enum
  */

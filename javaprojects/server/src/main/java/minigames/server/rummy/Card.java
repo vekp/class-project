@@ -1,4 +1,4 @@
-// package main.java.minigame.server.rummy;
+package main.java.minigame.server.rummy;
 
 
 public class Card {
