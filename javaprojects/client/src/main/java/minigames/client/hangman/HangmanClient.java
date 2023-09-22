@@ -1,18 +1,15 @@
 package minigames.client.hangman;
 
-import minigames.utils.Tools;
+import minigames.hangman.Tools;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import javax.sound.midi.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
 
 import io.vertx.core.json.JsonObject;
 import minigames.client.GameClient;

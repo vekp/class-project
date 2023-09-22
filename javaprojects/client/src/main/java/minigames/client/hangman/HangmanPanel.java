@@ -13,7 +13,7 @@ import javax.swing.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import minigames.utils.Tools;
+import minigames.hangman.Tools;
 
 public class HangmanPanel extends JPanel {
 
@@ -187,7 +187,7 @@ public class HangmanPanel extends JPanel {
      * Register a pressed key, delegate the response if it's a valid key Pressing a letter is
      * treated as a guess in this game
      *
-     * @param evt the keyboard event
+     * @param e the keyboard event
      */
     void keyboard(KeyEvent e) {
         char key = e.getKeyChar();
