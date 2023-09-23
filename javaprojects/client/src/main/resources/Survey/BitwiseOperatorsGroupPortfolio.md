@@ -5,10 +5,9 @@
 - Daniel Lake - <dlake2@myune.edu.au>
 - Tony Huynh - <thuynh23@myune.edu.au> & <huynh.tony55@gmail.com>
 
-
 ## Description
 
-Our group has developed a Survey feature that has the ability to be added to other teams minigames or features. 
+Our group has developed a Survey feature that has the ability to be added to other teams minigames or features.
 Upon completion of an minigame that has integrated our Survey, users will be able to access the survey and conduct a short questionnaire to provide feedback on the game they have just completed.
 Once the survey has been completed and feedback provided, users will be sent to the ratings page, which displays the total average ratings of all surveys conducted for a particular minigame.
 Users can then use a dropdown menu to select other minigames or features and also see the ratings of those minigames aswell.
@@ -22,7 +21,7 @@ Please embed or link your demo video here.
 ## Difficulties we overcame
 
 1. Getting a background image to display on our Jpanel was a significant time effort to firstly understand how Java Swing implements UI display as well as creating a working background, the implementation of this only ended up being a small amount of code.
-2. Figuring out how to display multiple pages on the Frame by replacing Jpanels with different Jpanels took some time. This also required a solution that was portable and able to be called within other teams code files without interruption. 
+2. Figuring out how to display multiple pages on the Frame by replacing Jpanels with different Jpanels took some time. This also required a solution that was portable and able to be called within other teams code files without interruption.
 3. General re-familiarisation with a more explicitly typed language in Java and Java Swing. Most members of our group are more familiar with other languages and took for granted features and functionality that is normally provided without explicit declarations.
 4. In the original implementation of the feature to save survey data to JSON ([here](https://gitlab.une.edu.au/cosc220-2023/classproject/-/commit/e7acd7e5ab3a11b41cd95274e524a670f90cf4c0) and [here](https://gitlab.une.edu.au/cosc220-2023/classproject/-/commit/c289a767de719101cc9e031c3b9cdda98ab4d0fe)), we had not thought about the technicalities of appending new data to existing data. Thus, the code in its early stages was overwriting data every time the server and client were restarted. The solution [here](https://gitlab.une.edu.au/cosc220-2023/classproject/-/commit/dcfb48126eda2bc2968d319335101c10466a71df) was to remove the hardcoded file saving and use JSONParser to read existing data. Finally, that logic was refactored to save the survey data to the database, as well as read from it [here](https://gitlab.une.edu.au/cosc220-2023/classproject/-/commit/a3aa13ccc27995ce304fcb450ba659c9eee1c582).
 5. Integrating our survey into a communal database was an issue as it was getting late in the project with no communal database yet available. We had to come up with our own solution in the interim, by utilising MongoDB we were able to overcome this issue.
@@ -30,7 +29,7 @@ Please embed or link your demo video here.
 
 ## WIKI Pages & Features:
 
-### Group page:  
+### Group page:
 
 - [Bitwise Operators Wiki Page](https://gitlab.une.edu.au/cosc220-2023/classproject/-/wikis/Bitwise%20Operators)
 
@@ -58,12 +57,10 @@ All commits, however, have been merged into main.
 - [9-Survey-Database](https://gitlab.une.edu.au/cosc220-2023/classproject/-/tree/9-Survey-Database?ref_type=heads)
 - [9-Survey-Endpoints](https://gitlab.une.edu.au/cosc220-2023/classproject/-/tree/9-Survey-Endpoints?ref_type=heads)
 
-
 - 9-Survey NO REMOTE
 - 9-ResultsPage-2 NO REMOTE
 
-
-## Issues 
+## Issues
 
 - [Bitwise Operators - Survey Framework](https://gitlab.une.edu.au/cosc220-2023/classproject/-/issues/15)
 - [Bitwise Operators - Create Survey Foundation Code](https://gitlab.une.edu.au/cosc220-2023/classproject/-/issues/29)
@@ -84,18 +81,16 @@ All commits, however, have been merged into main.
 - [SurveyHelperFunctions Class](https://gitlab.une.edu.au/cosc220-2023/classproject/-/blob/main/javaprojects/server/src/main/java/minigames/server/survey/SurveyHelperFunctions.java)
 - [SurveyRoutesHandler Class](https://gitlab.une.edu.au/cosc220-2023/classproject/-/blob/main/javaprojects/server/src/main/java/minigames/server/survey/SurveyRoutesHandler.java)
 
-
 Include the GitLab link. This lets you choose whether to link to
 a version on Main or on your group branch.
-
 
 ## A list of the tests you have created
 
 Link to the code on GitLab
 
-ADD TEST CODE LINK HERE
+- [Survey Class](https://gitlab.une.edu.au/cosc220-2023/classproject/-/blob/9-Survey-Main/javaprojects/client/src/test/java/minigames/client/survey/SurveyTest.java?ref_type=heads)
+- [SurveyResults Class](https://gitlab.une.edu.au/cosc220-2023/classproject/-/blob/9-Survey-Main/javaprojects/client/src/test/java/minigames/client/survey/SurveyResultsTest.java?ref_type=heads)
 
 ## Notes
 
 All our commits were pushed individually based on Issues that were created.
-
