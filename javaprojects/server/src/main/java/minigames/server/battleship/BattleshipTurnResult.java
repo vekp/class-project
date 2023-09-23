@@ -17,11 +17,13 @@ public record BattleshipTurnResult(
         String playerMessage,
         String opponentMessage
 ) {
+    // First instruction message sent to the player at beginning of game
     public static BattleshipTurnResult firstInstruction() {
         return new BattleshipTurnResult(true, false, false,
                 doubleBreak + "To fire at the enemy, enter grid coordinates: (eg, " + "A4)" + inputPending, "");
     }
 
+    // Invalid input response
     public static BattleshipTurnResult invalidInput(String input) {
         String message = input.isBlank() ?
                 "Input cannot be blank, please enter a coordinate in the form 'A7'" + inputPrompt()
@@ -32,27 +34,28 @@ public record BattleshipTurnResult(
                 message, "");
     }
 
-    //result when the current player hits their target. The player gets a hit success message, the opponent gets a
+    // Result when the current player hits their target. The player gets a hit success message, the opponent gets a
     // 'enemy hit us!' message
     public static BattleshipTurnResult hitTarget(String inputCoords, boolean sunk) {
-        return new BattleshipTurnResult(true, true, sunk, endTurnPrompt(true, sunk, inputCoords),
+        return new BattleshipTurnResult(true, true, sunk, endTurnPrompt(true, sunk),
                 beginTurnPrompt(true, sunk, inputCoords));
     }
 
-    //result when the current player missed their target. Player gets a 'we missed' message, opponent gets a 'they
+    // Result when the current player missed their target. Player gets a 'we missed' message, opponent gets a 'they
     // missed us' message
     public static BattleshipTurnResult missTarget(String inputCoords) {
-        return new BattleshipTurnResult(true, false, false, endTurnPrompt(false, false, inputCoords),
+        return new BattleshipTurnResult(true, false, false, endTurnPrompt(false, false),
                 beginTurnPrompt(false, false, inputCoords));
     }
 
-    //called when a player shoots a cell they already hit. They lose their turn and the enemy gets told to ready
+    // Called when a player shoots a cell they already hit. They lose their turn and the enemy gets told to ready
     // their turn
     public static BattleshipTurnResult alreadyHitCell(String inputCoords) {
         return new BattleshipTurnResult(true, false, false, doubleBreak + "You already hit this cell! " + incoming,
                 beginTurnPrompt(false, false, inputCoords));
     }
 
+    // Messages for player and enemy for game ending
     public static BattleshipTurnResult missionSuccess() {
         return new BattleshipTurnResult(true, false, false, getRandomMessage(missionSuccessMessages), getRandomMessage(missionFailMessages));
     }
@@ -91,11 +94,12 @@ public record BattleshipTurnResult(
     }
 
     /**
-     * Method to return a message to the player TODO: Finish
+     * Method to return a message to the player containing information about their last turn, where the enemy then shot
+     * at and a prompt for the current turn input
      *
-     * @param hitOrMiss
-     * @param inputCoordinates
-     * @return
+     * @param hitOrMiss boolean representing whether the enemy hit a ship
+     * @param inputCoordinates String representing the coordinate the enemy fired at
+     * @return formatted String containing the above info
      */
     static String beginTurnPrompt(boolean hitOrMiss, boolean sunk, String inputCoordinates) {
         String message;
@@ -114,13 +118,12 @@ public record BattleshipTurnResult(
     }
 
     /**
-     * TODO: Finish
+     * Method to return a message to the player whether they hit the enemy ship and prepare them for the enemy's turn
      *
-     * @param hitOrMiss
-     * @param inputCoordinates
-     * @return
+     * @param hitOrMiss boolean representing whether the player hit the enemy ship
+     * @return formatted String containing the above info
      */
-    static String endTurnPrompt(boolean hitOrMiss, boolean sunk, String inputCoordinates) {
+    static String endTurnPrompt(boolean hitOrMiss, boolean sunk) {
         String message;
         if (sunk) {
             message = getRandomMessage(shipSunkMessages);
@@ -133,6 +136,7 @@ public record BattleshipTurnResult(
                 + incoming;
     }
 
+    // String formatted for a player input prompt
     static String inputPrompt() {
         return doubleBreak + enterCoords + inputPending;
     }

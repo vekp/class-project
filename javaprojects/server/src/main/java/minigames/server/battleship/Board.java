@@ -45,7 +45,7 @@ public class Board {
      * @return The 2D String Array in its current state
      */
     public Cell[][] getGrid() {
-//        System.out.println(this.gameState.toString());
+        // System.out.println(this.gameState.toString());
         if (this.gameState == GameState.PENDING_READY) {
             System.out.println("Edited Grid");
             this.grid.generateGrid(this.vessels);
@@ -62,8 +62,8 @@ public class Board {
     }
 
     /**
-     * TODO
-     * @return
+     * Function to get list of vessels
+     * @return hashmap of vessels - Ship objects
      */
     public HashMap<String, Ship> getVessels() {
         return vessels;
@@ -72,7 +72,7 @@ public class Board {
     /**
      * Return the ship object of the specified class on the current game board
      * @param shipClass A String containing the class of the ship
-     * @return
+     * @return Ship object
      */
     public Ship getShip(String shipClass){return this.vessels.get(shipClass);}
 
@@ -108,6 +108,97 @@ public class Board {
         if(cellType.toString().equals("X") || cellType.toString().equals(".")) {
             this.grid.shootCell(col, row);
         }
+    }
+
+    /**
+     * Sets the most recent shot fields to the given coordinates.
+     */
+    public void setLastShot(int row, int col) {
+        this.lastRowShot = row;
+        this.lastColShot = col;
+    }
+
+    // Methods
+
+    /**
+     * Function to initialise grid's layout of ships
+     */
+    public void chooseGrid(){
+        defaultGrid(this.grid.defaultShips());
+    }
+
+    /**
+     * Set the vessels map, and place ships on the grid in a default position
+     */
+    public void defaultGrid(HashMap<String,Ship> ships) {
+        this.vessels = new HashMap<>(ships);
+        this.getGrid();
+    }
+
+    /**
+     * Sinks all ships on the current board, for testing achievements and game state
+     */
+    public void sinkAll(String playerName){
+        vessels.forEach((shipType, ship) -> {
+            Cell[] shipParts = ship.getShipParts();
+            for(int i = 0; i < shipParts.length; i++){
+                int col = shipParts[i].getVerticalCoordInt();
+                int row = shipParts[i].getHorizontalCoord();
+                ship.updateShipStatus(col, row, playerName);
+            }
+        });
+    }
+
+    /**
+     * Function to determine if the game has ended with all ships being sunk
+     * @param name Name of the player to check
+     * @return true if game over
+     */
+    public boolean checkGameOver(String name){
+        // for ship in vessels hashmap, check if it is sunk and increment counter
+
+        AchievementHandler handler = new AchievementHandler(BattleshipServer.class);
+        int counter = 0;
+        for(Map.Entry<String, Ship> ship: vessels.entrySet()) {
+            if(ship.getValue().isSunk()){
+                counter++;
+            }
+            if(counter == 5) {
+                handler.unlockAchievement(name, MISSION_COMPLETE.toString());
+                return true;
+
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Method to get the ship corresponding to the coordinate input
+     * @param target cell used to grab coordinates from (new cell created when passed in with the user's x,y coord)
+     * @param vessels player's list of vessels
+     * @return the Ship object shot at
+     */
+    public Ship getVessel(Cell target, HashMap<String, Ship> vessels) {
+        ArrayList<String> shipClasses = new ArrayList<>();
+        vessels.forEach((key, value) -> {
+            shipClasses.add(key);
+            System.out.println(key);
+        });
+
+        for (String shipClass : shipClasses) {
+            Cell[] parts = vessels.get(shipClass).getShipParts();
+            ArrayList<String> coords = new ArrayList<>();
+            for (Cell part : parts) {
+                coords.add(part.getBothCoords());
+            }
+            if (coords.contains(target.getBothCoords())) {
+                System.out.println("Coordinate contained");
+                return vessels.get(shipClass);
+            }
+
+        }
+        // Returns a 'null' ship which will give false values required for the functions use
+        return new Ship("", 0, new Cell[0], 0,0, true);
     }
 
     /**
@@ -200,107 +291,4 @@ public class Board {
      * @return A 2D array of cells
      */
     public Cell[][] defaultGridCreator() {return this.grid.defaultGridCreator();}
-
-    /**
-     * Function to initialise grid's layout of ships
-     */
-    public void chooseGrid(){
-        defaultGrid(this.grid.defaultShips());
-    }
-
-    /**
-     * Set the vessels map, and place ships on the grid in a default position
-     */
-    public void defaultGrid(HashMap<String,Ship> ships) {
-        this.vessels = new HashMap<>(ships);
-        this.getGrid();
-    }
-
-    /**
-     * Method to get the ship corresponding to the coordinate input
-     * @param target cell used to grab coordinates from (new cell created when passed in with the user's x,y coord)
-     * @param vessels player's list of vessels
-     * @return the Ship object shot at
-     */
-    public Ship getVessel(Cell target, HashMap<String, Ship> vessels) {
-        ArrayList<String> shipClasses = new ArrayList<>();
-        vessels.forEach((key, value) -> {
-            shipClasses.add(key);
-            System.out.println(key);
-        });
-
-        for (String shipClass : shipClasses) {
-            Cell[] parts = vessels.get(shipClass).getShipParts();
-            ArrayList<String> coords = new ArrayList<>();
-            for (Cell part : parts) {
-                coords.add(part.getBothCoords());
-            }
-            if (coords.contains(target.getBothCoords())) {
-                System.out.println("Coordinate contained");
-                return vessels.get(shipClass);
-            }
-
-        }
-        // Returns a 'null' ship which will give false values required for the functions use
-        return new Ship("", 0, new Cell[0], 0,0, true);
-    }
-
-    /**
-     * TODO
-     * @param shipTitle
-     * @param shipType
-     * @param row
-     * @param col
-     * @param horizontal
-     * @param exShips
-     * @return
-     */
-    public HashMap<String,Ship> customShip(String shipTitle, int shipType, int row, int col, boolean horizontal, HashMap<String,Ship> exShips) {
-        // Map of ships
-        HashMap<String, Ship> vessels = new HashMap<>(exShips);
-        // Replace ship in the map
-        vessels.replace(shipTitle, this.grid.createShip(shipType, row, col, horizontal));
-
-        return vessels;
-    }
-    /**
-     * Sets the most recent shot fields to the given coordinates.
-     */
-    public void setLastShot(int row, int col) {
-        this.lastRowShot = row;
-        this.lastColShot = col;
-    }
-
-    public boolean checkGameOver(String name){
-        // for ship in vessels hashmap, check if it is sunk and increment counter
-
-        AchievementHandler handler = new AchievementHandler(BattleshipServer.class);
-        int counter = 0;
-        for(Map.Entry<String, Ship> ship: vessels.entrySet()) {
-            if(ship.getValue().isSunk()){
-                counter++;
-            }
-            if(counter == 5) {
-                handler.unlockAchievement(name, MISSION_COMPLETE.toString());
-                return true;
-
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Sinks all ships on the current board, for testing achievements and game state
-     */
-    public void sinkAll(String playerName){
-        vessels.forEach((shipType, ship) -> {
-            Cell[] shipParts = ship.getShipParts();
-            for(int i = 0; i < shipParts.length; i++){
-                int col = shipParts[i].getVerticalCoordInt();
-                int row = shipParts[i].getHorizontalCoord();
-                ship.updateShipStatus(col, row, playerName);
-            }
-        });
-    }
-
 }

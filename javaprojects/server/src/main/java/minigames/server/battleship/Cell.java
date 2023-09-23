@@ -26,6 +26,7 @@ public class Cell {
     }
 
     // Getters
+
     /**
      * Return the CellType of the current Cell
      * @return an enum value
@@ -42,26 +43,47 @@ public class Cell {
         return cellType.toString();
     }
 
+    /**
+     * Return Boolean value of shotAt
+     * @return boolean representing if the cell has been shot
+     */
     public boolean hasBeenShot() {return this.shotAt;}
 
+    /**
+     * Return the horizontal index of the cell
+     * @return int representing the horizontal index
+     */
     public int getHorizontalCoord() {
         return horizontalCoord;
     }
 
+    /**
+     * Return the vertical index of the cell
+     * @return int representing the vertical index
+     */
     public int getVerticalCoordInt() {
         return verticalCoord;
     }
 
+    /**
+     * Return vertical index as the corresponding grid character
+     * @return String representing the vertical location character
+     */
     public String getVerticalCoordString() {
         String chars = "ABCDEFGHIJ";
         return String.valueOf(chars.charAt(verticalCoord));
     }
 
+    /**
+     * Return both coordinates in the form 'character+integer' -> A0
+     * @return String representing grid coordinate
+     */
     public String getBothCoords(){
         return ""+this.getVerticalCoordString()+this.getHorizontalCoord();
     }
 
     // Setters
+
     /**
      * Change the CellType of the current Cell
      * @param cellType The CellType to change the current cell to
@@ -70,10 +92,18 @@ public class Cell {
         this.cellType = cellType;
     }
 
+    /**
+     * Set the horizontal coordinate
+     * @param horizontalCoord int value representing horizontal index
+     */
     public void setHorizontalCoord(int horizontalCoord) {
         this.horizontalCoord = horizontalCoord;
     }
 
+    /**
+     * Set the vertical coordinate
+     * @param verticalCoord int value representing vertical index
+     */
     public void setVerticalCoord(int verticalCoord) {
         this.verticalCoord = verticalCoord;
     }

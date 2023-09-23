@@ -18,7 +18,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-
+/**
+ * Visual interface for the Battleship Game
+ */
 public class Battleship implements GameClient, Tickable {
 
     // Needed for sending commands to the server
@@ -221,8 +223,6 @@ public class Battleship implements GameClient, Tickable {
         mainPanel.add(maps);
         mainPanel.add(terminal);
 
-
-
         // Set colours for all components
         for (Component c : new Component[]{mainPanel, heading, title, currentPlayerName, currentTurn, nauticalMap,
                 nauticalText,
@@ -270,8 +270,9 @@ public class Battleship implements GameClient, Tickable {
                      Upon loading into a game you can wait for another
                      player to join or simply start playing against an AI.
                      
-                     Follow the prompts and enter coordinates for the
-                     "Target Grid" to try hit enemy ships.
+                     Follow the prompts and enter coordinates into the
+                     Command Terminal for the "Target Grid" to try and hit
+                     the enemy ships.
                      
                      TIP: Once you get a hit, guess a coordinate vertical
                           or horizontal from that location.
@@ -334,8 +335,8 @@ public class Battleship implements GameClient, Tickable {
                                               
                 ------------------------------------------------------------
                   
-                   Think you know it all? Get strategising and become the
-                          most respected captain of the high seas!
+                       Think you have what it takes to become the most
+                             respected captain of the high seas?
                            
                                  --------------------------
                
@@ -482,7 +483,6 @@ public class Battleship implements GameClient, Tickable {
                             new Font("Monospaced", Font.PLAIN, 16)
                     ));
         }
-
     }
 
     /**
@@ -604,20 +604,6 @@ public class Battleship implements GameClient, Tickable {
                 waiting = false;
                 userCommand.setEditable(true);
                 userCommand.requestFocus();
-                // TODO: this cannot be done here as the instructional message should be added to the message history
-                //add a welcome/intro message for the first turn of the game - turn count won't always be sent with
-                //the prepare command
-//                if(command.containsKey("turnCount")) {
-//                    try {
-//                        int turnCount = Integer.parseInt(command.getString("turnCount"));
-//                        if (turnCount == 1) {
-//                            messages.append("\n\nTo fire at the enemy, enter grid coordinates: (eg, A4)\n...");
-//                        }
-//                    } catch (NumberFormatException e) {
-//                        //we won't exit the game if the turn count is wrong, just continue on
-//                        System.out.println("Error: Turn count sent was not a number");
-//                    }
-//                }
             }
             case "updateTurnCount" -> {
                 String turnCount = command.getString("turnCount");
