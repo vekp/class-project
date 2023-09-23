@@ -13,17 +13,22 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-
+/**
+ * Visual interface for the Battleship Game
+ */
 public class Battleship implements GameClient, Tickable {
 
     // Needed for sending commands to the server
     MinigameNetworkClient mnClient;
-    int tickInterval = 180;
+    //our listener object to respond to the window being closed - sends a close game
+    //command so that other players know this client has left the game
+    WindowAdapter closeGameListener;
+    int tickInterval = 60;
     int tickTimer = 0;
 
     GameMetadata gm;
@@ -47,6 +52,9 @@ public class Battleship implements GameClient, Tickable {
 
     JPanel mainPanel;
     JPanel helpPanel;
+    JPanel menuPanel;
+    JButton panelMenuBtn;
+    JButton panelRtrnBtn;
     JPanel heading;
     JButton menuButton;
     JButton achievementButton;
@@ -68,7 +76,7 @@ public class Battleship implements GameClient, Tickable {
     //flag to indicate whether this client is in wait mode (which means it will be constantly asking
     // for info refreshes from the server
     boolean waiting;
-
+    boolean shipPlacement;
 
     /**
      * Creates the panels and layout for the game
@@ -77,6 +85,8 @@ public class Battleship implements GameClient, Tickable {
 
         // Generate help panel
         helpPanel = generateHelpPanel();
+        // Generate help panel
+        menuPanel = generateMenuPanel();
 
         // Heading
         heading = new JPanel(new GridBagLayout());  // Game title, Current player and Menu button
@@ -84,10 +94,7 @@ public class Battleship implements GameClient, Tickable {
 
         // Menu button
         menuButton = new JButton("Menu");
-        menuButton.addActionListener(e -> {
-            closeGame();
-            mnClient.runMainMenuSequence();
-        });
+        menuButton.addActionListener(e -> mnClient.getDialogManager().showMessageDialog("Menu", menuPanel, false));
         menuButton.setFont(fonts.get(1));
         // Achievement button
         achievementButton = new JButton("Achv");
@@ -103,10 +110,11 @@ public class Battleship implements GameClient, Tickable {
                     userCommand.requestFocus();
                 })
         );
+
         helpButton.setFont(fonts.get(1));
 
         // Style buttons
-        for (JButton b : new JButton[]{menuButton, achievementButton, helpButton}) {
+        for (JButton b : new JButton[]{menuButton, achievementButton, helpButton, panelMenuBtn, panelRtrnBtn}) {
             b.setOpaque(true);
             b.setBorder(buttonBorder);
             b.setFocusable(false);
@@ -201,7 +209,6 @@ public class Battleship implements GameClient, Tickable {
         userCommand.setCaretColor(Color.WHITE);
         userCommand.getCaret().setBlinkRate(300);
         userCommand.getCaret().setVisible(true);
-
         userCommand.addActionListener((evt) -> {
             sendCommand(userCommand.getText());  // Send input to server
             userCommand.setText("");             // Clear input field
@@ -226,6 +233,10 @@ public class Battleship implements GameClient, Tickable {
         }
     }
 
+    /**
+     * Panel to contain instructional text for playing the game
+     * @return panel containing instructional text
+     */
     public JPanel generateHelpPanel() {
 
         JPanel panel = new JPanel(new GridBagLayout());
@@ -241,7 +252,6 @@ public class Battleship implements GameClient, Tickable {
 
         JLabel title = new JLabel("Help Menu");
         title.setFont(fonts.get(0));
-
 
         JTextArea description = new JTextArea("""
                 ------------------------------------------------------------
@@ -260,8 +270,9 @@ public class Battleship implements GameClient, Tickable {
                      Upon loading into a game you can wait for another
                      player to join or simply start playing against an AI.
                      
-                     Follow the prompts and enter coordinates for the
-                     "Target Grid" to try hit enemy ships.
+                     Follow the prompts and enter coordinates into the
+                     Command Terminal for the "Target Grid" to try and hit
+                     the enemy ships.
                      
                      TIP: Once you get a hit, guess a coordinate vertical
                           or horizontal from that location.
@@ -324,8 +335,8 @@ public class Battleship implements GameClient, Tickable {
                                               
                 ------------------------------------------------------------
                   
-                   Think you know it all? Get strategising and become the
-                          most respected captain of the high seas!
+                       Think you have what it takes to become the most
+                             respected captain of the high seas?
                            
                                  --------------------------
                
@@ -335,8 +346,6 @@ public class Battleship implements GameClient, Tickable {
         description.setEditable(false);
         description.setHighlighter(null);
         description.setFont(fonts.get(3));
-//        Color c = panel.getBackground();
-//        description.setBackground(c);
         description.setSize(300, 300);
 
         JScrollPane content = new JScrollPane(description);
@@ -346,11 +355,95 @@ public class Battleship implements GameClient, Tickable {
         content.setWheelScrollingEnabled(true);
         content.setBorder(null);
 
-
         panel.add(title, gbc);
         gbc.gridx = 0;
         gbc.gridy = 1;
         panel.add(content, gbc);
+
+        return panel;
+    }
+
+    /**
+     * Panel to contain main menu button with exit confirmation message
+     * @return panel containing menu/game options
+     */
+    public JPanel generateMenuPanel() {
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        panel.setSize(new Dimension(150, 250));
+
+        gbc.gridwidth = 1;
+        gbc.insets = new Insets(10, 5, 20, 5);
+
+        // Return to menu confirmation message
+        JTextArea msg = new JTextArea("Confirm exit to menu?");
+        msg.setFont(fonts.get(1));
+        msg.setEditable(false);
+
+        // Menu button
+        panelMenuBtn = new JButton("Main Menu");
+        panelMenuBtn.addActionListener(e -> {
+            closeGame();
+            mnClient.runMainMenuSequence();
+        });
+        panelMenuBtn.setFont(fonts.get(1));
+        // New Game button
+        panelRtrnBtn = new JButton("Return");
+        panelRtrnBtn.addActionListener(e -> mnClient.getDialogManager().dismissCurrentNotification());
+        panelRtrnBtn.setFont(fonts.get(1));
+
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(msg, gbc);
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        panel.add(panelMenuBtn, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        panel.add(panelRtrnBtn, gbc);
+
+        return panel;
+    }
+
+    /**
+     * Panel to contain message to exit
+     * @return panel containing menu/game options
+     */
+    public JPanel generateExitPanel() {
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        gbc.gridwidth = 1;
+        gbc.insets = new Insets(5, 5, 5, 5);
+
+        JTextArea msg = new JTextArea("""
+        Your opponent has left the session
+        
+          Please return to the main menu
+        """);
+        msg.setFont(fonts.get(1));
+        msg.setEditable(false);
+
+        // Menu button
+        JButton menu = new JButton("Main Menu");
+        menu.addActionListener(e -> {
+            closeGame();
+            mnClient.runMainMenuSequence();
+        });
+        menu.setFont(fonts.get(1));
+
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(msg, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        panel.add(menu, gbc);
 
         return panel;
     }
@@ -390,7 +483,6 @@ public class Battleship implements GameClient, Tickable {
                             new Font("Monospaced", Font.PLAIN, 16)
                     ));
         }
-
     }
 
     /**
@@ -425,7 +517,16 @@ public class Battleship implements GameClient, Tickable {
     public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {
         this.mnClient = mnClient;
         mnClient.getAnimator().requestTick(this);
+         closeGameListener = new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                closeGame();
+                super.windowClosing(e);
+            }
+        };
+        mnClient.getMainWindow().getFrame().addWindowListener(closeGameListener);
         isQuitting = false;
+        shipPlacement = true;
         waiting = true; //this ensures we get at least 1 refresh to start
         this.gm = game;
         this.player = player;
@@ -449,6 +550,7 @@ public class Battleship implements GameClient, Tickable {
 
         // Open help menu on launching the game - on closing it will focus the command terminal
         helpButton.doClick();
+        userCommand.setEditable(true);
 
         // Don't forget to call pack - it triggers the window to resize and repaint itself
         mnClient.getMainWindow().pack();
@@ -487,28 +589,21 @@ public class Battleship implements GameClient, Tickable {
                 userCommand.setEditable(false);
                 waiting = true;
             }
+            case "shipPlacement" -> {
+                shipPlacement = true;
+                waiting = true;
+                userCommand.requestFocus();
+            }
+            case "confirm" -> {
+                shipPlacement = false;
+                userCommand.requestFocus();
+                userCommand.setText("");
+            }
             case "prepareTurn" -> {
                 //we only set this messaging on the first instance that we are told our turn is ready
                 waiting = false;
                 userCommand.setEditable(true);
                 userCommand.requestFocus();
-
-
-                // TODO: this cannot be done here as the instructional message should be added to the message history
-                //add a welcome/intro message for the first turn of the game - turn count won't always be sent with
-                //the prepare command
-//                if(command.containsKey("turnCount")) {
-//                    try {
-//                        int turnCount = Integer.parseInt(command.getString("turnCount"));
-//                        if (turnCount == 1) {
-//                            messages.append("\n\nTo fire at the enemy, enter grid coordinates: (eg, A4)\n...");
-//                        }
-//                    } catch (NumberFormatException e) {
-//                        //we won't exit the game if the turn count is wrong, just continue on
-//                        System.out.println("Error: Turn count sent was not a number");
-//                    }
-//                }
-
             }
             case "updateTurnCount" -> {
                 String turnCount = command.getString("turnCount");
@@ -520,7 +615,22 @@ public class Battleship implements GameClient, Tickable {
             case "updatePlayerName" -> currentPlayerName.setText("Current Player: " + command.getString("player"));
             case "placePlayer1Board" -> nauticalText.setText(nauticalText.getText() + command.getString("text"));
             case "placePlayer2Board" -> targetText.setText(targetText.getText() + command.getString("text"));
-
+            case "gameOver" -> {
+                waiting = false;
+                userCommand.setEditable(false);
+                messages.append("\nGame Complete.");
+            }
+            case "playerExited" -> {
+                waiting = false;
+                mnClient.getDialogManager().showMessageDialog("Game Voided", generateExitPanel(), false);
+            }
+            case "waitForJoin" -> {
+                messages.setText("Waiting for an opponent to join. Type 'Start' to begin vs AI");
+                userCommand.requestFocus();
+                //this isn't pretty but we're just going to keep pinging the server with refreshes until players have
+                //joined or a computer opponent is added
+                sendCommand("refresh");
+            }
         }
     }
 
@@ -529,15 +639,17 @@ public class Battleship implements GameClient, Tickable {
      */
     @Override
     public void closeGame() {
-        // Nothing to do
+        //remove the listener we previously had on this object
+        mnClient.getMainWindow().getFrame().removeWindowListener(closeGameListener);
         sendCommand("exitGame");
         isQuitting = true;
+        waiting = false;
         // JOptionPane.showMessageDialog(mainPanel, "You will be returned to the main menu", "Exit", JOptionPane.INFORMATION_MESSAGE, null);
     }
 
 
     /**
-     * This client will constantly tick at some interval. If we're in the waiting state (e.g waiting for another
+     * This client will constantly tick at some interval. If we're in the waiting state (e.g. waiting for another
      * player to take their turn), we will ask the server for updates in order to get any messages or info about the
      * players turn, and also to be notified when it is now our turn.
      *
