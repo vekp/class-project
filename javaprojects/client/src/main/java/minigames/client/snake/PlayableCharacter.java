@@ -1,5 +1,6 @@
 package minigames.client.snake;
 
+
 /**
  * Represents the playable character in the Snake game, which is the snake itself.
  */
@@ -39,7 +40,7 @@ public class PlayableCharacter {
      * @throws CollisionException If a collision occurs (e.g., with walls, food, or itself).
      */
     public void move(Direction direction) throws CollisionException {
-this.setDirection(direction);
+        this.setDirection(direction);
         // Shift the position of body parts to follow the head.
         for (int i = bodyParts; i > 0; i--) {
             x[i] = x[i - 1];
@@ -101,7 +102,6 @@ this.setDirection(direction);
             this.direction = direction;
         }
     }
-
 
     /**
      * Initializes the snake to its starting position and size.
