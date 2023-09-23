@@ -32,7 +32,6 @@ import java.util.List;
 public class MinigameNetworkClientWindow {
 
     MinigameNetworkClient networkClient;
-    private final AchievementNotificationHandler achievementPopups;
 
     JFrame frame;
 
@@ -80,8 +79,6 @@ public class MinigameNetworkClientWindow {
         //frame.setUndecorated(true); // removes the frame around the window.
         frame.getContentPane().setBackground(Color.BLACK);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        this.achievementPopups = new AchievementNotificationHandler(networkClient);
 
         parent = new JPanel(new BorderLayout());
 

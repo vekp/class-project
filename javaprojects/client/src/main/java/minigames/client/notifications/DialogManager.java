@@ -35,7 +35,7 @@ public class DialogManager extends NotificationManager{
     }
 
     /**
-     * Clears any currently displayed or queued notifications before displaying a new notification.
+     * Clear any currently displayed or queued notifications before displaying a new notification.
      */
     @Override
     public NotificationManager showNotification(Component component, boolean isDismissible) {
@@ -86,16 +86,22 @@ public class DialogManager extends NotificationManager{
     }
 
     /**
-     * Call showMessageDialog using given title and component, and default value of true for okButtonRequired.
+     * Call showMessageDialog using given title and component, default value of true for okButtonRequired and no
+     * extra ActionListener for ok button
      */
     public DialogManager showMessageDialog(String title, JComponent component) {
         return showMessageDialog(title, component, true, null);
     }
 
+    /**
+     * Call showMessageDialog using given title, component, and bool if ok button required, and no default ActionListener
+     */
     public DialogManager showMessageDialog(String title, JComponent component, boolean okButtonRequired) {
         return showMessageDialog(title, component, okButtonRequired, null);
     }
 
+    /** Call showMessageDialog with given title, component and ActionListener. OK button is required so will be true.
+     */
     public DialogManager showMessageDialog(String title, JComponent component, ActionListener actionListener) {
         return showMessageDialog(title, component, true, actionListener);
     }

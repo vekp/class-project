@@ -9,6 +9,7 @@ import javax.swing.*;
 import minigames.achievements.Achievement;
 import minigames.achievements.GameAchievementState;
 import minigames.achievements.PlayerAchievementRecord;
+import minigames.client.achievements.AchievementNotificationHandler;
 import minigames.client.achievements.AchievementPresenterRegistry;
 import minigames.client.achievements.AchievementUI;
 import minigames.client.notifications.DialogManager;
@@ -67,6 +68,7 @@ public class MinigameNetworkClient {
 
     Optional<GameClient> gameClient;
     NotificationManager notificationManager;
+    AchievementNotificationHandler achievementPopups;
     DialogManager dialogManager;
 
     private final SurveyServerRequestService surveyServerRequestService;
@@ -83,6 +85,7 @@ public class MinigameNetworkClient {
 
         mainWindow = new MinigameNetworkClientWindow(this);
         notificationManager = new NotificationManager(this);
+        achievementPopups = new AchievementNotificationHandler(this);
         dialogManager = new DialogManager(this);
         mainWindow.show();
     }
@@ -216,15 +219,14 @@ public class MinigameNetworkClient {
                 }).map((resp) -> resp.bodyAsString());
     }
 
-    //this may need to be modified to only request achievements for the current player on the client?
-
     /**
-     * Asks the server for a list of achievements that have just been unlocked.
+     * Asks the server for a list of achievements that have just been unlocked, Specific to the current player
+     * that this client is running for
      *
      * @return a list of achievements that were unlocked (since the last time this was called)
      */
-    public Future<List<Achievement>> getRecentAchievements() {
-        return webClient.get(port, host, "/achievementUnlocks")
+    public Future<List<Achievement>> getRecentAchievements(String player) {
+        return webClient.get(port, host, "/achievementUnlocks/" + player)
                 .send()
                 .onSuccess((resp) -> {
                     //disabling this for now because this is requested periodically from the animator - it will spam
@@ -382,6 +384,8 @@ public class MinigameNetworkClient {
      */
     public void runMainMenuSequence() {
         notificationManager.resetToDefaultSettings();
+        //once we're going to main menu there is no player playing a game, so achievement popups should not show
+        achievementPopups.disable();
         dialogManager.dismissCurrentNotification()
                 .resetToDefaultSettings();
         mainWindow.showStarfieldMessage("Minigame Network");
@@ -402,6 +406,11 @@ public class MinigameNetworkClient {
         logger.info("Loading client {} ", lc);
         mainWindow.clearAll();
         GameClient gc = Main.clientRegistry.getGameClient(lc.clientName());
+
+        //when loading a client, we should now know the name of the player associated with the current window. Register
+        //this name with the achievement popup handler so that we can get player-specific unlock popups
+        achievementPopups.enable(lc.player());
+
         gameClient = Optional.of(gc);
         gc.load(this, metadata, lc.player());
     }
