@@ -1,5 +1,7 @@
 package minigames.client.snake;
 
+import org.apache.logging.log4j.core.appender.AppenderLoggingException;
+
 import java.awt.Color;
 import java.awt.Font;
 
@@ -32,10 +34,10 @@ public final class GameConstants {
     public static final int TIME_TEXT_POSITION_X = SCORE_TEXT_POSITION_X + LABEL_WIDTH;
     public static final int LEVEL_TEXT_POSITION_X = LIVES_TEXT_POSITION_X + LABEL_WIDTH;
     public static final int INFO_TITLE_Y = 200;
-    public static final int INFO_TEXT_WIDTH = 500;
-    public static final int INFO_TEXT_HEIGHT = 200;
-    public static final int INFO_TEXT_Y = 300;
-    public static final int RETURN_BUTTON_Y = 490;
+    public static final int INFO_TEXT_WIDTH = 550;
+    public static final int INFO_TEXT_Y = 280;
+    public static final int RETURN_BUTTON_Y = 670;
+    public static final int INFO_TEXT_HEIGHT = RETURN_BUTTON_Y - INFO_TEXT_Y;
 
     // Colors
     public static final Color DEFAULT_BACKGROUND_COLOR = new Color(18, 96, 98);
@@ -51,7 +53,7 @@ public final class GameConstants {
     // Panel names
     public static final String MAIN_MENU_PANEL = "Main Menu";
     public static final String PLAY_PANEL = "Play";
-    public static final String HELP_MENU_PANEL = "Help Menu";
+    public static final String HELP_MENU_PANEL = "Help";
     public static final String ABOUT_ME_PANEL = "About Me";
     public static final String ACHIEVEMENTS_PANEL = "Achievements";
 
@@ -70,59 +72,45 @@ public final class GameConstants {
     // Button Text
     public static final String RETURN_BUTTON_TEXT = "Main Menu";
     public static final int MAXIMUM_FOOD_ON_SCREEN = 5;
-    public static final int SPOILED_FOOD_THRESHOLD = 60;
-    public static final int SPOILEDFOOD_REMOVE_DELAY = 15;
+    public static final int SPOILED_FOOD_THRESHOLD = 15;
+    public static final int SPOILED_FOOD_REMOVE_DELAY = 15;
 
     // Game Panel constants
-    public static final int GAME_UNITS = (GAME_PLAY_WIDTH * GAME_PLAY_HEIGHT) / (UNIT_SQUARES * UNIT_SQUARES);
     public static final int INITIAL_SNAKE_PARTS = 4;
-    public static final int APPLE_EATEN_SCORE = 10;
-    public static final int ORANGE_EATEN_SCORE = 10;
-    public static final int CHERRY_EATEN_SCORE = 10;
+    public static final int SPOILED_FOOD_SCORE = 20;
+
+    public static final int APPLE_EATEN_SCORE = 1;
+    public static final int ORANGE_EATEN_SCORE = 2;
+    public static final int CHERRY_EATEN_SCORE = 5;
     public static final int WATERMELON_EATEN_SCORE = 10;
     public static final int GAME_LOOP_DELAY = 200;
-    public static final int LEVEL_CHANGE_THRESHOLD = 30;
+    public static final int LEVEL_CHANGE_THRESHOLD = 10;
     public static final int INITIAL_SNAKE_X = 15;
     public static final int INITIAL_SNAKE_Y = 8;
+    public static final String EXIT_GAME = "Exit";
 
     // InformationPanel constants
     public static final String GAME_RULES_TITLE = "How to Play";
     public static final String ABOUT_ME_TITLE = "About";
     public static final String[] GAME_RULES_MESSAGES = {
-            "Navigate the environment with arrow keys and lead your snake on an exciting adventure!",
-            "Feast on delicious fruits to grow your score!",
-            "Stay sharp! Avoid walls and don't bite your tail or it's game over.",
-            "Need a breather? Hit the space bar to take a pause and strategize."
+            "Use the arrow keys to steer your snake on an epic quest!",
+            "Collect tasty fruits to increase your score!",
+            "Be cautious of spoiled food, as it deducts " + Math.abs(SPOILED_FOOD_SCORE) + " points.",
+            "Eating watermelons grants a time bonus.", "",
+            "Point System", "Apple: " + APPLE_EATEN_SCORE, "Orange: " + ORANGE_EATEN_SCORE,
+            "Cherry: " + CHERRY_EATEN_SCORE, "Watermelon: " + WATERMELON_EATEN_SCORE, "",
+            "Be alert!", "Colliding with walls or your own tail spells game over.", "",
+            "Need a break?", "Press the space bar to pause and plan your next move."
     };
+
     public static final String[] ABOUT_ME_MESSAGES = {
-            "Developed by Luke, Sean & Matt (Group 15) COSC220 A3, 2023.", "",
+            "Developed by Luke, Sean & Matt", "", "(Group 15) COSC220 A3, 2023.", "",
             "Credits",
             "Sounds: Fesliyan Studios (www.FesliyanStudios.com)",
             "Logo: Sean 2023",
             "Background: Matthew Picone 2023"
     };
 
-    //Media
-    public static final String PHONE_BACKGROUND = "/images/snake/GameBackground.png";
-    public static final String BACKGROUND_COLOR_BLOCK = "/images/snake/backgroundColorBlock.png";
-    public static final String SNAKE_LOGO = "/images/snake/snakeLogo.png";
-    public static final String IMAGE_APPLE = "/images/snake/apple.png";
-    public static final String IMAGE_CHERRY = "/images/snake/cherry.png";
-    public static final String IMAGE_ORANGE = "/images/snake/orange.png";
-    public static final String IMAGE_WATERMELON = "/images/snake/watermelon.png";
-// Paths to sounds
-// Music
-public static final String MENU_MUSIC = "8Bit";
-    public static final String GAME_PLAY_MUSIC = "Menu";
-    public static final String GAME_PAUSE_MUSIC = "Smooth";
-    public static final String EXIT_GAME = "Exit";
-public static final String SOUND_8_BIT = "/sounds/8Bit.wav";
-    public static final String SOUND_POSTITIVE = "/sounds/eatApple.wav";
-    public static final String SOUND_NEGATIVE = "/sounds/grunt.wav";
-    public static final String SOUND_MENU = "/sounds/menu.wav";
-    public static final String SOUND_RETRO = "/sounds/retro1.wav";
-    public static final String SOUND_SMOOTH = "/sounds/smooth.wav";
-    public static final String SOUND_SURF = "/sounds/surf.wav";
     // Constructor - private to prevent instantiation
     private GameConstants() {}
 }
