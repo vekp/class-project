@@ -138,29 +138,40 @@ public class BattleshipGame {
             return new RenderingPackage(gameMetadata(), commands);
         }
 
-        if (gameState == GameState.WAITING_JOIN) {
-            // Once 2 players are in the game, we can start
-            if (bPlayers.size() >= 2) {
-                gameState = GameState.PENDING_READY;
-                String[] players = getPlayerNames();
-                if (players[0].equals(cp.player())) {
-                    commands.addAll(getGameRender(bPlayers.get(players[0]), bPlayers.get(players[1])));
-                } else {
-                    commands.addAll(getGameRender(bPlayers.get(players[1]), bPlayers.get(players[0])));
-                }
-            } else {
-                if (userInput.equalsIgnoreCase("Start")) {
-                    // If user enters start and there isn't another player, make a computer one
-                    bPlayers.put("Computer", new BattleshipPlayer("Computer",
-                            new Board(), false, welcomeMessage));
-                }
-                commands.add(new JsonObject().put("command", "waitForJoin"));
-            }
-            return new RenderingPackage(gameMetadata(), commands);
-        }
-
         // If the game hasn't been aborted, we can move on to processing commands based on what the gamestate is
         switch (gameState) {
+            case WAITING_JOIN -> {
+                // Once 2 players are in the game, we can start
+                if (bPlayers.size() >= 2) {
+                    //we have 2 players available, set this player to ready
+                    bPlayers.get(cp.player()).setReady(true);
+                    //if both players are ready then we can start
+                    String[] players = getPlayerNames();
+                    if(bPlayers.get(players[0]).isReady() && bPlayers.get(players[1]).isReady()){
+                        //resetting ready flags so they dont immediately start game
+                        bPlayers.get(players[0]).setReady(false);
+                        bPlayers.get(players[1]).setReady(false);
+                        gameState = GameState.PENDING_READY;
+                    } else{
+                        //if both players arent ready then send the game render back so that both players
+                        //get some graphics to draw while the game is transitioning between states
+                        if (players[0].equals(cp.player())) {
+                            commands.addAll(getGameRender(bPlayers.get(players[0]), bPlayers.get(players[1])));
+                        } else {
+                            commands.addAll(getGameRender(bPlayers.get(players[1]), bPlayers.get(players[0])));
+                        }
+
+                    }
+                } else {
+                    if (userInput.equalsIgnoreCase("Start")) {
+                        // If user enters start and there isn't another player, make a computer one
+                        bPlayers.put("Computer", new BattleshipPlayer("Computer",
+                                new Board(), false, welcomeMessage));
+                    }
+                    commands.add(new JsonObject().put("command", "waitForJoin"));
+                }
+                return new RenderingPackage(gameMetadata(), commands);
+            }
             case PENDING_READY -> {
                 if (userInput.equalsIgnoreCase("ready")) {
                     // Set this player to ready
@@ -197,6 +208,7 @@ public class BattleshipGame {
                         commands.add(new JsonObject().put("command", "wait"));
 
                     } else {
+                        String[] players = getPlayerNames();
                         commands.add(new JsonObject().put("command", "waitReady"));
                     }
                 }
@@ -359,10 +371,15 @@ public class BattleshipGame {
         renderingCommands.add(new JsonObject().put("command", "turnCountGameStart").put("turnCount", "- Place Ships -"));
 
         String[] currentPlayers = getPlayerNames();
+        //these are just dummy players so we can send a render back of some blank boards. They get replaced as users
+        // join the game
+        BattleshipPlayer player = new BattleshipPlayer("", new Board(), false, welcomeMessage);
+        BattleshipPlayer opponent = new BattleshipPlayer("", new Board(), false, welcomeMessage);
 
         if (currentPlayers.length == 0) {
             BattleshipPlayer newPlayer = new BattleshipPlayer(playerName,
                     new Board(), true, welcomeMessage);
+            player = newPlayer;
             bPlayers.put(playerName, newPlayer);
             renderingCommands.add(new JsonObject().put("command", "waitForJoin"));
 
@@ -379,6 +396,9 @@ public class BattleshipGame {
             //we can add a 2nd player as long as it's not the same player joining twice
             BattleshipPlayer newPlayer2 = new BattleshipPlayer(playerName,
                     new Board(), true, welcomeMessage);
+            //the opponent for the joining player is the player that is already here
+            opponent = bPlayers.get(currentPlayers[0]);
+            player = newPlayer2;
             bPlayers.put(playerName, newPlayer2);
         } else {
             //shouldn't be able to get here as the game should start once 2 players join, but just
@@ -390,6 +410,7 @@ public class BattleshipGame {
                     }).map((r) -> r.toJson()).toList()
             );
         }
+        renderingCommands.addAll(getGameRender(player, opponent));
 
         return new RenderingPackage(gameMetadata(), renderingCommands);
     }
