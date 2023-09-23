@@ -1,4 +1,3 @@
-
 package minigames.client.snake;
 
 import java.util.Random;
@@ -15,6 +14,8 @@ public class FoodManager {
     private final GameBoard gameBoard;  // The game board on which the food is placed
     private boolean isSpoiled;  // Whether the food has spoiled
     private int creationTime;  // Time when the food was created (or regenerated)
+    private int spoilTime;
+    private boolean isRemovable;
 
     /**
      * Constructor for the FoodManager class.
@@ -29,6 +30,7 @@ public class FoodManager {
         this.gameBoard = gameBoard;
         this.x = -1;  // Initialize to an invalid value
         this.y = -1;  // Initialize to an invalid value
+        this.isRemovable = false;
     }
 
     /**
@@ -121,7 +123,7 @@ public class FoodManager {
      * Regenerates the food: selects a new random type and places it at a vacant position on the board.
      * The food type and position are randomly chosen, and the food is marked as not spoiled.
      */
-    public void regenerate() {
+    public void generate() {
         selectRandomFoodTypeAndImage();
         Random rand = new Random();
         int randX;
@@ -132,7 +134,6 @@ public class FoodManager {
         } while (gameBoard.getItemTypeAt(randX, randY) != ItemType.VACANT);
 
         setPosition(randX, randY);
-        // Whether the food has been eaten by the snake
         this.isSpoiled = false;
         this.creationTime = (int) System.currentTimeMillis();
     }
@@ -143,26 +144,49 @@ public class FoodManager {
      * spoiledDelay seconds.
      */
     public void updateFoodStatus() {
+        ItemType itemTypeAtLocation = gameBoard.getItemTypeAt(x, y);
+
+        // Check if the food's location on the game board is vacant
+        if (itemTypeAtLocation == ItemType.VACANT) {
+            this.isRemovable = true;
+            return;
+        }
+
         int spoilThreshold = GameConstants.SPOILED_FOOD_THRESHOLD;
-        if (!isSpoiled && hasSpoiled(spoilThreshold)) {
+        int removeDelay = GameConstants.SPOILED_FOOD_REMOVE_DELAY;
+
+        // Check for spoilage if the food is not already spoiled
+        if (!isSpoiled && timeElapsed(creationTime, spoilThreshold)) {
             isSpoiled = true;
+            spoilTime = (int) System.currentTimeMillis();  // Store the time when the food spoils
             type = ItemType.SPOILED_FOOD;
             gameBoard.setItemTypeAt(x, y, type);
         }
-        else if (isSpoiled && hasSpoiled(GameConstants.SPOILEDFOOD_REMOVE_DELAY)) {
+        // Check for removal if the food is already spoiled
+        else if (isSpoiled && timeElapsed(spoilTime, removeDelay)) {
             gameBoard.setItemTypeAt(x, y, ItemType.VACANT);
+            this.isRemovable = true;
         }
     }
 
     /**
      * Checks if the food has spoiled based on a provided threshold.
      *
-     * @param customThreshold The threshold (in seconds) to check against.
+     * @param interval The threshold (in seconds) to check against.
      * @return True if the food has spoiled, otherwise false.
      */
-    public boolean hasSpoiled(int customThreshold) {
+    public boolean timeElapsed(int startTime, int interval) {
         int currentTime = (int) System.currentTimeMillis();
-        int elapsedTime = (currentTime - creationTime) / 1000;
-        return elapsedTime > customThreshold;
+        int elapsedTime = (currentTime - startTime) / 1000;
+        return elapsedTime > interval;
+    }
+
+    /**
+     * Checks if the food is removable (vacant).
+     *
+     * @return True if the food is removable, otherwise false.
+     */
+    public boolean isRemovable(){
+        return this.isRemovable;
     }
 }
