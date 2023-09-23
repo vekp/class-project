@@ -1,11 +1,11 @@
 package minigames.client.snake;
 
 /**
- * Enum to represent the direction of the snake in the game.
+ * Enum to represent the possible directions the snake can move within the game.
  */
 public enum Direction {
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT
+    UP,      // Upward movement
+    DOWN,    // Downward movement
+    LEFT,    // Movement to the left
+    RIGHT    // Movement to the right
 }
