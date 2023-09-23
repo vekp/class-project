@@ -3,22 +3,19 @@ package minigames.server.database;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-
 import java.util.ArrayList;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,13 +27,14 @@ import minigames.server.utilities.Utilities;
 
 
 /**
- * Represents the main abstract class for a database, defining common database operations.
+ * Abstract database class defining common operations.
  *
  * @author Kieran Hillier (Group: Merge Mavericks)
  */
 public abstract class Database implements AutoCloseable{
 
     private static final String TEST_ENV = "testEnv";
+    private static final String SYS_PROP = "config.properties";
     protected final Logger logger = LogManager.getLogger(this.getClass());
 
     protected volatile boolean closed = true;
@@ -46,11 +44,13 @@ public abstract class Database implements AutoCloseable{
     protected String databaseName;
     protected final List<DatabaseTable<?>> registeredTables = new CopyOnWriteArrayList<>();
 
-    public Database() {
+
+    protected Database() {
         this(null);
     }
 
-    public Database(String propFileName) {
+
+    protected Database(String propFileName) {
         this.propFileName = propFileName;
         isTest = "true".equals(System.getProperty(TEST_ENV));
     }
@@ -66,16 +66,36 @@ public abstract class Database implements AutoCloseable{
 
 
     /**
-     * Check if a table is in table registry.
+     * Returns the default database instance based on properties file settings.
+     * 
+     * @return Database instance
+     */
+    public static Database getInstance() {
+        Properties properties = Utilities.getProperties(SYS_PROP);
+        String dbSystem = properties.getProperty("database.system");
+        switch (dbSystem) {
+            case "Derby":
+                return DerbyDatabase.getInstance();
+            default:
+                throw new UnsupportedOperationException(
+                    "Database system not supported: " + dbSystem);
+        }
+    }
+
+
+    /**
+     * Checks if a table is registered.
      * 
      * @param table The table to check.
+     * @return true if registered, false otherwise.
      */
     public synchronized boolean isTableRegistered(DatabaseTable<?> table) {
         return registeredTables.contains(table);
     }
 
+
     /**
-     * Register a table for backup on shutdown, tracking and batch operations.
+     * Registers a table for operations like backup on shutdown.
      * 
      * @param table The table to register.
      */
@@ -83,54 +103,46 @@ public abstract class Database implements AutoCloseable{
         registeredTables.add(table);
     }
 
+
     /**
-     * Unregister (remove) a table from table registry.
+     * Removes a table from the registry.
      * 
      * @param table The table to unregister.
      */
     public synchronized void unregisterTable(DatabaseTable<?> table) {
-        if (registeredTables.contains(table)) {
-            registeredTables.remove(table);
-        }
+        registeredTables.remove(table);
     }
 
-    // TESTING ONLY - Remove all test tables from the registry
+
+    // Remove and drop test tables; for testing purposes.
     synchronized void removeAllRegisteredTestTables() {
-        if (isTest) {
-            for (DatabaseTable<?> table : registeredTables) {
-                if (table.getTableName().toLowerCase().contains("test")) {
-                    registeredTables.remove(table);
-                }
-            }
-        }
+        registeredTables.removeIf(
+            table -> table.getTableName().toLowerCase().contains("test"));
     }
 
-    // TESTING ONLY - Drop all test tables from the registry
+
+    // Remove and drop all test tables; for testing purposes.
     synchronized void destroyAllRegisteredTestTables() {
-        if (isTest) {
-            for (DatabaseTable<?> table : registeredTables) {
-                if (table.getTableName().toLowerCase().contains("test")) {
-                    table.destroyTable();
-                }
-            }
-        }
+        registeredTables.stream()
+            .filter(table -> table.getTableName().toLowerCase().contains("test"))
+            .forEach(DatabaseTable::destroyTable);
+        removeAllRegisteredTestTables();
     }
 
 
     /**
-     * Gets a connection from the connection pool or the database directly.
+     * Fetches a connection for database interaction.
      *
-     * @return a {@link Connection} object for database interaction.
+     * @return Database connection.
      */
     public abstract Connection getConnection();
 
 
     /**
-     * Closes the provided connection, returning it back to the connection pool
-     * or releasing the resource.
+     * Closes a connection.
      *
-     * @param connection The {@link Connection} to be closed.
-     * @return true if the connection is successfully closed, false otherwise.
+     * @param connection The connection to close.
+     * @return true if closed successfully, false otherwise.
      */
     public abstract boolean closeConnection(Connection connection);
 

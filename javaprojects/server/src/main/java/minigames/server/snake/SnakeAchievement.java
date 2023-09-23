@@ -39,4 +39,3 @@ enum SnakeAchievement {
         return this.name().charAt(0) + this.name().substring(1).toLowerCase().replace("_", " ");
     }
 }
-

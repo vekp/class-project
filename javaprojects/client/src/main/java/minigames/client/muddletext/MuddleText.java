@@ -1,4 +1,5 @@
 package minigames.client.muddletext;
+import minigames.client.survey.Survey;
 
 import java.awt.*;
 import java.util.Collections;
@@ -53,7 +54,13 @@ public class MuddleText implements GameClient {
         JButton achievementButton = new JButton("Achv");
         achievementButton.addActionListener(e -> mnClient.getGameAchievements(player, gm.gameServer()));
         JButton backButton = new JButton("Back");
-        backButton.addActionListener(e -> mnClient.runMainMenuSequence());
+        backButton.addActionListener(e -> {
+            // Open survey on exit
+            mnClient.getMainWindow().clearAll();
+            JPanel results = new Survey(mnClient, "64fec6296849f97cdc19f017", "Muddle");
+            mnClient.getMainWindow().addCenter(results);
+            mnClient.getMainWindow().pack();
+        });
 
         north = new JButton("NORTH");
         north.addActionListener((evt) -> sendCommand("NORTH"));

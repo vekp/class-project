@@ -7,8 +7,9 @@ import java.awt.event.ActionListener;
 
 import minigames.client.achievements.AchievementNotificationHandler;
 import minigames.client.achievements.AchievementUI;
-import minigames.client.survey.Survey;
+import minigames.client.survey.SurveyResults;
 import minigames.client.backgrounds.Starfield;
+import minigames.client.useraccount.UserAccountFrame;
 import minigames.client.krumgame.KrumGameClient;
 import minigames.client.krumgame.KrumMenu;
 import minigames.rendering.GameMetadata;
@@ -52,20 +53,22 @@ public class MinigameNetworkClientWindow {
             for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
                     UIManager.setLookAndFeel(info.getClassName());
-                    //UIManager.put("nimbusBase", Color.BLACK); // Set base colour
-                    //UIManager.put("nimbusBlueGrey", Color.BLACK); // Set blue/grey colour
-                    //UIManager.put("control", Color.BLACK); // Set control background colour
-                    //UIManager.put("text", Color.WHITE); // Set text colour
-                    //UIManager.put("List.background", Color.BLACK); // Set list background
-                    //UIManager.put("TextField.textForeground", Color.BLACK); // Set text field text colour
-                    //UIManager.put("TextField.foreground", Color.BLACK); // Set JTextField text colour
-                    //UIManager.put("TextField.background", Color.WHITE); // Set JTextField background colour
-                    //UIManager.put("TextPane.foreground", Color.BLACK); // Set Font colour in text field
-                    //UIManager.put("List.foreground", Color.WHITE); // Set JList text colour
-                    //UIManager.put("ComboBox.foreground", Color.BLACK); // Set JComboBox text colour
+                    UIManager.put("nimbusBase", Color.BLACK); // Set base colour
+                    UIManager.put("nimbusBlueGrey", Color.BLACK); // Set blue/grey colour
+                    UIManager.put("control", Color.BLACK); // Set control background colour
+                    UIManager.put("text", Color.WHITE); // Set text colour
+                    UIManager.put("List.background", Color.BLACK); // Set list background
+                    UIManager.put("TextField.textForeground", Color.BLACK); // Set text field text colour
+                    UIManager.put("TextField.foreground", Color.BLACK); // Set JTextField text colour
+                    UIManager.put("TextField.background", Color.WHITE); // Set JTextField background colour
+                    UIManager.put("TextPane.foreground", Color.BLACK); // Set Font colour in text field
+                    UIManager.put("List.foreground", Color.WHITE); // Set JList text colour
+                    UIManager.put("ComboBox.foreground", Color.BLACK); // Set JComboBox text colour
                     break;
                 }
             }
+
+
         } catch (Exception e) {
 
         }*/
@@ -95,8 +98,6 @@ public class MinigameNetworkClientWindow {
 
         nameField = new JTextField(20);
         nameField.setText("Algernon");
-
-
 
     }
 
@@ -166,6 +167,7 @@ public class MinigameNetworkClientWindow {
     public void show() {
         pack();
         frame.setVisible(true);
+        frame.setLocationRelativeTo(null);
     }
 
     /**
@@ -229,11 +231,11 @@ public class MinigameNetworkClientWindow {
 
         for (GameServerDetails gsd : servers) {
             JButton newG = new JButton(
-                    String.format("<html><h1>%s</h1><p>%s</p></html>", gsd.name(), gsd.description())
+                    String.format("<html><center><h1>%s</h1><p>%s</p></center></html>", gsd.name(), gsd.description())
             );
 
             // Set button styles
-            newG.setPreferredSize(new Dimension(150, 250)); // Adjust the preferred size as needed
+            newG.setPreferredSize(new Dimension(150, 190)); // Adjust the preferred size as needed
             newG.setBorderPainted(false); // Remove button borders
             newG.setFocusPainted(false); // Remove focus border
 
@@ -257,16 +259,24 @@ public class MinigameNetworkClientWindow {
         });
         south.add(achievementsButton);
 
-        JButton surveyButton = new JButton("Survey");
+        JButton surveyButton = new JButton("Survey Results");
         surveyButton.addActionListener(e -> {
-            clearAll();
-            String gameId = "64fec6296849f97cdc19f017";
-            JPanel survey = new Survey(networkClient, gameId);
-            frame.setTitle(Survey.FRAME_TITLE);
-            center.add(survey);
-            pack();
+            networkClient.getMainWindow().clearAll();
+            JPanel results = new SurveyResults(networkClient, "64fec6296849f97cdc19f017");
+            networkClient.getMainWindow().addCenter(results);
+            networkClient.getMainWindow().pack();
         });
         south.add(surveyButton);
+
+        // Create a button for the User Account UI
+        JButton userAccountButton = new JButton("User Account");
+        userAccountButton.addActionListener(e -> {
+            // TODO implement properly. tests to run the UI on init.
+            UserAccountFrame login = new UserAccountFrame();
+            login.userLogin(networkClient);
+            login.setVisible(true);
+        });
+        south.add(userAccountButton);
 
         pack();
 

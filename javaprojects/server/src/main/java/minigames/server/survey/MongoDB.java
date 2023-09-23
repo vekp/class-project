@@ -1,8 +1,20 @@
+/***************************************************************************************
+*    Much of the following code was sourced from MongoDB Documentation
+*    Date Sourced: September 2023
+*    Code version: v4.10
+*    Availability: https://www.mongodb.com/docs/drivers/java/sync/current/usage-examples/
+***************************************************************************************/
+
 package minigames.server;
 
+import static com.mongodb.client.model.Filters.eq;
 import com.mongodb.ConnectionString;
 import com.mongodb.client.*;
+import com.mongodb.client.model.Projections;
+import com.mongodb.client.model.Filters;
 import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 import org.json.simple.*;
 import org.json.simple.parser.*;
 import java.time.LocalDateTime;
@@ -14,6 +26,7 @@ public class MongoDB {
 
     // Establish a connection to Mongo database
     public MongoDB() {
+        // To see the database and it's relation, download MongoDB Compass UI and paste the Connection String below to connect
         ConnectionString connString = new ConnectionString("mongodb+srv://cosc220:WxsFWGOiEuilbtkj@cluster0.sk5iqrw.mongodb.net/?retryWrites=true&w=majority");
         this.mongoClient = MongoClients.create(connString);
         this.database = mongoClient.getDatabase("une-db");
@@ -75,7 +88,29 @@ public class MongoDB {
             }
         }
         return jsonArray;
-    }
+    }        
+
+    // Gets all entries in a collection (table)
+    public JSONArray getAllDocumentsByGameId(String collectionName, String gameId) {
+        JSONArray jsonArray = new JSONArray();
+        MongoCollection<Document> collection = database.getCollection(collectionName);
+
+        // Get all documents in the collection
+        try (MongoCursor<Document> cursor = collection.find(eq("game_id", new ObjectId(gameId))).iterator()) {
+            while (cursor.hasNext()) {
+                Document document = cursor.next();
+                try {
+                    JSONParser jsonParser = new JSONParser();
+                    JSONObject jsonObject = (JSONObject) jsonParser.parse(document.toJson());
+
+                    jsonArray.add(jsonObject);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return jsonArray;
+    }  
 
     private String getCurrentTimestamp() {
         LocalDateTime now = LocalDateTime.now();

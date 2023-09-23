@@ -195,7 +195,7 @@ public class StatusBar extends JPanel {
      * Starts sending the command to the server every second to get the current time
      * This way we are in-sync with the server when the game is paused etc
      */
-    public void startTimer(){
+    public void startTimer() {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -219,10 +219,10 @@ public class StatusBar extends JPanel {
      * Method that updates the livesOnlyPanel based on no. of remaining lives.
      * @param playerLives No.of remaining player lives 
      */
-    public void updatePlayerLives(int playerLives){
+    public void updatePlayerLives(int playerLives) {
         livesOnlyPanel.removeAll();
         logger.info("PlayerLives deducted: " + playerLives);
-        for (int i = 0; i<playerLives; i++){
+        for (int i = 0; i<playerLives; i++) {
             livesOnlyPanel.add(new JLabel(lifeImage));
         }
         livesOnlyPanel.revalidate();
@@ -250,7 +250,7 @@ public class StatusBar extends JPanel {
      * Method to Update Interactive Text label.
      * @parm String to display on the Jlabel
      */
-    public void setInteractiveText(String Text){
+    public void setInteractiveText(String Text) {
         interactiveText.setText(Text);
     }
 

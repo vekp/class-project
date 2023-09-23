@@ -1,10 +1,6 @@
 package minigames.server.spacemaze;
 
 import java.util.*;
-import java.io.*;
-import java.awt.Point;
-
-
 
 /*
  * MazeInit class selects a maze appropriate for the level, initialises the maze which 
@@ -16,18 +12,16 @@ import java.awt.Point;
  */
 public class MazeInit {
     // Maze info   
-    private HashMap<String, Character> mazeLegend;                   // Maze legend
-
-    private char[][] mazeArray;                                     // array of maze with all locations included
+    private HashMap<String, Character> mazeLegend;              // Maze legend
+    private char[][] mazeArray;                                 // array of maze with all locations included
    
 
-    // Constructor - Select maze and read in from resources 
+    // CONSTRUCTOR AND SET FUNCTIONS:
     /*
      * Constructor - 
      * @param level - takes an int to identify the level of maze to construct
      */
-    public MazeInit(int level) 
-    {
+    public MazeInit(int level) {
         // Set mazeLegend
         this.mazeLegend = new HashMap<String, Character>();
         mazeLegend.put("Wall", 'W');        
@@ -48,28 +42,15 @@ public class MazeInit {
         setMazeInitArray(level);
 
     }
-
-
-    /* 
-     * getMazeLedgend()
-     * @return mazeLegend - HashMap
-     */
-    public HashMap<String, Character> getMazeLedgend()
-    {
-        return mazeLegend;
-    }
-
    
     /*
      * setMazeInitArray - sets maze depending on level
      * @param level - level of maze 
      * @return mazeArray = char[][] or required maze
      */
-    public void setMazeInitArray(int level) 
-    {
+    public void setMazeInitArray(int level) {
         // Set mazeArray depending on level passed in
-        switch (level)
-        {
+        switch (level) {
             case 1:
                 this.mazeArray = mazeArray1;
                 break;
@@ -87,78 +68,30 @@ public class MazeInit {
                 break;
             default:
                 throw new IllegalArgumentException(("Level " + level + " does not exist"));
-        }
-        
+        }  
     }
 
-
-    /*
-     * validPlacement function - checks Point(x, y) location is not a wall and is 
-     * within maze array bounds, and is not taken by another element
-     * @param posPoint - Point(x, y) location of possible move/placement
-     * @return bool - boolean value -> false = not valid, true = valid
-     
-    public Boolean validPlacement(Point posPoint)
-    {
-        // If (x, y) == '.' -> valid placement(true)
-        if (mazeArray[posPoint.y][posPoint.x] == '.')
-        {
-            return true;
-        }
-        // Else all other (x, y) are walls/starts/exit/keys/bots... or OOB
-        else
-        {
-            return false;
-        }
-    }
-*/
-
+    // GET FUNCTIONS:
     /*
      * getMazeInitArray() - returns mazeArray
      * @return mazeArray
      */
-    public char[][] getMazeInitArray()
-    {
+    public char[][] getMazeInitArray() {
         return mazeArray;
     }
-
-
-    // Tried to pass mazes in as csv - could not test properly
-    // Use hard coded mazeArrays until MazeArrayAlgorithm is created
     
-    
-    // HARD CODED MAZES FOR NOW
+    /* 
+     * getMazeLedgend()
+     * @return mazeLegend - HashMap
+     */
+    public HashMap<String, Character> getMazeLedgend() {
+        return mazeLegend;
+    }
+
+    // HARD CODED MAZES:
     /*
      * MazeArray - hard coded for now as a private char[][]
      */
-    private char[][] mazeArray3a = {
-        {'W','W','W','S','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W'},
-        {'W','.','.','.','.','.','H','W','.','.','W','.','.','.','.','.','.','.','.','.','.','.','.','.','W'},
-        {'W','.','W','W','.','W','W','W','.','.','W','.','W','W','W','W','W','W','.','W','W','W','W','W','W'},
-        {'W','.','W','.','.','.','.','.','.','.','.','.','.','.','.','$','W','.','.','W','.','.','W','.','W'},
-        {'W','.','W','.','W','W','.','W','W','W','W','W','W','W','W','W','W','.','H','W','.','.','W','.','W'},
-        {'W','.','W','.','.','W','.','.','.','.','.','.','.','.','W','M','.','.','.','.','.','.','.','.','W'},
-        {'W','.','W','.','.','W','.','W','.','.','W','W','W','.','W','W','W','W','W','W','.','.','W','.','W'},
-        {'W','.','W','.','K','W','M','W','.','.','.','K','W','.','.','.','.','.','M','W','K','.','W','.','W'},
-        {'W','.','W','W','W','W','W','W','W','W','W','W','W','W','W','.','W','W','W','W','W','W','W','.','W'},
-        {'W','B','.','.','.','.','.','W','.','.','.','.','W','.','.','.','.','.','.','.','.','.','.','.','W'},
-        {'W','W','W','W','W','W','.','W','.','.','W','.','W','.','W','.','W','W','W','W','.','.','W','.','W'},
-        {'W','$','W','.','B','W','.','.','.','.','W','.','.','.','W','.','W','.','.','.','.','.','W','.','W'},
-        {'W','.','W','.','.','W','W','W','W','W','W','.','W','.','W','W','W','W','W','W','.','.','W','W','W'},
-        {'W','.','.','.','.','W','.','.','.','.','.','.','W','.','.','.','.','.','$','W','.','.','.','.','W'},
-        {'W','W','W','H','.','W','.','W','W','W','W','.','W','W','W','W','W','W','W','W','W','.','H','W','W'},
-        {'W','.','.','.','.','.','.','W','.','.','W','.','.','.','.','.','.','.','.','.','.','.','.','.','W'},
-        {'W','.','W','W','W','W','W','W','.','.','W','W','W','.','H','.','W','W','W','W','W','W','W','.','W'},
-        {'W','.','W','.','.','W','.','.','.','.','.','.','.','.','W','.','W','B','.','W','M','.','.','.','W'},
-        {'W','.','W','.','.','W','.','W','W','W','W','.','W','W','W','.','W','.','.','W','W','W','W','.','W'},
-        {'W','.','W','.','.','.','.','W','.','.','.','.','W','$','W','.','W','.','.','.','.','.','.','.','W'},
-        {'W','.','W','.','.','W','W','W','.','.','W','.','W','.','W','.','W','.','.','W','W','W','W','.','W'},
-        {'W','.','.','.','.','.','.','W','$','.','W','.','.','.','W','.','W','.','.','.','K','.','W','.','W'},
-        {'W','.','W','W','W','W','W','W','W','W','W','.','W','W','W','.','W','W','W','W','.','.','W','.','W'},
-        {'W','.','.','.','K','W','.','.','.','.','.','.','.','.','W','.','W','H','.','.','.','.','.','.','W'},
-        {'W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','E','W'}
-    };
-
     private char[][] mazeArray1 = {
         {'W','S','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W'},
         {'W','.','.','.','.','.','.','.','.','.','.','.','W','.','.','.','.','.','.','.','.','.','.','.','W'},
@@ -298,7 +231,8 @@ public class MazeInit {
         {'W','.','W','B','.','.','.','.','.','.','.','.','W','.','.','.','H','.','.','.','.','.','.','$','W'},
         {'W','E','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W'}
     };
-
+    
+    // Original versions of levels 1 to 3:
     private char[][] mazeArray1a = {
         {'W','S','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W'},
         {'W','.','.','.','.','.','.','.','.','.','.','.','.','H','W','.','.','.','W','.','.','.','.','.','W'},
@@ -355,5 +289,32 @@ public class MazeInit {
         {'W','W','W','E','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W'}
         };
 
+        private char[][] mazeArray3a = {
+            {'W','W','W','S','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W'},
+            {'W','.','.','.','.','.','H','W','.','.','W','.','.','.','.','.','.','.','.','.','.','.','.','.','W'},
+            {'W','.','W','W','.','W','W','W','.','.','W','.','W','W','W','W','W','W','.','W','W','W','W','W','W'},
+            {'W','.','W','.','.','.','.','.','.','.','.','.','.','.','.','$','W','.','.','W','.','.','W','.','W'},
+            {'W','.','W','.','W','W','.','W','W','W','W','W','W','W','W','W','W','.','H','W','.','.','W','.','W'},
+            {'W','.','W','.','.','W','.','.','.','.','.','.','.','.','W','M','.','.','.','.','.','.','.','.','W'},
+            {'W','.','W','.','.','W','.','W','.','.','W','W','W','.','W','W','W','W','W','W','.','.','W','.','W'},
+            {'W','.','W','.','K','W','M','W','.','.','.','K','W','.','.','.','.','.','M','W','K','.','W','.','W'},
+            {'W','.','W','W','W','W','W','W','W','W','W','W','W','W','W','.','W','W','W','W','W','W','W','.','W'},
+            {'W','B','.','.','.','.','.','W','.','.','.','.','W','.','.','.','.','.','.','.','.','.','.','.','W'},
+            {'W','W','W','W','W','W','.','W','.','.','W','.','W','.','W','.','W','W','W','W','.','.','W','.','W'},
+            {'W','$','W','.','B','W','.','.','.','.','W','.','.','.','W','.','W','.','.','.','.','.','W','.','W'},
+            {'W','.','W','.','.','W','W','W','W','W','W','.','W','.','W','W','W','W','W','W','.','.','W','W','W'},
+            {'W','.','.','.','.','W','.','.','.','.','.','.','W','.','.','.','.','.','$','W','.','.','.','.','W'},
+            {'W','W','W','H','.','W','.','W','W','W','W','.','W','W','W','W','W','W','W','W','W','.','H','W','W'},
+            {'W','.','.','.','.','.','.','W','.','.','W','.','.','.','.','.','.','.','.','.','.','.','.','.','W'},
+            {'W','.','W','W','W','W','W','W','.','.','W','W','W','.','H','.','W','W','W','W','W','W','W','.','W'},
+            {'W','.','W','.','.','W','.','.','.','.','.','.','.','.','W','.','W','B','.','W','M','.','.','.','W'},
+            {'W','.','W','.','.','W','.','W','W','W','W','.','W','W','W','.','W','.','.','W','W','W','W','.','W'},
+            {'W','.','W','.','.','.','.','W','.','.','.','.','W','$','W','.','W','.','.','.','.','.','.','.','W'},
+            {'W','.','W','.','.','W','W','W','.','.','W','.','W','.','W','.','W','.','.','W','W','W','W','.','W'},
+            {'W','.','.','.','.','.','.','W','$','.','W','.','.','.','W','.','W','.','.','.','K','.','W','.','W'},
+            {'W','.','W','W','W','W','W','W','W','W','W','.','W','W','W','.','W','W','W','W','.','.','W','.','W'},
+            {'W','.','.','.','K','W','.','.','.','.','.','.','.','.','W','.','W','H','.','.','.','.','.','.','W'},
+            {'W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','E','W'}
+        };
 
 }

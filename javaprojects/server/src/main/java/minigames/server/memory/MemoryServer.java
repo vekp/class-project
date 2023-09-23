@@ -1,7 +1,6 @@
 package minigames.server.memory;
 
 import io.vertx.core.Future;
-import io.vertx.core.json.JsonObject;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -12,8 +11,6 @@ import minigames.rendering.GameServerDetails;
 import minigames.rendering.RenderingPackage;
 import minigames.server.ClientType;
 import minigames.server.GameServer;
-
-import minigames.achievements.Achievement;
 import minigames.server.achievements.AchievementHandler;
 
 /**
@@ -22,39 +19,9 @@ import minigames.server.achievements.AchievementHandler;
  * Used and adapted MuddleServer.java
  */
 
-/*enum achievements {
-    PERFECT_MATCH, SPEED_RUNNER, ACE_MATCHER, MEMORY_MASTER;
-    @Override
-    public String toString(){
-        switch(this) {
-            case PERFECT_MATCH:         return "Perfect Match";
-            case SPEED_RUNNER:          return "Speed Runner";
-            case ACE_MATCHER:           return "Ace Matcher";
-            case MEMORY_MASTER:         return "Memory Master";
-            default:                    return "Unknown Achievement";
-        }
-    }
-}*/
-
 public class MemoryServer implements GameServer {
     static final String chars = "abcdefghijklmopqrstuvwxyz";
     AchievementHandler achievementHandler;
-
-    /*
-    public MemoryServer() {
-        achievementHandler = new AchievementHandler(MemoryServer.class);
-        /* Create the achievements and give them to the handler
-        achievementHandler.registerAchievement(new Achievement(achievements.PERFECT_MATCH.toString(),
-                "Earned by matching all of the cards in one turn.", 25, "", false));
-        achievementHandler.registerAchievement(new Achievement(achievements.SPEED_RUNNER.toString(),
-                "Earned by matching all of the cards in under a certain amount of time.", 25, "", false));
-        achievementHandler.registerAchievement(new Achievement(achievements.ACE_MATCHER.toString(),
-                "Earned by matching all of the cards in a single game.", 25, "", false));
-        achievementHandler.registerAchievement(new Achievement(achievements.MEMORY_MASTER.toString(),
-                "Earned by earning all of the achievements in the game.", 25, "confused", false));
-    }
-    */
-
 
     /** A random name. We could do with something more memorable, like Docker has. */
     static String randomName() {
@@ -78,7 +45,7 @@ public class MemoryServer implements GameServer {
 
     @Override
     public GameServerDetails getDetails() {
-        return new GameServerDetails("Memory", "Find the pairs in Pair Up [Memory card game]!");
+        return new GameServerDetails("Memory", "Find the hidden pairs in Memory!");
     }
 
     @Override
@@ -112,26 +79,5 @@ public class MemoryServer implements GameServer {
 
         return Future.succeededFuture(g.runCommands(cp));
     }
-
-    /* 
-        @Override
-        public Future<RenderingPackage> callGame(CommandPackage cp) {
-            MemoryGame g = games.get(cp.gameId());
-
-            // Create temp JSONObject object
-            JsonObject cmd = cp.commands().get(0);
-            switch (cmd.getString("command")) {
-                case "clearServer" -> {
-                    clearServer(cp.gameId());
-                }
-            }
-            return Future.succeededFuture(g.runCommands(cp));
-        }
-
-        private void clearServer(String s) {
-            games.remove(s);
-        }
-    
-     */
     
 }

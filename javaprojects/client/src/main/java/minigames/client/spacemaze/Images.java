@@ -177,7 +177,7 @@ public class Images {
     /**
      * Method to load the player images, key is the direction as a string.
      */
-    private void loadPlayerImages(){
+    private void loadPlayerImages() {
         try {
             playerImageUp = ImageIO.read(getClass().getResource("/images/spacemaze/spaceShip2aUp.png"));
             playerImageDown = ImageIO.read(getClass().getResource("/images/spacemaze/spaceShip2aDown.png"));
@@ -246,7 +246,7 @@ public class Images {
     /**
      * Method to load the bomb images
      */
-    private void loadBombImages(){
+    private void loadBombImages() {
         try {
             bombImage0 = ImageIO.read(getClass().getResource("/images/spacemaze/bomb1a.png"));
             bombImage1 = ImageIO.read(getClass().getResource("/images/spacemaze/bomb1b.png"));
@@ -262,7 +262,7 @@ public class Images {
     /**
      * Method to load the key images
      */
-    private void loadKeyImages(){
+    private void loadKeyImages() {
         try {
             keyImage0 = ImageIO.read(getClass().getResource("/images/spacemaze/KeyNoB1a.png"));
             keyImage1 = ImageIO.read(getClass().getResource("/images/spacemaze/keyNoB1.png"));
@@ -276,7 +276,7 @@ public class Images {
     /**
      * Method to load the wall images
      */
-    private void loadWallImages(){
+    private void loadWallImages() {
         try {
             wallImage0 = ImageIO.read(getClass().getResource("/images/spacemaze/asteriodNoB1.png"));
             wallImage1 = ImageIO.read(getClass().getResource("/images/spacemaze/asteriodNoB2.png"));
@@ -294,7 +294,7 @@ public class Images {
     /**
      * Method to load the locked exit images
      */
-    private void loadLockedExitImages(){
+    private void loadLockedExitImages() {
         try {
             lockedImage0 = ImageIO.read(getClass().getResource("/images/spacemaze/LockedExitNoB1.png"));
             lockedImage1 = ImageIO.read(getClass().getResource("/images/spacemaze/LockedExitNoB2.png"));
@@ -310,7 +310,7 @@ public class Images {
     /**
      * Method to load the unlocked exit images
      */
-    private void loadUnlockedExitImages(){
+    private void loadUnlockedExitImages() {
         try {
             unlockedImage0 = ImageIO.read(getClass().getResource("/images/spacemaze/UnlockedExitNoB1.png"));
             unlockedImage1 = ImageIO.read(getClass().getResource("/images/spacemaze/UnlockedExitNoB2.png"));
@@ -326,11 +326,11 @@ public class Images {
     /**
      * Method to load Menu Title Images.
      */
-    public void loadTitleImages(){
+    public void loadTitleImages() {
         
         for (int i=0; i<34; i++){
             String finalFilePath = "/images/spaceMazeTitles/sm" + String.valueOf(i+1) + ".png";
-            try{
+            try {
                 BufferedImage myTitleImage  = ImageIO.read(getClass().getResource(finalFilePath));
                 titleImages.put(i, myTitleImage);
 
@@ -338,7 +338,7 @@ public class Images {
                 logger.error("Image loading failed: {} ", e);
             }
         }
-        for (int i=0; i<titleImages.size(); i++){
+        for (int i=0; i<titleImages.size(); i++) {
             BufferedImage resizedImage = resizeImage(titleImages.get(i), 590, 190);
             titleImages.put(i, resizedImage);            
         }
@@ -348,7 +348,7 @@ public class Images {
     /**
      * Method to Resize BufferedImages to target Height and width
      */
-    public BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight){
+    public BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
         BufferedImage resizedImage = new BufferedImage(590, 190, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics2D = resizedImage.createGraphics();
         graphics2D.drawImage(originalImage, 0, 0, targetWidth, targetHeight, null);
@@ -359,7 +359,7 @@ public class Images {
      /**
      * Method to that returns a hashmap with Buffered Images for main menu title animation.
      */
-    public static HashMap<Integer, BufferedImage> getImageHashMap(){
+    public static HashMap<Integer, BufferedImage> getImageHashMap() {
         return titleImages;
     }
 }
