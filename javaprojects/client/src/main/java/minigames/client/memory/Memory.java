@@ -324,9 +324,13 @@ public class Memory implements GameClient, ActionListener {
                 gameStarted = false;
                 sendCommand("resetToCardBacks");
                 closeGame();
-                mnClient.runMainMenuSequence();
-            }
-            updateStopwatch();
+                // Open survey on exit
+                mnClient.getMainWindow().clearAll();
+                JPanel results = new Survey(mnClient, "650d9ce567874876318474a1", "Memory");
+                mnClient.getMainWindow().addCenter(results);
+                mnClient.getMainWindow().pack();
+                }
+                updateStopwatch();
         }
     }
 
@@ -468,11 +472,7 @@ public class Memory implements GameClient, ActionListener {
             sendCommand("resetToCardBacks");
             gameStarted = false;
             closeGame();
-            // Open survey on exit
-            mnClient.getMainWindow().clearAll();
-            JPanel results = new Survey(mnClient, "650d9ce567874876318474a1", "Memory");
-            mnClient.getMainWindow().addCenter(results);
-            mnClient.getMainWindow().pack();
+            mnClient.runMainMenuSequence();
         });
 
         // Add our components to the north, south, east, west, or centre of the main

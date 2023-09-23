@@ -9,12 +9,15 @@ import java.util.Objects;
  */
 public class MultimediaManager {
     // ImageResources for all the images
-    private static final ImageResource PHONE_BACKGROUND = new ImageResource("/images/snake/GameBackground.png");
-    private static final ImageResource SNAKE_LOGO = new ImageResource("/images/snake/snakeLogo.png");
+    private static final ImageResource PHONE_BACKGROUND = new ImageResource(
+            "/images/snake/GameBackground.png");
+    private static final ImageResource SNAKE_LOGO = new ImageResource(
+            "/images/snake/snakeLogo.png");
     private static final ImageResource IMAGE_APPLE = new ImageResource("/images/snake/apple.png");
     private static final ImageResource IMAGE_CHERRY = new ImageResource("/images/snake/cherry.png");
     private static final ImageResource IMAGE_ORANGE = new ImageResource("/images/snake/orange.png");
-    private static final ImageResource IMAGE_WATERMELON = new ImageResource("/images/snake/watermelon.png");
+    private static final ImageResource IMAGE_WATERMELON = new ImageResource(
+            "/images/snake/watermelon.png");
 
     // Paths to sounds
     private static final String SOUND_8_BIT = "/sounds/8Bit.wav";
@@ -167,7 +170,7 @@ public class MultimediaManager {
     /**
      * Plays a custom sound effect once with a specified volume gain.
      *
-     * @param soundName   The name of the sound effect to be played.
+     * @param soundName The name of the sound effect to be played.
      */
     @SuppressWarnings("BusyWait")
     public static void playSoundEffect(String soundName) {
@@ -192,8 +195,9 @@ public class MultimediaManager {
             soundEffect.open(audioStream);
 
             // Adjust the volume (gain) of the sound
-            if (soundEffect.isControlSupported(FloatControl. Type.MASTER_GAIN)) {
-                FloatControl gainControl = (FloatControl) soundEffect.getControl(FloatControl.Type.MASTER_GAIN);
+            if (soundEffect.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+                FloatControl gainControl = (FloatControl) soundEffect.getControl(
+                        FloatControl.Type.MASTER_GAIN);
                 float gain = 1.5f;
                 gainControl.setValue(gain);
             }

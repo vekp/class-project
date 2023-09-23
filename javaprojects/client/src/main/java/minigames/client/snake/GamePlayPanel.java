@@ -1,9 +1,9 @@
 package minigames.client.snake;
 
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.Border;
+import java.awt.*;
+import java.awt.event.*;
 
 /**
  * Represents the main gameplay area for the Snake game, including
@@ -99,15 +99,19 @@ public class GamePlayPanel extends JPanel implements ActionListener {
         Border border = BorderFactory.createMatteBorder(
                 GameConstants.BORDER_THICKNESS, GameConstants.BORDER_THICKNESS,
                 GameConstants.BORDER_THICKNESS, GameConstants.BORDER_THICKNESS,
-                GameConstants.DEFAULT_BORDER_COLOR);
+                GameConstants.DEFAULT_BORDER_COLOR
+                                                       );
         gamePlayArea.setBorder(border);
-        gamePlayArea.setPreferredSize(new Dimension(GameConstants.GAME_PLAY_WIDTH, GameConstants.GAME_PLAY_HEIGHT));
+        gamePlayArea.setPreferredSize(
+                new Dimension(GameConstants.GAME_PLAY_WIDTH, GameConstants.GAME_PLAY_HEIGHT));
         gamePlayArea.setBounds(0, 0, GameConstants.GAME_PLAY_WIDTH, GameConstants.GAME_PLAY_HEIGHT);
         backgroundContainer.add(gamePlayArea);
 
         // Set up game board and grid
-        gameBoard = new GameBoard(GameConstants.GAME_PLAY_WIDTH / GameConstants.SQUARE_SIZE,
-                                  GameConstants.GAME_PLAY_HEIGHT / GameConstants.SQUARE_SIZE);
+        gameBoard = new GameBoard(
+                GameConstants.GAME_PLAY_WIDTH / GameConstants.SQUARE_SIZE,
+                GameConstants.GAME_PLAY_HEIGHT / GameConstants.SQUARE_SIZE
+        );
         this.gameLogic.setGameBoard(gameBoard);
         gridLabels = new JLabel[gameBoard.getWidth()][gameBoard.getHeight()];
 
@@ -124,7 +128,8 @@ public class GamePlayPanel extends JPanel implements ActionListener {
                 int labelX = offsetX + (x * GameConstants.SQUARE_SIZE);
                 int labelY = offsetY + (y * GameConstants.SQUARE_SIZE);
 
-                label.setBounds(labelX, labelY, GameConstants.SQUARE_SIZE, GameConstants.SQUARE_SIZE);
+                label.setBounds(
+                        labelX, labelY, GameConstants.SQUARE_SIZE, GameConstants.SQUARE_SIZE);
                 gamePlayArea.add(label);
                 gridLabels[x][y] = label;
             }
@@ -156,7 +161,8 @@ public class GamePlayPanel extends JPanel implements ActionListener {
                 if (gameLogic.isGamePaused()) {
                     gameLogic.setGamePaused(false);
                     MultimediaManager.playBackgroundSound(MusicChoice.GAME_PLAY_MUSIC);
-                } else {
+                }
+                else {
                     gameLogic.setGamePaused(true);
                     MultimediaManager.playBackgroundSound(MusicChoice.GAME_PAUSE_MUSIC);
 
@@ -172,46 +178,66 @@ public class GamePlayPanel extends JPanel implements ActionListener {
         // Score Key Label
         JLabel scoreKeyLabel = createLabel(
                 "SCORE", GameConstants.SCORE_KEY_TEXT_COLOR, GameConstants.SCORE_TEXT_KEY_FONT);
-        setBackgroundAndPosition(scoreKeyLabel, GameConstants.SCORE_TEXT_POSITION_X, GameConstants.STATUS_LABEL_KEYS_Y,
-                                 GameConstants.STANDARD_LABEL_HEIGHT);
+        setBackgroundAndPosition(scoreKeyLabel, GameConstants.SCORE_TEXT_POSITION_X,
+                                 GameConstants.STATUS_LABEL_KEYS_Y,
+                                 GameConstants.STANDARD_LABEL_HEIGHT
+                                );
 
         // Score Value Label
-        scoreValueLabel = createLabel("0", GameConstants.SCORE_VALUE_TEXT_COLOR, GameConstants.SCORE_TEXT_VALUE_FONT);
-        setBackgroundAndPosition(scoreValueLabel, GameConstants.SCORE_TEXT_POSITION_X, GameConstants.STATUS_LABEL_VALUES_Y,
-                                 GameConstants.VALUE_LABEL_HEIGHT);
+        scoreValueLabel = createLabel(
+                "0", GameConstants.SCORE_VALUE_TEXT_COLOR, GameConstants.SCORE_TEXT_VALUE_FONT);
+        setBackgroundAndPosition(scoreValueLabel, GameConstants.SCORE_TEXT_POSITION_X,
+                                 GameConstants.STATUS_LABEL_VALUES_Y,
+                                 GameConstants.VALUE_LABEL_HEIGHT
+                                );
 
         // Lives Key Label
         JLabel livesKeyLabel = createLabel(
                 "LIVES", GameConstants.SCORE_KEY_TEXT_COLOR, GameConstants.SCORE_TEXT_KEY_FONT);
-        setBackgroundAndPosition(livesKeyLabel, GameConstants.LIVES_TEXT_POSITION_X, GameConstants.STATUS_LABEL_KEYS_Y,
-                                 GameConstants.STANDARD_LABEL_HEIGHT);
+        setBackgroundAndPosition(livesKeyLabel, GameConstants.LIVES_TEXT_POSITION_X,
+                                 GameConstants.STATUS_LABEL_KEYS_Y,
+                                 GameConstants.STANDARD_LABEL_HEIGHT
+                                );
 
         // Lives Value Label
-        livesValueLabel = createLabel("0", GameConstants.SCORE_VALUE_TEXT_COLOR, GameConstants.SCORE_TEXT_VALUE_FONT);
-        setBackgroundAndPosition(livesValueLabel, GameConstants.LIVES_TEXT_POSITION_X, GameConstants.STATUS_LABEL_VALUES_Y,
-                                 GameConstants.VALUE_LABEL_HEIGHT);
+        livesValueLabel = createLabel(
+                "0", GameConstants.SCORE_VALUE_TEXT_COLOR, GameConstants.SCORE_TEXT_VALUE_FONT);
+        setBackgroundAndPosition(livesValueLabel, GameConstants.LIVES_TEXT_POSITION_X,
+                                 GameConstants.STATUS_LABEL_VALUES_Y,
+                                 GameConstants.VALUE_LABEL_HEIGHT
+                                );
 
         // Time Key Label
         JLabel timeKeyLabel = createLabel(
                 "TIME", GameConstants.SCORE_KEY_TEXT_COLOR, GameConstants.SCORE_TEXT_KEY_FONT);
-        setBackgroundAndPosition(timeKeyLabel, GameConstants.TIME_TEXT_POSITION_X, GameConstants.STATUS_LABEL_KEYS_Y,
-                                 GameConstants.STANDARD_LABEL_HEIGHT);
+        setBackgroundAndPosition(timeKeyLabel, GameConstants.TIME_TEXT_POSITION_X,
+                                 GameConstants.STATUS_LABEL_KEYS_Y,
+                                 GameConstants.STANDARD_LABEL_HEIGHT
+                                );
 
         // Time Value Label
-        timeValueLabel = createLabel("00:00", GameConstants.SCORE_VALUE_TEXT_COLOR, GameConstants.SCORE_TEXT_VALUE_FONT);
-        setBackgroundAndPosition(timeValueLabel, GameConstants.TIME_TEXT_POSITION_X, GameConstants.STATUS_LABEL_VALUES_Y,
-                                 GameConstants.VALUE_LABEL_HEIGHT);
+        timeValueLabel = createLabel(
+                "00:00", GameConstants.SCORE_VALUE_TEXT_COLOR, GameConstants.SCORE_TEXT_VALUE_FONT);
+        setBackgroundAndPosition(timeValueLabel, GameConstants.TIME_TEXT_POSITION_X,
+                                 GameConstants.STATUS_LABEL_VALUES_Y,
+                                 GameConstants.VALUE_LABEL_HEIGHT
+                                );
 
         // Level Key Label
         JLabel levelKeyLabel = createLabel(
                 "LEVEL", GameConstants.SCORE_KEY_TEXT_COLOR, GameConstants.SCORE_TEXT_KEY_FONT);
-        setBackgroundAndPosition(levelKeyLabel, GameConstants.LEVEL_TEXT_POSITION_X, GameConstants.STATUS_LABEL_KEYS_Y,
-                                 GameConstants.STANDARD_LABEL_HEIGHT);
+        setBackgroundAndPosition(levelKeyLabel, GameConstants.LEVEL_TEXT_POSITION_X,
+                                 GameConstants.STATUS_LABEL_KEYS_Y,
+                                 GameConstants.STANDARD_LABEL_HEIGHT
+                                );
 
         // Level Value Label
-        levelValueLabel = createLabel("0", GameConstants.SCORE_VALUE_TEXT_COLOR, GameConstants.SCORE_TEXT_VALUE_FONT);
-        setBackgroundAndPosition(levelValueLabel, GameConstants.LEVEL_TEXT_POSITION_X, GameConstants.STATUS_LABEL_VALUES_Y,
-                                 GameConstants.VALUE_LABEL_HEIGHT);
+        levelValueLabel = createLabel(
+                "0", GameConstants.SCORE_VALUE_TEXT_COLOR, GameConstants.SCORE_TEXT_VALUE_FONT);
+        setBackgroundAndPosition(levelValueLabel, GameConstants.LEVEL_TEXT_POSITION_X,
+                                 GameConstants.STATUS_LABEL_VALUES_Y,
+                                 GameConstants.VALUE_LABEL_HEIGHT
+                                );
     }
 
     /**
@@ -249,7 +275,8 @@ public class GamePlayPanel extends JPanel implements ActionListener {
     private void setupExitButton() {
         ButtonFactory.setupReturnButton(
                 panelSwitcher, backgroundContainer, 0, 0, GameConstants.EXIT_GAME,
-                MusicChoice.MENU_MUSIC);
+                MusicChoice.MENU_MUSIC
+                                       );
     }
 
     /**
@@ -259,7 +286,10 @@ public class GamePlayPanel extends JPanel implements ActionListener {
     public void doLayout() {
         super.doLayout();
         int x = (this.getWidth() - gamePlayArea.getWidth()) / 2;
-        gamePlayArea.setBounds(x, GameConstants.GAME_PLAY_AREA_Y, gamePlayArea.getWidth(), gamePlayArea.getHeight());
+        gamePlayArea.setBounds(
+                x, GameConstants.GAME_PLAY_AREA_Y, gamePlayArea.getWidth(),
+                gamePlayArea.getHeight()
+                              );
     }
 
     /**
@@ -310,7 +340,8 @@ public class GamePlayPanel extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         gameLogic.gameLoop();
         updateGameStatus(gameLogic.getTimeSeconds(), gameLogic.getLives(), gameLogic.getScore(),
-                         gameLogic.getLevel());
+                         gameLogic.getLevel()
+                        );
 
         // Check if the delay has changed in gameLogic
         int newDelay = gameLogic.getGameLoopDelay();  // Using the getter from your gameLogic class
@@ -338,45 +369,51 @@ public class GamePlayPanel extends JPanel implements ActionListener {
                 int labelHeight = label.getHeight();
 
                 switch (type) {
-                    case SNAKE:
+                    case SNAKE -> {
                         label.setOpaque(true);
                         label.setBackground(Color.BLACK);
                         label.setIcon(null); // Remove icon if any
-                        break;
-                    case APPLE:
-                    case CHERRY:
-                    case ORANGE:
-                    case WATERMELON:
+                    }
+                    case APPLE, CHERRY, ORANGE, WATERMELON -> {
                         ImageResource resource;
-                        if (type == ItemType.APPLE) resource = MultimediaManager.getAppleResource();
-                        else if (type == ItemType.CHERRY) resource = MultimediaManager.getCherryResource();
-                        else if (type == ItemType.ORANGE) resource = MultimediaManager.getOrangeResource();
-                        else resource = MultimediaManager.getWatermelonResource();
-
+                        if (type == ItemType.APPLE) {
+                            resource = MultimediaManager.getAppleResource();
+                        }
+                        else if (type == ItemType.CHERRY) {
+                            resource = MultimediaManager.getCherryResource();
+                        }
+                        else if (type == ItemType.ORANGE) {
+                            resource = MultimediaManager.getOrangeResource();
+                        }
+                        else {
+                            resource = MultimediaManager.getWatermelonResource();
+                        }
                         ImageIcon originalIcon = resource.getImageResource();
                         Image originalImage = originalIcon.getImage();
-                        Image scaledImage = originalImage.getScaledInstance(labelWidth, labelHeight, Image.SCALE_SMOOTH);
+                        Image scaledImage = originalImage.getScaledInstance(
+                                labelWidth, labelHeight, Image.SCALE_SMOOTH);
                         ImageIcon scaledIcon = new ImageIcon(scaledImage);
-
                         label.setIcon(scaledIcon);
-                        break;
-                    case SPOILED_FOOD:
+                    }
+                    case SPOILED_FOOD -> {
                         label.setOpaque(true);
                         label.setBackground(Color.BLUE);
                         label.setIcon(null); // Remove icon if any
-                        break;
-                    case VACANT:
+                    }
+                    case VACANT -> {
                         label.setOpaque(false);
                         label.setIcon(null); // Remove icon if any
-                        break;
+                    }
                 }
             }
         }
     }
 
     /**
-     * Renders the "Game Over" graphics and controls the visibility of the "Play Again" and "Exit" buttons
-     * when the game is over. If the game is not over, it ensures the mentioned buttons remain hidden.
+     * Renders the "Game Over" graphics and controls the visibility of the "Play Again" and
+     * "Exit" buttons
+     * when the game is over. If the game is not over, it ensures the mentioned buttons remain
+     * hidden.
      *
      * @param g The graphics context used for rendering.
      */
@@ -386,9 +423,11 @@ public class GamePlayPanel extends JPanel implements ActionListener {
             g.setColor(Color.RED);
             g.setFont(new Font("Ink Free", Font.BOLD, 75));
             FontMetrics metrics = getFontMetrics(g.getFont());
-            g.drawString("Game Over",
-                         (GameConstants.GAME_PLAY_WIDTH - metrics.stringWidth("Game Over")) / 2,
-                         GameConstants.GAME_PLAY_HEIGHT / 2);
+            g.drawString(
+                    "Game Over",
+                    (GameConstants.GAME_PLAY_WIDTH - metrics.stringWidth("Game Over")) / 2,
+                    GameConstants.GAME_PLAY_HEIGHT / 2
+                        );
 
             // Initialize and show the "Play Again" button if not already present
             if (playAgainButton == null) {
@@ -400,7 +439,8 @@ public class GamePlayPanel extends JPanel implements ActionListener {
                                                                  gameLogic.resetGame();
                                                                  playAgainButton.setVisible(false);
                                                                  exitButton.setVisible(false);
-                                                             });
+                                                             }
+                                                            );
                 this.add(playAgainButton);
             }
             playAgainButton.setVisible(true);
@@ -411,11 +451,13 @@ public class GamePlayPanel extends JPanel implements ActionListener {
                                                         (GameConstants.GAME_PLAY_WIDTH - 150) / 2,
                                                         (GameConstants.GAME_PLAY_HEIGHT / 2) + 120,
                                                         150, 50,
-                                                        e -> System.exit(0));
+                                                        e -> System.exit(0)
+                                                       );
                 this.add(exitButton);
             }
             exitButton.setVisible(true);
-        } else {
+        }
+        else {
             // Hide the "Play Again" and "Exit" buttons if the game is not over
             if (playAgainButton != null) {
                 playAgainButton.setVisible(false);
@@ -428,7 +470,8 @@ public class GamePlayPanel extends JPanel implements ActionListener {
 
     /**
      * Renders the "Game Paused" graphics and controls the visibility of the "Resume Game" button
-     * when the game is paused. If the game is not paused, it ensures the "Resume Game" button remains hidden.
+     * when the game is paused. If the game is not paused, it ensures the "Resume Game" button
+     * remains hidden.
      *
      * @param g The graphics context used for rendering.
      */
@@ -438,9 +481,11 @@ public class GamePlayPanel extends JPanel implements ActionListener {
             g.setColor(Color.ORANGE);
             g.setFont(new Font("Ink Free", Font.BOLD, 75));
             FontMetrics metrics = getFontMetrics(g.getFont());
-            g.drawString("Game Paused",
-                         (GameConstants.GAME_PLAY_WIDTH - metrics.stringWidth("Game Paused")) / 2,
-                         GameConstants.GAME_PLAY_HEIGHT / 2);
+            g.drawString(
+                    "Game Paused",
+                    (GameConstants.GAME_PLAY_WIDTH - metrics.stringWidth("Game Paused")) / 2,
+                    GameConstants.GAME_PLAY_HEIGHT / 2
+                        );
 
             // Initialize and show the "Resume Game" button if not already present
             if (resumeGameButton == null) {
@@ -450,12 +495,15 @@ public class GamePlayPanel extends JPanel implements ActionListener {
                                                               180, 50,
                                                               e -> {
                                                                   gameLogic.setGamePaused(false);
-                                                                  resumeGameButton.setVisible(false);
-                                                              });
+                                                                  resumeGameButton.setVisible(
+                                                                          false);
+                                                              }
+                                                             );
                 this.add(resumeGameButton);
             }
             resumeGameButton.setVisible(true);
-        } else {
+        }
+        else {
             // Hide the "Resume Game" button if the game is not paused
             if (resumeGameButton != null) {
                 resumeGameButton.setVisible(false);

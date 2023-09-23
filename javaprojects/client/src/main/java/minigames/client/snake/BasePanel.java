@@ -7,7 +7,8 @@ import java.awt.*;
 
 /**
  * The BasePanel class serves as the primary user interface panel for the Snake game.
- * It contains different game panels such as the main menu, game view, information panels, and achievements panel.
+ * It contains different game panels such as the main menu, game view, information panels, and
+ * achievements panel.
  */
 public class BasePanel extends JPanel implements MainMenuPanel.PanelSwitcher {
     // Panels
@@ -33,8 +34,10 @@ public class BasePanel extends JPanel implements MainMenuPanel.PanelSwitcher {
         // Initialize sub-panels
         mainMenuPanel = new MainMenuPanel(closeGameAction, this);
         gameViewPanel = new GamePlayPanel(this, gameLogic);
-        gameRules = new InformationPanel(this, GameConstants.GAME_RULES_TITLE, GameConstants.GAME_RULES_MESSAGES);
-        aboutMePanel = new InformationPanel(this, GameConstants.ABOUT_ME_TITLE, GameConstants.ABOUT_ME_MESSAGES);
+        gameRules = new InformationPanel(
+                this, GameConstants.GAME_RULES_TITLE, GameConstants.GAME_RULES_MESSAGES);
+        aboutMePanel = new InformationPanel(
+                this, GameConstants.ABOUT_ME_TITLE, GameConstants.ABOUT_ME_MESSAGES);
         achievementsPanel = new AchievementsPanel(this);
 
         // Initialize UI
@@ -44,7 +47,8 @@ public class BasePanel extends JPanel implements MainMenuPanel.PanelSwitcher {
     }
 
     /**
-     * Initializes the user interface by adding sub panels to the main panel and configuring the container panel.
+     * Initializes the user interface by adding sub panels to the main panel and configuring the
+     * container panel.
      */
     private void initUI() {
         mainPanel.add(mainMenuPanel, GameConstants.MAIN_MENU_PANEL);
