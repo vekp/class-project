@@ -106,7 +106,8 @@ public final class GameConstants {
             "Credits",
             "Sounds: Fesliyan Studios (www.FesliyanStudios.com)",
             "Logo: Sean 2023",
-            "Background: Matthew Picone 2023"
+            "Background: Matthew Picone 2023",
+            "Icon: Icons for Free (icons-for-free.com/authors/)"
     };
 
     // Constructor - private to prevent instantiation
