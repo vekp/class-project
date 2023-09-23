@@ -120,7 +120,8 @@ public class FoodManager {
     }
 
     /**
-     * Regenerates the food: selects a new random type and places it at a vacant position on the board.
+     * Regenerates the food: selects a new random type and places it at a vacant position on the
+     * board.
      * The food type and position are randomly chosen, and the food is marked as not spoiled.
      */
     public void generate() {
@@ -140,7 +141,8 @@ public class FoodManager {
 
     /**
      * Updates the status of the food based on elapsed time.
-     * The food spoils after the specified spoilThreshold duration and becomes vacant after an additional
+     * The food spoils after the specified spoilThreshold duration and becomes vacant after an
+     * additional
      * spoiledDelay seconds.
      */
     public void updateFoodStatus() {
@@ -186,7 +188,7 @@ public class FoodManager {
      *
      * @return True if the food is removable, otherwise false.
      */
-    public boolean isRemovable(){
+    public boolean isRemovable() {
         return this.isRemovable;
     }
 }

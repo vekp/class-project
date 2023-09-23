@@ -1,9 +1,9 @@
 package minigames.client.snake;
 
+import javax.swing.*;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
-import javax.swing.Timer;
 
 /**
  * The GameLogic class handles the game logic for the Snake game.
@@ -158,7 +158,8 @@ public class GameLogic {
         // Check if the game should end
         if (livesLeft <= 0) {
             isGameOver = true;
-        } else {
+        }
+        else {
             // Clear the current snake tiles and re-initialize the snake
             gameBoard.clearTilesOfType(ItemType.SNAKE);
             gameBoard.clearTilesOfType(ItemType.SNAKE_HEAD);
@@ -175,7 +176,8 @@ public class GameLogic {
             FoodManager f = iterator.next();
             f.updateFoodStatus();
 
-            // If food has spoiled, you can implement additional logic here, e.g., play a sound effect
+            // If food has spoiled, you can implement additional logic here, e.g., play a sound
+            // effect
 
             if (f.isRemovable()) {
                 iterator.remove();
@@ -245,7 +247,8 @@ public class GameLogic {
         isGamePaused = gamePaused;
         if (gamePaused) {
             timer.stop(); // Pause the timer
-        } else {
+        }
+        else {
             timer.start(); // Resume the timer
         }
     }
@@ -293,7 +296,44 @@ public class GameLogic {
         return level;
     }
 
-    public void levelUp(){
-        level ++;
+    public void levelUp() {
+        level++;
     }
+
+    public void setSnake(PlayableCharacter snake) {
+        this.snake = snake;
+    }
+
+    public boolean isGameStarted() {
+        return gameStarted;
+    }
+
+    public void setGameStarted(boolean gameStarted) {
+        this.gameStarted = gameStarted;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public Random getRandom() {
+        return random;
+    }
+
+    public void setRandom(Random random) {
+        this.random = random;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public Timer getTimer() {
+        return timer;
+    }
+
+    public void setTimer(Timer timer) {
+        this.timer = timer;
+    }
+
 }
