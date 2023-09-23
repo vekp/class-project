@@ -107,7 +107,7 @@ public class Grid {
         int option = rand.nextInt(0, 4);
 
         // Override for specific option:
-         option = 3;
+        // option = 3;
 
         // Map of ships
         HashMap<String, Ship> vessels = new HashMap<>();
