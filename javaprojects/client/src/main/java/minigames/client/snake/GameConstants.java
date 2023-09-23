@@ -12,7 +12,7 @@ public final class GameConstants {
     public static final int BUTTON_HEIGHT = 50;
     public static final int START_BUTTON_Y = 250;
     public static final int BUTTON_GAP = 10;
-    public static final int LOGO_Y = 20;
+    public static final int LOGO_Y = 10;
     public static final int MINIMUM_FOOD_GENERATION_DELAY = 1;
     public static final int MAXIMUM_FOOD_GENERATION_DELAY = 8;
     public static final int SQUARE_SIZE = 20;

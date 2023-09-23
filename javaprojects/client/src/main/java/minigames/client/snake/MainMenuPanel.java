@@ -1,5 +1,9 @@
 package minigames.client.snake;
 
+import minigames.client.GameClient;
+import minigames.client.MinigameNetworkClient;
+import minigames.rendering.GameMetadata;
+
 import javax.swing.*;
 
 /**
@@ -11,7 +15,9 @@ public class MainMenuPanel extends JPanel {
     private final Runnable closeGameAction;
     private final PanelSwitcher panelSwitcher;
     private final JLabel backgroundLabel;
-
+    private final MinigameNetworkClient mnClient;
+    private final GameMetadata game;
+    private final String player;
     /**
      * Interface for switching between panels in the main menu.
      */
@@ -25,7 +31,12 @@ public class MainMenuPanel extends JPanel {
      * @param closeGameAction The action to be performed when the game is closed.
      * @param panelSwitcher   The panel switcher for transitioning between menu panels.
      */
-    public MainMenuPanel(Runnable closeGameAction, PanelSwitcher panelSwitcher) {
+    public MainMenuPanel(
+            MinigameNetworkClient mnClient, GameMetadata game,
+            String player, Runnable closeGameAction, PanelSwitcher panelSwitcher) {
+        this.mnClient = mnClient;
+        this.game = game;
+        this.player = player;
         this.closeGameAction = closeGameAction;
         this.panelSwitcher = panelSwitcher;
 
@@ -89,12 +100,12 @@ public class MainMenuPanel extends JPanel {
                                                        e -> panelSwitcher.switchToPanel(
                                                                GameConstants.ABOUT_ME_PANEL)
                                                       ));
-        backgroundLabel.add(ButtonFactory.createButton(GameConstants.ACHIEVEMENTS_PANEL, buttonX,
-                                                       GameConstants.START_BUTTON_Y + 3 * GameConstants.BUTTON_HEIGHT + GameConstants.BUTTON_GAP * 3,
-                                                       GameConstants.BUTTON_WIDTH,
-                                                       GameConstants.BUTTON_HEIGHT,
-                                                       e -> panelSwitcher.switchToPanel(
-                                                               GameConstants.ACHIEVEMENTS_PANEL)
+        backgroundLabel.add(ButtonFactory.createButton(
+                GameConstants.ACHIEVEMENTS_PANEL, buttonX,
+                GameConstants.START_BUTTON_Y + 3 * GameConstants.BUTTON_HEIGHT + GameConstants.BUTTON_GAP * 3,
+                GameConstants.BUTTON_WIDTH,
+                GameConstants.BUTTON_HEIGHT,
+                e -> mnClient.getGameAchievements(player, game.gameServer())
                                                       ));
         backgroundLabel.add(ButtonFactory.createButton(GameConstants.EXIT_GAME, buttonX,
                                                        GameConstants.START_BUTTON_Y + 4 * GameConstants.BUTTON_HEIGHT + GameConstants.BUTTON_GAP * 4,

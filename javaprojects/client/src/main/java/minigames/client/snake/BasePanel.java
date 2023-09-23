@@ -1,6 +1,7 @@
 package minigames.client.snake;
 
 import minigames.client.MinigameNetworkClient;
+import minigames.rendering.GameMetadata;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,7 +21,6 @@ public class BasePanel extends JPanel implements MainMenuPanel.PanelSwitcher {
     private final GamePlayPanel gameViewPanel;
     private final InformationPanel gameRules;
     private final InformationPanel aboutMePanel;
-    private final AchievementsPanel achievementsPanel;
 
     /**
      * Initializes the BasePanel with various sub panels and configures the UI.
@@ -28,18 +28,17 @@ public class BasePanel extends JPanel implements MainMenuPanel.PanelSwitcher {
      * @param mnClient        The MinigameNetworkClient for communication with the game server.
      * @param closeGameAction A Runnable action to close the game.
      */
-    public BasePanel(MinigameNetworkClient mnClient, Runnable closeGameAction) {
+    public BasePanel(MinigameNetworkClient mnClient, GameMetadata game,
+                     String player, Runnable closeGameAction) {
         GameLogic gameLogic = new GameLogic();
 
         // Initialize sub-panels
-        mainMenuPanel = new MainMenuPanel(closeGameAction, this);
+        mainMenuPanel = new MainMenuPanel(mnClient, game, player, closeGameAction, this);
         gameViewPanel = new GamePlayPanel(this, gameLogic);
         gameRules = new InformationPanel(
                 this, GameConstants.GAME_RULES_TITLE, GameConstants.GAME_RULES_MESSAGES);
         aboutMePanel = new InformationPanel(
                 this, GameConstants.ABOUT_ME_TITLE, GameConstants.ABOUT_ME_MESSAGES);
-        achievementsPanel = new AchievementsPanel(this);
-
         // Initialize UI
         initUI();
         configureMainWindow(mnClient);
@@ -55,7 +54,6 @@ public class BasePanel extends JPanel implements MainMenuPanel.PanelSwitcher {
         mainPanel.add(gameViewPanel, GameConstants.PLAY_PANEL);
         mainPanel.add(gameRules, GameConstants.HELP_MENU_PANEL);
         mainPanel.add(aboutMePanel, GameConstants.ABOUT_ME_PANEL);
-        mainPanel.add(achievementsPanel, GameConstants.ACHIEVEMENTS_PANEL);
 
         containerPanel.add(mainPanel, BorderLayout.CENTER);
     }
