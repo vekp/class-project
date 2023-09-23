@@ -3,7 +3,6 @@ package minigames.server.battleship;
 import minigames.server.achievements.AchievementHandler;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -83,23 +82,24 @@ public class BattleshipPlayer {
     }
 
     /**
-     * TODO: add method description
-     * @param opponent
-     * @param x
-     * @param y
-     * @return
+     * Method to determine the result of shooting at a coordinate and returns a BattleshipTurnResult containing
+     * messages for both players depending on the outcome of shooting that grid cell.
+     *
+     * @param opponent enemy players board that you shot at
+     * @param row      vertical location index
+     * @param col      horizontal location index
+     * @return BattleshipTurnResult containing messages, status info for successful (valid input), ship hit and ship sunk
      */
-    private BattleshipTurnResult shotOutcome(Board opponent, int x, int y) {
-        String input = formatInput(chars.charAt(x)+""+y);
+    private BattleshipTurnResult shotOutcome(Board opponent, int row, int col) {
+        String input = formatInput(chars.charAt(row)+""+ col);
         // Get players current grid
         Cell[][] grid = opponent.getGrid();
 
         // Get cell type of player's coordinate
-        CellType currentState = grid[x][y].getCellType();
+        CellType currentState = grid[row][col].getCellType();
         // If player hit ocean set CellType to Miss and return false
         if (currentState.equals(CellType.OCEAN)) {
-//            opponent.setGridCell(x, y, CellType.MISS);
-            opponent.getGrid()[x][y].shoot();
+            opponent.getGrid()[row][col].shoot();
             return BattleshipTurnResult.missTarget(input);
             // If the Cell is a MISS cell, return false and check for Slow Learner Achievement
         } else if (currentState.equals(CellType.MISS)) {
@@ -115,24 +115,22 @@ public class BattleshipPlayer {
             return BattleshipTurnResult.alreadyHitCell(input);
         } else {
             // If the cell is not an ocean, miss, or hit cell, set the cell to a "hit"
-//            opponent.setGridCell(x, y, CellType.HIT);
-            opponent.getGrid()[x][y].shoot();
+            opponent.getGrid()[row][col].shoot();
 
             // Update the ships to include the hit in their cells
             HashMap<String, Ship> vessels = opponent.getVessels();
             vessels.forEach((key, value) ->{
                 Ship current = value;
-                current.updateShipStatus(x, y, getName());
+                current.updateShipStatus(row, col, getName());
                 vessels.replace(key, current);
             });
             opponent.setVessels(vessels);
 
             // Get the ship shot at
-            Ship ship = opponent.getVessel(new Cell(y, x), opponent.getVessels());
+            Ship ship = opponent.getVessel(new Cell(col, row), opponent.getVessels());
 
             return BattleshipTurnResult.hitTarget(input, ship.isJustSunk());
         }
-        // TODO: increment turn number?
     }
 
     /**
@@ -180,12 +178,18 @@ public class BattleshipPlayer {
     }
 
     /**
-     * TODO: add method description etc
-     * @return
+     * Method to generate a coordinate for an AI player
+     * @return formatted coordinate String
      */
     private String generateCoordinate() {
 
         // Generate random coordinates
+        // TODO: If time permitting, add better ai
+
+        // Pass in the opposing grid where this function is called, get the last shot at cell and check if it was a hit
+        // if so, pick a coordinate relative to that location. If last shot at was a list of the past 2 locations it
+        // would make this a lot better in terms of picking the direction of the ship
+
         // TODO: needs better error checking to ensure we stay in board bounds? current limits are hard coded
         Random rand = new Random();
         int randX = rand.nextInt(10);
@@ -195,40 +199,8 @@ public class BattleshipPlayer {
         return cpuCoordStr;
     }
 
-    public void moveShip(String move, Ship ship) {
-        // List of available ships
-        String[] ships = {"Carrier", "Battleship", "Destroyer", "Submarine", "Patrol Boat"};
-        // Currently selected ship
-        int row = ship.getRow();
-        int col = ship.getCol();
-        boolean hor = ship.isHorizontal();
-
-        System.out.println("Moving ship: "+ships[ship.getIdentifier()]);
-        switch (move) {
-            case "UP" -> {
-                System.out.println("Moving up");
-                this.playerBoard.customShip(ship.getShipClass(), ship.getIdentifier(), row-1, col, hor, getBoard().getVessels());
-            }
-            case "DOWN" -> {
-                System.out.println("Moving down");
-                this.playerBoard.customShip(ship.getShipClass(), ship.getIdentifier(), row+1, col, hor, getBoard().getVessels());
-            }
-            case "LEFT" -> {
-                System.out.println("Moving left");
-                this.playerBoard.customShip(ship.getShipClass(), ship.getIdentifier(), row, col-1, hor, getBoard().getVessels());
-            }
-            case "RIGHT" -> {
-                System.out.println("Moving right");
-                this.playerBoard.customShip(ship.getShipClass(), ship.getIdentifier(), row, col+1, hor, getBoard().getVessels());
-            }
-            case "ROTATE" -> {
-                System.out.println("Rotating");
-                this.playerBoard.customShip(ship.getShipClass(), ship.getIdentifier(), row, col, !hor, getBoard().getVessels());
-            }
-        }
-
-    }
-
+    // This is supposed to check if a ship with the corresponding movement added is inside the grid
+    // TODO: probably remove if not needed for anything - custom ship placement not completed in time and scrapped
     public boolean isInsideGrid(Ship shipIn, int colMov, int rowMov, boolean rotate) {
         // Get selected ship
         String[] ships = this.getBoard().getVessels().keySet().toArray(new String[0]);
@@ -244,15 +216,6 @@ public class BattleshipPlayer {
             oldCoords.add(part.getBothCoords());
         }
 
-        // TODO check if it overlaps? each turn or only at end?
-
-//        int horSize = col + ship.getShipParts().length + colMov;
-//        System.out.println("Horizontal: "+ship.isHorizontal());
-//        System.out.println("Horizontal Size: "+horSize);
-//        int length = ship.getShipParts().length;
-//        System.out.println("Ship Length: "+length);
-//        System.out.println(col + " + " + (length-1) + " + " + colMov + " = " + horSize);
-
         // Check new placement will be inside the grid
         int row = ship.getRow();
         int col = ship.getCol();
@@ -267,29 +230,6 @@ public class BattleshipPlayer {
         if ((rowMov == -1) && (row + rowMov < 0)) return false;
         // Moving down, if horizontal OR vertical and greater than 10 return false
         if ((rowMov == 1) && ((!orientation && row + len >= 10) || (orientation && row + rowMov >= 10))) return false;
-
-//        if (ship.isHorizontal() && (horSize > 10 || horSize < length) && colMov != 0) {
-//            System.out.println("Horizontal ship -> horizontal movement");
-//            return false;
-//        }
-//        if (ship.isHorizontal() && (row + rowMov > 10 || row + rowMov < 0) && rowMov != 0) {
-//            System.out.println("Horizontal ship -> vertical movement");
-//            return false;
-//        }
-//        int verSize = ship.getShipParts().length + row + rowMov;
-//        if (!ship.isHorizontal() && (verSize > 10 || verSize < length) && rowMov != 0) {
-//            System.out.println("Vertical ship -> vertical movement");
-//            return false;
-//        }
-//        if (!ship.isHorizontal() && (col + colMov > 10 || col + colMov < 0) && colMov != 0) {
-//            System.out.println("Vertical ship -> horizontal movement");
-//            return false;
-//        }
-//
-//        if (rotate) {
-//            if (ship.isHorizontal() && ship.getShipParts().length + row > 10) return false;
-//            if (!ship.isHorizontal() && ship.getShipParts().length + row > 10) return false;
-//        }
 
         return true;
     }
@@ -364,13 +304,14 @@ public class BattleshipPlayer {
         return ready;
     }
 
+
+    // Setters
+
     /**
      * Sets player ready in response to a client command
      * @param value true if player is ready, false otherwise
      */
     public void setReady(boolean value){ ready = value;}
-
-    // Setters
 
     /**
      * Takes players existing messages and adds a new one to the string
@@ -380,17 +321,6 @@ public class BattleshipPlayer {
     public void updateHistory(String input) {
         this.messageHistory = playerMessageHistory() + input;
         historyDirty = true;
-    }
-
-    public void setPlayerBoard(Board playerBoard) {
-        this.playerBoard = playerBoard;
-    }
-
-    /**
-     * Sets the player's ready state to true
-     */
-    public void setReadyState() {
-        this.ready = true;
     }
 }
 

@@ -7,8 +7,15 @@ import java.util.Random;
  * The Grid Class contains a 2D array containing Cell items
  */
 public class Grid {
+
+    // Fields
     private Cell[][] grid;
 
+    // Constructor
+
+    /**
+     * Creates a grid object containing a 2D Cell array
+     */
     public Grid(){
         this.grid = defaultGridCreator();
     }
@@ -36,9 +43,9 @@ public class Grid {
     }
 
     /**
-     *
-     * @param row
-     * @param col
+     * Function to shoot at desired cell
+     * @param row vertical index
+     * @param col horizontal index
      */
     public void shootCell(int row, int col){
         this.grid[row][col].shoot();
@@ -55,9 +62,8 @@ public class Grid {
     }
 
     /**
-     * Function to create a new ship object
-     * Ships are constructed from the top left,
-     * @param shipType int representing class of ship eg. Carrier
+     * Function to create a new ship object. Ships are constructed from the top left.
+     * @param shipType int representing class of ship - eg. "Carrier"
      * @param col int representing horizontal location
      * @param row int representing vertical location
      * @param horizontal boolean determining if ship should be created horizontally

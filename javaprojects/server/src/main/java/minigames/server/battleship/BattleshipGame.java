@@ -34,6 +34,7 @@ public class BattleshipGame {
     String opponentPlayer; //the opponent player (not their turn yet)
     int gameTurn = 1; //game starts at turn 1, and increments every time 2 players have both taken their turns
     int turnSwitchCounter = 0; //counter to help increment the game turn every 2nd player switch
+
     static final String player = "Nautical Map";
     static final String enemy = "Target Map";
     static String welcomeMessage = """
@@ -46,8 +47,8 @@ public class BattleshipGame {
     // Constructor
 
     /**
-     * @param gameName
-     * @param playerName
+     * @param gameName Name of the game session
+     * @param playerName Name of the host player
      */
     public BattleshipGame(String gameName, String playerName) {
         this.gameName = gameName;
@@ -180,9 +181,9 @@ public class BattleshipGame {
                     }
                     // Once all players are ready, pick a starting player and begin the game
                     if (gameState.equals(GameState.IN_PROGRESS)) {
-//                        currentClient.getBoard().setGameState(GameState.IN_PROGRESS);
+                        // currentClient.getBoard().setGameState(GameState.IN_PROGRESS);
                         Random rng = new Random();
-                        //50% chance for either player to start first
+                        // 50% chance for either player to start first
                         int firstPlayer = rng.nextInt(0, 1);
                         String[] names = getPlayerNames();
                         if (names.length != 2) {
@@ -209,24 +210,24 @@ public class BattleshipGame {
                     opponent.getBoard().setGameState(GameState.IN_PROGRESS);
 
                 if (Objects.equals(current.getName(), cp.player())) {
-                    //On this users turn, we process any non-refresh commands as an input coordinate
+                    // On this users turn, we process any non-refresh commands as an input coordinate
                     if (!userInput.equals("refresh")) {
                         commands = runGameCommand(current, opponent, userInput);
                     } else {
-                        //if this was a refresh command, we tell the player it is now their turn and they can
-                        //send coordinates over
+                        // If this was a refresh command, we tell the player it is now their turn and they can
+                        // send coordinates over
                         commands.addAll(getGameRender(current, opponent));
-                        //we add the game turn too, as the client will display an intro message on the player's
-                        //first turn
+                        // We add the game turn too, as the client will display an intro message on the player's
+                        // first turn
                         commands.add(new JsonObject()
                                 .put("command", "prepareTurn")
                                 .put("turnCount", gameTurn));
                     }
                 } else {
-                    //if it is not this player's turn, but the opponent is an AI, we do the opponents turn and
-                    //send the result
+                    // If it is not this player's turn, but the opponent is an AI, we do the opponents turn and
+                    // send the result
                     if (current.isAIControlled()) {
-                        //this should be guaranteed to give a successful turn because the AI cant enter invalid input
+                        // This should be guaranteed to give a successful turn because the AI cant enter invalid input
                         BattleshipTurnResult AIResult = current.processAITurn(opponent.getBoard());
                         opponent.updateHistory(AIResult.opponentMessage());
                         SwapTurns();
