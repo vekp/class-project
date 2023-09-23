@@ -18,6 +18,8 @@ public class MultimediaManager {
     private static final ImageResource IMAGE_ORANGE = new ImageResource("/images/snake/orange.png");
     private static final ImageResource IMAGE_WATERMELON = new ImageResource(
             "/images/snake/watermelon.png");
+    private static final ImageResource IMAGE_BAD_FRUIT = new ImageResource(
+            "/images/snake/bad_fruit.png");
 
     // Paths to sounds
     private static final String SOUND_8_BIT = "/sounds/8Bit.wav";
@@ -94,6 +96,14 @@ public class MultimediaManager {
      */
     public static ImageResource getWatermelonResource() {
         return IMAGE_WATERMELON;
+    }
+    /**
+     * Gets the ImageResource for the watermelon image.
+     *
+     * @return ImageResource for the watermelon image.
+     */
+    public static ImageResource getBadFruitResource() {
+        return IMAGE_BAD_FRUIT;
     }
 
     // Methods related to sound

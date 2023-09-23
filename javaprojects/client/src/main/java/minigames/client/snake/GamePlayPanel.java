@@ -374,7 +374,7 @@ public class GamePlayPanel extends JPanel implements ActionListener {
                         label.setBackground(Color.BLACK);
                         label.setIcon(null); // Remove icon if any
                     }
-                    case APPLE, CHERRY, ORANGE, WATERMELON -> {
+                    case APPLE, CHERRY, ORANGE, WATERMELON, SPOILED_FOOD -> {
                         ImageResource resource;
                         if (type == ItemType.APPLE) {
                             resource = MultimediaManager.getAppleResource();
@@ -385,8 +385,11 @@ public class GamePlayPanel extends JPanel implements ActionListener {
                         else if (type == ItemType.ORANGE) {
                             resource = MultimediaManager.getOrangeResource();
                         }
-                        else {
+                        else if (type == ItemType.WATERMELON){
                             resource = MultimediaManager.getWatermelonResource();
+                        }
+                        else {
+                            resource = MultimediaManager.getBadFruitResource();
                         }
                         ImageIcon originalIcon = resource.getImageResource();
                         Image originalImage = originalIcon.getImage();
@@ -394,11 +397,6 @@ public class GamePlayPanel extends JPanel implements ActionListener {
                                 labelWidth, labelHeight, Image.SCALE_SMOOTH);
                         ImageIcon scaledIcon = new ImageIcon(scaledImage);
                         label.setIcon(scaledIcon);
-                    }
-                    case SPOILED_FOOD -> {
-                        label.setOpaque(true);
-                        label.setBackground(Color.BLUE);
-                        label.setIcon(null); // Remove icon if any
                     }
                     case VACANT -> {
                         label.setOpaque(false);
