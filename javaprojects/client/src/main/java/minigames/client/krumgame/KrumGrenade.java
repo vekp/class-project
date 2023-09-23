@@ -16,8 +16,8 @@ public class KrumGrenade extends KrumProjectile {
     final int MAX_DAMAGE = 50;
     long explosionTick; 
     boolean hasBounced = false;
-    KrumGrenade(int xpos, int ypos, double xvel, double yvel, int seconds, BufferedImage sprite, WritableRaster ground, long tick, boolean onMoon) {
-        super(xpos, ypos, xvel, yvel, sprite, ground, onMoon);        
+    KrumGrenade(int xpos, int ypos, double xvel, double yvel, int seconds, BufferedImage sprite, WritableRaster ground, long tick, boolean onMoon, boolean firedFromRope) {
+        super(xpos, ypos, xvel, yvel, sprite, ground, onMoon, firedFromRope);        
         knockbackDistance = KNOCKBACK_DISTANCE;
         knockbackPower = KNOCKBACK_POWER;
         radius = (int)(sprite.getWidth() / 2);        
