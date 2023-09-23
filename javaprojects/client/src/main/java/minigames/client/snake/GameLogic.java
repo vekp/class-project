@@ -3,6 +3,7 @@ package minigames.client.snake;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
+import javax.swing.Timer;
 
 /**
  * The GameLogic class handles the game logic for the Snake game.
@@ -11,9 +12,11 @@ public class GameLogic {
     private PlayableCharacter snake;
     private GameBoard gameBoard;
 
+    // Game state flags
     private boolean gameStarted;
     private boolean isGamePaused;
     private boolean isGameOver;
+
     private Direction direction;
     private int score;
     private Random random;
@@ -26,6 +29,8 @@ public class GameLogic {
     private int foodConsumed = 0;
     private long lastFoodAddedTime = 0;
     private final LinkedList<FoodManager> foodList = new LinkedList<>();
+    private Timer timer;
+    private int gameLoopDelay;
 
     /**
      * Constructs a GameLogic instance.
@@ -34,7 +39,11 @@ public class GameLogic {
         initialiseGame();
     }
 
+    /**
+     * Initializes the game state.
+     */
     public void initialiseGame() {
+        this.gameLoopDelay = GameConstants.GAME_LOOP_DELAY;
         this.minimumFoodDelay = GameConstants.MINIMUM_FOOD_GENERATION_DELAY;
         this.maximumFoodDelay = GameConstants.MAXIMUM_FOOD_GENERATION_DELAY;
         this.random = new Random();
@@ -47,6 +56,17 @@ public class GameLogic {
         this.livesLeft = 3;
         this.direction = Direction.RIGHT; // Default direction
         this.snake = new PlayableCharacter(gameBoard);
+        timer = new Timer(1000, e -> {
+            if (!isGamePaused && gameStarted && !isGameOver) {
+                timeLeft--; // Decrease the timeLeft by 1 second
+                if (timeLeft <= 0) {
+                    // Handle time running out here
+                    timer.stop(); // Stop the timer
+                    isGameOver = true;
+                }
+            }
+        });
+        timer.start(); // Start the timer
     }
 
     /**
@@ -55,62 +75,95 @@ public class GameLogic {
     public void gameLoop() {
         if (!isGamePaused && !isGameOver && gameStarted) {
             handleFood();
+            handleSnakeMovement();
+        }
+    }
 
-            try {
-                snake.move(this.direction);
-            } catch (FoodCollisionException e) {
-                ItemType foodType = ItemType.valueOf(e.getMessage());
-                if (foodType != ItemType.SPOILED_FOOD) {
-                    timeLeft += 15;
-                    foodConsumed++;
-                    if (foodConsumed % GameConstants.LEVEL_CHANGE_THRESHOLD == 0) {
-                        levelUp();
-                    }
-                }
+    /**
+     * Handles the logic for snake movement and collisions.
+     * The method encapsulates the behavior for moving the snake and handling
+     * different types of collisions such as with food, self-collision,
+     * and going out of bounds.
+     */
+    private void handleSnakeMovement() {
+        try {
+            // Attempt to move the snake in the current direction
+            snake.move(this.direction);
+        } catch (FoodCollisionException e) {
+            // Handle the case when the snake collides with food
+            handleFoodCollision(e);
+        } catch (SelfCollisionException | OutOfBoundsException e) {
+            // Handle the case when the snake collides with itself or goes out of bounds
+            handleSelfCollisionOrOutOfBounds();
+        } catch (CollisionException e) {
+            // For any other type of collision, throw a runtime exception
+            throw new RuntimeException(e);
+        }
+    }
 
-                switch (foodType) {
-                    case SPOILED_FOOD -> score -= 100;
-                    case APPLE -> {
-                        score += 1;
-                        snake.grow();
-                    }
-                    case CHERRY -> {
-                        score += 5;
-                        timeLeft += 15;
-                        snake.grow();
-                    }
-                    case ORANGE -> {
-                        score += 10;
-                        timeLeft += 15;
-                        snake.grow();
-                    }
-                    case WATERMELON -> {
-                        score += 20;
-                        timeLeft += 20;
-                        snake.grow();
-                    }
-                }
-            } catch (SelfCollisionException | OutOfBoundsException e) {
-                MultimediaManager.playSoundEffect("Negative");
-                livesLeft--;
-                if (livesLeft <= 0) {
-                    isGameOver = true;
-                }
-                else {
-                    gameBoard.clearTilesOfType(ItemType.SNAKE);
-                    gameBoard.clearTilesOfType(ItemType.SNAKE_HEAD);
-                    snake = new PlayableCharacter(this.gameBoard);
-                }
-            } catch (CollisionException e) {
-                throw new RuntimeException(e);
+    /**
+     * Handles the collision of the snake with food.
+     * Updates game state based on the type of food that the snake collides with.
+     *
+     * @param e The FoodCollisionException containing information about the collided food.
+     */
+    private void handleFoodCollision(FoodCollisionException e) {
+        // Determine the type of food collided with
+        ItemType foodType = ItemType.valueOf(e.getMessage());
+
+        // If the food is not spoiled, update time and food consumed
+        if (foodType != ItemType.SPOILED_FOOD) {
+            timeLeft += 3;
+            foodConsumed++;
+            if (foodConsumed % GameConstants.LEVEL_CHANGE_THRESHOLD == 0) {
+                this.levelUp();
+            }
+        }
+
+        // Update the score and other game states based on the type of food
+        switch (foodType) {
+            case SPOILED_FOOD -> score -= GameConstants.SPOILED_FOOD_SCORE;
+            case APPLE -> {
+                score += GameConstants.APPLE_EATEN_SCORE;
+                snake.grow();
+            }
+            case CHERRY -> {
+                score += GameConstants.CHERRY_EATEN_SCORE;
+                snake.grow();
+            }
+            case ORANGE -> {
+                score += GameConstants.ORANGE_EATEN_SCORE;
+                snake.grow();
+            }
+            case WATERMELON -> {
+                score += GameConstants.WATERMELON_EATEN_SCORE;
+                timeLeft += GameConstants.WATERMELON_EATEN_SCORE;
+                snake.grow();
             }
         }
     }
 
-    private void levelUp() {
-        level++;
-        score += 100;
-//        maximumFoodDelay--;
+    /**
+     * Handles the collision of the snake with itself or going out of bounds.
+     * Updates the game state, reduces the lives left, and either ends the game
+     * or resets the snake's state.
+     */
+    private void handleSelfCollisionOrOutOfBounds() {
+        // Play a negative sound effect to indicate an error
+        MultimediaManager.playSoundEffect("Negative");
+
+        // Decrease the number of lives left
+        livesLeft--;
+
+        // Check if the game should end
+        if (livesLeft <= 0) {
+            isGameOver = true;
+        } else {
+            // Clear the current snake tiles and re-initialize the snake
+            gameBoard.clearTilesOfType(ItemType.SNAKE);
+            gameBoard.clearTilesOfType(ItemType.SNAKE_HEAD);
+            snake = new PlayableCharacter(this.gameBoard);
+        }
     }
 
     /**
@@ -122,7 +175,9 @@ public class GameLogic {
             FoodManager f = iterator.next();
             f.updateFoodStatus();
 
-            if (f.getType() == ItemType.VACANT && f.isSpoiled()) {
+            // If food has spoiled, you can implement additional logic here, e.g., play a sound effect
+
+            if (f.isRemovable()) {
                 iterator.remove();
             }
         }
@@ -147,7 +202,7 @@ public class GameLogic {
 
         if (availableSpaces < GameConstants.MAXIMUM_FOOD_ON_SCREEN) {
             FoodManager newFood = new FoodManager(gameBoard);
-            newFood.regenerate();
+            newFood.generate();
             foodList.add(newFood);
             lastFoodAddedTime = System.currentTimeMillis();
             foodGenerationDelay = random.nextInt(minimumFoodDelay, maximumFoodDelay);
@@ -155,10 +210,20 @@ public class GameLogic {
     }
 
     /**
+     * Gets the game loop delay.
+     *
+     * @return The game loop delay.
+     */
+    public int getGameLoopDelay() {
+        return this.gameLoopDelay;
+    }
+
+    /**
      * Resets the game to its initial state.
      */
     public void resetGame() {
         this.initialiseGame();
+        timer.restart(); // Restart the timer
     }
 
     /**
@@ -166,6 +231,23 @@ public class GameLogic {
      */
     public void startGame() {
         gameStarted = true;
+        if (!timer.isRunning()) {
+            timer.start(); // Start the timer if it's not running
+        }
+    }
+
+    /**
+     * Sets the game pause state.
+     *
+     * @param gamePaused True if the game is paused, false otherwise.
+     */
+    public void setGamePaused(boolean gamePaused) {
+        isGamePaused = gamePaused;
+        if (gamePaused) {
+            timer.stop(); // Pause the timer
+        } else {
+            timer.start(); // Resume the timer
+        }
     }
 
     // Getter and Setter methods...
@@ -191,10 +273,6 @@ public class GameLogic {
         return isGamePaused;
     }
 
-    public void setGamePaused(boolean gamePaused) {
-        isGamePaused = gamePaused;
-    }
-
     public Direction getDirection() {
         return direction;
     }
@@ -213,5 +291,9 @@ public class GameLogic {
 
     public int getLevel() {
         return level;
+    }
+
+    public void levelUp(){
+        level ++;
     }
 }
