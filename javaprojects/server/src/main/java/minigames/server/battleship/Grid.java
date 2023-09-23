@@ -1,6 +1,7 @@
 package minigames.server.battleship;
 
 import java.util.HashMap;
+import java.util.Random;
 
 /**
  * The Grid Class contains a 2D array containing Cell items
@@ -23,13 +24,12 @@ public class Grid {
                 grid[i][j] = new Cell(i, j);
             }
         }
-//        grid = placeDefaultConvoy(grid);
         return grid;
     }
 
     /**
-     *
-     * @return
+     * Function to return the grid
+     * @return 2D Cell array
      */
     public Cell[][] getGrid() {
         return this.grid;
@@ -54,73 +54,23 @@ public class Grid {
         this.grid[row][col].setCellType(cellType);
     }
 
-//    /**
-//     * Function to place ship on the grid and return a Ship object
-//     * @param vesselClass string value describing the ship class
-//     * @param parts vertical or horizontal list of ship parts
-//     * @param size size of ship, eg Carrier = 6
-//     * @param col vertical location in grid
-//     * @param row horizontal location in grid
-//     * @return Ship object
-//     */
-//    public Ship placeShip(String vesselClass, CellType[] parts, int size, int col, int row) {
-//        Cell[] newShipParts = new Cell[size];
-//
-//        for (int i=0; i<size; i++) {
-//            newShipParts[i] = new Cell(row, col);
-//        }
-//
-//        // If horizontal
-//        if (parts[0].equals(CellType.SHIP_LEFT)) {
-//            if (row + parts.length < 10) {
-//                this.grid[col][row].setCellType(parts[0]);
-//                newShipParts[0].setCellType(parts[0]);
-//                for (int i = 1; i < size; i++) {
-//                    if (i<size-1) {
-//                        this.grid[col][row + i].setCellType(parts[1]);
-//                        newShipParts[i].setCellType(parts[1]);
-//                        newShipParts[i].setHorizontalCoord(row + i);
-//                        newShipParts[i].setVerticalCoord(col);
-//                    } else {
-//                        this.grid[col][row + i].setCellType(parts[2]);
-//                        newShipParts[i].setCellType(parts[2]);
-//                        newShipParts[i].setHorizontalCoord(row + i);
-//                        newShipParts[i].setVerticalCoord(col);
-//                    }
-//                }
-//            }
-//        }
-//
-//        // If vertical
-//        if (parts[0].equals(CellType.SHIP_UP)) {
-//            if (col + parts.length < 10) {
-//                this.grid[col][row].setCellType(parts[0]);
-//                newShipParts[0].setCellType(parts[0]);
-//                for (int i = 1; i < size; i++) {
-//                    if (i<size-1) {
-//                        this.grid[col + i][row].setCellType(parts[1]);
-//                        newShipParts[i].setCellType(parts[1]);
-//                        newShipParts[i].setHorizontalCoord(row);
-//                        newShipParts[i].setVerticalCoord(col + i);
-//                    } else {
-//                        this.grid[col + i][row].setCellType(parts[2]);
-//                        newShipParts[i].setCellType(parts[2]);
-//                        newShipParts[i].setHorizontalCoord(row);
-//                        newShipParts[i].setVerticalCoord(col + i);
-//                    }
-//                }
-//            }
-//        }
-//
-//
-//        return new Ship(vesselClass, newShipParts, row, col);
-//    }
-
+    /**
+     * Function to create a new ship object
+     * Ships are constructed from the top left,
+     * @param shipType int representing class of ship eg. Carrier
+     * @param col int representing horizontal location
+     * @param row int representing vertical location
+     * @param horizontal boolean determining if ship should be created horizontally
+     * @return new Ship object
+     */
     public Ship createShip(int shipType, int col, int row, boolean horizontal) {
         // Ship Classes
         String[] shipClass = {"Carrier", "Battleship", "Destroyer", "Submarine", "Patrol Boat"};
         int[] shipSizes = {6, 5, 4, 4, 3};
+
+        // Size of ship
         int size = shipSizes[shipType];
+
         // Ship parts
         CellType[] hor = {CellType.SHIP_LEFT, CellType.SHIP_HULL, CellType.SHIP_RIGHT};
         CellType[] ver = {CellType.SHIP_UP, CellType.SHIP_HULL, CellType.SHIP_DOWN};
@@ -147,46 +97,61 @@ public class Grid {
     }
 
     /**
-     * Function to add ships in a default configuration to a hashmap which is returned
+     * Function to create and add ships in a random default configuration to a hashmap which is returned
      * @return a hashmap containing Ship objects
      */
     public HashMap<String,Ship> defaultShips() {
 
-        // Map of ships
-        HashMap<String, Ship> vessels = new HashMap<>();
-        vessels.put("Carrier",     createShip(0, 0, 0, true));
-        vessels.put("Battleship",  createShip(1, 9, 1, false));
-        vessels.put("Destroyer",   createShip(2, 0, 4, false));
-        vessels.put("Submarine",   createShip(3, 3, 9, true));
-        vessels.put("Patrol Boat", createShip(4, 4, 5, true));
+        // Random ship layout selection
+        Random rand = new Random();
+        int option = rand.nextInt(0, 4);
 
-        // Place ships on the grid
-        generateGrid(vessels);
-
-        return vessels;
-    }
-
-
-    public HashMap<String,Ship> defaultShips1(){
-//        // Ship parts
-//        CellType[] hor = {CellType.SHIP_LEFT,CellType.SHIP_HULL, CellType.SHIP_RIGHT};
-//        CellType[] ver = {CellType.SHIP_UP,CellType.SHIP_HULL, CellType.SHIP_DOWN};
-//        // Map of ships
-//        HashMap<String, Ship> vessels = new HashMap<>();
-//        vessels.put("Carrier", placeShip("Carrier", ver, 6,  2, 9));
-//        vessels.put("Battleship", placeShip("Battleship", hor, 5,  0, 3));
-//        vessels.put("Destroyer", placeShip("Destroyer", hor, 4,  2, 1));
-//        vessels.put("Submarine", placeShip("Submarine", ver, 4,  4, 8));
-//        vessels.put("Patrol Boat", placeShip("Patrol Boat", hor, 3,  5, 4));
-//        return vessels;
+        // Override for specific option:
+         option = 3;
 
         // Map of ships
         HashMap<String, Ship> vessels = new HashMap<>();
-        vessels.put("Carrier",     createShip(0, 0, 2, true));
-        vessels.put("Battleship",  createShip(1, 8, 1, false));
-        vessels.put("Destroyer",   createShip(2, 1, 4, false));
-        vessels.put("Submarine",   createShip(3, 3, 8, true));
-        vessels.put("Patrol Boat", createShip(4, 4, 5, true));
+
+        // Ship layout options
+        switch (option) {
+            case 0 -> {
+                // Best looking if you want to set option for images??
+                vessels.put("Carrier", createShip(0, 0, 2, true));
+                vessels.put("Battleship", createShip(1, 8, 1, false));
+                vessels.put("Destroyer", createShip(2, 1, 4, false));
+                vessels.put("Submarine", createShip(3, 3, 8, true));
+                vessels.put("Patrol Boat", createShip(4, 4, 5, true));
+            }
+            case 1 -> {
+                vessels.put("Carrier", createShip(0, 2, 4, true));
+                vessels.put("Battleship", createShip(1, 9, 3, false));
+                vessels.put("Destroyer", createShip(2, 1, 1, true));
+                vessels.put("Submarine", createShip(3, 5, 6, false));
+                vessels.put("Patrol Boat", createShip(4, 1, 7, true));
+            }
+            case 2 -> {
+                vessels.put("Carrier", createShip(0, 8, 1, false));
+                vessels.put("Battleship", createShip(1, 3, 2, true));
+                vessels.put("Destroyer", createShip(2, 1, 4, false));
+                vessels.put("Submarine", createShip(3, 5, 9, true));
+                vessels.put("Patrol Boat", createShip(4, 2, 4, true));
+            }
+            case 3 -> {
+                // Trolling
+                vessels.put("Carrier", createShip(0, 3, 2, false));
+                vessels.put("Battleship", createShip(1, 3, 1, true));
+                vessels.put("Destroyer", createShip(2, 2, 1, false));
+                vessels.put("Submarine", createShip(3, 2, 5, false));
+                vessels.put("Patrol Boat", createShip(4, 4, 4, true));
+            }
+            case 4 -> {
+                vessels.put("Carrier", createShip(0, 2, 4, false));
+                vessels.put("Battleship", createShip(1, 8, 4, false));
+                vessels.put("Destroyer", createShip(2, 5, 2, false));
+                vessels.put("Submarine", createShip(3, 6, 0, true));
+                vessels.put("Patrol Boat", createShip(4, 0, 1, true));
+            }
+        }
 
         // Place ships on the grid
         generateGrid(vessels);
@@ -195,7 +160,7 @@ public class Grid {
     }
 
     /**
-     * TODO
+     * Cleans a board by setting all cells to OCEAN
      */
     public void wipe() {
         for (Cell[] group: this.grid) {
@@ -206,8 +171,8 @@ public class Grid {
     }
 
     /**
-     * TODO
-     * @param ships
+     * Places each ship in the map passed in onto the grid
+     * @param ships hashmap of ship objects
      */
     public void generateGrid(HashMap<String,Ship> ships) {
         // Reset the grid
@@ -216,7 +181,7 @@ public class Grid {
         // Place ships on the grid
         ships.forEach((key, value) ->{
             for (Cell cell: value.getShipParts()) {
-                grid[cell.getVerticalCoordInt()][cell.getHorizontalCoord()].setCellType(cell.getCellType());
+                this.grid[cell.getVerticalCoordInt()][cell.getHorizontalCoord()].setCellType(cell.getCellType());
             }
         });
     }

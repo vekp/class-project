@@ -1,7 +1,6 @@
 package minigames.server.battleship;
 
 import org.junit.jupiter.api.Test;
-import static org.mockito.Mockito.*;
 
 /**
  * Ensures that Battleship is performing as expected
@@ -14,8 +13,8 @@ public class BattleshipTests {
     @Test
     public void boardDefaultPopulates(){
         // create boards using the default methods
-        Board testBoard = new Board(0);
-        Board otherTestBoard = new Board(1);
+        Board testBoard = new Board();
+        Board otherTestBoard = new Board();
         // check that the appropriate number of ships are present on the boards
         assert isBoardValid(testBoard);
         assert isBoardValid(otherTestBoard);
@@ -117,8 +116,8 @@ public class BattleshipTests {
     @Test
     public void testInputValidation() {
         // create a test player
-        Board testBoard = new Board(0);
-        Board opponentBoard = new Board(1);
+        Board testBoard = new Board();
+        Board opponentBoard = new Board();
         BattleshipPlayer testPlayer = new BattleshipPlayer("test", testBoard, true, "");
         // test invalid inputs
         String[] invalidInputs = {"a11", "k5", "1a", "7j", "4", "c", "Your mama", "COSC220 is awesome!", "Is anyone reading this?"};

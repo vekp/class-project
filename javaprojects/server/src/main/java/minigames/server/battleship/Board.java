@@ -4,12 +4,11 @@ package minigames.server.battleship;
 import java.util.*;
 
 import minigames.server.achievements.AchievementHandler;
-import java.util.Arrays;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.Math.round;
-import static minigames.server.battleship.achievements.SLOW_LEARNER;
 import static minigames.server.battleship.achievements.MISSION_COMPLETE;
 
 /**
@@ -20,7 +19,6 @@ public class Board {
     // Fields
     private Grid grid; // A two-dimensional array of Cells for drawing the game board
     private HashMap<String, Ship> vessels;  // A hashmap containing each of the five ship types for the current board
-    private int shipSelected;
     private GameState gameState;
     private int lastRowShot;
     private int lastColShot;
@@ -29,14 +27,12 @@ public class Board {
 
     /**
      * The Constructor takes only the player's name as a parameter
-     * @param choice integer used to choose the default board - For now
      */
-    public Board(int choice){
+    public Board(){
         this.vessels = new HashMap<>();
         this.grid = new Grid(); // Create a default grid
-        this.gameState = GameState.SHIP_PLACEMENT;
-        this.shipSelected = 0;
-        chooseGrid(choice);
+        this.gameState = GameState.PENDING_READY;
+        chooseGrid();
         // Initialise last shot to invalid coordinates.
         this.lastRowShot = -1;
         this.lastColShot = -1;
@@ -50,7 +46,7 @@ public class Board {
      */
     public Cell[][] getGrid() {
 //        System.out.println(this.gameState.toString());
-        if (this.gameState == GameState.SHIP_PLACEMENT) {
+        if (this.gameState == GameState.PENDING_READY) {
             System.out.println("Edited Grid");
             this.grid.generateGrid(this.vessels);
         }
@@ -80,26 +76,7 @@ public class Board {
      */
     public Ship getShip(String shipClass){return this.vessels.get(shipClass);}
 
-    /**
-     * TODO
-     * @return
-     */
-    public int getShipSelected() {
-        return shipSelected;
-    }
-
     // Setters
-
-    /**
-     * TODO
-     */
-    public void setShipSelected() {
-        if (this.shipSelected < 4) {
-            this.shipSelected++;
-        } else {
-            this.shipSelected = 0;
-        }
-    }
 
     /**
      * Sets the current game state for the player
@@ -224,37 +201,20 @@ public class Board {
      */
     public Cell[][] defaultGridCreator() {return this.grid.defaultGridCreator();}
 
-    //TODO: Fix - This is probably a really bad way of doing it
-
-    // It calls the defaultShips() method, which will add ships to a hashmap, by adding a string key and calling the
-    // placeShip() method, which puts a ship on the grid and then returns a ship object which is added to the hashmap
-    // and finally returns the players grid after all this is complete (in defaultGrid() below)
-
-    public Cell[][] chooseGrid(int choice){
-        if (choice == 1){
-            return otherGrid();
-        } else {
-            return defaultGrid();
-        }
+    /**
+     * Function to initialise grid's layout of ships
+     */
+    public void chooseGrid(){
+        defaultGrid(this.grid.defaultShips());
     }
 
     /**
      * Set the vessels map, and place ships on the grid in a default position
-     * @return a 2D cell array
      */
-    public Cell[][] defaultGrid() {
-        this.vessels = new HashMap<>(this.grid.defaultShips());
-        return this.getGrid();
+    public void defaultGrid(HashMap<String,Ship> ships) {
+        this.vessels = new HashMap<>(ships);
+        this.getGrid();
     }
-
-    public Cell[][] otherGrid(){
-        this.vessels = new HashMap<>(this.grid.defaultShips1());
-        return this.getGrid();
-    }
-
-//    public void moveShip() {
-//        this.setVessels(this.grid.customShip(this.vessels));
-//    };
 
     /**
      * Method to get the ship corresponding to the coordinate input

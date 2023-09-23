@@ -1,5 +1,5 @@
 package minigames.server.battleship;
 
 public enum GameState {
-    WAITING_JOIN, SHIP_PLACEMENT, PENDING_START, IN_PROGRESS, GAME_OVER
+    WAITING_JOIN, PENDING_READY, PENDING_START, IN_PROGRESS, GAME_OVER
 }

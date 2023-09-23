@@ -50,7 +50,7 @@ public class Battleship implements GameClient, Tickable {
     JPanel helpPanel;
     JPanel menuPanel;
     JButton panelMenuBtn;
-    JButton panelNGBtn;
+    JButton panelRtrnBtn;
     JPanel heading;
     JButton menuButton;
     JButton achievementButton;
@@ -103,14 +103,14 @@ public class Battleship implements GameClient, Tickable {
                 "Help Menu",
                 helpPanel,
                 e1 -> {
-                    maps.requestFocus();
+                    userCommand.requestFocus();
                 })
         );
 
         helpButton.setFont(fonts.get(1));
 
         // Style buttons
-        for (JButton b : new JButton[]{menuButton, achievementButton, helpButton, panelMenuBtn, panelNGBtn}) {
+        for (JButton b : new JButton[]{menuButton, achievementButton, helpButton, panelMenuBtn, panelRtrnBtn}) {
             b.setOpaque(true);
             b.setBorder(buttonBorder);
             b.setFocusable(false);
@@ -205,20 +205,12 @@ public class Battleship implements GameClient, Tickable {
         userCommand.setCaretColor(Color.WHITE);
         userCommand.getCaret().setBlinkRate(300);
         userCommand.getCaret().setVisible(true);
-
         userCommand.addActionListener((evt) -> {
             sendCommand(userCommand.getText());  // Send input to server
             userCommand.setText("");             // Clear input field
         });
         userCommand.setFont(fonts.get(3));
         terminal.add(userCommand, BorderLayout.CENTER);
-
-        userCommand.addKeyListener(new java.awt.event.KeyAdapter() {
-            @Override
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                keyboard(evt);
-            }
-        });
 
         // Add everything to one panel
         mainPanel = new JPanel();
@@ -234,22 +226,6 @@ public class Battleship implements GameClient, Tickable {
                 helpButton}) {
             c.setForeground(Color.decode(fgColour));
             c.setBackground(Color.decode(bgColour));
-        }
-    }
-
-    void keyboard(java.awt.event.KeyEvent evt){
-        int keyCode = evt.getKeyCode();
-
-        if (shipPlacement) {
-            switch (keyCode) {
-                case KeyEvent.VK_UP -> sendCommand("up");
-                case KeyEvent.VK_DOWN -> sendCommand("down");
-                case KeyEvent.VK_LEFT -> sendCommand("left");
-                case KeyEvent.VK_RIGHT -> sendCommand("right");
-                case KeyEvent.VK_R -> sendCommand("rotate");
-                case KeyEvent.VK_S -> sendCommand("switch");
-                case KeyEvent.VK_C -> sendCommand("confirm");
-            }
         }
     }
 
@@ -383,8 +359,7 @@ public class Battleship implements GameClient, Tickable {
     }
 
     /**
-     * Panel to contain main menu or new game options
-     * TODO: New Game option is non functional
+     * Panel to contain main menu button with exit confirmation message
      * @return panel containing menu/game options
      */
     public JPanel generateMenuPanel() {
@@ -392,10 +367,15 @@ public class Battleship implements GameClient, Tickable {
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
-        panel.setSize(new Dimension(100, 200));
+        panel.setSize(new Dimension(150, 250));
 
         gbc.gridwidth = 1;
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(10, 5, 20, 5);
+
+        // Return to menu confirmation message
+        JTextArea msg = new JTextArea("Confirm exit to menu?");
+        msg.setFont(fonts.get(1));
+        msg.setEditable(false);
 
         // Menu button
         panelMenuBtn = new JButton("Main Menu");
@@ -405,18 +385,21 @@ public class Battleship implements GameClient, Tickable {
         });
         panelMenuBtn.setFont(fonts.get(1));
         // New Game button
-        panelNGBtn = new JButton("New Game");
-        panelNGBtn.addActionListener(e -> System.out.println("Create a new game"));
-        panelNGBtn.setFont(fonts.get(1));
+        panelRtrnBtn = new JButton("Return");
+        panelRtrnBtn.addActionListener(e -> mnClient.getDialogManager().dismissCurrentNotification());
+        panelRtrnBtn.setFont(fonts.get(1));
 
         gbc.anchor = GridBagConstraints.CENTER;
-        gbc.fill = 1;
         gbc.gridx = 0;
         gbc.gridy = 0;
-        panel.add(panelMenuBtn, gbc);
+        panel.add(msg, gbc);
+        gbc.insets = new Insets(5, 5, 5, 5);
         gbc.gridx = 0;
         gbc.gridy = 1;
-        panel.add(panelNGBtn, gbc);
+        panel.add(panelMenuBtn, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        panel.add(panelRtrnBtn, gbc);
 
         return panel;
     }
