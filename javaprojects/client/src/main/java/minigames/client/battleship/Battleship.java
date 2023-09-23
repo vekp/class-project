@@ -13,8 +13,7 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,6 +23,9 @@ public class Battleship implements GameClient, Tickable {
 
     // Needed for sending commands to the server
     MinigameNetworkClient mnClient;
+    //our listener object to respond to the window being closed - sends a close game
+    //command so that other players know this client has left the game
+    WindowAdapter closeGameListener;
     int tickInterval = 60;
     int tickTimer = 0;
 
@@ -218,6 +220,8 @@ public class Battleship implements GameClient, Tickable {
         mainPanel.add(heading);
         mainPanel.add(maps);
         mainPanel.add(terminal);
+
+
 
         // Set colours for all components
         for (Component c : new Component[]{mainPanel, heading, title, currentPlayerName, currentTurn, nauticalMap,
@@ -513,6 +517,14 @@ public class Battleship implements GameClient, Tickable {
     public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {
         this.mnClient = mnClient;
         mnClient.getAnimator().requestTick(this);
+         closeGameListener = new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                closeGame();
+                super.windowClosing(e);
+            }
+        };
+        mnClient.getMainWindow().getFrame().addWindowListener(closeGameListener);
         isQuitting = false;
         shipPlacement = true;
         waiting = true; //this ensures we get at least 1 refresh to start
@@ -641,7 +653,8 @@ public class Battleship implements GameClient, Tickable {
      */
     @Override
     public void closeGame() {
-        // Nothing to do
+        //remove the listener we previously had on this object
+        mnClient.getMainWindow().getFrame().removeWindowListener(closeGameListener);
         sendCommand("exitGame");
         isQuitting = true;
         waiting = false;

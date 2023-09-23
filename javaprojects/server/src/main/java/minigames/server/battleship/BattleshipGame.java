@@ -69,7 +69,9 @@ public class BattleshipGame {
      * @return An array containing the names of current players
      */
     public String[] getPlayerNames() {
-        return bPlayers.keySet().toArray(String[]::new);
+        if (bPlayers.size() > 0)
+            return bPlayers.keySet().toArray(String[]::new);
+        else return new String[0];
     }
 
     /**
@@ -119,19 +121,20 @@ public class BattleshipGame {
         BattleshipPlayer current = bPlayers.get(activePlayer);
         BattleshipPlayer opponent = bPlayers.get(opponentPlayer);
 
-        //Handle exit game commands
+        // Handle exit game commands
         if (userInput.equals("exitGame")) {
             System.out.println("This should exit that game");
-            //todo this shouldnt clear list, just remove 1 player?
+            // Remove the exiting player. This will leave just 1 player (if it is a human player), and when they
+            // send their own command package, they will hit the below else condition and be told that this player
+            // has left
             bPlayers.remove(cp.player());
 
             return new RenderingPackage(gameMetadata(), commands);
+
         } else if (bPlayers.size() < 2 && gameState != GameState.WAITING_JOIN) {
-            //Here is where a player has left a running game
-            //todo change this to test if other player has left
-            //todo here is where we should check if the OTHER player had left the game, and tell this client
-            //to pop up a window saying other player has left
-            //also just return a render package immediately here
+            // Here is where a player has left a running game
+            // to pop up a window saying other player has left
+            // also just return a render package immediately here as the game is over
             commands.add(new JsonObject().put("command", "playerExited"));
             return new RenderingPackage(gameMetadata(), commands);
         }
@@ -198,14 +201,6 @@ public class BattleshipGame {
                         commands.add(new JsonObject().put("command", "waitReady"));
                     }
                 }
-//                //getting the board/game render here
-//                String[] players = getPlayerNames();
-//                if (players[0].equals(cp.player())) {
-//                    commands.addAll(getGameRender(bPlayers.get(players[0]), bPlayers.get(players[1])));
-//                } else {
-//                    commands.addAll(getGameRender(bPlayers.get(players[1]), bPlayers.get(players[0])));
-//                }
-//                return new RenderingPackage(gameMetadata(), commands);
             }
             case IN_PROGRESS -> {
                 if (!current.getBoard().getGameState().equals(GameState.IN_PROGRESS))
@@ -373,7 +368,7 @@ public class BattleshipGame {
             renderingCommands.add(new JsonObject().put("command", "waitForJoin"));
 
         } else if (currentPlayers.length == 1) {
-            if(currentPlayers[0].equals(playerName)){
+            if (currentPlayers[0].equals(playerName)) {
                 //if the player is trying to double-join their own game, this should fail
                 return new RenderingPackage(
                         gameMetadata(),

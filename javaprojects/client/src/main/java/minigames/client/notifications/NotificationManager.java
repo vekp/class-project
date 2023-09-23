@@ -236,12 +236,20 @@ public class NotificationManager implements Tickable {
     }
 
     /**
+     * Throw IllegalArgumentException if given val outside acceptable range of 0.0f-1.0f
+     */
+    private void checkFloatParam(float val, String paramName) {
+        if (val < 0 || val > 1) throw new IllegalArgumentException("Parameter " + paramName + " must be in range 0.0f - 1.0f");
+    }
+
+    /**
      * Setter for horizontal alignment of the notification.
      * Possible alignment values are in the range 0.0f - 1.0f, such as Component.LEFT_ALIGNMENT(0.0f),
      * Component.CENTER_ALIGNMENT (0.5f), and the default Component.RIGHT_ALIGNMENT (1.0f).
      */
     public NotificationManager setAlignmentX(float alignmentX) {
-        this.alignmentX = alignmentX < 0 ? 0 : alignmentX > 1 ? 1 : alignmentX;
+        checkFloatParam(alignmentX, "alignmentX");
+        this.alignmentX = alignmentX;
         return this;
     }
 
@@ -251,7 +259,8 @@ public class NotificationManager implements Tickable {
      * Component.CENTER_ALIGNMENT (0.5f), and Component.BOTTOM (1.0f).
      */
     public NotificationManager setAlignmentY(float alignmentY) {
-        this.alignmentY = alignmentY < 0 ? 0.0f : alignmentY > 1 ? 1.0f : alignmentY;
+        checkFloatParam(alignmentY, "alignmentY");
+        this.alignmentY = alignmentY;
         return this;
     }
 
@@ -260,7 +269,8 @@ public class NotificationManager implements Tickable {
      * @param animationSpeed float representing proportion of distance from current to target location to travel per tick
      */
     public NotificationManager setAnimationSpeed(float animationSpeed) {
-        this.animationSpeed = animationSpeed < 0 ? 0.0f : animationSpeed > 1 ? 1.0f : animationSpeed;
+        checkFloatParam(animationSpeed, "animationSpeed");
+        this.animationSpeed = animationSpeed;
         return this;
     }
 
@@ -404,6 +414,13 @@ public class NotificationManager implements Tickable {
      */
     private void applyBorder(Component component) {
         if (component instanceof JComponent jc && !(jc instanceof JInternalFrame)) jc.setBorder(border);
+    }
+
+    /**
+     * Return the current size of the notification queue
+     */
+    public int getQueueSize() {
+        return queuedNotifications.size();
     }
 
 }
