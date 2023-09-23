@@ -8,36 +8,30 @@ import java.util.Objects;
  * such as images and sounds for the Snake game UI.
  */
 public class MultimediaManager {
-
     // ImageResources for all the images
-    private static final ImageResource PHONE_BACKGROUND = new ImageResource(
-            GameConstants.PHONE_BACKGROUND);
-    private static final ImageResource SNAKE_LOGO = new ImageResource(
-            GameConstants.SNAKE_LOGO);
-    private static final ImageResource IMAGE_APPLE = new ImageResource(
-            GameConstants.IMAGE_APPLE);
-    private static final ImageResource IMAGE_CHERRY = new ImageResource(
-            GameConstants.IMAGE_CHERRY);
-    private static final ImageResource IMAGE_ORANGE = new ImageResource(
-            GameConstants.IMAGE_ORANGE);
-    private static final ImageResource IMAGE_WATERMELON = new ImageResource(
-            GameConstants.IMAGE_WATERMELON);
+    private static final ImageResource PHONE_BACKGROUND = new ImageResource("/images/snake/GameBackground.png");
+    private static final ImageResource SNAKE_LOGO = new ImageResource("/images/snake/snakeLogo.png");
+    private static final ImageResource IMAGE_APPLE = new ImageResource("/images/snake/apple.png");
+    private static final ImageResource IMAGE_CHERRY = new ImageResource("/images/snake/cherry.png");
+    private static final ImageResource IMAGE_ORANGE = new ImageResource("/images/snake/orange.png");
+    private static final ImageResource IMAGE_WATERMELON = new ImageResource("/images/snake/watermelon.png");
+
     // Paths to sounds
-    private static final String SOUND_8_BIT = GameConstants.SOUND_8_BIT;
-    private static final String SOUND_POSITIVE = GameConstants.SOUND_POSTITIVE;
-    private static final String SOUND_NEGATIVE = GameConstants.SOUND_NEGATIVE;
-    private static final String SOUND_MENU = GameConstants.SOUND_MENU;
-    private static final String SOUND_RETRO = GameConstants.SOUND_RETRO;
-    private static final String SOUND_SMOOTH = GameConstants.SOUND_SMOOTH;
-    private static final String SOUND_SURF = GameConstants.SOUND_SURF;
+    private static final String SOUND_8_BIT = "/sounds/8Bit.wav";
+    private static final String SOUND_POSITIVE = "/sounds/eatApple.wav";
+    private static final String SOUND_NEGATIVE = "/sounds/grunt.wav";
+    private static final String SOUND_MENU = "/sounds/menu.wav";
+    private static final String SOUND_SURF = "/sounds/surf.wav";
+
     // Image collection
     private static final ImageResource[] FOOD_IMAGES = {IMAGE_APPLE, IMAGE_CHERRY,
             IMAGE_WATERMELON, IMAGE_ORANGE};
+
     // Background sound clip
     private static Clip backgroundSound;
 
     /**
-     * Constructs a MultimediaManager.
+     * Constructs a MultimediaManager. (Private constructor to prevent instantiation)
      */
     private MultimediaManager() {
         // Empty constructor
@@ -110,7 +104,7 @@ public class MultimediaManager {
      * @param soundName The name of the sound to be played. The name should correspond
      *                  to one of the predefined sound names (e.g., "8Bit", "EatApple").
      */
-    public static void playBackgroundSound(String soundName) {
+    public static void playBackgroundSound(MusicChoice soundName) {
         // Stop any currently playing background sound
         stopBackgroundSound();
 
@@ -118,25 +112,19 @@ public class MultimediaManager {
 
         // Determine the sound file path based on the provided sound name
         switch (soundName) {
-            case "8Bit":
+            case GAME_PLAY_MUSIC:
                 soundPath = SOUND_8_BIT;
                 break;
-            case "Positive":
+            case POSITIVE_REACTION:
                 soundPath = SOUND_POSITIVE;
                 break;
-            case "Negative":
+            case NEGATIVE_REACTION:
                 soundPath = SOUND_NEGATIVE;
                 break;
-            case "Menu":
+            case MENU_MUSIC:
                 soundPath = SOUND_MENU;
                 break;
-            case "Retro":
-                soundPath = SOUND_RETRO;
-                break;
-            case "Smooth":
-                soundPath = SOUND_SMOOTH;
-                break;
-            case "Surf":
+            case GAME_PAUSE_MUSIC:
                 soundPath = SOUND_SURF;
                 break;
             default:
@@ -181,6 +169,7 @@ public class MultimediaManager {
      *
      * @param soundName   The name of the sound effect to be played.
      */
+    @SuppressWarnings("BusyWait")
     public static void playSoundEffect(String soundName) {
         String soundPath;
 
@@ -225,15 +214,6 @@ public class MultimediaManager {
     }
 
     /**
-     * Gets the array of distinct food images.
-     *
-     * @return An array of ImageResource containing the food images.
-     */
-    public static ImageResource[] getFoodImages() {
-        return FOOD_IMAGES.clone(); // Return a clone to prevent external modification
-    }
-
-    /**
      * Gets the number of distinct food images.
      *
      * @return The size of the FOOD_IMAGES array.
@@ -254,5 +234,4 @@ public class MultimediaManager {
         }
         throw new IndexOutOfBoundsException("Index " + index + " out of bounds for FOOD_IMAGES");
     }
-
 }
