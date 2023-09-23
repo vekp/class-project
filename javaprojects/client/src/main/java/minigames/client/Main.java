@@ -13,7 +13,7 @@ import minigames.client.gameshow.FadePanel;
 import minigames.client.gameshow.GameShow;
 import minigames.client.useraccount.UserServerAction;
 import minigames.client.peggle.PeggleUI;
-import minigames.client.TicTacToe.TicTacToeClient;
+import minigames.client.tictactoe.TicTacToeClient;
 import minigames.client.snake.SnakeUI;
 import minigames.client.spacemaze.SpaceMaze;
 import minigames.client.telepathy.Telepathy;
