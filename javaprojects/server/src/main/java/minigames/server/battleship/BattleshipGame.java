@@ -38,9 +38,7 @@ public class BattleshipGame {
     static final String player = "Nautical Map";
     static final String enemy = "Target Map";
     static String welcomeMessage = """
-            Good evening Captain! Use arrow keys to move ships around the grid.
-            Press 'S' to switch vessel, 'R' to rotate and 'C' to confirm.
-            Confirm, then enter 'Ready' to start conquering the seas!
+            Good evening Captain! Enter 'Ready' to start conquering the seas!
             ...""";
     public static String chars = "ABCDEFGHIJ";
 
