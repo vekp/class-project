@@ -3,7 +3,8 @@ package minigames.client.snake;
 /**
  * The GameBoard class represents a 2D grid game board.
  * Each cell in the board can contain an item represented by ItemType.
- * The board is initialized as vacant and can be modified by setting specific ItemTypes at coordinates.
+ * The board is initialized as vacant and can be modified by setting specific ItemTypes at
+ * coordinates.
  */
 
 class GameBoard {
@@ -72,8 +73,8 @@ class GameBoard {
      * Sets the ItemType at a specific coordinate on the game board.
      * Throws IndexOutOfBoundsException if the coordinates are out of bounds.
      *
-     * @param x the x-coordinate
-     * @param y the y-coordinate
+     * @param x    the x-coordinate
+     * @param y    the y-coordinate
      * @param type the ItemType to set
      * @throws IndexOutOfBoundsException if the coordinates are out of bounds
      */

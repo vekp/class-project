@@ -19,6 +19,7 @@ public class SurveyRoutesHandler {
         router.get("/survey/tableData").handler(this::getAllSurveyData);
         router.post("/survey/registerGame").handler(this::registerGame);
         router.post("/survey/getSummary").handler(this::getSurveySummary);
+        router.delete("/survey/removeEntry").handler(this::deleteEntry);
     }
 
     // Save Submission from Survey
@@ -33,7 +34,7 @@ public class SurveyRoutesHandler {
             document.put("game_id", gameId);
     
             // Insert the Document into MongoDB
-            String confirmation = mongoDB.insertDocument("feedback", document);
+            String confirmation = mongoDB.insertDocument("feedback", document).toJSONString();
     
             ctx.response().putHeader("content-type", "application/json")
                     .end(confirmation);
@@ -79,7 +80,7 @@ public class SurveyRoutesHandler {
         }
     
         if (gameNameNotMuddle) {
-            String confirmation = mongoDB.insertDocument("games", document);
+            String confirmation = mongoDB.insertDocument("games", document).toJSONString();
             ctx.response().putHeader("content-type", "application/json")
                 .end(confirmation);
         } else {
@@ -138,4 +139,31 @@ public class SurveyRoutesHandler {
                     .end("Invalid JSON data.");
         }        
     };
+
+    /*
+     * Function to delete an entry from the database
+     */
+    private void deleteEntry(RoutingContext ctx) {
+        String tableName = ctx.request().getParam("table");
+        String entryId = ctx.request().getParam("id");
+
+        if (tableName != null && entryId != null) {
+            // Attempt to delete the entry
+            boolean deleted = mongoDB.deleteDocument(tableName, entryId);
+
+            if (deleted) {
+                ctx.response()
+                    .putHeader("content-type", "application/json")
+                    .end("Entry with ID " + entryId + " deleted successfully from " + tableName + ".");
+            } else {
+                ctx.response()
+                    .setStatusCode(400)
+                    .end("Failed to delete the entry with ID " + entryId + " from " + tableName + ".");
+            }
+        } else {
+            ctx.response()
+                .setStatusCode(400)
+                .end("Invalid parameters. Both 'table' and 'id' parameters are required.");
+        }
+    }
 }

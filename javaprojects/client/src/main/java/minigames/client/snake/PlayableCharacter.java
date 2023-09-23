@@ -113,6 +113,18 @@ public class PlayableCharacter {
         }
         bodyParts = GameConstants.INITIAL_SNAKE_PARTS;
     }
+
+    public int[] getX() {
+        return x;
+    }
+
+    public int[] getY() {
+        return y;
+    }
+
+    public int getBodyParts() {
+        return bodyParts;
+    }
 }
 
 /**

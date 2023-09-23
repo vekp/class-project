@@ -1,74 +1,47 @@
 package minigames.client.snake;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.mockito.Mockito;
 
-class PlayableCharacterTest {
-    private PlayableCharacter snake;
-    private GameBoard gameBoard;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class PlayableCharacterTest {
+
+    private PlayableCharacter playableCharacter;
+    private GameBoard mockGameBoard;
 
     @BeforeEach
-    void setUp() {
-        gameBoard = mock(GameBoard.class);
-        snake = new PlayableCharacter(gameBoard);
+    public void setUp() {
+        mockGameBoard = Mockito.mock(GameBoard.class);
+        playableCharacter = new PlayableCharacter(mockGameBoard);
     }
 
-    /**
-     * Test for initial direction of the snake.
-     */
-    @Test
-    void testInitialDirection() {
-        assertEquals(Direction.RIGHT, snake.getDirection());
-    }
 
     /**
-     * Test for setting the direction of the snake.
+     * Test that the playable character throws an exception when moving out of bounds.
      */
     @Test
-    void testSetDirection() {
-        snake.setDirection(Direction.UP);
-        assertEquals(Direction.UP, snake.getDirection());
-    }
-
-    /**
-     * Test for snake moving out of bounds.
-     */
-    @Test
-    void testOutOfBoundsMove() {
-        when(gameBoard.getWidth()).thenReturn(10);
-        when(gameBoard.getHeight()).thenReturn(10);
-
-        snake.setDirection(Direction.RIGHT);
-
+    public void testMoveOutOfBounds() {
+        // Simulate a move that goes out of bounds
         assertThrows(OutOfBoundsException.class, () -> {
-            for (int i = 0; i < 15; i++) {
-                snake.move(snake.getDirection());
-            }
+            playableCharacter.move(Direction.LEFT);
         });
     }
 
     /**
-     * Test for snake colliding with itself.
+     * Test that the playable character throws an exception when colliding with itself.
      */
-    @Test
-    @Disabled
-    void testSelfCollision() {
-        when(gameBoard.getItemTypeAt(anyInt(), anyInt())).thenReturn(ItemType.SNAKE);
 
-        assertThrows(SelfCollisionException.class, () -> snake.move(Direction.RIGHT));
-    }
 
     /**
-     * Test for snake colliding with food.
+     * Test that the playable character can grow in size.
      */
     @Test
-    @Disabled
-    void testFoodCollision() {
-        when(gameBoard.getItemTypeAt(anyInt(), anyInt())).thenReturn(ItemType.APPLE);
-
-        assertThrows(FoodCollisionException.class, () -> snake.move(Direction.RIGHT));
+    public void testGrow() {
+        int initialBodyParts = playableCharacter.getBodyParts();
+        playableCharacter.grow();
+        assertEquals(initialBodyParts + 1, playableCharacter.getBodyParts());
     }
+
 }

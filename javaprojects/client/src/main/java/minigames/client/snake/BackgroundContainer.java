@@ -3,7 +3,8 @@ package minigames.client.snake;
 import javax.swing.*;
 
 /**
- * The BackgroundContainer class provides a standardized background with a logo for the Snake game UI.
+ * The BackgroundContainer class provides a standardized background with a logo for the Snake
+ * game UI.
  */
 public class BackgroundContainer extends JLabel {
 

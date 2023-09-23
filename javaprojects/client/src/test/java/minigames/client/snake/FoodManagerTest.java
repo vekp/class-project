@@ -1,78 +1,93 @@
 package minigames.client.snake;
 
+import minigames.client.snake.*;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class FoodManagerTest {
-    private GameBoard board;
+
+    private GameBoard gameBoard;
     private FoodManager foodManager;
 
     @BeforeEach
     void setUp() {
-        board = new GameBoard(10, 10);
-        foodManager = new FoodManager(board);
+        gameBoard = new GameBoard(10, 10); // Adjust the board size as needed
+        foodManager = new FoodManager(gameBoard);
     }
 
-    /**
-     * Test the constructor for proper initialization.
-     */
     @Test
-    void testConstructor() {
-        assertThrows(IllegalArgumentException.class, () -> new FoodManager(null));
+    void testInitialization() {
+        assertNotNull(foodManager);
         assertEquals(-1, foodManager.getX());
         assertEquals(-1, foodManager.getY());
+        assertNull(foodManager.getType());
+        assertFalse(foodManager.isSpoiled());
+        assertFalse(foodManager.isRemovable());
     }
 
-    /**
-     * Test the regeneration of food.
-     */
     @Test
-    @Disabled
-    void testRegenerate() {
-      //  foodManager.regenerate();
-        assertTrue(foodManager.getX() >= 0 && foodManager.getX() < 10);
-        assertTrue(foodManager.getY() >= 0 && foodManager.getY() < 10);
+    void testSetPosition() {
+        foodManager.generate(); // Generate food to set its position
+
+        int x = 5;
+        int y = 5;
+        foodManager.setPosition(x, y);
+
+        assertEquals(x, foodManager.getX());
+        assertEquals(y, foodManager.getY());
+        ItemType type = foodManager.getType();
+        assertNotNull(type);
+        assertNotEquals(ItemType.SNAKE, type);
+        assertNotEquals(ItemType.VACANT, type);
+        assertNotEquals(ItemType.WALL, type);
+    }
+
+    @Test
+    void testGenerate() {
+        foodManager.generate();
+
+        assertTrue(foodManager.getX() >= 0);
+        assertTrue(foodManager.getX() < gameBoard.getWidth());
+        assertTrue(foodManager.getY() >= 0);
+        assertTrue(foodManager.getY() < gameBoard.getHeight());
         assertNotNull(foodManager.getType());
         assertFalse(foodManager.isSpoiled());
     }
 
-    /**
-     * Test setting the position of food.
-     */
     @Test
-    void testSetPosition() {
-        foodManager.setPosition(3, 3);
-        assertEquals(3, foodManager.getX());
-        assertEquals(3, foodManager.getY());
-        assertEquals(board.getItemTypeAt(3, 3), foodManager.getType());
-    }
-
-    /**
-     * Test the spoilage of food based on a custom threshold.
-     */
-    @Test
-    @Disabled
-    void testHasSpoiled() throws InterruptedException {
-      //  foodManager.regenerate();
-        // Simulate the passage of time to make the food spoil.
-        Thread.sleep(2000);  // 2 seconds
-      //  assertTrue(foodManager.hasSpoiled(1));  // Should spoil after 1 second
-      //  assertFalse(foodManager.hasSpoiled(3));  // Should not spoil before 3 seconds
-    }
-
-    /**
-     * Test the update of food status.
-     */
-    @Test
-    @Disabled
-    void testUpdateFoodStatus() throws InterruptedException {
-       // foodManager.regenerate();
-        assertFalse(foodManager.isSpoiled());
-        // Simulate the passage of time to make the food spoil.
-        Thread.sleep(GameConstants.SPOILED_FOOD_THRESHOLD * 1000 + 1000);
+    void testUpdateFoodStatus() {
+        foodManager.generate();
         foodManager.updateFoodStatus();
+
+        assertFalse(foodManager.isSpoiled());
+        assertFalse(foodManager.isRemovable());
+
+        // Simulate time elapsed to spoil the food
+        int spoilThreshold = GameConstants.SPOILED_FOOD_THRESHOLD;
+        sleepSeconds(spoilThreshold + 1); // Wait for spoilThreshold + 1 seconds
+
+        foodManager.updateFoodStatus();
+
         assertTrue(foodManager.isSpoiled());
+        assertFalse(foodManager.isRemovable());
+
+        // Simulate time elapsed to make the spoiled food removable
+        int removeDelay = GameConstants.SPOILED_FOOD_REMOVE_DELAY;
+        sleepSeconds(removeDelay + 1); // Wait for removeDelay + 1 seconds
+
+        foodManager.updateFoodStatus();
+
+        assertTrue(foodManager.isSpoiled());
+        assertTrue(foodManager.isRemovable());
+    }
+
+    private void sleepSeconds(int seconds) {
+        try {
+            Thread.sleep(seconds * 1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }

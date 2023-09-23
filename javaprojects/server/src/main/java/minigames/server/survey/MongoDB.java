@@ -12,6 +12,8 @@ import com.mongodb.ConnectionString;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.result.DeleteResult;
+
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -33,11 +35,12 @@ public class MongoDB {
     }
 
     // Add new data to Database
-    public String insertDocument(String collectionName, Document document) {
+    public JSONArray insertDocument(String collectionName, Document document) {
         var collection = database.getCollection(collectionName);
         document.append("timestamp", this.getCurrentTimestamp());
         collection.insertOne(document);
 
+        JSONArray jsonArray = new JSONArray();
         JSONParser jsonParser = new JSONParser();
         JSONObject insertedDocument;
 
@@ -45,7 +48,7 @@ public class MongoDB {
             insertedDocument = (JSONObject) jsonParser.parse(document.toJson());
         } catch (ParseException e) {
             e.printStackTrace();
-            return null; 
+            return jsonArray; 
         }
 
         // Remove the object in _id and only leave the _id string
@@ -57,7 +60,8 @@ public class MongoDB {
             }
         }
 
-        return insertedDocument.toJSONString();
+        jsonArray.add(insertedDocument);
+        return jsonArray;
     }
 
     // Gets all entries in a collection (table)
@@ -111,6 +115,27 @@ public class MongoDB {
         }
         return jsonArray;
     }  
+
+
+    // Deletes an entry from the database
+    public boolean deleteDocument(String tableName, String entryId) {
+        MongoCollection<Document> collection = database.getCollection(tableName);
+
+        ObjectId objectId;
+        try {
+            objectId = new ObjectId(entryId);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+
+        Bson filter = Filters.eq("_id", objectId);
+
+        // Attempt to delete the document
+        DeleteResult deleteResult = collection.deleteOne(filter);
+
+        return deleteResult.getDeletedCount() > 0;
+    }
+
 
     private String getCurrentTimestamp() {
         LocalDateTime now = LocalDateTime.now();
