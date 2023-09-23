@@ -1,5 +1,8 @@
 package minigames.server.battleship;
 
+import minigames.achievements.Achievement;
+import minigames.server.achievements.AchievementHandler;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -8,8 +11,7 @@ import org.junit.jupiter.api.Test;
 public class BattleshipTests {
     private final String[] shipClasses = {"Carrier", "Patrol Boat", "Submarine", "Destroyer", "Battleship"};
 
-    // Board and Ship Placement
-    /** Tests whether a default board is created for the player*/
+    @DisplayName("Tests whether a default board is created for the player")
     @Test
     public void boardDefaultPopulates(){
         // create boards using the default methods
@@ -32,24 +34,8 @@ public class BattleshipTests {
         return board.getVessels().size() == shipClasses.length;
     }
 
-    // TODO: implement test after ship placement done
-    /** Tests whether ships can be placed on a board*/
-    public void shipPlaceable(){
-        // create a board with custom placement
-        // try to place a ship in a valid space
-        // assert that the ship placement function will return true
-    }
 
-    /** Tests whether the board detects and corrects a ship being placed illegally*/
-    //TODO: Come up with a better name for this function
-    public void shipOutofBounds(){
-        // create a board
-        // try to place a ship on the edge where it won't fit
-        // assert that the placement function will throw an appropriate exception
-    }
-
-    // Hit detection
-    /** Tests whether hitting an ocean tile will register as a miss, and the cell will be changed as appropriate*/
+    @DisplayName("Tests whether hitting an ocean tile will register as a miss, and the cell will be changed as appropriate")
     @Test
     public void missDetected(){
         // create an ocean cell
@@ -65,7 +51,8 @@ public class BattleshipTests {
     }
 
     /**
-     * Create a Cell array of 5 elements, one for each of the ship parts.
+     * Create a Cell array of 5 elements, one for each of the different ship part cell types.
+     * Used for testing hits and sinking of ships.
      */
     private Cell[] makeTestShipCells() {
         Cell[] cells = new Cell[5];
@@ -78,7 +65,7 @@ public class BattleshipTests {
         return cells;
     }
 
-    /** Tests whether hitting any of the ship hull types will register a hit, and the cell is changed as appropriate*/
+    @DisplayName("Tests whether hitting any of the ship hull types will register a hit, and the cell is changed as appropriate")
     @Test
     public void hitDetected(){
         // create cells for each of the ship hull types and add to an array
@@ -91,7 +78,7 @@ public class BattleshipTests {
         }
     }
 
-    /** Tests whether destroying all cells of a ship will cause the ship to be considered "sunk"*/
+    @DisplayName("Tests whether destroying all cells of a ship will cause the ship to be considered sunk")
     @Test
     public void shipSinks(){
         // create a ship
@@ -110,9 +97,7 @@ public class BattleshipTests {
     }
 
 
-    /**
-     * Test that valid user input is accepted and invalid input is rejected
-     */
+    @DisplayName("Test that valid user input is accepted and invalid input is rejected")
     @Test
     public void testInputValidation() {
         // create a test player
@@ -140,10 +125,29 @@ public class BattleshipTests {
         // assert that the round counter increments as expected
     }
 
+    @DisplayName("Test that gameFinished returns true only after all ships are sunk")
+    @Test
     public void gameFinished(){
-        // start a game and sink all ships except for one
-        // shoot at the final ship until it is sunk
-        // assert that the game has ended
+        // Register all achievements to prevent errors from unlocking ship sinking achievements
+        AchievementHandler handler = new AchievementHandler(BattleshipServer.class);
+        for (achievements a : achievements.values()) {
+            handler.registerAchievement(new Achievement(a.toString(), "", 0, "", false));
+        }
+        // Create test board, iterate through each ship
+        Board testBoard = new Board();
+        testBoard.getVessels().forEach((shipType, ship) -> {
+            Cell[] shipParts = ship.getShipParts();
+            // iterate through each cell in ship's parts
+            for (Cell shipPart : shipParts) {
+                // assert game not yet over
+                assert !testBoard.checkGameOver("");
+                int col = shipPart.getVerticalCoordInt();
+                int row = shipPart.getHorizontalCoord();
+                // shoot the cell
+                ship.updateShipStatus(col, row, "");
+            }
+        });
+        // All ships have been sunk, assert that the game has ended
+        assert testBoard.checkGameOver("");
     }
-
 }
