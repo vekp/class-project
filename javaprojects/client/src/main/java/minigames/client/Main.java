@@ -56,7 +56,7 @@ public class Main extends AbstractVerticle {
         clientRegistry.registerGameClient("Hangman", new HangmanClient());
         clientRegistry.registerGameClient("GameShow", new GameShow());
         clientRegistry.registerGameClient("Peggle", new PeggleUI());
-        clientRegistry.registerGameClient("Tic Tac Toe", new TicTacToeClient());
+//        clientRegistry.registerGameClient("Tic Tac Toe", new TicTacToeClient());
         clientRegistry.registerGameClient("NoughtsAndCrosses", new NoughtsAndCrosses());
         clientRegistry.registerGameClient("KrumGame", new KrumGameClient());
     }
