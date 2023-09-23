@@ -5,39 +5,34 @@ import minigames.server.achievements.AchievementHandler;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
 /**
  * Ensures that Battleship is performing as expected
  */
 public class BattleshipTests {
-    private final String[] shipClasses = {"Carrier", "Patrol Boat", "Submarine", "Destroyer", "Battleship"};
 
-    @DisplayName("Tests whether a default board is created for the player")
+    @DisplayName("Tests whether a default board is correctly created for the player")
     @Test
-    public void boardDefaultPopulates(){
+    public void testBoardConstructor(){
+        // define the ship classes
+        String[] shipClasses = {"Carrier", "Patrol Boat", "Submarine", "Destroyer", "Battleship"};
         // create boards using the default methods
-        Board testBoard = new Board();
-        Board otherTestBoard = new Board();
-        // check that the appropriate number of ships are present on the boards
-        assert isBoardValid(testBoard);
-        assert isBoardValid(otherTestBoard);
-    }
-
-    /**
-     * Returns whether given Board contains all ships as specified in shipClasses
-     */
-    private boolean isBoardValid (Board board) {
-        for (String shipClass : shipClasses) {
-            if (!board.getVessels().containsKey(shipClass)) {
-                return false;
+        for (int i = 0; i < 50; i++) {
+            Board testBoard = new Board();
+            // check number of vessels is correct
+            assertEquals(shipClasses.length, testBoard.getVessels().size());
+            // check each ship class is present in board
+            for (String shipClass : shipClasses) {
+                assert testBoard.getVessels().containsKey(shipClass);
             }
         }
-        return board.getVessels().size() == shipClasses.length;
     }
-
 
     @DisplayName("Tests whether hitting an ocean tile will register as a miss, and the cell will be changed as appropriate")
     @Test
-    public void missDetected(){
+    public void testOceanCell(){
         // create an ocean cell
         Cell testCell = new Cell(0, 0);
         // assert cell is ocean
@@ -67,7 +62,7 @@ public class BattleshipTests {
 
     @DisplayName("Tests whether hitting any of the ship hull types will register a hit, and the cell is changed as appropriate")
     @Test
-    public void hitDetected(){
+    public void testShipCell(){
         // create cells for each of the ship hull types and add to an array
         Cell[] cells = makeTestShipCells();
         // assert each cell is not hit yet, then shoot at each one and assert it is now hit
@@ -80,7 +75,7 @@ public class BattleshipTests {
 
     @DisplayName("Tests whether destroying all cells of a ship will cause the ship to be considered sunk")
     @Test
-    public void shipSinks(){
+    public void testShip(){
         // create a ship
         Cell[] cells = makeTestShipCells();
         Ship ship = new Ship("TestShip", 0, cells,0, 0, true);
@@ -97,9 +92,9 @@ public class BattleshipTests {
     }
 
 
-    @DisplayName("Test that valid user input is accepted and invalid input is rejected")
+    @DisplayName("Tests that valid user input is accepted and invalid input is rejected")
     @Test
-    public void testInputValidation() {
+    public void testProcessTurnValidation() {
         // create a test player
         Board testBoard = new Board();
         Board opponentBoard = new Board();
@@ -116,19 +111,12 @@ public class BattleshipTests {
             BattleshipTurnResult result = testPlayer.processTurn(validInput, opponentBoard);
             assert result.playerMessage().endsWith("Prepare for incoming fire!");
         }
-
     }
 
-    // Rounds, game-over, etc.
-    public void roundCounts(){
-        // start a game, and increment rounds
-        // assert that the round counter increments as expected
-    }
-
-    @DisplayName("Test that gameFinished returns true only after all ships are sunk")
+    @DisplayName("Tests that gameFinished returns true only after all ships are sunk")
     @Test
-    public void gameFinished(){
-        // Register all achievements to prevent errors from unlocking ship sinking achievements
+    public void testGameOver(){
+        // Register all achievements to prevent errors when unlocking ship sinking achievements
         AchievementHandler handler = new AchievementHandler(BattleshipServer.class);
         for (achievements a : achievements.values()) {
             handler.registerAchievement(new Achievement(a.toString(), "", 0, "", false));
