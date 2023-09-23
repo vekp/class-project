@@ -102,7 +102,7 @@ public class Survey extends JPanel implements ActionListener {
         // gameName TextLabel
         gameNameTextLabel = new JLabel();
         gameNameTextLabel.setText(gameName);
-        gameNameTextLabel.setFont(fontText);
+        gameNameTextLabel.setFont(fontLabel);
         gameNameTextLabel.setHorizontalAlignment(JLabel.CENTER);
 
         // rating explanation help TextLabel
