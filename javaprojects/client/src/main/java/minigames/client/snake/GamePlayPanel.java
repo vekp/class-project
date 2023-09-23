@@ -38,36 +38,39 @@ public class GamePlayPanel extends JPanel implements ActionListener {
      * @param gameLogic     The game logic handling gameplay mechanics.
      */
     public GamePlayPanel(MainMenuPanel.PanelSwitcher panelSwitcher, GameLogic gameLogic) {
+        // Initialize UI components and event listeners
         this.setFocusable(true);
         this.requestFocusInWindow();
         gameLoopTimer = new Timer(GameConstants.GAME_LOOP_DELAY, this);
-
         this.panelSwitcher = panelSwitcher;
         this.gameLogic = gameLogic;
 
+        // Set layout and add background container
         setLayout(null);
         backgroundContainer = new BackgroundContainer();
         backgroundContainer.setLayout(null);
         add(backgroundContainer);
 
+        // Initialize the game interface
         initializeGameInterface();
 
+        // Repaint the panel
         repaint();
 
         // Add listeners
-        this.addComponentListener(new ComponentAdapter() {
+        addComponentListener(new ComponentAdapter() {
             @Override
             public void componentShown(ComponentEvent e) {
                 GamePlayPanel.this.requestFocusInWindow();
             }
         });
-        this.addKeyListener(new KeyAdapter() {
+        addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 handleKeyPress(e);
             }
         });
-        this.addMouseListener(new MouseAdapter() {
+        addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 GamePlayPanel.this.requestFocusInWindow();
@@ -108,8 +111,10 @@ public class GamePlayPanel extends JPanel implements ActionListener {
         this.gameLogic.setGameBoard(gameBoard);
         gridLabels = new JLabel[gameBoard.getWidth()][gameBoard.getHeight()];
 
-        int offsetX = gamePlayArea.getX();
-        int offsetY = gamePlayArea.getY();
+        int offsetX =
+                gamePlayArea.getX() + ((gamePlayArea.getWidth() % GameConstants.SQUARE_SIZE) / 2);
+        int offsetY =
+                gamePlayArea.getY() + ((gamePlayArea.getHeight() % GameConstants.SQUARE_SIZE) / 2);
 
         for (int x = 0; x < gameBoard.getWidth(); x++) {
             for (int y = 0; y < gameBoard.getHeight(); y++) {
@@ -137,27 +142,23 @@ public class GamePlayPanel extends JPanel implements ActionListener {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:
                 gameLogic.setDirection(Direction.UP);
-                System.out.println("UP");
                 break;
             case KeyEvent.VK_DOWN:
                 gameLogic.setDirection(Direction.DOWN);
-                System.out.println("DOWN");
                 break;
             case KeyEvent.VK_LEFT:
                 gameLogic.setDirection(Direction.LEFT);
-                System.out.println("LEFT");
                 break;
             case KeyEvent.VK_RIGHT:
                 gameLogic.setDirection(Direction.RIGHT);
-                System.out.println("RIGHT");
                 break;
             case KeyEvent.VK_SPACE:
                 if (gameLogic.isGamePaused()) {
                     gameLogic.setGamePaused(false);
-                    MultimediaManager.playBackgroundSound(GameConstants.GAME_PLAY_MUSIC);
+                    MultimediaManager.playBackgroundSound(MusicChoice.GAME_PLAY_MUSIC);
                 } else {
                     gameLogic.setGamePaused(true);
-                    MultimediaManager.playBackgroundSound(GameConstants.GAME_PAUSE_MUSIC);
+                    MultimediaManager.playBackgroundSound(MusicChoice.GAME_PAUSE_MUSIC);
 
                 }
                 break;
@@ -246,9 +247,9 @@ public class GamePlayPanel extends JPanel implements ActionListener {
      * Sets up the exit button functionality utilizing the UIHelper's method for return button.
      */
     private void setupExitButton() {
-                    ButtonFactory.setupReturnButton(
-                    panelSwitcher, backgroundContainer, 0, 0, GameConstants.EXIT_GAME,
-                    GameConstants.MENU_MUSIC);
+        ButtonFactory.setupReturnButton(
+                panelSwitcher, backgroundContainer, 0, 0, GameConstants.EXIT_GAME,
+                MusicChoice.MENU_MUSIC);
     }
 
     /**
@@ -288,7 +289,7 @@ public class GamePlayPanel extends JPanel implements ActionListener {
     public void startGame() {
         gameLogic.startGame();
         gameLoopTimer.start();
-        MultimediaManager.playBackgroundSound("Menu");
+        MultimediaManager.playBackgroundSound(MusicChoice.GAME_PLAY_MUSIC);
     }
 
     /**
@@ -299,22 +300,25 @@ public class GamePlayPanel extends JPanel implements ActionListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        // Render game over or game paused screens
         gameOver(g);
         gamePaused(g);
     }
 
-    /**
-     * Handles action events, typically fired by timers or other periodic tasks.
-     * In this context, it's used to periodically update the game status, render
-     * the updated game area, and refresh the game visuals.
-     *
-     * @param e The action event details.
-     */
     @Override
     public void actionPerformed(ActionEvent e) {
         gameLogic.gameLoop();
         updateGameStatus(gameLogic.getTimeSeconds(), gameLogic.getLives(), gameLogic.getScore(),
                          gameLogic.getLevel());
+
+        // Check if the delay has changed in gameLogic
+        int newDelay = gameLogic.getGameLoopDelay();  // Using the getter from your gameLogic class
+        if (gameLoopTimer.getDelay() != newDelay) {
+            gameLoopTimer.setDelay(newDelay);
+            gameLoopTimer.restart();
+        }
+
         updateGamePlayArea();
         repaint();
     }
@@ -329,15 +333,42 @@ public class GamePlayPanel extends JPanel implements ActionListener {
         for (int x = 0; x < gameBoard.getWidth(); x++) {
             for (int y = 0; y < gameBoard.getHeight(); y++) {
                 ItemType type = gameBoard.getItemTypeAt(x, y);
-                gridLabels[x][y].setOpaque(true);
+                JLabel label = gridLabels[x][y];
+                int labelWidth = label.getWidth();
+                int labelHeight = label.getHeight();
+
                 switch (type) {
-                    case SNAKE -> gridLabels[x][y].setBackground(Color.BLACK);
-                    case APPLE -> gridLabels[x][y].setBackground(Color.RED);
-                    case CHERRY -> gridLabels[x][y].setBackground(Color.MAGENTA);
-                    case ORANGE -> gridLabels[x][y].setBackground(Color.ORANGE);
-                    case WATERMELON -> gridLabels[x][y].setBackground(Color.YELLOW);
-                    case SPOILED_FOOD -> gridLabels[x][y].setBackground(Color.BLUE);
-                    case VACANT -> gridLabels[x][y].setOpaque(false);
+                    case SNAKE:
+                        label.setOpaque(true);
+                        label.setBackground(Color.BLACK);
+                        label.setIcon(null); // Remove icon if any
+                        break;
+                    case APPLE:
+                    case CHERRY:
+                    case ORANGE:
+                    case WATERMELON:
+                        ImageResource resource;
+                        if (type == ItemType.APPLE) resource = MultimediaManager.getAppleResource();
+                        else if (type == ItemType.CHERRY) resource = MultimediaManager.getCherryResource();
+                        else if (type == ItemType.ORANGE) resource = MultimediaManager.getOrangeResource();
+                        else resource = MultimediaManager.getWatermelonResource();
+
+                        ImageIcon originalIcon = resource.getImageResource();
+                        Image originalImage = originalIcon.getImage();
+                        Image scaledImage = originalImage.getScaledInstance(labelWidth, labelHeight, Image.SCALE_SMOOTH);
+                        ImageIcon scaledIcon = new ImageIcon(scaledImage);
+
+                        label.setIcon(scaledIcon);
+                        break;
+                    case SPOILED_FOOD:
+                        label.setOpaque(true);
+                        label.setBackground(Color.BLUE);
+                        label.setIcon(null); // Remove icon if any
+                        break;
+                    case VACANT:
+                        label.setOpaque(false);
+                        label.setIcon(null); // Remove icon if any
+                        break;
                 }
             }
         }
