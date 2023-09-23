@@ -1,6 +1,11 @@
+package minigames.server;
+
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.bson.Document;
+import org.json.simple.*;
+import org.json.simple.parser.*;
 
 public class SurveyMongoDBTests {
     private MongoDB mongoDB;
@@ -11,7 +16,6 @@ public class SurveyMongoDBTests {
     }
 
     @Test
-    @ignore
     void testInsertDocument() {
     // Create a test document
     Document testDocument = new Document("name", "TestUser")
