@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Random;
 
 /**
- * Our TicTacToeServer holds TicTacToeGames. 
+ * Our TicTacToeServer holds TicTacToeGames.
  * When it receives a CommandPackage, it finds the TicTacToeGame and calls it.
  */
 public class TicTacToeServer implements GameServer {
@@ -21,6 +21,7 @@ public class TicTacToeServer implements GameServer {
     static final String chars = "abcdefghijklmopqrstuvwxyz";
     AchievementHandler achievementHandler;
 
+    /** A random name. We could do with something more memorable, like Docker has */
     static String randomName() {
         Random r = new Random();
         StringBuffer sb = new StringBuffer();
@@ -30,19 +31,20 @@ public class TicTacToeServer implements GameServer {
         return sb.toString();
     }
 
+    /** Holds the games in progress in memory (no db) */
     HashMap<String, TicTacToeGame> games = new HashMap<>();
 
     public TicTacToeServer() {
         achievementHandler = new AchievementHandler(TicTacToeServer.class);
-        // Register all achievements with handler, for now, assuming TicTacToeAchievement exists.
-        // for (TicTacToeAchievement a : TicTacToeAchievement.values()) {
-        //     achievementHandler.registerAchievement(a.achievement);
-        // }
+        // Register all achievements with handler
+        for (TicTacToeAchievement a : TicTacToeAchievement.values()) {
+            achievementHandler.registerAchievement(a.achievement);
+        }
     }
 
     @Override
     public GameServerDetails getDetails() {
-        return new GameServerDetails("TicTacToe", "Classic Tic Tac Toe game");
+        return new GameServerDetails("TicTacToe", "The classic game of TicTacToe!");
     }
 
     @Override
