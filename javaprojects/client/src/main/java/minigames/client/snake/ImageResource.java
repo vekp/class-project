@@ -26,7 +26,8 @@ public class ImageResource {
      * @param imagePath The relative path to the image resource.
      */
     public ImageResource(String imagePath) {
-        this.resourceImage = new ImageIcon(Objects.requireNonNull(MultimediaManager.class.getResource(imagePath)));
+        this.resourceImage = new ImageIcon(
+                Objects.requireNonNull(MultimediaManager.class.getResource(imagePath)));
         this.imageWidth = resourceImage.getIconWidth();
         this.imageHeight = resourceImage.getIconHeight();
     }
@@ -49,4 +50,12 @@ public class ImageResource {
         return imageWidth;
     }
 
+    /**
+     * Returns the height of the resource image.
+     *
+     * @return The height of the image in pixels.
+     */
+    public int getImageResourceHeight() {
+        return imageHeight;
+    }
 }

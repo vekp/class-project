@@ -1,9 +1,6 @@
 package minigames.client.snake;
 
-import org.apache.logging.log4j.core.appender.AppenderLoggingException;
-
-import java.awt.Color;
-import java.awt.Font;
+import java.awt.*;
 
 /**
  * GameConstants class holds common constants used across multiple classes in the Snake game.
@@ -95,7 +92,8 @@ public final class GameConstants {
     public static final String[] GAME_RULES_MESSAGES = {
             "Use the arrow keys to steer your snake on an epic quest!",
             "Collect tasty fruits to increase your score!",
-            "Be cautious of spoiled food, as it deducts " + Math.abs(SPOILED_FOOD_SCORE) + " points.",
+            "Be cautious of spoiled food, as it deducts " + Math.abs(
+                    SPOILED_FOOD_SCORE) + " points.",
             "Eating watermelons grants a time bonus.", "",
             "Point System", "Apple: " + APPLE_EATEN_SCORE, "Orange: " + ORANGE_EATEN_SCORE,
             "Cherry: " + CHERRY_EATEN_SCORE, "Watermelon: " + WATERMELON_EATEN_SCORE, "",
@@ -112,5 +110,6 @@ public final class GameConstants {
     };
 
     // Constructor - private to prevent instantiation
-    private GameConstants() {}
+    private GameConstants() {
+    }
 }
