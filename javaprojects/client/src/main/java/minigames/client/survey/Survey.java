@@ -64,6 +64,12 @@ public class Survey extends JPanel implements ActionListener {
         this.setLayout(new BorderLayout());
         readBackgroundImage();
 
+        // Reset Notification/DialogManager settings, dismiss any current dialog
+        mnClient.getNotificationManager().resetToDefaultSettings();
+        mnClient.getDialogManager()
+                .dismissCurrentNotification()
+                .resetToDefaultSettings();
+
         //This creates a nice main Survey frame.
 
         // Frame size and position
