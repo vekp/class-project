@@ -142,4 +142,36 @@ public class ButtonFactory {
                 buttonName, x, y, GameConstants.BUTTON_WIDTH, GameConstants.BUTTON_HEIGHT, action);
         container.add(returnButton);
     }
+
+        /**
+         * Sets up a button with custom position, name, background sound, and additional action to execute.
+         *
+         * @param panelSwitcher The interface used to switch between panels.
+         * @param container     The container (like a JPanel) where the button will be added.
+         * @param x             The x-coordinate of the button.
+         * @param y             The y-coordinate of the button.
+         * @param buttonName    The custom name for the button.
+         * @param soundName     The name of the background sound to play when the button is clicked.
+         * @param additionalAction The Runnable representing additional actions to perform before switching panels.
+         */
+        public static void setupReturnButton(
+                MainMenuPanel.PanelSwitcher panelSwitcher,
+                JComponent container, int x, int y, String buttonName,
+                MusicChoice soundName, Runnable additionalAction
+                                            ) {
+            ActionListener action = e -> {
+                // Execute the additional action
+                if (additionalAction != null) {
+                    additionalAction.run();
+                }
+                // Switch to main menu
+                panelSwitcher.switchToPanel(GameConstants.MAIN_MENU_PANEL);
+                // Play background sound
+                MultimediaManager.playBackgroundSound(soundName);
+            };
+
+            JButton returnButton = createButton(
+                    buttonName, x, y, GameConstants.BUTTON_WIDTH, GameConstants.BUTTON_HEIGHT, action);
+            container.add(returnButton);
+        }
 }

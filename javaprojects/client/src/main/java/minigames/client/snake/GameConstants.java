@@ -102,7 +102,11 @@ public final class GameConstants {
     };
 
     public static final String[] ABOUT_ME_MESSAGES = {
-            "Developed by Luke, Sean & Matt", "", "(Group 15) COSC220 A3, 2023.", "",
+            "Developed by",
+            "Luke Bowen (lbowen6@myune.edu.au)",
+            "Sean Clark (sclark94@myune.edu.au)",
+            "Matthew Picone (mp629829@gmail.com/mpicone2@myune.edu.au)", "",
+            "(Group 15) COSC220 A3, 2023.", "",
             "Credits",
             "Sounds: Fesliyan Studios (www.FesliyanStudios.com)",
             "Logo: Sean 2023",
