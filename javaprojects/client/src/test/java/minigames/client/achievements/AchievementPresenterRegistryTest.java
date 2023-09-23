@@ -59,7 +59,6 @@ public class AchievementPresenterRegistryTest {
     public void carouselTest() {
         // No images
         for (int i = 0; i < 10; i++) {
-            System.out.println(i);
             JPanel carousel = apRegistry.achievementCarousel.achievementCarouselPanel(i);
             // For unlocked achievements - 4 components
             if (i < 5) {
