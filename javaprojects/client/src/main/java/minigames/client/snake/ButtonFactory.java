@@ -1,7 +1,6 @@
 package minigames.client.snake;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -34,7 +33,7 @@ public class ButtonFactory {
         button.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(GameConstants.DEFAULT_BORDER_COLOR, GameConstants.BORDER_THICKNESS),
                 BorderFactory.createEmptyBorder(GameConstants.BORDER_PADDING, GameConstants.BORDER_PADDING, GameConstants.BORDER_PADDING, GameConstants.BORDER_PADDING)
-        ));
+                                                           ));
         button.setOpaque(true);
         button.setBackground(GameConstants.DEFAULT_BACKGROUND_COLOR);
 
@@ -49,7 +48,7 @@ public class ButtonFactory {
                 button.setBorder(BorderFactory.createCompoundBorder(
                         BorderFactory.createLineBorder(GameConstants.HOVER_BORDER_COLOR, GameConstants.BORDER_THICKNESS),
                         BorderFactory.createEmptyBorder(GameConstants.BORDER_PADDING, GameConstants.BORDER_PADDING, GameConstants.BORDER_PADDING, GameConstants.BORDER_PADDING)
-                ));
+                                                                   ));
             }
 
             @Override
@@ -58,7 +57,7 @@ public class ButtonFactory {
                 button.setBorder(BorderFactory.createCompoundBorder(
                         BorderFactory.createLineBorder(GameConstants.DEFAULT_BORDER_COLOR, GameConstants.BORDER_THICKNESS),
                         BorderFactory.createEmptyBorder(GameConstants.BORDER_PADDING, GameConstants.BORDER_PADDING, GameConstants.BORDER_PADDING, GameConstants.BORDER_PADDING)
-                ));
+                                                                   ));
             }
         });
 
@@ -67,11 +66,12 @@ public class ButtonFactory {
 
         return button;
     }
+
     /**
      * Sets up a "Return to Main Menu" button with default position (centered) and name.
      *
      * @param panelSwitcher The interface used to switch between panels.
-     * @param container The container (like a JPanel) where the button will be added.
+     * @param container     The container (like a JPanel) where the button will be added.
      * @return JButton The created button.
      */
     public static JButton setupReturnButton(MainMenuPanel.PanelSwitcher panelSwitcher, JComponent container) {
@@ -83,37 +83,37 @@ public class ButtonFactory {
      * Sets up a button with custom position and name.
      *
      * @param panelSwitcher The interface used to switch between panels.
-     * @param container The container (like a JPanel) where the button will be added.
-     * @param x The x-coordinate of the button.
-     * @param y The y-coordinate of the button.
-     * @param buttonName The custom name for the button.
+     * @param container     The container (like a JPanel) where the button will be added.
+     * @param x             The x-coordinate of the button.
+     * @param y             The y-coordinate of the button.
+     * @param buttonName    The custom name for the button.
      * @return JButton The created button.
      */
     public static JButton setupReturnButton(MainMenuPanel.PanelSwitcher panelSwitcher, JComponent container, int x, int y, String buttonName) {
         ActionListener action = e -> panelSwitcher.switchToPanel(GameConstants.MAIN_MENU_PANEL);
-        JButton returnButton = ButtonFactory.createButton(buttonName, x, y, GameConstants.BUTTON_WIDTH, GameConstants.BUTTON_HEIGHT, action);
+        JButton returnButton = createButton(buttonName, x, y, GameConstants.BUTTON_WIDTH, GameConstants.BUTTON_HEIGHT, action);
         container.add(returnButton);
         return returnButton;
     }
+
     /**
      * Sets up a button with custom position, name, and background sound.
      *
      * @param panelSwitcher The interface used to switch between panels.
-     * @param container The container (like a JPanel) where the button will be added.
-     * @param x The x-coordinate of the button.
-     * @param y The y-coordinate of the button.
-     * @param buttonName The custom name for the button.
-     * @param soundName The name of the background sound to play when the button is clicked.
-     * @return JButton The created button.
+     * @param container     The container (like a JPanel) where the button will be added.
+     * @param x             The x-coordinate of the button.
+     * @param y             The y-coordinate of the button.
+     * @param buttonName    The custom name for the button.
+     * @param soundName     The name of the background sound to play when the button is clicked.
      */
-    public static JButton setupReturnButton(MainMenuPanel.PanelSwitcher panelSwitcher, JComponent container, int x, int y, String buttonName, String soundName) {
+    public static void setupReturnButton(MainMenuPanel.PanelSwitcher panelSwitcher,
+                                         JComponent container, int x, int y, String buttonName, MusicChoice soundName) {
         ActionListener action = e -> {
             panelSwitcher.switchToPanel(GameConstants.MAIN_MENU_PANEL);
             MultimediaManager.playBackgroundSound(soundName);
         };
 
-        JButton returnButton = ButtonFactory.createButton(buttonName, x, y, GameConstants.BUTTON_WIDTH, GameConstants.BUTTON_HEIGHT, action);
+        JButton returnButton = createButton(buttonName, x, y, GameConstants.BUTTON_WIDTH, GameConstants.BUTTON_HEIGHT, action);
         container.add(returnButton);
-        return returnButton;
     }
 }
