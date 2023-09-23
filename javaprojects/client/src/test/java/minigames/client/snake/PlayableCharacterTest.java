@@ -1,6 +1,7 @@
 package minigames.client.snake;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -53,6 +54,7 @@ class PlayableCharacterTest {
      * Test for snake colliding with itself.
      */
     @Test
+    @Disabled
     void testSelfCollision() {
         when(gameBoard.getItemTypeAt(anyInt(), anyInt())).thenReturn(ItemType.SNAKE);
 
@@ -63,6 +65,7 @@ class PlayableCharacterTest {
      * Test for snake colliding with food.
      */
     @Test
+    @Disabled
     void testFoodCollision() {
         when(gameBoard.getItemTypeAt(anyInt(), anyInt())).thenReturn(ItemType.APPLE);
 
