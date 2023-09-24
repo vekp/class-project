@@ -45,7 +45,7 @@ public class BattleshipGame {
     // Constructor
 
     /**
-     * @param gameName Name of the game session
+     * @param gameName   Name of the game session
      * @param playerName Name of the host player
      */
     public BattleshipGame(String gameName, String playerName) {
@@ -147,20 +147,15 @@ public class BattleshipGame {
                     bPlayers.get(cp.player()).setReady(true);
                     //if both players are ready then we can start
                     String[] players = getPlayerNames();
-                    if(bPlayers.get(players[0]).isReady() && bPlayers.get(players[1]).isReady()){
+                    if (bPlayers.get(players[0]).isReady() && bPlayers.get(players[1]).isReady()) {
                         //resetting ready flags so they dont immediately start game
                         bPlayers.get(players[0]).setReady(false);
                         bPlayers.get(players[1]).setReady(false);
                         gameState = GameState.PENDING_READY;
-                    } else{
-                        //if both players arent ready then send the game render back so that both players
+                    } else {
+                        //if both players aren't ready then send the game render back so that both players
                         //get some graphics to draw while the game is transitioning between states
-                        if (players[0].equals(cp.player())) {
-                            commands.addAll(getGameRender(bPlayers.get(players[0]), bPlayers.get(players[1])));
-                        } else {
-                            commands.addAll(getGameRender(bPlayers.get(players[1]), bPlayers.get(players[0])));
-                        }
-
+                        commands.addAll(getGameRender(cp.player()));
                     }
                 } else {
                     if (userInput.equalsIgnoreCase("Start")) {
@@ -170,12 +165,7 @@ public class BattleshipGame {
                         computerPlayer.setReady(true);
                         bPlayers.put("Computer", computerPlayer);
                         gameState = GameState.PENDING_READY;
-                        String[] players = getPlayerNames();
-                        if (players[0].equals(cp.player())) {
-                            commands.addAll(getGameRender(bPlayers.get(players[0]), bPlayers.get(players[1])));
-                        } else {
-                            commands.addAll(getGameRender(bPlayers.get(players[1]), bPlayers.get(players[0])));
-                        }
+                        commands.addAll(getGameRender(cp.player()));
                     } else {
                         commands.add(new JsonObject().put("command", "waitForJoin"));
                     }
@@ -200,34 +190,30 @@ public class BattleshipGame {
                     }
                     // Once all players are ready, pick a starting player and begin the game
                     if (gameState.equals(GameState.IN_PROGRESS)) {
-                        // currentClient.getBoard().setGameState(GameState.IN_PROGRESS);
                         Random rng = new Random();
                         // 50% chance for either player to start first
-                        int firstPlayer = rng.nextInt(0, 1);
+                        int firstPlayer = rng.nextInt(0, 2);
                         String[] names = getPlayerNames();
                         if (names.length != 2) {
-                            //todo if we're trying to start a game without 2 players, something has gone wrong - deal
-                            // with error
+                            //we should never be able to get here, but if we've somehow gotten in here without 2 players
+                            //we will just go back to the 'waiting for players to join' state
+                            gameState = GameState.WAITING_JOIN;
+                            break;
                         }
                         // Set up the first turn player and their opponent
                         activePlayer = names[firstPlayer];
                         opponentPlayer = names[1 - firstPlayer];
 
-                        // Both players can go into the 'wait' stage - they will refresh during IN_PROGRESS, and the
-                        // player whose turn it is will be prompted shortly after
-                        commands.add(new JsonObject().put("command", "wait"));
 
-                    } else {
-                        String[] players = getPlayerNames();
-                        commands.add(new JsonObject().put("command", "waitReady"));
                     }
+                    // Both players can go into the 'wait' stage - they will refresh during IN_PROGRESS, and the
+                    // player whose turn it is will be prompted shortly after
+                    commands.add(new JsonObject().put("command", "wait"));
                 }
             }
             case IN_PROGRESS -> {
-                if (!current.getBoard().getGameState().equals(GameState.IN_PROGRESS))
-                    current.getBoard().setGameState(GameState.IN_PROGRESS);
-                if (!opponent.getBoard().getGameState().equals(GameState.IN_PROGRESS))
-                    opponent.getBoard().setGameState(GameState.IN_PROGRESS);
+                current.getBoard().setGameState(GameState.IN_PROGRESS);
+                opponent.getBoard().setGameState(GameState.IN_PROGRESS);
 
                 if (Objects.equals(current.getName(), cp.player())) {
                     // On this users turn, we process any non-refresh commands as an input coordinate
@@ -261,14 +247,16 @@ public class BattleshipGame {
                 }
 
                 if (opponent.getBoard().checkGameOver(current.getName()) || current.getBoard().checkGameOver(opponent.getName())) {
-
                     this.gameState = GameState.GAME_OVER;
+                    //display the game over message for this player immediately as there's no guarantee theyll
+                    //send another command
+                    commands.addAll(getGameRender(opponent, current));
+                    commands.add(new JsonObject().put("command", "gameOver"));
                 }
 
                 return new RenderingPackage(gameMetadata(), commands);
             }
             case GAME_OVER -> {
-                // TODO - Render a game-over screen
                 commands.addAll(getGameRender(opponent, current));
                 commands.add(new JsonObject().put("command", "gameOver"));
 
@@ -312,6 +300,7 @@ public class BattleshipGame {
         return renderingCommands;
     }
 
+
     /**
      * Helper function to get all the commands related to redrawing the entire game screen, the boards, player names,
      * messages, etc
@@ -343,6 +332,21 @@ public class BattleshipGame {
     }
 
     /**
+     * Alternate helper method to get the correct game render commands using just 1 player name
+     *
+     * @param playerName the player whos screen we want to render
+     * @return the board and message data for this player
+     */
+    private ArrayList<JsonObject> getGameRender(String playerName) {
+        String[] players = getPlayerNames();
+        if (players[0].equals(playerName)) {
+            return getGameRender(bPlayers.get(players[0]), bPlayers.get(players[1]));
+        } else {
+            return getGameRender(bPlayers.get(players[1]), bPlayers.get(players[0]));
+        }
+    }
+
+    /**
      * Helper function to swap turns to the other player
      */
     void SwapTurns() {
@@ -370,7 +374,7 @@ public class BattleshipGame {
                     gameMetadata(),
                     Arrays.stream(new RenderingCommand[]{
                             new NativeCommands.ShowMenuError("This game has already started")
-                    }).map((r) -> r.toJson()).toList()
+                    }).map(RenderingCommand::toJson).toList()
             );
         }
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
@@ -381,9 +385,10 @@ public class BattleshipGame {
         renderingCommands.add(new JsonObject().put("command", "turnCountGameStart").put("turnCount", "- Place Ships -"));
 
         String[] currentPlayers = getPlayerNames();
-        //these are just dummy players so we can send a render back of some blank boards. They get replaced as users
-        // join the game
-        BattleshipPlayer player = new BattleshipPlayer("", new Board(), false, welcomeMessage);
+        BattleshipPlayer player; //this always either gets set or we return before using it, no need to create one
+
+        //this is a 'dummy' opponent so that we have at least a blank board to render. It will be replaced by
+        //an active player (in the case that this is player 2 joining)
         BattleshipPlayer opponent = new BattleshipPlayer("", new Board(), false, welcomeMessage);
 
         if (currentPlayers.length == 0) {
@@ -400,7 +405,7 @@ public class BattleshipGame {
                         gameMetadata(),
                         Arrays.stream(new RenderingCommand[]{
                                 new NativeCommands.ShowMenuError("You are already in this game!")
-                        }).map((r) -> r.toJson()).toList()
+                        }).map(RenderingCommand::toJson).toList()
                 );
             }
             //we can add a 2nd player as long as it's not the same player joining twice
@@ -417,7 +422,7 @@ public class BattleshipGame {
                     gameMetadata(),
                     Arrays.stream(new RenderingCommand[]{
                             new NativeCommands.ShowMenuError("This game has already started")
-                    }).map((r) -> r.toJson()).toList()
+                    }).map(RenderingCommand::toJson).toList()
             );
         }
         renderingCommands.addAll(getGameRender(player, opponent));

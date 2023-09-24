@@ -5,6 +5,6 @@ package minigames.server.battleship;
  */
 public enum GameState {
     // TODO combine/remove waiting and pendings
-    WAITING_JOIN, PENDING_READY, PENDING_START, IN_PROGRESS, GAME_OVER
+    WAITING_JOIN, PENDING_READY, IN_PROGRESS, GAME_OVER
 
 }
