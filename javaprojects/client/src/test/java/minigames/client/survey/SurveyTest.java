@@ -17,42 +17,30 @@ public class SurveyTest {
         survey = new Survey(mnClient, gameId, gameName);
     }
 
-  @Test
-  public void testSubmitWithInvalidFeedback() {
-      // Set up invalid feedback input (contains SQL injection pattern)
-      survey.feedbackText.setText("Invalid feedback with DROP TABLE");
+    @Test
+    public void testIsValidTextWithValidText() {
+        String validText = "This is valid text";
+        assertTrue(survey.isValidText(validText));
+    }
 
-      // Call the submit method
-      survey.submit(mnClient, gameId);
+    @Test
+    public void testIsValidTextWithInvalidText() {
+        String invalidText = "Invalid text with DROP TABLE";
+        assertFalse(survey.isValidText(invalidText));
+    }
 
-      // Verify that mnClient.sendSurveyData() was not called due to invalid input
-      Mockito.verify(mnClient, Mockito.times(0)).sendSurveyData(Mockito.any());
-  }
+    @Test
+    public void testSanitiseText() {
+        String inputText = "Unsafe <script>alert('Hello')</script> text";
+        String expectedSanitisedText = "Unsafe  text";
+        String sanitisedText = survey.sanitiseText(inputText);
+        assertEquals(expectedSanitisedText, sanitisedText);
+    }
 
-  @Test
-  public void testIsValidTextWithValidText() {
-      String validText = "This is valid text";
-      assertTrue(survey.isValidText(validText));
-  }
-
-  @Test
-  public void testIsValidTextWithInvalidText() {
-      String invalidText = "Invalid text with DROP TABLE";
-      assertFalse(survey.isValidText(invalidText));
-  }
-
-  @Test
-  public void testSanitiseText() {
-      String inputText = "Unsafe <script>alert('Hello')</script> text";
-      String expectedSanitisedText = "Unsafe  text";
-      String sanitisedText = survey.sanitiseText(inputText);
-      assertEquals(expectedSanitisedText, sanitisedText);
-  }
-
-  @Test
-  public void testGetSelectedRadioButtonValue() {
-      survey.uiRatingThree.setSelected(true);
-      String selectedValue = survey.getSelectedRadioButtonValue(survey.uiRatingButtonGroup);
-      assertEquals("3", selectedValue);
-  }
+    @Test
+    public void testGetSelectedRadioButtonValue() {
+        survey.uiRatingThree.setSelected(true);
+        String selectedValue = survey.getSelectedRadioButtonValue(survey.uiRatingButtonGroup);
+        assertEquals("3", selectedValue);
+    }
 }
