@@ -28,7 +28,7 @@ public class GameLogic {
     private int foodGenerationDelay;
     private int foodConsumed = 0;
     private long lastFoodAddedTime = 0;
-    private final LinkedList<FoodManager> foodList = new LinkedList<>();
+    private LinkedList<FoodManager> foodList = new LinkedList<>();
     private Timer timer;
     private int gameLoopDelay;
 
@@ -164,6 +164,7 @@ public class GameLogic {
             gameBoard.clearTilesOfType(ItemType.SNAKE);
             gameBoard.clearTilesOfType(ItemType.SNAKE_HEAD);
             snake = new PlayableCharacter(this.gameBoard);
+            this.setDirection(Direction.RIGHT);
         }
     }
 
@@ -225,6 +226,9 @@ public class GameLogic {
      */
     public void resetGame() {
         this.initialiseGame();
+        foodList = new LinkedList<>();
+        snake = new PlayableCharacter(this.gameBoard);
+        gameBoard.initBoard();
         timer.restart(); // Restart the timer
     }
 

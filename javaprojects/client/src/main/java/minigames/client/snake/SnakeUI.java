@@ -49,12 +49,12 @@ public class SnakeUI implements GameClient {
 
         // Initialize the base UI panel for the Snake game
         // Represents the main UI components and layout for the Snake game
-        BasePanel basePanel = new BasePanel(mnClient, this::closeGame);
+        BasePanel basePanel = new BasePanel(mnClient, game, player, this::closeGame);
 
         // Set preferred size for the basePanel
         ImageIcon backgroundIcon = MultimediaManager.getPhoneBackground().getImageResource();
         basePanel.getContainerPanel().setPreferredSize(
-                new Dimension(backgroundIcon.getIconWidth(), backgroundIcon.getIconHeight()));
+                new Dimension(1000, 800));
 
         // Clear previous game window contents and set up the new game UI
         mnClient.getMainWindow().clearAll();

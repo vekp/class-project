@@ -270,12 +270,15 @@ public class GamePlayPanel extends JPanel implements ActionListener {
     }
 
     /**
-     * Sets up the exit button functionality utilizing the UIHelper's method for return button.
+     * Sets up the exit button functionality utilizing the button factory's method for return
+     * button.
      */
     private void setupExitButton() {
+        Runnable stopTimerAction = gameLoopTimer::stop; // This Runnable will stop the timer.
+
         ButtonFactory.setupReturnButton(
                 panelSwitcher, backgroundContainer, 0, 0, GameConstants.EXIT_GAME,
-                MusicChoice.MENU_MUSIC
+                MusicChoice.MENU_MUSIC, stopTimerAction
                                        );
     }
 
@@ -330,10 +333,6 @@ public class GamePlayPanel extends JPanel implements ActionListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
-        // Render game over or game paused screens
-        gameOver(g);
-        gamePaused(g);
     }
 
     @Override
@@ -349,7 +348,11 @@ public class GamePlayPanel extends JPanel implements ActionListener {
             gameLoopTimer.setDelay(newDelay);
             gameLoopTimer.restart();
         }
-
+        if (gameLogic.isGameOver()){
+            this.gameOver();
+        } else if (gameLogic.isGamePaused()){
+            this.gamePaused();
+        }
         updateGamePlayArea();
         repaint();
     }
@@ -374,7 +377,7 @@ public class GamePlayPanel extends JPanel implements ActionListener {
                         label.setBackground(Color.BLACK);
                         label.setIcon(null); // Remove icon if any
                     }
-                    case APPLE, CHERRY, ORANGE, WATERMELON -> {
+                    case APPLE, CHERRY, ORANGE, WATERMELON, SPOILED_FOOD -> {
                         ImageResource resource;
                         if (type == ItemType.APPLE) {
                             resource = MultimediaManager.getAppleResource();
@@ -385,8 +388,11 @@ public class GamePlayPanel extends JPanel implements ActionListener {
                         else if (type == ItemType.ORANGE) {
                             resource = MultimediaManager.getOrangeResource();
                         }
-                        else {
+                        else if (type == ItemType.WATERMELON){
                             resource = MultimediaManager.getWatermelonResource();
+                        }
+                        else {
+                            resource = MultimediaManager.getBadFruitResource();
                         }
                         ImageIcon originalIcon = resource.getImageResource();
                         Image originalImage = originalIcon.getImage();
@@ -394,11 +400,6 @@ public class GamePlayPanel extends JPanel implements ActionListener {
                                 labelWidth, labelHeight, Image.SCALE_SMOOTH);
                         ImageIcon scaledIcon = new ImageIcon(scaledImage);
                         label.setIcon(scaledIcon);
-                    }
-                    case SPOILED_FOOD -> {
-                        label.setOpaque(true);
-                        label.setBackground(Color.BLUE);
-                        label.setIcon(null); // Remove icon if any
                     }
                     case VACANT -> {
                         label.setOpaque(false);
@@ -415,56 +416,25 @@ public class GamePlayPanel extends JPanel implements ActionListener {
      * when the game is over. If the game is not over, it ensures the mentioned buttons remain
      * hidden.
      *
-     * @param g The graphics context used for rendering.
+//     * @param g The graphics context used for rendering.
      */
-    private void gameOver(Graphics g) {
-        if (gameLogic.isGameOver()) {
-            // Display game over text
-            g.setColor(Color.RED);
-            g.setFont(new Font("Ink Free", Font.BOLD, 75));
-            FontMetrics metrics = getFontMetrics(g.getFont());
-            g.drawString(
-                    "Game Over",
-                    (GameConstants.GAME_PLAY_WIDTH - metrics.stringWidth("Game Over")) / 2,
-                    GameConstants.GAME_PLAY_HEIGHT / 2
-                        );
+    private void gameOver() {
+        int reply = JOptionPane.showConfirmDialog(
+                null,
+                "Game Over! \n\n Your score was: " + scoreValueLabel.getText() + "\n\nWould you " +
+                        "like " +
+                        "to play again?", "Snake!",
+                JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE,
+                MultimediaManager.getSnakeFavicon().getImageResource());
 
-            // Initialize and show the "Play Again" button if not already present
-            if (playAgainButton == null) {
-                playAgainButton = ButtonFactory.createButton("Play Again",
-                                                             (GameConstants.GAME_PLAY_WIDTH - 150) / 2,
-                                                             (GameConstants.GAME_PLAY_HEIGHT / 2) + 50,
-                                                             150, 50,
-                                                             e -> {
-                                                                 gameLogic.resetGame();
-                                                                 playAgainButton.setVisible(false);
-                                                                 exitButton.setVisible(false);
-                                                             }
-                                                            );
-                this.add(playAgainButton);
-            }
-            playAgainButton.setVisible(true);
-
-            // Initialize and show the "Exit" button if not already present
-            if (exitButton == null) {
-                exitButton = ButtonFactory.createButton("Exit",
-                                                        (GameConstants.GAME_PLAY_WIDTH - 150) / 2,
-                                                        (GameConstants.GAME_PLAY_HEIGHT / 2) + 120,
-                                                        150, 50,
-                                                        e -> System.exit(0)
-                                                       );
-                this.add(exitButton);
-            }
-            exitButton.setVisible(true);
+        if (reply == 0) {
+            gameLogic.resetGame();
+            startGame();
         }
         else {
-            // Hide the "Play Again" and "Exit" buttons if the game is not over
-            if (playAgainButton != null) {
-                playAgainButton.setVisible(false);
-            }
-            if (exitButton != null) {
-                exitButton.setVisible(false);
-            }
+            MultimediaManager.playBackgroundSound(MusicChoice.MENU_MUSIC);
+            gameLogic.resetGame();
+            panelSwitcher.switchToPanel("Main Menu");
         }
     }
 
@@ -472,42 +442,20 @@ public class GamePlayPanel extends JPanel implements ActionListener {
      * Renders the "Game Paused" graphics and controls the visibility of the "Resume Game" button
      * when the game is paused. If the game is not paused, it ensures the "Resume Game" button
      * remains hidden.
-     *
-     * @param g The graphics context used for rendering.
      */
-    private void gamePaused(Graphics g) {
-        if (gameLogic.isGamePaused()) {
-            // Display game paused text
-            g.setColor(Color.ORANGE);
-            g.setFont(new Font("Ink Free", Font.BOLD, 75));
-            FontMetrics metrics = getFontMetrics(g.getFont());
-            g.drawString(
-                    "Game Paused",
-                    (GameConstants.GAME_PLAY_WIDTH - metrics.stringWidth("Game Paused")) / 2,
-                    GameConstants.GAME_PLAY_HEIGHT / 2
-                        );
+    private void gamePaused() {
+        // Create an option pane with a custom icon
+        JOptionPane.showMessageDialog(
+                null,
+                "Game Paused! Get ready to continue your epic journey!",
+                "Snake!",
+                JOptionPane.INFORMATION_MESSAGE,
+                MultimediaManager.getSnakeFavicon().getImageResource()
+                                     );
 
-            // Initialize and show the "Resume Game" button if not already present
-            if (resumeGameButton == null) {
-                resumeGameButton = ButtonFactory.createButton("Resume Game",
-                                                              (GameConstants.GAME_PLAY_WIDTH - 180) / 2,
-                                                              (GameConstants.GAME_PLAY_HEIGHT / 2) + 50,
-                                                              180, 50,
-                                                              e -> {
-                                                                  gameLogic.setGamePaused(false);
-                                                                  resumeGameButton.setVisible(
-                                                                          false);
-                                                              }
-                                                             );
-                this.add(resumeGameButton);
-            }
-            resumeGameButton.setVisible(true);
-        }
-        else {
-            // Hide the "Resume Game" button if the game is not paused
-            if (resumeGameButton != null) {
-                resumeGameButton.setVisible(false);
-            }
-        }
+        // Set the game to be unpaused
+        gameLogic.setGamePaused(false);
+        MultimediaManager.playBackgroundSound(MusicChoice.GAME_PLAY_MUSIC);
     }
-}
+
+    }

@@ -44,9 +44,10 @@ public class SnakeGame {
 
         // Unlock Muddler achievement for starting a new game
         // This will need be changeed to the Snake achievement
-        achievementHandler.unlockAchievement(playerName, MUDDLER.toString());
+        achievementHandler.unlockAchievement(playerName, SNAKE_WARRIOR.toString());
     }
 
+    // The below seems like plagarised from another project? Is this all going to be rewritten?
     String[][] rooms = new String[][] {
             {
                     "Welcome to Snake Game"
