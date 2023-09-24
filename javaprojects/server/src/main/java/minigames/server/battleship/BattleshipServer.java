@@ -9,16 +9,17 @@ import minigames.rendering.RenderingPackage;
 import minigames.server.ClientType;
 import minigames.server.GameServer;
 import minigames.server.achievements.AchievementHandler;
+import minigames.server.gameNameGenerator.GameNameGenerator;
+import org.apache.logging.log4j.core.appender.rolling.action.DeleteAction;
 
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
 
 /**
  * An enum containing all Achievements to be passed to the AchievementHandler for tracking
  */
 enum achievements{
     FOUR_CORNERS, COSY_CONVOY, YOU_GOT_HIM, SLOW_LEARNER, C_120, HUNTER_KILLER, THREE_HOUR_CRUISE, THE_BIGGER_THEY_ARE,
-    DESTROYER_DESTROYED, TITLE_DROP;
+    DESTROYER_DESTROYED, TITLE_DROP, MISSION_COMPLETE;
 
     /**
      * Sorry Nathan I'm not sure if this is the format needed by the handler
@@ -37,13 +38,15 @@ enum achievements{
             case THE_BIGGER_THEY_ARE:   return "The Bigger They Are";
             case DESTROYER_DESTROYED:   return "Destroyer == Destroyed!";
             case TITLE_DROP:            return "Watership Down";
+            case MISSION_COMPLETE:      return "Mission Complete";
             default:            return "Unknown Achievement";
         }
     }
 }
 
 public class BattleshipServer implements GameServer {
-    static final String chars = "abcdefghijklmopqrstuvwxyz";
+//    static final String chars = "abcdefghijklmopqrstuvwxyz";
+    static GameNameGenerator gameNameGenerator;
     AchievementHandler achievementHandler;    // Nathan's Handler for implementing achievement features
 
     public BattleshipServer(){
@@ -69,17 +72,15 @@ public class BattleshipServer implements GameServer {
                 "Destroy a destroyer.", 10, "", false));
         achievementHandler.registerAchievement(new Achievement(achievements.TITLE_DROP.toString(),
                 "Destroy a battleship.", 10, "", false));
+        achievementHandler.registerAchievement(new Achievement(achievements.MISSION_COMPLETE.toString(),
+                "Destroy all enemy ships.", 100, "", false));
 
+        gameNameGenerator = new GameNameGenerator("battleAdjectives", "battleNouns");
     }
 
     // A random name. We could do with something more memorable, like Docker has
     static String randomName() {
-        Random r = new Random();
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < 12; i++) {
-            sb.append(chars.charAt(r.nextInt(chars.length())));
-        }
-        return sb.toString();
+        return gameNameGenerator.randomName();
     }
 
     // Add the game to a HashMap in memory containing all in-progress games
@@ -110,14 +111,31 @@ public class BattleshipServer implements GameServer {
      */
     @Override
     public GameMetadata[] getGamesInProgress() {
-        return games.keySet().stream().map((name) -> {
-            if (games.get(name).getPlayerNames().length == 2 && !games.get(name).getPlayerNames()[1].equals("Computer")) {
-                return new GameMetadata("Battleship", name, games.get(name).getPlayerNames(), false);
-            }if (games.get(name).getPlayerNames().length == 0) {
-//                games.remove(games.get(name).gameName);
-                return new GameMetadata("Battleship", name, games.get(name).getPlayerNames(), false);
+        HashMap<String, BattleshipGame> joinableGames = new HashMap<>();
+        ArrayList<String> deletableGames = new ArrayList<>();
+        //we only add game that have not already started
+        for (Map.Entry<String, BattleshipGame> battleshipGameEntry : games.entrySet()) {
+            //we can join games that have only 1 player, and they are in the waiting state.
+            //if there is 1 player after the game has progressed, that means the other player
+            //has been informed an opponent has left, and we are waiting for them to close the game. Those
+            //games are NOT joinable in that case.
+            if(battleshipGameEntry.getValue().getGameState() == GameState.WAITING_JOIN){
+                joinableGames.put(battleshipGameEntry.getKey(), battleshipGameEntry.getValue());
             }
-            return new GameMetadata("Battleship", name, games.get(name).getPlayerNames(), true);
+
+            //if there are no players left in the game, both players have exited and we can delete it
+            if(battleshipGameEntry.getValue().getPlayerNames().length == 0){
+                deletableGames.add(battleshipGameEntry.getKey());
+            }
+        }
+
+        //remove all the deletable games we found
+        for (String deletableGame : deletableGames) {
+            games.remove(deletableGame);
+        }
+
+        return joinableGames.keySet().stream().map((name) -> {
+            return new GameMetadata("Battleship", name, joinableGames.get(name).getPlayerNames(), true);
         }).toArray(GameMetadata[]::new);
     }
 

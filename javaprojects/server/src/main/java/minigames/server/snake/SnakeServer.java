@@ -55,7 +55,7 @@ public class SnakeServer implements GameServer {
      * @return GameServerDetails object with the name and description of the game.
      */
     public GameServerDetails getDetails() {
-        return new GameServerDetails("Snake", "Navigate your snake through the dark depths of space!");
+        return new GameServerDetails("Snake", "Retro Thrills, Modern Feels: Dive into 3310 Nostalgia!");
     }
 
     @Override

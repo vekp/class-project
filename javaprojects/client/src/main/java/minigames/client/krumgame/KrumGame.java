@@ -61,6 +61,8 @@ public class KrumGame {
     boolean initialized;
     boolean playersInitialized;
 
+    boolean onMoon;
+
     
     // Player information
     String player;
@@ -107,7 +109,7 @@ public class KrumGame {
 
     ComponentAdapter offsetListener;
 
-
+    static final int MOON_LEVEL_INDEX = 3;
 
     long seed; // seed for Random() -- needs to be the same for all clients
 
@@ -139,9 +141,11 @@ public class KrumGame {
         KrumLevel chameleon = new KrumLevel("chameleon.png", null, 235, 0, 600, 0);
         KrumLevel ropetest = new KrumLevel("ropetestmap.png", null, 235, 0, 600, 0);
         KrumLevel cavetest = new KrumLevel("cave_test_2.png", "cave_test_2_mask.png", 300, 500, 680, 110);
+        KrumLevel moonplaceholder = new KrumLevel("moon_placeholder.png", null, 100, 400, 700, 400);
         levels.add(chameleon);
         levels.add(ropetest);
         levels.add(cavetest);    
+        levels.add(moonplaceholder);
         setActiveLevel(0);           
     }
 
@@ -154,7 +158,13 @@ public class KrumGame {
         backgroundComponent = currentLevel.background;
         background = backgroundComponent.getImage();
         alphaRaster = backgroundComponent.getAlphaRaster();        
-        currentLevelIndex = index;        
+        currentLevelIndex = index;      
+        onMoon = (index == MOON_LEVEL_INDEX);
+        if (players != null) {
+            for (KrumPlayer p : players) {
+                p.onMoon = onMoon;
+            }
+        }
     }
 
     /**
@@ -179,13 +189,16 @@ public class KrumGame {
      */
     private void initializePlayers(KrumLevel level){
         players = new KrumPlayer[2];
-        players[0] = new KrumPlayer(level.p1x, level.p1y, "kangaroo_sprite/", 8, 31, true, alphaRaster, 0, players, primaryColor, secondaryColor, gunColor);
-        players[1] = new KrumPlayer(level.p2x, level.p2y, "kangaroo_sprite/", 8, 31, false, alphaRaster, 1, players, primaryColor, secondaryColor, gunColor);
+        players[0] = new KrumPlayer(level.p1x, level.p1y, "kangaroo_sprite/", 8, 31, true, alphaRaster, 0, players, primaryColor, secondaryColor, gunColor, onMoon);
+        players[1] = new KrumPlayer(level.p2x, level.p2y, "kangaroo_sprite/", 8, 31, false, alphaRaster, 1, players, primaryColor, secondaryColor, gunColor, onMoon);
         players[0].joey.otherPlayer = players[1];
         players[1].joey.otherPlayer = players[0];
+        players[0].otherPlayer = players[1];
+        players[1].otherPlayer = players[0];
         playerTurn = 0;
         savedTurns = new KrumTurn[] {new KrumTurn(players, background, windX, windY, updateCount, ending, running, winner, waterLevel), new KrumTurn(players, background, windX, windY, updateCount, ending, running, winner, waterLevel)};       
         currentTurn = savedTurns[playerTurn];
+
         playersInitialized = true;
     }
 
@@ -195,8 +208,10 @@ public class KrumGame {
     void startTurn() {
         System.out.println("Start turn");
         playerTurn *= -1;
-        windString = windManager.updateWindString();
+        windManager.updateWind();
+        windString = windManager.getWindString();
         windX = windManager.getWindX();
+        windY = windManager.getWindY();
         turnEndFrame = updateCount + KrumC.TURN_TIME_LIMIT_FRAMES;
         savedTurns[playerTurn] = new KrumTurn(players, background, windX, windY, updateCount, ending, running, winner, waterLevel);
         currentTurn = savedTurns[playerTurn];
@@ -386,17 +401,29 @@ public class KrumGame {
                 rf = new KrumInputFrame();
             }
             p.update(windX, windY, alphaRaster, updateCount, rf, pf, turnOver);
+            if (p.playerIndex == myPlayerIndex && p.unlockAchievements.size() > 0) {
+                for (String s : p.unlockAchievements) {
+                    unlockAchievement(s);
+                }
+                p.unlockAchievements.clear();
+            }
             if (p.ypos > waterLevel) p.die();
             if (p.projectile != null) {
                 if(p.projectile.collisionCheck()) {
                     KrumSound.playSound("explode2");
                     ExplosionDetails.explode((int)p.projectile.x, (int)p.projectile.y, p.projectile.explosionRadius, 
                         KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
-                    handlePlayerKnock(p.projectile);                   
+                    handlePlayerKnock(p.projectile);       
+                    boolean alreadyDead = p.otherPlayer.dead;            
                     for (KrumPlayer pl : players) {
-                        double distance = KrumHelpers.distanceBetween(p.projectile.centre()[0], p.projectile.centre()[1], pl.playerCentre().x, pl.playerCentre().y);
+                        double distance = KrumHelpers.distanceBetween(p.projectile.centre()[0], p.projectile.centre()[1], pl.playerCentre().x, pl.playerCentre().y);                        
                         if (distance <= p.projectile.damageRadius) {
                             pl.hit(p.projectile.maxDamage, distance, p.projectile.damageRadius);
+                        }
+                    }
+                    if (p.playerIndex == myPlayerIndex && p.otherPlayer.dead && !alreadyDead) {
+                        if (p.projectile.firedFromRope) {
+                            unlockAchievement("Tarzan Kill");
                         }
                     }
                     p.projectile = null;
@@ -422,7 +449,11 @@ public class KrumGame {
                         ExplosionDetails.explode((int)p.projectile.x, (int)p.projectile.y, p.projectile.explosionRadius, 
                             KrumC.RES_X, KrumC.RES_Y, alphaRaster, updateCount);
                         handlePlayerKnock(p.projectile);
+                        boolean alreadyDead = players[n].dead;
                         players[n].hit(p.projectile.maxDamage, 0, p.projectile.damageRadius);
+                        if (p.playerIndex == myPlayerIndex && n != p.playerIndex && players[n].dead && !alreadyDead) {
+                            unlockAchievement("Tarzan Kill");
+                        }
                         for (int i = 0; i < players.length; i++) {
                             if (i == n) continue;
                             double distance = KrumHelpers.distanceBetween(p.projectile.centre()[0], p.projectile.centre()[1], players[i].playerCentre().x, players[i].playerCentre().y);
@@ -436,13 +467,19 @@ public class KrumGame {
             }
             if (p.grenade != null) {
                 if (p.grenade.timerCheck(updateCount)) {
+                    boolean alreadyDead = p.otherPlayer.dead;
                     for (KrumPlayer pl : players) {
                         double distance = KrumHelpers.distanceBetween(p.grenade.centre()[0], p.grenade.centre()[1], pl.playerCentre().x, pl.playerCentre().y);
-                        if (distance <= p.grenade.damageRadius) {
+                        if (distance <= p.grenade.damageRadius) {                            
                             pl.hit(p.grenade.maxDamage, distance, p.grenade.damageRadius);
-                            if (pl.playerIndex != myPlayerIndex && !p.grenade.hasBounced) {
+                            if (p.playerIndex == myPlayerIndex && pl.playerIndex != myPlayerIndex && !p.grenade.hasBounced) {
                                 unlockAchievement("Grenade Direct Hit");
                             }
+                        }
+                    }
+                    if (p.playerIndex == myPlayerIndex && p.otherPlayer.dead && !alreadyDead) {
+                        if (p.grenade.firedFromRope) {
+                            unlockAchievement("Tarzan Kill");
                         }
                     }
                     KrumSound.playSound("explode2");
@@ -454,10 +491,20 @@ public class KrumGame {
             }
             if (p.joey.active) {
                 if (p.joey.timerCheck(updateCount)) {
+                    boolean oppAlreadyDead = p.otherPlayer.dead;
+                    boolean alreadyDead = p.dead;
                     for (KrumPlayer pl : players) {
                         double distance = KrumHelpers.distanceBetween(p.joey.centre()[0], p.joey.centre()[1], pl.playerCentre().x, pl.playerCentre().y);
                         if (distance <= p.joey.damageRadius) {
                             pl.hit(p.joey.maxDamage, distance, p.joey.damageRadius);
+                        }
+                    }
+                    if (p.playerIndex == myPlayerIndex && p.dead && !alreadyDead) {
+                        unlockAchievement("Joey Suicide");
+                    }
+                    if (p.playerIndex == myPlayerIndex && p.otherPlayer.dead && !oppAlreadyDead) {
+                        if (p.joey.firedFromRope) {
+                            unlockAchievement("Tarzan Kill");
                         }
                     }
                     ExplosionDetails.explode((int)p.joey.xpos, (int)p.joey.ypos, p.joey.explosionRadius, 
@@ -693,7 +740,7 @@ public class KrumGame {
         initializePlayers(currentLevel); 
         KrumSound.playSound("intro2");
         // Starting the Wind Manager
-        windManager = new WindManager(seed);
+        windManager = new WindManager(seed, onMoon);
         windX = windManager.getWindX();
         windY = windManager.getWindY();
         windString = windManager.getWindString();

@@ -26,10 +26,10 @@ public class SnakeGame {
     static int HEIGHT = 2;
 
     record SnakePlayer(
-        String name,
-        int x, int y,
-        List<String> inventory
-    ) {    
+            String name,
+            int x, int y,
+            List<String> inventory
+    ) {
     }
 
     /** Uniquely identifies this game */
@@ -43,17 +43,19 @@ public class SnakeGame {
         this.achievementHandler = new AchievementHandler(SnakeServer.class);
 
         // Unlock Muddler achievement for starting a new game
-        achievementHandler.unlockAchievement(playerName, MUDDLER.toString());
+        // This will need be changeed to the Snake achievement
+        achievementHandler.unlockAchievement(playerName, SNAKE_WARRIOR.toString());
     }
 
+    // The below seems like plagarised from another project? Is this all going to be rewritten?
     String[][] rooms = new String[][] {
-        {
-           "Welcome to Snake Game"
-        },
-        {
-            "You are standing in an open field west of a white house, with a boarded front door. There is a small mailbox here.",
-            "You wake up. The room is very gently spinning around your head. Or at least it would be if you could see it which you can't. It is pitch black."
-        }
+            {
+                    "Welcome to Snake Game"
+            },
+            {
+                    "You are standing in an open field west of a white house, with a boarded front door. There is a small mailbox here.",
+                    "You wake up. The room is very gently spinning around your head. Or at least it would be if you could see it which you can't. It is pitch black."
+            }
     };
 
     HashMap<String, SnakePlayer> players = new HashMap<>();
@@ -89,26 +91,23 @@ public class SnakeGame {
     }
 
 
-    public RenderingPackage runCommands(CommandPackage cp) {   
-        logger.info("Received command package {}", cp);     
+    public RenderingPackage runCommands(CommandPackage cp) {
+        logger.info("Received command package {}", cp);
         SnakePlayer p = players.get(cp.player());
 
         // FIXME: Need to actually run the commands!
         ArrayList<JsonObject> renderingCommands = new ArrayList<>();
         String commandString = String.valueOf(cp.commands().get(0).getValue("command"));
 
-        switch (commandString){
-            case "START" -> renderingCommands.add(new JsonObject().put("command", "startGame"));
-            case "SCORE" -> renderingCommands.add(new JsonObject().put("command", "viewHighScore"));
-            case "HELP" -> renderingCommands.add(new JsonObject().put("command", "howToPlay"));
-            case "BACK" -> renderingCommands.add(new JsonObject().put("command", "backToMenu"));
-            case "GAME" -> renderingCommands.add(new JsonObject().put("command", "game"));
-            case "EXIT" -> {
-                
-                }
+        switch (commandString) {
+            case "TEST1" -> renderingCommands.add(new JsonObject().put("command", "print1"));
+            case "TEST2" -> renderingCommands.add(new JsonObject().put("command", "print2"));
+            case "TEST3" -> renderingCommands.add(new JsonObject().put("command", "print3"));
+            case "TEST4" -> renderingCommands.add(new JsonObject().put("command", "print4"));
+
         }
-        
-    
+
+
         return new RenderingPackage(this.gameMetadata(), renderingCommands);
     }
 
@@ -116,10 +115,10 @@ public class SnakeGame {
     public RenderingPackage joinGame(String playerName) {
         if (players.containsKey(playerName)) {
             return new RenderingPackage(
-                gameMetadata(),
-                Arrays.stream(new RenderingCommand[] {
-                    new NativeCommands.ShowMenuError("That name's not available")
-                }).map((r) -> r.toJson()).toList()
+                    gameMetadata(),
+                    Arrays.stream(new RenderingCommand[] {
+                            new NativeCommands.ShowMenuError("That name's not available")
+                    }).map((r) -> r.toJson()).toList()
             );
         } else {
             SnakePlayer p = new SnakePlayer(playerName, 0, 0, List.of());
@@ -135,5 +134,5 @@ public class SnakeGame {
         }
 
     }
-    
+
 }

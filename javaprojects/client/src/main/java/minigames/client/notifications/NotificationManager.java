@@ -25,7 +25,7 @@ public class NotificationManager implements Tickable {
     private Insets margins;
     // Alignment of notification panel
     private float alignmentX, alignmentY;
-    private int notificationHeight;
+    private int notificationWidth, notificationHeight;
     // Notification panel's position
     private int currentX;
     private double currentY;
@@ -102,24 +102,31 @@ public class NotificationManager implements Tickable {
                 }
             });
         }
-        // Notification dimensions
-        int notificationWidth = (int) notification.getPreferredSize().getWidth();
-        notificationHeight = (int) notification.getPreferredSize().getHeight();
-        // calculate start position
-        int maxX = layeredPane.getWidth() - notificationWidth - margins.right;
-        int minX = margins.left;
-        currentX = minX + (int) (alignmentX * (maxX - minX));
+        // calculate and set initial position
         currentY = -notificationHeight;
+        setPosition();
         // calculate target Y position
         int minY = margins.top;
         int maxY = layeredPane.getHeight() - notificationHeight - margins.bottom;
         targetY = minY + (int) (alignmentY * (maxY - minY));
-        // set bounds, add to layer
-        notification.setBounds(currentX, (int) currentY, notificationWidth, notificationHeight);
+        // add to layer, start animating
         layeredPane.add(notification, JLayeredPane.POPUP_LAYER);
-        // start animating
         animator.requestTick(this);
         return this;
+    }
+
+    /**
+     * Set the position of the current notification based on its dimensions, margins and alignment settings.
+     */
+    private void setPosition() {
+        // Notification dimensions
+        notificationWidth = (int) notification.getPreferredSize().getWidth();
+        notificationHeight = (int) notification.getPreferredSize().getHeight();
+        // Calculate position
+        int maxX = layeredPane.getWidth() - notificationWidth - margins.right;
+        int minX = margins.left;
+        currentX = minX + (int) (alignmentX * (maxX - minX));
+        notification.setBounds(currentX, (int) currentY, notificationWidth, notificationHeight);
     }
 
     // Animate the notification panel depending on its current status
@@ -194,6 +201,7 @@ public class NotificationManager implements Tickable {
             layeredPane.add(notification);
             applyStyling(notification);
             applyBorder(notification);
+            setPosition();
         }
         setApplyColourAndFontStyling(false);
         return this;
@@ -217,12 +225,21 @@ public class NotificationManager implements Tickable {
         parent.add(pane, index);
         parent.revalidate();
         this.layeredPane = pane;
+        // Apply styling and reposition existing notification
         if (notification != null) {
             pane.add(notification);
             applyStyling(notification);
             applyBorder(notification);
+            setPosition();
         }
         return this;
+    }
+
+    /**
+     * Throw IllegalArgumentException if given val outside acceptable range of 0.0f-1.0f
+     */
+    private void checkFloatParam(float val, String paramName) {
+        if (val < 0 || val > 1) throw new IllegalArgumentException("Parameter " + paramName + " must be in range 0.0f - 1.0f");
     }
 
     /**
@@ -231,7 +248,8 @@ public class NotificationManager implements Tickable {
      * Component.CENTER_ALIGNMENT (0.5f), and the default Component.RIGHT_ALIGNMENT (1.0f).
      */
     public NotificationManager setAlignmentX(float alignmentX) {
-        this.alignmentX = alignmentX < 0 ? 0 : alignmentX > 1 ? 1 : alignmentX;
+        checkFloatParam(alignmentX, "alignmentX");
+        this.alignmentX = alignmentX;
         return this;
     }
 
@@ -241,7 +259,8 @@ public class NotificationManager implements Tickable {
      * Component.CENTER_ALIGNMENT (0.5f), and Component.BOTTOM (1.0f).
      */
     public NotificationManager setAlignmentY(float alignmentY) {
-        this.alignmentY = alignmentY < 0 ? 0.0f : alignmentY > 1 ? 1.0f : alignmentY;
+        checkFloatParam(alignmentY, "alignmentY");
+        this.alignmentY = alignmentY;
         return this;
     }
 
@@ -250,7 +269,8 @@ public class NotificationManager implements Tickable {
      * @param animationSpeed float representing proportion of distance from current to target location to travel per tick
      */
     public NotificationManager setAnimationSpeed(float animationSpeed) {
-        this.animationSpeed = animationSpeed < 0 ? 0.0f : animationSpeed > 1 ? 1.0f : animationSpeed;
+        checkFloatParam(animationSpeed, "animationSpeed");
+        this.animationSpeed = animationSpeed;
         return this;
     }
 
@@ -319,8 +339,8 @@ public class NotificationManager implements Tickable {
     /**
      * Set font for notifications
      */
-    public NotificationManager setFont(String fontname) {
-        this.fontName = fontname;
+    public NotificationManager setFont(String fontName) {
+        this.fontName = fontName;
         setApplyColourAndFontStyling(true);
         return this;
     }
@@ -353,7 +373,11 @@ public class NotificationManager implements Tickable {
         // Set colours
         if (component.getName() != null && component.getName().equals("Locked achievement text")) {
             // Darken text colour if locked achievement
-            Color lockedAchievementColour = new Color(foregroundColour.getRed() / 2, foregroundColour.getGreen() / 2, foregroundColour.getBlue() / 2);
+            Color lockedAchievementColour = new Color(
+                    (foregroundColour.getRed() + backgroundColour.getRed()) / 2,
+                    (foregroundColour.getGreen() + backgroundColour.getGreen()) / 2,
+                    (foregroundColour.getBlue() + backgroundColour.getBlue()) / 2
+            );
             component.setForeground(lockedAchievementColour);
         } else component.setForeground(foregroundColour);
         component.setBackground(backgroundColour);
@@ -365,9 +389,10 @@ public class NotificationManager implements Tickable {
                 public void mouseExited(MouseEvent e) {
                     jb.setBackground(backgroundColour);
                 }
+
                 @Override
                 public void mouseEntered(MouseEvent e) {
-                    jb.setBackground(hoverColour);
+                    if (jb.isEnabled()) jb.setBackground(hoverColour);
                 }
             });
             jb.setBorder(border);
@@ -389,6 +414,13 @@ public class NotificationManager implements Tickable {
      */
     private void applyBorder(Component component) {
         if (component instanceof JComponent jc && !(jc instanceof JInternalFrame)) jc.setBorder(border);
+    }
+
+    /**
+     * Return the current size of the notification queue
+     */
+    public int getQueueSize() {
+        return queuedNotifications.size();
     }
 
 }

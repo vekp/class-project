@@ -9,7 +9,12 @@ import java.util.*;
 public class PlayerAchievementProfile {
 
     private final String name;
+    //a set of all achievements unlocked for this player (in their entire lifetime) - split by game
     private final Map<String, HashSet<String>> achievements = new HashMap<>();
+
+    //a set of recently unlocked achievements (usually achievements unlocked within the last server update)
+    //this is retrieved and cleared every time we want to display popups for unlocking achievements for this player
+    private final Map<String, HashSet<String>> recentUnlocks = new HashMap<>();
 
     /**
      * Constructor
@@ -35,7 +40,17 @@ public class PlayerAchievementProfile {
     public void addAchievement(String gameID, String achievementID) {
         if (!achievements.containsKey(gameID))
             achievements.put(gameID, new HashSet<>());
+
+        //if player has already unlocked this achievement there is no need to add it again (and also no need to
+        //add it to the recent unlock list for a popup - only new achievements should get those)
+        if(achievements.get(gameID).contains(achievementID)) return;
+
         achievements.get(gameID).add(achievementID);
+
+        //also add to recent unlocks for popups
+        if (!recentUnlocks.containsKey(gameID))
+            recentUnlocks.put(gameID, new HashSet<>());
+        recentUnlocks.get(gameID).add(achievementID);
     }
 
     /**
@@ -46,6 +61,21 @@ public class PlayerAchievementProfile {
      */
     public boolean hasEarnedAchievement(String gameID, String achievementID) {
         return achievements.containsKey(gameID) && achievements.get(gameID).contains(achievementID);
+    }
+
+    /**
+     * Gets all the recently unlocked achievements for this player, and then clears the recents lists so
+     * we don't duplicate notifications
+     * @return a map of unlocked achievements (ones that were unlocked since this was last called)
+     */
+    public HashMap<String, HashSet<String>> getRecentUnlocks(){
+        HashMap<String,HashSet<String>> result = new HashMap<>();
+        for (Map.Entry<String, HashSet<String>> entry : recentUnlocks.entrySet()) {
+            HashSet<String> achievements = new HashSet<>(entry.getValue());
+            result.put(entry.getKey(), achievements);
+        }
+        recentUnlocks.clear();
+        return result;
     }
 
     /**
