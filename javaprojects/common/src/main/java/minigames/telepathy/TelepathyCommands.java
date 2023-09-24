@@ -6,67 +6,80 @@ package minigames.telepathy;
  */
 public enum TelepathyCommands {
     /*
-    * JOINGAMESUCCESS: Used in RenderingPackages sent from the server to signal that
-    *       the client has successfully joined the game it was attempting to join.
+    * JOINGAMESUCCESS: Used to signal the client that it has successfully connected 
+            to the server.
     *       Attributes: n/a
-    * JOINGAMEFAIL: Used in RenderingPackages sent from the server to signal that the
-    *       the client was unable to join the game it was attempting to join. Accompanied
-    *       with a 'message' specifying the reason for failure.
+    * JOINGAMEFAIL: Used to signal the client that it has failed to connected to 
+            the server.
     *       Attributes: n/a
-    * TOGGLEREADY: Used by client to inform the server the player has toggled their ready
-    *       status and is ready to start playing the game.
+    * TOGGLEREADY: Used by client to inform the server the player has toggled their
+    *        ready status and is ready to start playing the game.
     * ASKQUESTION: Used by the client to indicate the player has seleted a tile to ask
     *       for more information.
-    *       Attributes: Tile coordinates.
+    *       Attributes: Tile coordinates as separate integer values.
     * FINALGUESS: Used by the client to indicate the player has selected a tile for their
     *       final guess.
-    *       Attributes: Tile coordinates.
-    * BUTTONPRESS: Used in CommandPackages sent from the client to the server when the
-    *       player presses a button on the Telepathy board.
-    *       Attributes: Name of button pushed.
+    *       Attributes: Tile coordinates as separate integer values.
     * BUTTONUPDATE: Used by the server to inform the client of a change in state that should
     *       be displayed to the user with an update to a button.
-    *       Attributes: Name of button pushed, changes to make.
-    * REQUESTUPDATE: Used by the client to request an update of the current state
-    *       from the server.
+    *       Attributes: Name of button or group of buttons, changes to make.
+    * REQUESTUPDATE: Used by the client to request any pending updates.
+            Attributes: n/a
     * NOUPDATE: Used by the server to inform the client there are no current updates.
+            Attributes: n/a
     * GAMEOVER: Used by the server to inform the client the game state has changed to game
     *       over.
+    *       Attributes: n/a
     * SYSTEMQUIT: Used by the client to signal that the game window has been closed
     *       on the client (sends a regular RenderingPackage).
+    *       Attributes: n/a
     * QUIT: Used by the client to signal that the client has exited Telepathy but
     *       the window remains open.
+    *       Attributes: n/a
     * MODIFYPLAYER: Inform the client that information about a player has been modified.
     *       Attributes: Name of the player, modifications (joined, leaving)
+    *       Attributes: n/a
+    * PARTIALMATCH: Inform the client that their question tile had a match with
+    *       the target tile.
+    *       Attributes: The X and Y coordinate of the question tile used.
+    * PLAYERLIST: Pass a list of all the players currently connected to the server.
+    *       Attributes: 
+    * REQUESTHIGHSCORE: Used by the client to request the list of highscores from
+    *       the server.
+    * HIGHSCORE: Inform the client of the highscore String.
+    *       Attributes: String with highscores.
     * TESTCOMMAND: A simple command used for testing/debugging purposes.
     * INVALIDCOMMAND: Used to respond to an invalid CommandPackage.
     */
  
     JOINGAMESUCCESS, JOINGAMEFAIL, TOGGLEREADY, ASKQUESTION, FINALGUESS, 
-    CHOOSETILE, BUTTONPRESS, BUTTONUPDATE, REQUESTUPDATE, NOUPDATE, 
-    GAMESTART, GAMEOVER, SYSTEMQUIT, QUIT, MODIFYPLAYER, POPUP,
-    TESTCOMMAND, INVALIDCOMMAND;
+    CHOOSETILE, BUTTONUPDATE, REQUESTUPDATE, NOUPDATE, GAMEOVER, SYSTEMQUIT, 
+    ELIMINATETILES, QUIT, MODIFYPLAYER, POPUP, PARTIALMATCH, TESTCOMMAND, 
+    INVALIDCOMMAND, PLAYERLIST, REQUESTHIGHSCORE, HIGHSCORE, DEFAULT;
 
     public String toString(){
         return switch(this){
             case JOINGAMESUCCESS -> "JOINGAMESUCCESS";
             case JOINGAMEFAIL -> "JOINGAMEFAIL";
             case TOGGLEREADY -> "TOGGLEREADY";
-            case BUTTONPRESS -> "BUTTONPRESS";
+            case REQUESTHIGHSCORE -> "REQUESTHIGHSCORE";
             case CHOOSETILE -> "CHOOSETILE";
             case ASKQUESTION -> "ASKQUESTION";
             case FINALGUESS -> "FINALGUESS";
             case BUTTONUPDATE -> "BUTTONUPDATE";
             case REQUESTUPDATE -> "REQUESTUPDATE";
+            case HIGHSCORE -> "HIGHSCORE";
             case NOUPDATE -> "NOUPDATE";
-            case GAMESTART -> "GAMESTART";
             case GAMEOVER -> "GAMEOVER";
             case QUIT -> "QUIT";
             case SYSTEMQUIT -> "SYSTEMQUIT";
             case MODIFYPLAYER -> "MODIFYPLAYER";
             case POPUP -> "POPUP";
-            case TESTCOMMAND -> "TESTCOMMAND";
+            case PARTIALMATCH -> "PARTIALMATCH";
+            case ELIMINATETILES -> "ELIMINATETILES";
+            case PLAYERLIST -> "PLAYERLIST";
             case INVALIDCOMMAND -> "INVALIDCOMMAND";
+            case TESTCOMMAND -> "TESTCOMMAND";
             default -> "NO-STRING-CONFIGURED";
         };
     }

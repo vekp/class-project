@@ -2,75 +2,77 @@ package minigames.client.snake;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-class GameBoardTest {
-    private GameBoard board;
+public class GameBoardTest {
+
+    private GameBoard gameBoard;
 
     @BeforeEach
-    void setUp() {
-        board = new GameBoard(10, 10);
+    public void setUp() {
+        gameBoard = new GameBoard(5, 5);
     }
 
     /**
-     * Test the constructor for proper board initialization.
+     * Test that the game board is initialized correctly.
      */
     @Test
-    void testConstructor() {
-        assertEquals(10, board.getWidth());
-        assertEquals(10, board.getHeight());
-        for (int x = 0; x < 10; x++) {
-            for (int y = 0; y < 10; y++) {
-                assertEquals(ItemType.VACANT, board.getItemTypeAt(x, y));
-            }
-        }
+    public void testInitialization() {
+        assertNotNull(gameBoard);
+        assertEquals(5, gameBoard.getWidth());
+        assertEquals(5, gameBoard.getHeight());
     }
 
     /**
-     * Test the getWidth method.
+     * Test getting the ItemType at a specific coordinate.
      */
     @Test
-    void testGetWidth() {
-        assertEquals(10, board.getWidth());
+    public void testGetItemTypeAt() {
+        assertEquals(ItemType.VACANT, gameBoard.getItemTypeAt(0, 0));
     }
 
     /**
-     * Test the getHeight method.
+     * Test getting the ItemType at an out-of-bounds coordinate.
      */
     @Test
-    void testGetHeight() {
-        assertEquals(10, board.getHeight());
+    public void testGetItemTypeAtOutOfBounds() {
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            gameBoard.getItemTypeAt(-1, 0);
+        });
     }
 
     /**
-     * Test getting and setting an ItemType at a specific coordinate.
+     * Test setting the ItemType at a specific coordinate.
      */
     @Test
-    void testGetAndSetItemType() {
-        board.setItemTypeAt(5, 5, ItemType.APPLE);
-        assertEquals(ItemType.APPLE, board.getItemTypeAt(5, 5));
+    public void testSetItemTypeAt() {
+        gameBoard.setItemTypeAt(1, 1, ItemType.APPLE);
+        assertEquals(ItemType.APPLE, gameBoard.getItemTypeAt(1, 1));
     }
 
     /**
-     * Test clearing all tiles of a specific ItemType.
+     * Test setting the ItemType at an out-of-bounds coordinate.
      */
     @Test
-    void testClearTilesOfType() {
-        board.setItemTypeAt(5, 5, ItemType.APPLE);
-        board.setItemTypeAt(6, 6, ItemType.APPLE);
-        board.clearTilesOfType(ItemType.APPLE);
-        assertEquals(ItemType.VACANT, board.getItemTypeAt(5, 5));
-        assertEquals(ItemType.VACANT, board.getItemTypeAt(6, 6));
+    public void testSetItemTypeAtOutOfBounds() {
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            gameBoard.setItemTypeAt(5, 0, ItemType.APPLE);
+        });
     }
 
     /**
-     * Test for IndexOutOfBoundsException when coordinates are out of bounds.
+     * Test clearing all cells of a specific ItemType.
      */
     @Test
-    void testIndexOutOfBoundsException() {
-        assertThrows(IndexOutOfBoundsException.class, () -> board.getItemTypeAt(11, 5));
-        assertThrows(IndexOutOfBoundsException.class, () -> board.getItemTypeAt(5, 11));
-        assertThrows(IndexOutOfBoundsException.class, () -> board.setItemTypeAt(11, 5, ItemType.APPLE));
-        assertThrows(IndexOutOfBoundsException.class, () -> board.setItemTypeAt(5, 11, ItemType.APPLE));
+    public void testClearTilesOfType() {
+        gameBoard.setItemTypeAt(1, 1, ItemType.APPLE);
+        gameBoard.setItemTypeAt(2, 2, ItemType.APPLE);
+
+        gameBoard.clearTilesOfType(ItemType.APPLE);
+
+        assertEquals(ItemType.VACANT, gameBoard.getItemTypeAt(1, 1));
+        assertEquals(ItemType.VACANT, gameBoard.getItemTypeAt(2, 2));
     }
+
 }

@@ -23,10 +23,10 @@ public class Survey extends JPanel implements ActionListener {
     private JPanel titlePanel, backPanel, gameNamePanel, surveyQuestionsPanelGroup, surveyQuestionsPanelLeft, surveyQuestionsPanelRight, feedbackPanel, submitPanel, footerPanel, uiRatingPanel, enjoymentPanel, functionalityPanel, difficultyPanel, resultsPanel; 
     private JLabel counterLabel, headingLabel, testLabel, gameNameLabel, blankLabel, feedbackLabel, uiRatingLabel, enjoymentLabel, functionalityLabel, difficultyLabel, gameNameTextLabel, helpLabel;
     private JButton backButton, submitButton, resultsButton;
-    private JTextArea feedbackText;
+    JTextArea feedbackText;
     private JScrollPane feedbackScrollPane;
-    private JRadioButton uiRatingOne, uiRatingTwo, uiRatingThree, uiRatingFour, uiRatingFive, enjoymentOne, enjoymentTwo, enjoymentThree, enjoymentFour, enjoymentFive, functionalityOne, functionalityTwo, functionalityThree, functionalityFour, functionalityFive, difficultyOne, difficultyTwo, difficultyThree, difficultyFour, difficultyFive;
-    private ButtonGroup uiRatingButtonGroup, enjoymentButtonGroup, functionalityButtonGroup, difficultyButtonGroup;
+    JRadioButton uiRatingOne, uiRatingTwo, uiRatingThree, uiRatingFour, uiRatingFive, enjoymentOne, enjoymentTwo, enjoymentThree, enjoymentFour, enjoymentFive, functionalityOne, functionalityTwo, functionalityThree, functionalityFour, functionalityFive, difficultyOne, difficultyTwo, difficultyThree, difficultyFour, difficultyFive;
+    ButtonGroup uiRatingButtonGroup, enjoymentButtonGroup, functionalityButtonGroup, difficultyButtonGroup;
     private Border borderPosition, raisedBevel, loweredBevel, outerColourBorder, styledOuterBorder, innerColourBorder, styledInnerBorder, styledBorders, finalBorder;
 
     // Colours
@@ -108,7 +108,7 @@ public class Survey extends JPanel implements ActionListener {
         // gameName TextLabel
         gameNameTextLabel = new JLabel();
         gameNameTextLabel.setText(gameName);
-        gameNameTextLabel.setFont(fontText);
+        gameNameTextLabel.setFont(fontLabel);
         gameNameTextLabel.setHorizontalAlignment(JLabel.CENTER);
 
         // rating explanation help TextLabel
@@ -435,7 +435,7 @@ public class Survey extends JPanel implements ActionListener {
     // Private Functions
 
     // Validate the feedbackText input
-    private boolean isValidText(String text) {
+    boolean isValidText(String text) {
         // Check for common SQL injection patterns
         if (text != null && text.matches("(?i).*\\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER)\\b.*")) {
             return false;
@@ -449,12 +449,12 @@ public class Survey extends JPanel implements ActionListener {
         return true;
     }
 
-    private String sanitiseText(String text) {
+    String sanitiseText(String text) {
         return sanitiser.sanitize(text);
     }
 
     // Get the selected radio button value from a ButtonGroup
-    private String getSelectedRadioButtonValue(ButtonGroup buttonGroup) {
+    String getSelectedRadioButtonValue(ButtonGroup buttonGroup) {
         Enumeration<AbstractButton> buttons = buttonGroup.getElements();
         while (buttons.hasMoreElements()) {
             AbstractButton button = buttons.nextElement();

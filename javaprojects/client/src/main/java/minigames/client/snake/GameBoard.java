@@ -1,66 +1,71 @@
 package minigames.client.snake;
 
 /**
- * The GameBoard class represents a 2D grid game board.
- * Each cell in the board can contain an item represented by ItemType.
- * The board is initialized as vacant and can be modified by setting specific ItemTypes at coordinates.
+ * The GameBoard class represents a 2D grid game board used in the Snake game.
+ * Each cell in the board can contain an item, represented by an ItemType enum.
+ * The board is initialized as vacant and can be modified by setting specific ItemTypes at
+ * particular coordinates.
  */
+public class GameBoard {
 
-class GameBoard {
+    // Instance variables representing the width and height of the board
     private final int width;
     private final int height;
+
+    // 2D array representing the board
     private final ItemType[][] board;
 
     /**
-     * Constructs a new GameBoard with the given dimensions.
+     * Constructs a new GameBoard object with the specified width and height.
      * Initializes all cells as ItemType.VACANT.
      *
-     * @param width  the width of the game board
-     * @param height the height of the game board
+     * @param width  The width of the game board in cells.
+     * @param height The height of the game board in cells.
      */
-
     public GameBoard(int width, int height) {
         this.width = width;
         this.height = height;
-        board = new ItemType[width][height];
+        this.board = new ItemType[width][height];
+        initBoard();
+    }
 
+    /**
+     * Initializes the board by setting all cells to ItemType.VACANT.
+     */
+    public void initBoard() {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                board[x][y] = ItemType.VACANT; // Initialize board to be empty
+                board[x][y] = ItemType.VACANT;
             }
         }
     }
 
     /**
-     * Returns the width of the game board.
+     * Retrieves the width of the game board.
      *
-     * @return the width of the game board
+     * @return The width of the game board in cells.
      */
-
     public int getWidth() {
         return width;
     }
 
     /**
-     * Returns the height of the game board.
+     * Retrieves the height of the game board.
      *
-     * @return the height of the game board
+     * @return The height of the game board in cells.
      */
-
     public int getHeight() {
         return height;
     }
 
     /**
-     * Returns the ItemType at a specific coordinate on the game board.
-     * Throws IndexOutOfBoundsException if the coordinates are out of bounds.
+     * Gets the ItemType at a specific coordinate on the board.
      *
-     * @param x the x-coordinate
-     * @param y the y-coordinate
-     * @return the ItemType at the given coordinate
-     * @throws IndexOutOfBoundsException if the coordinates are out of bounds
+     * @param x The x-coordinate of the cell.
+     * @param y The y-coordinate of the cell.
+     * @return The ItemType at the specified coordinate.
+     * @throws IndexOutOfBoundsException if the x or y coordinates are out of the board's bounds.
      */
-
     public ItemType getItemTypeAt(int x, int y) {
         if (x < 0 || x >= width || y < 0 || y >= height) {
             throw new IndexOutOfBoundsException("Coordinates out of bounds");
@@ -69,15 +74,13 @@ class GameBoard {
     }
 
     /**
-     * Sets the ItemType at a specific coordinate on the game board.
-     * Throws IndexOutOfBoundsException if the coordinates are out of bounds.
+     * Sets a cell on the board to a specified ItemType.
      *
-     * @param x the x-coordinate
-     * @param y the y-coordinate
-     * @param type the ItemType to set
-     * @throws IndexOutOfBoundsException if the coordinates are out of bounds
+     * @param x    The x-coordinate of the cell to set.
+     * @param y    The y-coordinate of the cell to set.
+     * @param type The ItemType to set the cell to.
+     * @throws IndexOutOfBoundsException if the x or y coordinates are out of the board's bounds.
      */
-
     public void setItemTypeAt(int x, int y, ItemType type) {
         if (x < 0 || x >= width || y < 0 || y >= height) {
             throw new IndexOutOfBoundsException("Coordinates out of bounds");
@@ -86,11 +89,10 @@ class GameBoard {
     }
 
     /**
-     * Clears all cells of a specific ItemType on the game board.
+     * Clears all cells of a specific ItemType from the board.
      *
-     * @param typeToClear the ItemType to clear
+     * @param typeToClear The ItemType to clear from the board.
      */
-
     public void clearTilesOfType(ItemType typeToClear) {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -100,5 +102,4 @@ class GameBoard {
             }
         }
     }
-
 }

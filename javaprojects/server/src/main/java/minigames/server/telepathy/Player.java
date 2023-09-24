@@ -4,6 +4,8 @@ import io.vertx.core.json.JsonObject;
 import minigames.telepathy.TelepathyCommandException;
 import minigames.telepathy.TelepathyCommandHandler;
 import minigames.telepathy.TelepathyCommands;
+import minigames.telepathy.Tile;
+import minigames.telepathy.Board;
 
 import java.util.ArrayList;
 
@@ -19,6 +21,7 @@ public class Player {
     private ArrayList<JsonObject> pendingUpdates;
 
     private Tile chosenTile;
+    private Tile targetTile;
     private int turns;
 
     /**
@@ -36,6 +39,7 @@ public class Player {
         this.pendingUpdates = new ArrayList<>();
 
         this.chosenTile = null;
+        this.targetTile = null;
         this.turns = 0;
     }
 
@@ -84,6 +88,22 @@ public class Player {
     }
 
     /**
+     * Set the target tile for this Player. The target tile represents the tile
+     * that this Player's opponent has selected and is the tile that this Player
+     * is trying to guess.
+     * @param tile Tile to set as the target tile.
+     * @return
+     */
+    public boolean setTargetTile(Tile tile){
+        if(this.targetTile == null){
+            this.targetTile = tile;
+            return true;
+        } else{
+            return false;
+        }
+    }
+
+    /**
      * Get the updates pending for this Player. Clear the List so that a command is only
      * sent once.
      * @return Copy of the updateCommands List. 
@@ -124,6 +144,10 @@ public class Player {
      */
     public Tile getChosenTile(){
         return this.chosenTile;
+    }
+
+    public Tile getTargetTile(){
+        return this.targetTile;
     }
 
     /**

@@ -8,7 +8,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.spi.launcher.Command;
 import minigames.commands.CommandPackage;
 import minigames.rendering.GameMetadata;
 import minigames.rendering.RenderingPackage;
@@ -140,9 +139,9 @@ public class TelepathyGameTest {
             Collections.singletonList(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.REQUESTUPDATE))));
 
         // Updates expected
-        //          MODIFYPLAYER from joining game
+        //          NOUPDATE for first starting a game
         System.out.println(response.renderingCommands().get(0).getString("command"));
-        assertTrue(response.renderingCommands().get(0).getString("command").equals("MODIFYPLAYER"));
+        assertTrue(response.renderingCommands().get(0).getString("command").equals("NOUPDATE"));
         
     }
 
@@ -224,17 +223,19 @@ public class TelepathyGameTest {
         // Will just return INVALIDCOMMAND unless in correct state
         assertTrue(response.renderingCommands().get(0).getString("command").equals(TelepathyCommands.INVALIDCOMMAND.toString()));
 
-        // Check correct player turn - only take questions on your turn
+        // Check correct player turn - can only ask questions on your turn
         game = progressGameToState(State.RUNNING);
 
-        
         String player = game.getCurrentPlayerTurn();
         cp = makeCommandPackage(game.telepathyGameMetadata(), 
             player, 
             TelepathyCommands.ASKQUESTION, "1", "1");
         response = game.runCommands(cp);
 
-        assertTrue(response.renderingCommands().get(0).getString("command").equals(TelepathyCommands.BUTTONUPDATE.toString()));
+        // Response could be a match or no match
+        String responseCommand = response.renderingCommands().get(0).getString("command");
+        assertTrue(responseCommand.equals(TelepathyCommands.ELIMINATETILES.toString()) || 
+            responseCommand.equals(TelepathyCommands.PARTIALMATCH.toString()));
         
         // Check that turns have switched
         assertTrue(!game.getCurrentPlayerTurn().equals(player));

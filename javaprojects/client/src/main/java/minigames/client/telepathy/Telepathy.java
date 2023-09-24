@@ -3,8 +3,9 @@ package minigames.client.telepathy;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
+
 import java.util.Collections;
-import java.util.ArrayList;
 
 import javax.swing.border.EmptyBorder;
 
@@ -17,7 +18,10 @@ import minigames.client.Animator;
 import minigames.client.GameClient;
 import minigames.client.MinigameNetworkClient;
 import minigames.client.Tickable;
+import minigames.client.telepathy.TelepathyIcons;
 import minigames.rendering.GameMetadata;
+import minigames.utilities.MinigameUtils;
+
 
 import minigames.commands.CommandPackage;
 import minigames.client.notifications.NotificationManager;
@@ -26,6 +30,10 @@ import minigames.client.notifications.DialogManager;
 import minigames.telepathy.TelepathyCommandException;
 import minigames.telepathy.TelepathyCommandHandler;
 import minigames.telepathy.TelepathyCommands;
+import minigames.telepathy.Symbols;
+import minigames.telepathy.Colours;
+import minigames.telepathy.Tile;
+
 import minigames.telepathy.State;
 
 import java.awt.*;
@@ -33,6 +41,15 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.lang.String;
 import java.util.HashMap;
+import java.util.*;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Array;
+import java.awt.Point;
 
 
 /**
@@ -62,18 +79,23 @@ public class Telepathy implements GameClient, Tickable{
     JPanel gridIndexWest; // alphabetical index
     JPanel gridIndexNorth; // numerical index
     JPanel board; // game board grid
-    JPanel welcomeMessage; // first popup message to start game
-    JPanel confirmTargetTile; // popup panel to confirm players target tile selection
-    JPanel questionOrFinalGuess; // popup panel that asks player about their button selection
     JPanel sidePanel; // board game side panel
     JPanel colourSymbolPanel; //  nested panel listing the colours and symbols in the gameboard
 
-    ArrayList<JButton> coloursList; // list of colours used in game
-    ArrayList<JButton> symbolsList; // list of symbols used in game
+    ArrayList<JButton> buttonColour; // list of colours as buttons used in game
+    ArrayList<JButton> buttonSymbols; // list of buttons with symbol icons used in game
 
+    JLabel currentPlayer; // a label to display current player's name in game lobby
+    JLabel opponent; //  a label to display oppoenet's name in game lobby
+
+    JButton player1Turn; // a colour switch button to indicate current player's turn
+    JButton player2Turn; // a colour switch button to indicate opponent's turn
     
-    JButton startGame; // Button to initialise game
-    //int buttonClicks = 0; // an int to track button clicks
+    ArrayList<ImageIcon> allIcons; // ordered list of icons
+    ArrayList<Point> allCoordinatesList; // list of board coordinates
+
+    Map<Point, ImageIcon> mappedIcons; // a map to store mapped icons to board buttons
+ 
 
     int ROWS = 9; // adjustable variable for grid size
     int COLS = 9; // adjustable variable for grid size
@@ -83,6 +105,10 @@ public class Telepathy implements GameClient, Tickable{
     
     JButton[][] buttonGrid; // 2D button array
 
+    // Client information
+    private int xCoord; // X coordinate of button on board that is pressed
+    private int yCoord; // Y coordiante of button on board that is pressed
+
     // Tick information
     private boolean ticking;
     private long last;
@@ -91,18 +117,34 @@ public class Telepathy implements GameClient, Tickable{
     private State serverState;
     private HashMap<String, JComponent> componentList; // Maintains references to swing elements that need to be modified 
     
+    // Guesses and eliminated rows/columns
+    HashSet<Integer> eliminatedColumns;
+    HashSet<Integer> eliminatedRows;
+    HashSet<Tile> guessedTiles;
 
     /**
-     * A Telepathy board UI, a 9 x 9 2D array of Jbuttons with coordinates around the 
-     * border.
+     * A Telepathy board UI including a 9 x 9 2D array of Jbuttons with coordinates around the 
+     * border and a side panel to display colour / symbol lists and a game lobby. 
      */
     public Telepathy(){
         this.ticking = true;
         this.last = System.nanoTime();
         this.serverState = null;
 
+        this.eliminatedColumns =  new HashSet<>();
+        this.eliminatedRows = new HashSet<>();
+        this.guessedTiles = new HashSet<>();
+
         this.componentList = new HashMap<>();
         this.buttonGrid = new JButton[COLS][ROWS];
+
+        this.buttonColour = new ArrayList<>();
+
+        this.currentPlayer = new JLabel();
+        this.opponent = new JLabel();
+
+        this.player1Turn = new JButton();
+        this.player2Turn = new JButton();
         
 
         telepathyBoard = new JPanel();
@@ -127,41 +169,31 @@ public class Telepathy implements GameClient, Tickable{
 
        
         // Button to go back to the main menu
-        JButton backButton = new JButton("Back");
+        JButton backButton = new JButton("Menu");
         backButton.setPreferredSize(new Dimension(20, 40));
         backButton.addActionListener(e -> {
-            //TODO: Make own method
             telepathyNotificationManager.dismissCurrentNotification();
-            startGame.setEnabled(true);
-            //int resetButtonCLicks = 0;
-            //buttonClicks = resetButtonCLicks;
             clearButtonBackgrounds();
             enableButtonGrid();
             sendCommand(TelepathyCommands.QUIT);
         });
         this.componentList.put("backButton", backButton);
 
-        JButton readyButton = new JButton("Ready");
+        JButton readyButton = new JButton("READY");
         readyButton.addActionListener(e -> {
             sendCommand(TelepathyCommands.TOGGLEREADY);
         });
         this.componentList.put("readyButton", readyButton);
-        
 
-        // Button to start game
-       startGame = new JButton("Start a Game!");
-       startGame.setPreferredSize(new Dimension(20, 40));
-        //startGame.addActionListener(e -> {
-            //activateWelcomeMessage();
-          //  startGame.setEnabled(false);
-        //});
-   
+
+      
         // panel to display buttons
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
         buttonPanel.add(readyButton);
         buttonPanel.add(backButton);
-        buttonPanel.add(startGame);
+     
+    
 
          //a panel for the 2D button array
         board = new JPanel();
@@ -176,21 +208,33 @@ public class Telepathy implements GameClient, Tickable{
             JButton selectedBtn = (JButton) evt.getSource();
             for (int row = 0; row < this.buttonGrid.length; row++) {
                 for (int col = 0; col < this.buttonGrid[row].length; col++) {
-                    if (this.buttonGrid[col][row] == selectedBtn && this.serverState == State.TILESELECTION) {
+                    if (this.buttonGrid[col][row] == selectedBtn) {
+                        this.xCoord = col;
+                        this.yCoord = row;
                         disableButtonGrid();
-                        selectTargetTile(col, row); 
-                    }else if (this.buttonGrid[col][row] == selectedBtn && this.serverState == State.RUNNING){
-                        disableButtonGrid();
-                        activateQuestOrGuessMessage(col, row); 
+
+                        if (this.serverState == State.TILESELECTION) {
+                            activateTargetTileMessage();    
+                        } else if (this.serverState == State.RUNNING) {
+                            activateQuestionGuessMessage();
+                        }
                     }
+                  
                 }
             }
         };
-        // a nested for loop to add buttons with ActionListeners to the panel
-        // UPDATE code here to add colours and symbols?? 
+
+       
+        allCoordinatesList = TelepathyIcons.allCoordinates(this.buttonGrid);
+        allIcons = TelepathyIcons.allIcons();
+        // a map of ordered icons to board coordinates
+        mappedIcons = TelepathyIcons.mappedIcons(allCoordinatesList, allIcons);
+
+
         for (int row = 0; row < this.buttonGrid.length; row++) {
-            for (int col = 0; col < this.buttonGrid.length; col++) {
-                this.buttonGrid[col][row] = new JButton();
+            for (int col = 0; col < this.buttonGrid[row].length; col++) {
+                ImageIcon icon = mappedIcons.get(new Point(col, row));
+                this.buttonGrid[col][row] = new JButton(icon);
                 this.buttonGrid[col][row].setPreferredSize(new Dimension(50, 50));
                 this.buttonGrid[col][row].addActionListener(buttonListener);
                 board.add(buttonGrid[col][row]);
@@ -208,30 +252,39 @@ public class Telepathy implements GameClient, Tickable{
         sidePanel = new JPanel();
         sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));        
 
-        Font font = new Font("futura", Font.BOLD, 16);
-        JLabel heading = new JLabel("Tile Features");
-        heading.setFont(font);
-        heading.setAlignmentX(Component.CENTER_ALIGNMENT);
+        //Font font = new Font("futura", Font.BOLD, 16);
+        //JLabel heading = new JLabel("Tile Features");
+       // heading.setFont(font);
+       // heading.setAlignmentX(Component.CENTER_ALIGNMENT);
         
-       
+        TitledBorder border = new TitledBorder("Tile Features");
+        border.setTitleJustification(TitledBorder.CENTER);
+        border.setTitlePosition(TitledBorder.TOP);
+
         colourSymbolPanel = new JPanel();
+        colourSymbolPanel.setBorder(border);
+
         colourSymbolPanel.setLayout(new FlowLayout());
         colourSymbolPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         colourSymbolPanel.setOpaque(true);
-        JPanel colours = colourSideTiles();
         JPanel symbols = symbolSideTiles();
-        
+        JPanel colours = colourSideTiles();
+       
         colourSymbolPanel.add(colours);
         colourSymbolPanel.add(symbols);
 
-        sidePanel.add(heading);
+        JPanel lobby = gameLobby();
+
+       // sidePanel.add(heading);
         sidePanel.add(colourSymbolPanel);
+        sidePanel.add(Box.createRigidArea(new Dimension(0, 30)));
+        sidePanel.add(lobby);
 
         
     }
 
     /**
-     * a method that disables all buttons on the board
+     * a method that disables all buttons on the game board
      */
 
     public void disableButtonGrid(){
@@ -241,18 +294,19 @@ public class Telepathy implements GameClient, Tickable{
                 this.buttonGrid[col][row].setEnabled(false);
             }
         }
-
     }
 
     /**
-     * a method that enables all buttons on the board
+     * a method that enables all buttons on the game board
      */
 
     public void enableButtonGrid(){
 
         for (int row = 0; row < this.buttonGrid.length; row++) {
             for (int col = 0; col < this.buttonGrid[row].length; col++) {
-                this.buttonGrid[col][row].setEnabled(true);
+                if(!this.eliminatedRows.contains(row) && !this.eliminatedColumns.contains(col)){
+                    this.buttonGrid[col][row].setEnabled(true);
+                }
             }
         }
 
@@ -270,227 +324,298 @@ public class Telepathy implements GameClient, Tickable{
         }
     }
     
-
-
     /**
-     * A JPanel displaying a welcome message and information about game play.
-     * @return popupWelcome JPanel 
+     * Create a JPanel that can be used to display a message to the user.
+     * 
+     * @param heading: The main heading to use at the top of the panel.
+     * @param subHeading: A sub-heading to use underneath the main heading.
+     * @param descriptionString: The message to display to the user.
+     * @return JPanel containing all the required components to display a message.
      */
-    public JPanel popupWelcomeMessage(){
-    
+    private JPanel makeMessagePopup(String heading, String subHeading, String descriptionString) {
 
-        JPanel popupWelcome = new JPanel();
-        popupWelcome.setLayout(new BoxLayout(popupWelcome, BoxLayout.PAGE_AXIS));
-        popupWelcome.setPreferredSize(new Dimension(300, 300));
-        
-        
+        // Sub-panels for the heading
+        JPanel headingPanel = new JPanel();
+        headingPanel.setLayout(new BoxLayout(headingPanel, BoxLayout.PAGE_AXIS));
+
         Font font = new Font("futura", Font.BOLD, 20);
         Font subFont = new Font("georgia", Font.ITALIC, 18);
 
-        JPanel headings = new JPanel();
-        headings.setLayout(new BoxLayout(headings, BoxLayout.PAGE_AXIS));
-        JLabel heading = new JLabel("Telepathy");
-        JLabel subHeading = new JLabel("are you telepathic " + player + "? ");
-        heading.setFont(font);
-        heading.setAlignmentX(Component.CENTER_ALIGNMENT);
-        subHeading.setFont(subFont);
-        subHeading.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel headingLabel = new JLabel(heading);
+        JLabel subHeadingLabel = new JLabel(subHeading);
+
+        headingLabel.setFont(font);
+        headingLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        subHeadingLabel.setFont(subFont);
+        subHeadingLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        headingPanel.add(headingLabel);
+        headingPanel.add(subHeadingLabel);
+
+        // Main text for the popup
+        JTextPane descriptionTextPane = new JTextPane();
+        descriptionTextPane.setText("\n" + descriptionString);
+        descriptionTextPane.setEditable(false);
+        descriptionTextPane.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // The main popup JPanel
+        JPanel popupPanel = new JPanel();
+        popupPanel.setLayout(new BoxLayout(popupPanel, BoxLayout.PAGE_AXIS));
+        popupPanel.setPreferredSize(new Dimension(300, 300));
+
+        popupPanel.add(headingPanel);
+        popupPanel.add(descriptionTextPane);
+
+        return popupPanel;
+    }
+
+    /**
+     * Create a JPanel that can be used to display a message and give the user a 
+     * choice to make. 
+     * 
+     * @param headingString: The main heading to use at the top of the panel.
+     * @param descriptionString: The message to display to the user.
+     * @param buttonOneLabel: The label to apply to the first button option.
+     * @param buttonTwoLabel: The label to apply to the second button option.
+     * @param listenerOne: ActionListener defining action for first button press.
+     * @param listenerTwo: ActionListener defining action for second button press.
+     * @return The JPanel with a message and two buttons prompting the user.
+     */
+    private JPanel makeChoicePopup(String headingString, String descriptionString, String buttonOneLabel, String buttonTwoLabel, ActionListener listenerOne,
+            ActionListener listenerTwo) {
+
+        // Create the heading
+        Font font = new Font("futura", Font.BOLD, 20);
+
+        JLabel headingLabel = new JLabel(headingString);
+        headingLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        headingLabel.setFont(font);
+
+        // Create the main text pane
+        JTextPane descriptionTextPane = new JTextPane();
+        descriptionTextPane.setText("\n\n\n" + descriptionString);
+        descriptionTextPane.setEditable(false);
+
+        // Create the buttons and add the ActionListeners
+        JPanel buttonPanel = new JPanel();
+        JButton buttonOne = new JButton(buttonOneLabel);
+        JButton buttonTwo = new JButton(buttonTwoLabel);
+        buttonOne.addActionListener(listenerOne);
+        buttonTwo.addActionListener(listenerTwo);
+
+        buttonPanel.add(buttonOne);
+        buttonPanel.add(buttonTwo);
+        buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Create the JPanel to contain all the components
+        JPanel choicePanel = new JPanel();
+        choicePanel.setLayout(new BoxLayout(choicePanel, BoxLayout.Y_AXIS));
+        choicePanel.setPreferredSize(new Dimension(300, 290));
+
+        choicePanel.add(headingLabel);
+        choicePanel.add(descriptionTextPane);
+        choicePanel.add(buttonPanel);
+
+        return choicePanel;
+
+    }
+
+    /**
+     * Display the game welcome message.
+     */
+    private void activateWelcomeMessage() {
+        JPanel welcomePanel = makeMessagePopup(
+                "Telepathy",
+                "are you telepathic " + player + "? ",
+                "  Can you deduce your opponent's secret tile?!" +
+                "\n\nGame Play" + "\nQuestions are asked by selecting a tile from the board. Then you will find out if" +
+                " the coordinates, colour AND/OR symbol match your opponent's tile." +
+                " IF you've scored a match, the tile will be highlighted! \nUse this information to help you ask" +
+                " the next question." +
+                " Keep asking questions till you're SURE you KNOW your opponent's tile!" +
+                "\n\nWhen you're ready, select the READY button." + "    Wait for the other player to join :D\n");
+
+        //welcomeMessage = popupWelcomeMessage();
+        telepathyNotificationManager.showMessageDialog("Telepathy", welcomePanel);
+    }
+
+    /**
+     * Display the tile selection state popup message.
+     */
+    private void activateTileSelectMessage() {
+        JPanel tileSelectPanel = makeMessagePopup(
+                "Secret Tile Selection",
+                "",
+                "\nNotice how each tile on the board has a set of coordinates, a colour and a symbol..." +
+                "\n\n\nThe list of colours and symbols at the side will help you track your guesses." +
+                " When your question has no matches, the tile's row, column, colour and symbol will be eliminated." +
+                "\n\n\nNow it's time to choose your secret tile for your opponent to guess!"
+                );
+
+        telepathyNotificationManager.showMessageDialog("Telepathy", tileSelectPanel);
+    }
+    
+    /**
+     * Display the game running popup message.
+     */
+    private void activateGameRunningMessage() {
+        JPanel gameRunningPanel = makeMessagePopup(
+            "Time to play", 
+            "", 
+            "\n                   The game has started!" +
+            "\n\n\nWhen it is your turn, the board will activate and you can ask a question" +
+            " by selecting a tile." + 
+            "\n\n\n                        Good luck!" +
+            "\n\n\n  REMEMBER: the game is won with a player's\n                      final guess..."
+            );
+
+        telepathyNotificationManager.showMessageDialog("Telepathy", gameRunningPanel);
+    }
+
+    /**
+     * Display the game over popup message.
+     * @param winLose: String received from the server with the name of the winner
+     *  of this game of Telepathy.
+     */
+    private void activateGameOverMessage(String gameOverText, String gameWinner) {
         
+        String winLose = "";
+        if(gameWinner.equals(this.player)){
+            winLose = "You win!";
+        } else{
+            winLose = "You lose!";
+        }
 
-        headings.add(heading);
-        headings.add(subHeading);
+        ActionListener highscoreAction = e -> {
+            sendCommand(TelepathyCommands.REQUESTHIGHSCORE);
+            telepathyNotificationManager.dismissCurrentNotification();
+        };
 
-        JTextPane description = new JTextPane();
-        description.setText("\n\n\n     To start a game, choose your target tile!\n\n\n       Once your target tile is selected, start\n    asking questions by clicking another tile...");
-        description.setEditable(false);
-        description.setAlignmentX(Component.CENTER_ALIGNMENT);
+        ActionListener exitAction = e -> {
+            sendCommand(TelepathyCommands.QUIT);
+            telepathyNotificationManager.dismissCurrentNotification();
+        };
 
-        popupWelcome.add(headings);
-        popupWelcome.add(subHeading);
-        popupWelcome.add(description);
+        JPanel gameOverPanel = makeChoicePopup("Game Over... " + winLose + "!", 
+                gameOverText + "\nThanks for playing!",
+                "View High Scores", "Exit",
+                highscoreAction, 
+                exitAction);
 
-
-        return popupWelcome;
+        /*JPanel gameOverPanel = makeMessagePopup(
+            "Game Over",
+            winLose, 
+                gameOverText + "\nThanks for playing!");
+        */
+        telepathyNotificationManager.showNotification(gameOverPanel, false);
     }
 
 
     /**
-     * A method to display the Welcome JPanel as a popup message.
+     * A method to display the question or guess message as a popup message.
+     * Prompts the user using two buttons.
      */
-    public void activateWelcomeMessage(){
-        welcomeMessage = popupWelcomeMessage();
-        telepathyNotificationManager.showMessageDialog("Telepathy", welcomeMessage);
+    private void activateQuestionGuessMessage(){
+        // Define actions to take when player presses Question/Final Guess button
+        ActionListener questionListener = e -> {
+            sendCommand(TelepathyCommands.ASKQUESTION, Integer.toString(this.xCoord), Integer.toString(this.yCoord));
+            telepathyNotificationManager.dismissCurrentNotification();
+        };
+
+        ActionListener finalListener = e -> {
+            sendCommand(TelepathyCommands.FINALGUESS, Integer.toString(this.xCoord), Integer.toString(this.yCoord));
+            telepathyNotificationManager.dismissCurrentNotification();
+        };
+
+        // Create the JPanel to display in the notification
+        JPanel choicePanel = makeChoicePopup(
+            "Question Or Final Guess?",
+            "Are you asking if your opponent's tile shares any features with this tile?\n\n\nOr is this your Final Guess?\n\n\nChoose wisely!",
+            "Question",
+            "Final Guess",
+            questionListener,
+            finalListener
+            );
+
+        telepathyNotificationManager.showNotification(choicePanel, false);
     }
-
-    /**
-     * A method to display the questionOrGuess Jpanel as a popup message.
-     * @param int x representing the x coordinate of the selected tile
-     * @param int y represetning the y coordinate of the selected tile
-     */
-
-    public void activateQuestOrGuessMessage(int x, int y){
-        questionOrFinalGuess = questionOrGuess(x, y);
-        telepathyNotificationManager.showNotification(questionOrFinalGuess, false); 
-    }
-
 
     /**
      * A method to display the selectTargetTile Jpanel as a popup message.
-     * @param int x representing the x coordinate of the selected tile
-     * @param int y represetning the y coordinate of the selected tile
      */
-    public void selectTargetTile(int x, int y){
-        confirmTargetTile = confirmTargetTile(x, y);
+    public void activateTargetTileMessage() {
+        // Define actions to take when player presses yes/no buttons
+        ActionListener yesListener = e -> {
+            sendCommand(TelepathyCommands.CHOOSETILE, Integer.toString(this.xCoord), Integer.toString(this.yCoord));
+            setButtonBorder(this.buttonGrid[this.xCoord][this.yCoord], new Color(232,224,31,255));
+            telepathyNotificationManager.dismissCurrentNotification();
+        };
+
+        ActionListener noListener = e -> {
+            telepathyNotificationManager.dismissCurrentNotification();
+            enableButtonGrid();
+        };
+
+        // Create the JPanel to display in the notification
+        JPanel confirmTargetTile = makeChoicePopup(
+            "Is this your secret tile?",
+            "Select 'Yes' to continue or 'No' to make another choice",
+            "Yes",
+            "No",
+            yesListener,
+            noListener);
         telepathyNotificationManager.showNotification(confirmTargetTile, false); 
     }
 
-    
     /**
-     * A JPanel that enables the player to select their target tile.
-     * @param int x representing the x coordinate of the selected tile
-     * @param int y represetning the y coordinate of the selected tile
-     * @return confirmTargetTile JPanel
-     */
-
-     public JPanel confirmTargetTile(int x, int y){
-
-        JPanel confirmTargetTile = new JPanel();
-        confirmTargetTile.setLayout(new BoxLayout(confirmTargetTile, BoxLayout.Y_AXIS));
-        confirmTargetTile.setPreferredSize(new Dimension(400, 150));
+    * Displays a pop-up window showing the top high scores for telepathy.
+    * @param telepathy     The game name for which high scores will be displayed.
+    * @param rangeHighScores The number of top scores to display in the pop-up.
+    */
+    private void displayHighScores(JsonObject command) {
+        ArrayList<String> attributes = TelepathyCommandHandler.getAttributes(command);
         
-        Font font = new Font("futura", Font.BOLD, 16);
+        //data for the pop-up
+        String heading = "High Scores";
+        String subHeading = "Top Scores for Telepathy";
 
-        JLabel heading = new JLabel("Is this your chosen target tile?");
-        heading.setAlignmentX(Component.CENTER_ALIGNMENT);
-        heading.setFont(font);
-
-        JTextPane description = new JTextPane();
-        description.setText("\n\n\n      Select 'Yes' to continue or 'No' to make another choice");
-        description.setEditable(false);
-       
-
-        JPanel buttonPanel = new JPanel();
-
-        String xyTargetTile = (Integer.toString(x) + ", " + Integer.toString(y));
-
-        JButton yes = new JButton("Yes");
-        yes.addActionListener(e -> {
-            sendCommand(TelepathyCommands.CHOOSETILE, Integer.toString(x), Integer.toString(y));
-            setButtonBorder(this.buttonGrid[x][y], Color.BLUE);
-            telepathyNotificationManager.dismissCurrentNotification();
-        });
-
-        JButton no = new JButton("No");
-        no.addActionListener(e -> {
-            telepathyNotificationManager.dismissCurrentNotification();
-        });
-
-        buttonPanel.add(yes);
-        buttonPanel.add(no);
-        buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+         // Create and display the pop-up
+        JPanel popupPanel = makeMessagePopup(heading, subHeading, attributes.get(0));
+        telepathyNotificationManager.showMessageDialog("High Scores", popupPanel);
         
-
-        confirmTargetTile.add(heading);
-        confirmTargetTile.add(description);
-        confirmTargetTile.add(buttonPanel);
-        
-        
-        return confirmTargetTile;
-    }
-
-
-    /**
-     * A JPanel that enables the player to ask a question or make their final guess. 
-     * @param int x representing the x coordinate of the selected tile
-     * @param int y represetning the y coordinate of the selected tile
-     * @return questionOrGuess JPanel
-     */
-
-    public JPanel questionOrGuess(int x, int y){
-    
-        JPanel questionOrGuess = new JPanel();
-        questionOrGuess.setLayout(new BoxLayout(questionOrGuess, BoxLayout.Y_AXIS));
-        questionOrGuess.setPreferredSize(new Dimension(300, 290));
-        
-        Font font = new Font("futura", Font.BOLD, 20);
-
-        JLabel heading = new JLabel("Question Or Final Guess?");
-        heading.setAlignmentX(Component.CENTER_ALIGNMENT);
-        heading.setFont(font);
-
-        JTextPane description = new JTextPane();
-        description.setText("\n\n\nAre you asking if your opponent's tile shares any features with this tile?\n\n\nOr is this your Final Guess?\n\n\nChoose wisely!");
-        description.setEditable(false);
-       
-
-        JPanel buttonPanel = new JPanel();
-        
-        String xyCoords = (Integer.toString(x) + ", " + Integer.toString(y));
-
-        JButton question = new JButton("Question");
-        question.addActionListener(e -> {
-            sendCommand(TelepathyCommands.ASKQUESTION, xyCoords);
-            telepathyNotificationManager.dismissCurrentNotification();
-        });
-
-        JButton finalGuess = new JButton("Final Guess");
-        finalGuess.addActionListener(e -> {
-            sendCommand(TelepathyCommands.FINALGUESS, xyCoords);
-            telepathyNotificationManager.dismissCurrentNotification();
-        });
-
-        buttonPanel.add(question);
-        buttonPanel.add(finalGuess);
-        buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        questionOrGuess.add(heading);
-        questionOrGuess.add(description);
-        questionOrGuess.add(buttonPanel);
-      
-        return questionOrGuess;
     }
 
     /**
      * a method that generates a panel of buttons displaying game colours
+     * @return JPanel of JButtons representing colours
      */
    
     public JPanel colourSideTiles(){
 
-        coloursList = new ArrayList<>();
+        // a list to store buttons with coloured backgrounds
+        //buttonColour = new ArrayList<>();
         JPanel colours = new JPanel();
         colours.setLayout(new BoxLayout(colours, BoxLayout.Y_AXIS));
+
+        // a list to call colour constants
+        ArrayList<Colours> coloursList = new ArrayList<>(List.of(Colours.values()));
         
-        JButton red = new JButton("Red");
-        setButtonBorder(red, Color.RED);
-        coloursList.add(red);
-        JButton green = new JButton("Green");
-        setButtonBorder(green, Color.GREEN);
-        coloursList.add(green);
-        JButton pink = new JButton("Pink");
-        setButtonBorder(pink, Color.PINK);
-        coloursList.add(pink);
-        JButton blue = new JButton("Blue");
-        setButtonBorder(blue, Color.BLUE);
-        coloursList.add(blue);
-        JButton grey = new JButton("Grey");
-        setButtonBorder(grey, Color.GRAY);
-        coloursList.add(grey);
-        JButton yellow = new JButton("Yellow");
-        setButtonBorder(yellow, Color.YELLOW);
-        coloursList.add(yellow);
-        JButton cyan = new JButton("Cyan");
-        setButtonBorder(cyan, Color.CYAN);
-        coloursList.add(cyan);
-        JButton magenta = new JButton("Magenta");
-        setButtonBorder(magenta, Color.MAGENTA);
-        coloursList.add(magenta);
-        JButton orange = new JButton("Orange");
-        setButtonBorder(orange, Color.ORANGE);
-        coloursList.add(orange);
+         // creates colour buttons and adds to the buttonColour list
+        for (Colours colour: coloursList){
+            Color color = colour.getColor();
+            String buttonLabel = colour.toString();
+            JButton colourButton = new JButton(buttonLabel);
+            colourButton.setMaximumSize(new Dimension(80, 40));
+            setButtonBorder(colourButton, color);
+            this.buttonColour.add(colourButton);
+
+            componentList.put(colour.toString(), colourButton);
+        }
        
-        for(JButton button: coloursList){
+       // adds buttons to the JPanel
+        for(JButton button: this.buttonColour){
             colours.add(button);
-            colours.add(Box.createRigidArea(new Dimension(0, 5)));
+            colours.add(Box.createRigidArea(new Dimension(0, 8)));
         }
 
         return colours;
@@ -498,35 +623,31 @@ public class Telepathy implements GameClient, Tickable{
     
     /**
      * a method that generates a panel of buttons displaying game symbols
-     * TODO: update to tile icons
+     * @return JPanel of JButtons representing symbols
      */
    
     public JPanel symbolSideTiles(){
 
-        symbolsList = new ArrayList<>();
+        // a list to store buttons with symbol icons
+        buttonSymbols = new ArrayList<>();
         JPanel symbols = new JPanel();
         symbols.setLayout(new BoxLayout(symbols, BoxLayout.Y_AXIS));
         
-        JButton hearts = new JButton("!!");
-        symbolsList.add(hearts);
-        JButton stars = new JButton("<3");
-        symbolsList.add(stars);
-        JButton diamonds = new JButton("??");
-        symbolsList.add(diamonds);
-        JButton spades = new JButton("*");
-        symbolsList.add(spades);
-        JButton clubs = new JButton("D");
-        symbolsList.add(clubs);
-        JButton moons = new JButton("d");
-        symbolsList.add(moons);
-        JButton circles = new JButton("s");
-        symbolsList.add(circles);
-        JButton questionMarks = new JButton("c");
-        symbolsList.add(questionMarks);
-        JButton exclamationMarks = new JButton("O");
-        symbolsList.add(exclamationMarks);
+        // a list to call symbol constants
+        ArrayList<Symbols> symbolsList = new ArrayList<>(List.of(Symbols.values()));
 
-        for(JButton button: symbolsList){
+        // creates button icons and adds to the buttonSymbols list
+        for (Symbols symbol: symbolsList){
+            String path = symbol.getPath();
+            ImageIcon icon = MinigameUtils.scaledImage(path, 21);
+            JButton iconButton = new JButton(icon);
+            buttonSymbols.add(iconButton);
+
+            componentList.put(symbol.toString(), iconButton);
+        }
+
+       // adds buttons to the JPanel
+        for(JButton button: buttonSymbols){
             symbols.add(button);
             symbols.add(Box.createRigidArea(new Dimension(0, 5)));
         }
@@ -535,7 +656,7 @@ public class Telepathy implements GameClient, Tickable{
     }
     
     /**
-     * a method to set a coloured border around a button
+     * MacOS workaround: a method to set a coloured border around a button
      */
      public void setButtonBorder(JButton button, Color color){
         button.setBackground(color);
@@ -544,6 +665,97 @@ public class Telepathy implements GameClient, Tickable{
         button.setBorderPainted(true);
         button.setFocusPainted(false);
     }
+
+     /**
+     * MacOS workaround: a method to set a button's colour
+     */
+     public void setButtonColour(JButton button, Color color){
+        button.setBackground(color);
+        button.setForeground(color);
+        button.setOpaque(true);
+        button.setBorderPainted(false);
+        button.setFocusPainted(true);
+    }
+
+     /**
+     * a method that resets the player turn button colours to default red
+     */
+     public void resetTurnButtons(){
+        setButtonColour(this.player1Turn, Color.RED);
+        setButtonColour(this.player2Turn, Color.RED);
+     }
+
+
+     /**
+      * a method that resets the eliminated symbols
+      */
+     public void resetSymbolDisplay(){
+        for (JComponent button: this.componentList.values()){
+            button.setEnabled(true);
+        }
+     }
+
+
+     /**
+      * a method that resets the eliminated colours
+      */
+     public void resetColourDisplay(){
+        
+        ArrayList<Colours> coloursList = new ArrayList<>(List.of(Colours.values()));
+        
+        for (int i = 0; i < this.buttonColour.size(); i++){
+            Color color = coloursList.get(i).getColor();
+            setButtonBorder(this.buttonColour.get(i), color);
+        }
+    }
+
+
+     /**
+      * a method that generates a JPanel representing the Game Lobby
+      * @return JPanel that represents a Game Lobby
+      */
+
+    public JPanel gameLobby(){
+
+        TitledBorder border = new TitledBorder("Game Lobby");
+        border.setTitleJustification(TitledBorder.CENTER);
+        border.setTitlePosition(TitledBorder.TOP);
+
+        JPanel lobby = new JPanel();
+        lobby.setBorder(border);
+        lobby.setLayout(new BorderLayout());
+        lobby.setMaximumSize(new Dimension(300, 400));
+
+        JPanel players = new JPanel();
+        players.setLayout(new BoxLayout(players, BoxLayout.Y_AXIS));
+        players.setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10));
+        this.opponent.setText("Waiting...");
+        
+        players.add(this.currentPlayer);
+        players.add(Box.createRigidArea(new Dimension(0, 10)));
+        players.add(this.opponent);
+
+        JPanel turns = new JPanel();
+        turns.setLayout(new BoxLayout(turns, BoxLayout.Y_AXIS));
+        turns.setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10));
+       
+        setButtonColour(this.player1Turn, Color.RED);
+        this.player1Turn.setMaximumSize(new Dimension(15, 15));
+        setButtonColour(this.player2Turn, Color.RED);
+        this.player2Turn.setMaximumSize(new Dimension(15, 15));
+      
+        turns.add(this.player1Turn);
+        turns.add(Box.createRigidArea(new Dimension(0, 10)));
+        turns.add(this.player2Turn);
+
+
+        lobby.add(players, BorderLayout.WEST);
+        lobby.add(turns, BorderLayout.EAST);
+
+        return lobby;
+
+    }
+
 
 
     /**
@@ -571,6 +783,16 @@ public class Telepathy implements GameClient, Tickable{
         this.gm = game;
         this.player = player;
         this.ticking = true;
+
+        // Reset tiles for new game
+        this.guessedTiles = new HashSet<>();
+        this.eliminatedColumns = new HashSet<>();
+        this.eliminatedRows = new HashSet<>();
+
+        // Set the player labels
+        this.currentPlayer.setText(this.player);
+        this.opponent.setText("Waiting...");
+
 
         telepathyNotificationManager = mnClient.getDialogManager();
 
@@ -618,10 +840,100 @@ public class Telepathy implements GameClient, Tickable{
             case QUIT -> closeGame();
             case POPUP -> handlePopupCommand(jsonCommand);
             case GAMEOVER -> sendCommand(TelepathyCommands.QUIT);
+            case HIGHSCORE-> displayHighScores(jsonCommand); 
             case BUTTONUPDATE -> updateButton(jsonCommand);
+            case ELIMINATETILES -> handleNoResonse(jsonCommand);
+            case PARTIALMATCH -> handleYesResponse(jsonCommand);
+            case MODIFYPLAYER -> handlePlayerChange(jsonCommand);
+            case PLAYERLIST -> handlePlayerList(jsonCommand);
             default -> logger.info("{} not handled", jsonCommand);
         }
     }
+
+    /**
+     * Get the player list from the server and set the opponent text.
+     * 
+     * @param jsonCommand: PLAYERLIST command containing the list of conneted players.
+     */
+    private void handlePlayerList(JsonObject jsonCommand){
+        ArrayList<String> players = TelepathyCommandHandler.getAttributes(jsonCommand);
+        for(String p: players){
+            if(!p.equals(this.player)){
+                this.opponent.setText(p);
+            }
+        }
+    }
+
+    /**
+     * Handle changes to other players status. When a player joins their name
+     * should be displayed and when they leave they're name needs to be removed.
+     * @param jsonCommand: Command received with MODIFYPLAYER command.
+     */
+    private void handlePlayerChange(JsonObject jsonCommand){
+        ArrayList<String> attributes = TelepathyCommandHandler.getAttributes(jsonCommand);
+
+        switch(attributes.get(0)){
+            case "joined" -> {
+                this.opponent.setText(attributes.get(1));
+            }
+            case "leaving" -> {
+                this.opponent.setText("");
+            }
+        }
+    }
+
+    /**
+     * Handle a no response from the server after asking a question. When the
+     * question tile does not match the target at all, eliminate the row/column
+     * on the board and the colour and symbol on the side panel.
+     * 
+     * @param jsonCommand: The command received with an ELIMINATETILES command.
+     *  should contain X and Y coordinates and Colour/Symbol to eliminate.
+     */
+    private void handleNoResonse(JsonObject jsonCommand){
+        ArrayList<String> attributes  = TelepathyCommandHandler.getAttributes(jsonCommand);
+        
+        int xElim = Integer.parseInt(attributes.get(0));
+        int yElim = Integer.parseInt(attributes.get(1));
+
+        //TODO: add colours/symbols to eliminated sets
+        String cElim = attributes.get(2);
+        String sElim = attributes.get(3); 
+
+        setButtonBorder(buttonGrid[xElim][yElim], Color.RED);
+
+        this.eliminatedColumns.add(xElim);
+        this.eliminatedRows.add(yElim);
+
+        setButtonBorder((JButton)this.componentList.get(cElim), Color.BLACK);
+        this.componentList.get(sElim).setEnabled(false);
+    
+    }
+
+    /**
+     * Handle a yes response from the server after asking a question. If at least
+     * one attribute of the guessed Tile has a match with the target tile add the
+     * guessed Tile to the list and set their border to green.
+     * @param jsonCommand: The command with Tile attributes of question Tile that 
+     *  has passed a check.
+     */
+    private void handleYesResponse(JsonObject jsonCommand){
+        ArrayList<String> attributes = TelepathyCommandHandler.getAttributes(jsonCommand);
+
+        int x = Integer.parseInt(attributes.get(0));
+        int y = Integer.parseInt(attributes.get(1));
+
+        this.guessedTiles.add(
+            new Tile(
+                x,
+                y,
+                Colours.valueOf(attributes.get(2).toUpperCase()),
+                Symbols.fromString(attributes.get(3))));
+    
+        setButtonBorder(buttonGrid[x][y], Color.GREEN);
+    }
+
+
 
     /**
      * Take POPUP renderingCommands from the server and trigger the correct popup
@@ -631,29 +943,28 @@ public class Telepathy implements GameClient, Tickable{
     private void handlePopupCommand(JsonObject commandPackage){
         ArrayList<String> popups = TelepathyCommandHandler.getAttributes(commandPackage);
 
-        // TODO: Replace all placeholder popups with specific message to use
-
         // First attribute is the identifier for popup
         if (popups.get(0).equals("welcomeMessage")) {
             activateWelcomeMessage();
+            // methods to reset game state on welcome message
+            resetTurnButtons();
+            resetSymbolDisplay();
+            resetColourDisplay(); 
             this.serverState = State.INITIALISE;
         }
         
         if (popups.get(0).equals("tileSelect")) {
-            // Use welcome message as a placeholder for future popups
-            activateWelcomeMessage();
+            activateTileSelectMessage();
             this.serverState = State.TILESELECTION;
         }
         
         if(popups.get(0).equals("gameRunning")){
-            // Use welcome message as a placeholder
-            activateWelcomeMessage();
+            activateGameRunningMessage();
             this.serverState = State.RUNNING;
         }
 
-        if(popups.get(0).equals("gameOver")){
-            // Use welcome message as a placeholder
-            activateWelcomeMessage();
+        if(popups.get(0).equals("gameOver")){            
+            activateGameOverMessage(popups.get(1), popups.get(2));
             this.serverState = State.GAMEOVER;
         }
     }
@@ -689,31 +1000,11 @@ public class Telepathy implements GameClient, Tickable{
     }
 
     /**
-     * Get a List of the attributes stored in a renderingCommand.
-     * @param renderingCommand: The renderingCommand portion of a RenderingPackage 
-     *      received from the server.
-     * @return ArrayList of Strings containing the attributes sent in the renderingCommand. 
-     
-    private ArrayList<String> getAttributes(JsonObject renderingCommand){
-        // Weirdness with double nested JsonArray - works now to separate attributes but could change later
-        JsonArray jsonAttributes = renderingCommand.getJsonArray("attributes").getJsonArray(0);
-        ArrayList<String> strAttributes = new ArrayList<>();
-        for(int i = 0; i < jsonAttributes.size(); i++){
-            strAttributes.add(jsonAttributes.getString(i));
-        }
-
-        return strAttributes;
-    }
-
-    */
-
-    /**
      * Updates a button based on an UPDATEBUTTON RenderingCommand received from the server. The
      * command must contain attributes describing the button to update and changes how it should
      * be updated.
      * 
      * The button to be updated MUST be in the componentList HashMap in order to access it.
-     * 
      * 
      * @param command A RenderingCommand JsonObject with a UPDATEBUTTON command value. There must also
      *  be a list of attributes specifying the button to update and what updates are to be made.
@@ -739,8 +1030,22 @@ public class Telepathy implements GameClient, Tickable{
                 // Alter all tiles on board
                 if(attributes.get(1).equals("disableAll")){
                     disableButtonGrid();
+                    if (this.serverState == State.RUNNING){
+                        setButtonColour(this.player2Turn, Color.GREEN);
+                        setButtonColour(this.player1Turn, Color.RED);
+                    }else{
+                        resetTurnButtons();
+                    }
+                   
                 } else if(attributes.get(1).equals("enableAll")){
                     enableButtonGrid();
+                    if (this.serverState == State.RUNNING){
+                        setButtonColour(this.player1Turn, Color.GREEN);
+                        setButtonColour(this.player2Turn, Color.RED);
+                    }else{
+                        resetTurnButtons();
+                    }
+                    
                 }
             }
         }

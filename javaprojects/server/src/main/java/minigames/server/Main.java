@@ -14,7 +14,7 @@ import minigames.server.spacemaze.SpaceMazeServer;
 import minigames.server.telepathy.TelepathyServer;
 import minigames.server.gameshow.GameShowServer;
 
-import minigames.server.tictactoe.TicTacToeServer;
+// import minigames.server.tictactoe.TicTacToeServer;
 import minigames.server.noughtsandcrosses.NoughtsAndCrossesServer;
 import minigames.server.krumgame.KrumGameServer;
 import io.vertx.core.Launcher;
@@ -97,7 +97,7 @@ public class Main extends AbstractVerticle {
         gameRegistry.registerGameServer("GameShow", new GameShowServer());
         gameRegistry.registerGameServer("Snake", new SnakeServer());
         gameRegistry.registerGameServer("Peggle", new PeggleServer());
-        gameRegistry.registerGameServer("TicTacToe", new TicTacToeServer());
+        // gameRegistry.registerGameServer("TicTacToe", new TicTacToeServer());
         gameRegistry.registerGameServer("NoughtsAndCrosses", new NoughtsAndCrossesServer());
 
 

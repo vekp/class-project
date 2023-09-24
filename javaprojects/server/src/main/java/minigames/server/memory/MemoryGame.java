@@ -3,17 +3,15 @@ package minigames.server.memory;
 import io.vertx.core.json.JsonObject;
 import java.util.*;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import minigames.commands.CommandPackage;
 import minigames.rendering.*;
 import minigames.rendering.NativeCommands.LoadClient;
 import minigames.common.memory.DeckOfCards;
 import minigames.common.memory.DeckOfCards.PlayingCard;
-
 import minigames.server.shufflingsystem.ShufflingFramework;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import minigames.server.achievements.AchievementHandler;
 import static minigames.server.memory.MemoryAchievement.*;
 
@@ -31,12 +29,10 @@ public class MemoryGame {
     }
 
     /** Uniquely identifies this game */
-    String name;
-    String playerName;
+    String name, playerName;
     AchievementHandler achievementHandler;
     PlayingCard[] playingCards;
-    int previousCardIndex = -1;
-    int playerScore = 0;
+    int previousCardIndex = -1, playerScore = 0;
     int [] selectedCards = new int [2];
     boolean[] solvedCards = new boolean[18];
 
@@ -80,19 +76,15 @@ public class MemoryGame {
      */
     public boolean check(int cardIndex) {
         if(solvedCards[cardIndex] == true){
-            System.out.println("You have already solved this card!");
             achievementHandler.unlockAchievement(playerName, DOUBLE_FLIPPER.toString());
             return false;
         }
         if(previousCardIndex == cardIndex){
-            System.out.println("Please flip a new card!");
             return false;
         }
         if (previousCardIndex != -1) {
             if (playingCards[previousCardIndex].equals(playingCards[cardIndex])) {
                 playerScore++;
-                System.out.println("These cards match!");
-                System.out.println(playerScore);
                 solvedCards[cardIndex] = true;
                 solvedCards[previousCardIndex] = true;
                 previousCardIndex = -1;
@@ -100,7 +92,6 @@ public class MemoryGame {
                 return true;
             } else {
                 previousCardIndex = -1;
-                System.out.println("These cards do not match");
                 achievementHandler.unlockAchievement(playerName, CARD_FLIPPER.toString());
                 return false;
             }

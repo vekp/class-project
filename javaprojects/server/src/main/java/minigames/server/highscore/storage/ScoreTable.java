@@ -14,21 +14,18 @@ import minigames.server.database.*;
  */
 public class ScoreTable extends DatabaseTable<ScoreRecord> {
 
-    private static final String TABLE_NAME = "high_score_records";
-    private static final String COLUMN_PLAYER_ID = "player_id";
-    private static final String COLUMN_GAME_NAME = "game_name";
-    private static final String COLUMN_SCORE = "score";
-
-    private GameTable gameTable;
+    public static final String TABLE_NAME = "HIGH_SCORE_RECORDS";
+    public static final String COLUMN_PLAYER_ID = "player_id";
+    public static final String COLUMN_GAME_NAME = "game_name";
+    public static final String COLUMN_SCORE = "score";
 
     /**
      * Constructor.
      * @param database The database instance.
-     * @param referencedTable reference to the game table.
+     * @param gameTable reference to the game table.
      */
-    public ScoreTable(Database database, GameTable referencedTable) {
+    public ScoreTable(Database database) {
         super(database, TABLE_NAME);
-        this.gameTable = referencedTable;
     }
 
 
@@ -72,15 +69,15 @@ public class ScoreTable extends DatabaseTable<ScoreRecord> {
                 COLUMN_PLAYER_ID + " VARCHAR(255), " +
                 COLUMN_GAME_NAME + " VARCHAR(255) " +
                     // game must exist to record a score for it
-                    "REFERENCES " + gameTable.getTableName() + " (" +
-                        gameTable.getColumnGameName() +
+                    "REFERENCES " + GameTable.TABLE_NAME + " (" +
+                        GameTable.COLUMN_GAME_NAME +
                     ") " +
                     // If a game is deleted, so will it's scores
-                    "ON DELETE CASCADE, " + 
+                    "ON DELETE CASCADE, " +
                 COLUMN_SCORE + " INT, " +
                 "PRIMARY KEY (" +
                     COLUMN_PLAYER_ID + ", " +
-                    COLUMN_GAME_NAME + 
+                    COLUMN_GAME_NAME +
                 ")" +
             ")"
         );
@@ -89,9 +86,9 @@ public class ScoreTable extends DatabaseTable<ScoreRecord> {
     @Override
     protected String getInsertSQL() {
         return (
-            "INSERT INTO " + 
+            "INSERT INTO " +
                 TABLE_NAME +
-            " (" + 
+            " (" +
                 COLUMN_PLAYER_ID + ", " +
                 COLUMN_GAME_NAME + ", " +
                 COLUMN_SCORE +
@@ -129,11 +126,11 @@ public class ScoreTable extends DatabaseTable<ScoreRecord> {
     @Override
     protected String getRetrieveOneSQL() {
         return (
-            "SELECT " + 
+            "SELECT " +
                 COLUMN_PLAYER_ID + ", " +
                 COLUMN_GAME_NAME + ", " +
                 COLUMN_SCORE +
-            " FROM " + 
+            " FROM " +
                 TABLE_NAME +
             " WHERE " +
                 COLUMN_PLAYER_ID + " = ? AND " +
@@ -148,9 +145,9 @@ public class ScoreTable extends DatabaseTable<ScoreRecord> {
                 COLUMN_PLAYER_ID + ", " +
                 COLUMN_GAME_NAME + ", " +
                 COLUMN_SCORE +
-            " FROM " + 
+            " FROM " +
                 TABLE_NAME +
-            " WHERE " + 
+            " WHERE " +
                 COLUMN_GAME_NAME + " = ?"
         );
     }
@@ -176,7 +173,7 @@ public class ScoreTable extends DatabaseTable<ScoreRecord> {
     @Override
     protected String getDeleteSQL() {
         return (
-            "DELETE FROM " + 
+            "DELETE FROM " +
                 TABLE_NAME +
             " WHERE " +
                 COLUMN_PLAYER_ID + " = ? AND " +
