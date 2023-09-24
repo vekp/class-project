@@ -248,17 +248,15 @@ public class BattleshipGame {
 
                 if (opponent.getBoard().checkGameOver(current.getName()) || current.getBoard().checkGameOver(opponent.getName())) {
                     this.gameState = GameState.GAME_OVER;
-                    //display the game over message for this player immediately as there's no guarantee theyll
-                    //send another command
                     commands.addAll(getGameRender(opponent, current));
-                    commands.add(new JsonObject().put("command", "gameOver"));
+                    commands.addAll(getGameOverMessaging(current, opponent));
                 }
 
                 return new RenderingPackage(gameMetadata(), commands);
             }
             case GAME_OVER -> {
                 commands.addAll(getGameRender(opponent, current));
-                commands.add(new JsonObject().put("command", "gameOver"));
+                commands.addAll(getGameOverMessaging(current, opponent));
 
                 return new RenderingPackage(gameMetadata(), commands);
             }
@@ -344,6 +342,20 @@ public class BattleshipGame {
         } else {
             return getGameRender(bPlayers.get(players[1]), bPlayers.get(players[0]));
         }
+    }
+
+    private ArrayList<JsonObject> getGameOverMessaging(BattleshipPlayer player, BattleshipPlayer opponent) {
+        ArrayList<JsonObject> commands = new ArrayList<>();
+        String gameOverMessage = "";
+        if (opponent.getBoard().isBoardDead()) {
+            gameOverMessage = "Congratulations, you win! Please exit to menu to try another game";
+        } else if (player.getBoard().isBoardDead()) {
+            gameOverMessage = "You have lost! Please exit the menu to try another game";
+        }
+
+        commands.add(new JsonObject().put("command", "gameOver")
+                .put("message", gameOverMessage));
+        return commands;
     }
 
     /**

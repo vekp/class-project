@@ -614,7 +614,7 @@ public class Battleship implements GameClient, Tickable {
             case "gameOver" -> {
                 waiting = false;
                 userCommand.setEditable(false);
-                messages.append("\nGame Complete.");
+                messages.append("\n" + command.getString("message"));
             }
             case "playerExited" -> {
                 waiting = false;

@@ -23,12 +23,14 @@ public class Board {
     private int lastRowShot;
     private int lastColShot;
 
+    private boolean deadBoard; //tells us whether all the ships on this board have been destroyed
+
     // Constructor
 
     /**
      * The Constructor takes only the player's name as a parameter
      */
-    public Board(){
+    public Board() {
         this.vessels = new HashMap<>();
         this.grid = new Grid(); // Create a default grid
         this.gameState = GameState.PENDING_READY;
@@ -42,6 +44,7 @@ public class Board {
 
     /**
      * Return the 2D string array to display in the client window
+     *
      * @return The 2D String Array in its current state
      */
     public Cell[][] getGrid() {
@@ -55,6 +58,7 @@ public class Board {
 
     /**
      * Getter for the player's current game state
+     *
      * @return enum game state value
      */
     public GameState getGameState() {
@@ -63,6 +67,7 @@ public class Board {
 
     /**
      * Function to get list of vessels
+     *
      * @return hashmap of vessels - Ship objects
      */
     public HashMap<String, Ship> getVessels() {
@@ -71,15 +76,25 @@ public class Board {
 
     /**
      * Return the ship object of the specified class on the current game board
+     *
      * @param shipClass A String containing the class of the ship
      * @return Ship object
      */
-    public Ship getShip(String shipClass){return this.vessels.get(shipClass);}
+    public Ship getShip(String shipClass) {
+        return this.vessels.get(shipClass);
+    }
 
+    /**
+     * @return getter for the alive/dead state of board
+     */
+    public boolean isBoardDead() {
+        return deadBoard;
+    }
     // Setters
 
     /**
      * Sets the current game state for the player
+     *
      * @param gameState enum value
      */
     public void setGameState(GameState gameState) {
@@ -88,24 +103,26 @@ public class Board {
 
     /**
      * Updates / sets the Ship objects within the vessels HashMap
+     *
      * @param vessels the Hashmap containing all Ship objects
      */
-    public void setVessels(HashMap<String, Ship> vessels){
+    public void setVessels(HashMap<String, Ship> vessels) {
         this.vessels = vessels;
     }
 
     /**
      * Sets the CellType for a given coordinate in the grid
-     * @param col horizontal position
-     * @param row vertical position
+     *
+     * @param col      horizontal position
+     * @param row      vertical position
      * @param cellType enum value representing the cell state changing to
      */
-    public void setGridCell(int col, int row, CellType cellType){
+    public void setGridCell(int col, int row, CellType cellType) {
         this.grid.setCellType(col, row, cellType);
         // if the cell is being changed to a "hit" or "miss" cell, update the cell's shotAt boolean to be true
         // This function is also used to update the grid when placing ships, it was causing issues because all parts of the
         // ships were being read as "shotAt"
-        if(cellType.toString().equals("X") || cellType.toString().equals(".")) {
+        if (cellType.toString().equals("X") || cellType.toString().equals(".")) {
             this.grid.shootCell(col, row);
         }
     }
@@ -123,14 +140,14 @@ public class Board {
     /**
      * Function to initialise grid's layout of ships
      */
-    public void chooseGrid(){
+    public void chooseGrid() {
         defaultGrid(this.grid.defaultShips());
     }
 
     /**
      * Set the vessels map, and place ships on the grid in a default position
      */
-    public void defaultGrid(HashMap<String,Ship> ships) {
+    public void defaultGrid(HashMap<String, Ship> ships) {
         this.vessels = new HashMap<>(ships);
         this.getGrid();
     }
@@ -138,10 +155,10 @@ public class Board {
     /**
      * Sinks all ships on the current board, for testing achievements and game state
      */
-    public void sinkAll(String playerName){
+    public void sinkAll(String playerName) {
         vessels.forEach((shipType, ship) -> {
             Cell[] shipParts = ship.getShipParts();
-            for(int i = 0; i < shipParts.length; i++){
+            for (int i = 0; i < shipParts.length; i++) {
                 int col = shipParts[i].getVerticalCoordInt();
                 int row = shipParts[i].getHorizontalCoord();
                 ship.updateShipStatus(col, row, playerName);
@@ -151,30 +168,32 @@ public class Board {
 
     /**
      * Function to determine if the game has ended with all ships being sunk
+     *
      * @param name Name of the player to check
      * @return true if game over
      */
-    public boolean checkGameOver(String name){
+    public boolean checkGameOver(String name) {
         // for ship in vessels hashmap, check if it is sunk and increment counter
-
+        deadBoard = false;
         AchievementHandler handler = new AchievementHandler(BattleshipServer.class);
         int counter = 0;
-        for(Map.Entry<String, Ship> ship: vessels.entrySet()) {
-            if(ship.getValue().isSunk()){
+        for (Map.Entry<String, Ship> ship : vessels.entrySet()) {
+            if (ship.getValue().isSunk()) {
                 counter++;
             }
-            if(counter == 5) {
+            if (counter == 5) {
                 handler.unlockAchievement(name, MISSION_COMPLETE.toString());
-                return true;
+                deadBoard = true;
 
             }
         }
-        return false;
+        return deadBoard;
     }
 
     /**
      * Method to get the ship corresponding to the coordinate input
-     * @param target cell used to grab coordinates from (new cell created when passed in with the user's x,y coord)
+     *
+     * @param target  cell used to grab coordinates from (new cell created when passed in with the user's x,y coord)
      * @param vessels player's list of vessels
      * @return the Ship object shot at
      */
@@ -198,11 +217,12 @@ public class Board {
 
         }
         // Returns a 'null' ship which will give false values required for the functions use
-        return new Ship("", 0, new Cell[0], 0,0, true);
+        return new Ship("", 0, new Cell[0], 0, 0, true);
     }
 
     /**
      * Function to create a grid of strings to be displayed
+     *
      * @param boardTitle String value for the board title
      * @return HTML formatted string to be displayed
      */
@@ -221,23 +241,23 @@ public class Board {
         }
         gridStrings.append(boardTitle).append("\n").append(" ---------------------\n");
 
-        for (int i=0; i<11; i++) {
+        for (int i = 0; i < 11; i++) {
             for (int j = 0; j < 10; j++) {
-                if (i==0 && j==0) gridStrings.append("   ");
-                if (i==0) gridStrings.append(j).append(" ");
-                if (j==0 && i!=0) gridStrings.append(" ").append(chars.charAt(i-1)).append(" ");
-                if (i>0) {
-                    String cellString = grd[i-1][j].getCellTypeString();
+                if (i == 0 && j == 0) gridStrings.append("   ");
+                if (i == 0) gridStrings.append(j).append(" ");
+                if (j == 0 && i != 0) gridStrings.append(" ").append(chars.charAt(i - 1)).append(" ");
+                if (i > 0) {
+                    String cellString = grd[i - 1][j].getCellTypeString();
                     // Replace boats with water if enemy board
                     if (isEnemy && !("X.".contains(cellString))) cellString = "~";
                     // Most recent shot is coloured red
-                    if (i-1 == lastRowShot && j == lastColShot) {
+                    if (i - 1 == lastRowShot && j == lastColShot) {
                         cellString = "<span style='color:red'>" + cellString + "</span>";
                     }
                     gridStrings.append(cellString).append(" ");
                 }
             }
-            if (i<10) gridStrings.append("\n");
+            if (i < 10) gridStrings.append("\n");
         }
         // Put string into HTML format
         return "<html><body>"
@@ -261,15 +281,15 @@ public class Board {
         }
         gridStrings.append(boardTitle).append("\n").append(" ---------------------\n");
 
-        for (int i=0; i<11; i++) {
+        for (int i = 0; i < 11; i++) {
             for (int j = 0; j < 10; j++) {
-                if (i==0 && j==0) gridStrings.append("   ");
-                if (i==0) gridStrings.append(j).append(" ");
-                if (j==0 && i!=0) gridStrings.append(" ").append(chars.charAt(i-1)).append(" ");
-                if (i>0) {
-                    String cellString = grd[i-1][j].getCellTypeString();
-                    if(cellString.equals(".") || cellString.equals("X")){
-                        if (i-1 == lastColShot && j == lastRowShot) {
+                if (i == 0 && j == 0) gridStrings.append("   ");
+                if (i == 0) gridStrings.append(j).append(" ");
+                if (j == 0 && i != 0) gridStrings.append(" ").append(chars.charAt(i - 1)).append(" ");
+                if (i > 0) {
+                    String cellString = grd[i - 1][j].getCellTypeString();
+                    if (cellString.equals(".") || cellString.equals("X")) {
+                        if (i - 1 == lastColShot && j == lastRowShot) {
                             cellString = "<span style='color:red'>" + cellString + "</span>";
                         }
                         gridStrings.append(cellString).append(" ");
@@ -278,7 +298,7 @@ public class Board {
                     }
                 }
             }
-            if (i<10) gridStrings.append("\n");
+            if (i < 10) gridStrings.append("\n");
         }
         // Put string into HTML format
         return "<html><body>"
@@ -288,7 +308,10 @@ public class Board {
 
     /**
      * Call the grid's default grid creator
+     *
      * @return A 2D array of cells
      */
-    public Cell[][] defaultGridCreator() {return this.grid.defaultGridCreator();}
+    public Cell[][] defaultGridCreator() {
+        return this.grid.defaultGridCreator();
+    }
 }
