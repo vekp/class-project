@@ -169,15 +169,6 @@ public class HighScoreAPI {
         }
     }
 
-// Retrieving String highscore
-    /*
-    * retrieving high scores from server side to client side.
-    * @param getHighScoresToString  a highscores object ToString
-    */
-    public void displayHighScores(String getHighScoresToString) {
-	    updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.HIGHSCORE, getHighScoresToString()));
-    }
-
 
 // Deprecated methods, don't use.
 

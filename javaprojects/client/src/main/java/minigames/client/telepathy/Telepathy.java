@@ -551,6 +551,24 @@ public class Telepathy implements GameClient, Tickable{
     }
 
     /**
+    * Displays a pop-up window showing the top high scores for telepathy.
+    * @param telepathy     The game name for which high scores will be displayed.
+    * @param rangeHighScores The number of top scores to display in the pop-up.
+    */
+    private void displayHighScores(JsonObject command) {
+        ArrayList<String> attributes = TelepathyCommandHandler.getAttributes(command);
+        
+        //data for the pop-up
+        String heading = "High Scores";
+        String subHeading = "Top Scores for Telepathy";
+
+         // Create and display the pop-up
+        JPanel popupPanel = makeMessagePopup(heading, subHeading, attributes.get(0));
+        telepathyNotificationManager.showNotification(popupPanel, false);
+        
+    }
+
+    /**
      * a method that generates a panel of buttons displaying game colours
      * @return JPanel of JButtons representing colours
      */
@@ -805,7 +823,7 @@ public class Telepathy implements GameClient, Tickable{
             case QUIT -> closeGame();
             case POPUP -> handlePopupCommand(jsonCommand);
             case GAMEOVER -> sendCommand(TelepathyCommands.QUIT);
-            case HIGHSCORE-> makeJsonCommand(TelepathyCommands.HIGHSCORE, displayHighScores()); 
+            case HIGHSCORE-> displayHighScores(jsonCommand); 
             case BUTTONUPDATE -> updateButton(jsonCommand);
             case ELIMINATETILES -> handleNoResonse(jsonCommand);
             case PARTIALMATCH -> handleYesResponse(jsonCommand);
@@ -1016,42 +1034,4 @@ public class Telepathy implements GameClient, Tickable{
         }
 
     }
-
-    /**
-    *getter for the highscore from the server-side
-    */
-    public String getHighScoresToString() {
-        return highScoreAPI.getHighScoresToString(GAME_NAME);
-    }
-
-
-    /**
-    * Displays a pop-up window showing the top high scores for telepathy.
-    * @param telepathy     The game name for which high scores will be displayed.
-    * @param rangeHighScores The number of top scores to display in the pop-up.
-    */
-    public void displayHighScores(String telepathy, int rangeHighScores) {
-        // Retrieve high-score data
-        List<ScoreRecord> highScores = highScoreAPI.getHighScores(telepathy);
-
-        //data for the pop-up
-        String heading = "High Scores";
-        String subHeading = "Top Scores for " + telepathy;
-        StringBuilder descriptionString = new StringBuilder();
-
-        for (int i = 0; i < Math.min(rangeHighScores, highScores.size()); i++) {
-            ScoreRecord score = highScores.get(i);
-
-            //getters accessing player name and score
-            String playerName = score.getPlayerName();
-            int playerScore = score.getScore();
-
-            // Append data to the descriptionString
-            descriptionString.append(i + 1).append(". ").append(playerName).append(": ").append(playerScore).append("\n");
-        }
-
-         // Create and display the pop-up
-        JPanel popupPanel = makeMessagePopup(heading, subHeading, descriptionString.toString());
-    }
-
 }

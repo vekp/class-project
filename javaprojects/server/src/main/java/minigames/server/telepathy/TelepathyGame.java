@@ -558,6 +558,10 @@ public class TelepathyGame {
             TelepathyCommands.BUTTONUPDATE,
             "board",
             "disableAll"));
+
+        updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(
+            TelepathyCommands.HIGHSCORE, getHighScoresToString()));
+            
     }
 
     /* *********************************
