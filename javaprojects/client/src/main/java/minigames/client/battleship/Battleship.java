@@ -608,7 +608,7 @@ public class Battleship implements GameClient, Tickable {
                 currentTurn.setText("Turn: " + leadingZeroes + turnCount + " ");
             }
             case "turnCountGameStart" -> currentTurn.setText("Turn: " + command.getString("turnCount") + " ");
-            case "updatePlayerName" -> currentPlayerName.setText("Current Player: " + command.getString("player"));
+            case "updatePlayerName" -> currentPlayerName.setText("Player: " + command.getString("player"));
             case "placePlayer1Board" -> nauticalText.setText(nauticalText.getText() + command.getString("text"));
             case "placePlayer2Board" -> targetText.setText(targetText.getText() + command.getString("text"));
             case "gameOver" -> {

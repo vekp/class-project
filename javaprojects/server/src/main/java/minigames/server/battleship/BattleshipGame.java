@@ -239,7 +239,7 @@ public class BattleshipGame {
                         SwapTurns();
                         //current and opponent need to be swapped here, because 'opponent' is actually our player
                         //during the AI's turn
-                        commands.addAll(getGameRender(opponent, current));
+                        commands.addAll(getGameRender(current, opponent));
                         //since it is now the player's turn, they can immediately prepare to take input
                         commands.add(new JsonObject().put("command", "prepareTurn"));
                     }
@@ -248,14 +248,14 @@ public class BattleshipGame {
 
                 if (opponent.getBoard().checkGameOver(current.getName()) || current.getBoard().checkGameOver(opponent.getName())) {
                     this.gameState = GameState.GAME_OVER;
-                    commands.addAll(getGameRender(opponent, current));
+                    commands.addAll(getGameRender(current, opponent));
                     commands.addAll(getGameOverMessaging(current, opponent));
                 }
 
                 return new RenderingPackage(gameMetadata(), commands);
             }
             case GAME_OVER -> {
-                commands.addAll(getGameRender(opponent, current));
+                commands.addAll(getGameRender(current, opponent));
                 commands.addAll(getGameOverMessaging(current, opponent));
 
                 return new RenderingPackage(gameMetadata(), commands);
