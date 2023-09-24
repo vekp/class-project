@@ -245,7 +245,7 @@ public class BattleshipGame {
                         SwapTurns();
                         //current and opponent need to be swapped here, because 'opponent' is actually our player
                         //during the AI's turn
-                        commands.addAll(getGameRender(current, opponent));
+                        commands.addAll(getGameRender(opponent, current));
                         //since it is now the player's turn, they can immediately prepare to take input
                         commands.add(new JsonObject().put("command", "prepareTurn"));
                     }
