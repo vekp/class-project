@@ -90,6 +90,7 @@ Link to the code on GitLab
 
 - [Survey Class](https://gitlab.une.edu.au/cosc220-2023/classproject/-/blob/9-Survey-Main/javaprojects/client/src/test/java/minigames/client/survey/SurveyTest.java?ref_type=heads)
 - [SurveyResults Class](https://gitlab.une.edu.au/cosc220-2023/classproject/-/blob/9-Survey-Main/javaprojects/client/src/test/java/minigames/client/survey/SurveyResultsTest.java?ref_type=heads)
+- [SurveyMongoDBTests Class](https://gitlab.une.edu.au/cosc220-2023/classproject/-/blob/9-Survey-Main/javaprojects/server/src/test/java/minigames/server/survey/SurveyMongoDBTests.java?ref_type=heads)
 
 ## Notes
 
