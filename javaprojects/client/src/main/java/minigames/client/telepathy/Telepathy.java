@@ -485,12 +485,29 @@ public class Telepathy implements GameClient, Tickable{
         } else{
             winLose = "You lose!";
         }
-        
-        JPanel gameOverPanel = makeMessagePopup(
+
+        ActionListener highscoreAction = e -> {
+            sendCommand(TelepathyCommands.REQUESTHIGHSCORE);
+            telepathyNotificationManager.dismissCurrentNotification();
+        };
+
+        ActionListener exitAction = e -> {
+            sendCommand(TelepathyCommands.QUIT);
+            telepathyNotificationManager.dismissCurrentNotification();
+        };
+
+        JPanel gameOverPanel = makeChoicePopup("Game Over... " + winLose + "!", 
+                gameOverText + "\nThanks for playing!",
+                "View High Scores", "Exit",
+                highscoreAction, 
+                exitAction);
+
+        /*JPanel gameOverPanel = makeMessagePopup(
             "Game Over",
             winLose, 
                 gameOverText + "\nThanks for playing!");
-        telepathyNotificationManager.showMessageDialog("Telepathy", gameOverPanel);
+        */
+        telepathyNotificationManager.showNotification(gameOverPanel, false);
     }
 
 
@@ -564,7 +581,7 @@ public class Telepathy implements GameClient, Tickable{
 
          // Create and display the pop-up
         JPanel popupPanel = makeMessagePopup(heading, subHeading, attributes.get(0));
-        telepathyNotificationManager.showNotification(popupPanel, false);
+        telepathyNotificationManager.showMessageDialog("High Scores", popupPanel);
         
     }
 

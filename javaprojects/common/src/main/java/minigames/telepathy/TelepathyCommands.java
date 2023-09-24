@@ -44,6 +44,8 @@ public enum TelepathyCommands {
     *       Attributes: The X and Y coordinate of the question tile used.
     * PLAYERLIST: Pass a list of all the players currently connected to the server.
     *       Attributes: 
+    * REQUESTHIGHSCORE: Used by the client to request the list of highscores from
+    *       the server.
     * HIGHSCORE: Inform the client of the highscore String.
     *       Attributes: String with highscores.
     * TESTCOMMAND: A simple command used for testing/debugging purposes.
@@ -53,13 +55,14 @@ public enum TelepathyCommands {
     JOINGAMESUCCESS, JOINGAMEFAIL, TOGGLEREADY, ASKQUESTION, FINALGUESS, 
     CHOOSETILE, BUTTONUPDATE, REQUESTUPDATE, NOUPDATE, GAMEOVER, SYSTEMQUIT, 
     ELIMINATETILES, QUIT, MODIFYPLAYER, POPUP, PARTIALMATCH, TESTCOMMAND, 
-    INVALIDCOMMAND, PLAYERLIST, HIGHSCORE, DEFAULT;
+    INVALIDCOMMAND, PLAYERLIST, REQUESTHIGHSCORE, HIGHSCORE, DEFAULT;
 
     public String toString(){
         return switch(this){
             case JOINGAMESUCCESS -> "JOINGAMESUCCESS";
             case JOINGAMEFAIL -> "JOINGAMEFAIL";
             case TOGGLEREADY -> "TOGGLEREADY";
+            case REQUESTHIGHSCORE -> "REQUESTHIGHSCORE";
             case CHOOSETILE -> "CHOOSETILE";
             case ASKQUESTION -> "ASKQUESTION";
             case FINALGUESS -> "FINALGUESS";

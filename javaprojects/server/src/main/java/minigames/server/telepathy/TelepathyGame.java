@@ -126,6 +126,7 @@ public class TelepathyGame {
                 case ASKQUESTION -> renderingCommands.addAll(takeQuestion(commandObject, commandPackage.player()));
                 case CHOOSETILE -> renderingCommands.addAll(chooseTile(commandObject, commandPackage.player()));
                 case FINALGUESS -> renderingCommands.addAll(takeQuestion(commandObject, commandPackage.player()));
+                case REQUESTHIGHSCORE -> renderingCommands.addAll(sendHighScore(commandObject));
                 case REQUESTUPDATE -> renderingCommands.addAll(updateClient(commandPackage.player()));
                 default -> {
                     renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(TelepathyCommands.INVALIDCOMMAND));
@@ -205,6 +206,15 @@ public class TelepathyGame {
     /* *********************************
      * CommandPackage handling methods
      * *********************************/
+
+    private ArrayList<JsonObject> sendHighScore(JsonObject commandObject){
+        ArrayList<JsonObject> renderingCommands = new ArrayList<>();
+
+        renderingCommands.add(TelepathyCommandHandler.makeJsonCommand(
+            TelepathyCommands.HIGHSCORE, getHighScoresToString()));
+
+        return renderingCommands;
+    }
 
     /**
      * Handle a question from the client. The question can be a regular question
@@ -558,10 +568,6 @@ public class TelepathyGame {
             TelepathyCommands.BUTTONUPDATE,
             "board",
             "disableAll"));
-
-        updateAllPlayers(TelepathyCommandHandler.makeJsonCommand(
-            TelepathyCommands.HIGHSCORE, getHighScoresToString()));
-            
     }
 
     /* *********************************
