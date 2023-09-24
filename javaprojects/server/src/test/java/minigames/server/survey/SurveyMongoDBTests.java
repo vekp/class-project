@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.bson.Document;
 import org.json.simple.*;
 import org.json.simple.parser.*;
-// import org.bson.types.ObjectId;
 
 public class SurveyMongoDBTests {
     private MongoDB mongoDB;
@@ -28,6 +27,7 @@ public class SurveyMongoDBTests {
 
         // Insert the document into MongoDB
         JSONArray result = mongoDB.insertDocument("feedback", testDocument);
+        JSONObject resultReturned = (JSONObject) result.get(0);
 
         // Check if the insertion was successful
         assertNotNull(result);
@@ -35,21 +35,15 @@ public class SurveyMongoDBTests {
 
         // Retrieve the inserted document from MongoDB
         JSONArray retrievedDocuments = mongoDB.getAllDocuments("feedback");
-
-        // Assert that the retrieved document matches the test document
-        assertNotNull(retrievedDocuments);
         JSONObject retrievedDocument = (JSONObject) retrievedDocuments.get(0);
-        // assertEquals(3, retrievedDocument.get("ui_rating"));
-        // assertEquals(4, retrievedDocument.get("enjoyment_rating"));
-        // assertEquals(5, retrievedDocument.get("functionality_rating"));
-        // assertEquals(1, retrievedDocument.get("difficulty_rating"));
-        // assertEquals("Test text 123", retrievedDocument.get("feedback_text"));
 
-        String returnedDataIDString = (String) retrievedDocument.get("_id");
-
+        // Delete inserted document and test deletion successful
+        String returnedDataIDString = (String) resultReturned.get("_id");
         boolean isSuccessfullyDeleted = mongoDB.deleteDocument("feedback", returnedDataIDString);
-        System.out.println("-------------------------------------------------------------------------------------------------------------------------------------------------------------------------- IS THIS DELETED SUCCESSFULLY?" + isSuccessfullyDeleted);
         assertTrue(isSuccessfullyDeleted);
+
+        // Assert that retrieved document exists
+        assertNotNull(retrievedDocuments);
     }
 
 }
