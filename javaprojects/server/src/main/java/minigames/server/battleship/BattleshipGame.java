@@ -165,10 +165,20 @@ public class BattleshipGame {
                 } else {
                     if (userInput.equalsIgnoreCase("Start")) {
                         // If user enters start and there isn't another player, make a computer one
-                        bPlayers.put("Computer", new BattleshipPlayer("Computer",
-                                new Board(), false, welcomeMessage));
+                        BattleshipPlayer computerPlayer = new BattleshipPlayer("Computer",
+                                new Board(), false, welcomeMessage);
+                        computerPlayer.setReady(true);
+                        bPlayers.put("Computer", computerPlayer);
+                        gameState = GameState.PENDING_READY;
+                        String[] players = getPlayerNames();
+                        if (players[0].equals(cp.player())) {
+                            commands.addAll(getGameRender(bPlayers.get(players[0]), bPlayers.get(players[1])));
+                        } else {
+                            commands.addAll(getGameRender(bPlayers.get(players[1]), bPlayers.get(players[0])));
+                        }
+                    } else {
+                        commands.add(new JsonObject().put("command", "waitForJoin"));
                     }
-                    commands.add(new JsonObject().put("command", "waitForJoin"));
                 }
                 return new RenderingPackage(gameMetadata(), commands);
             }
