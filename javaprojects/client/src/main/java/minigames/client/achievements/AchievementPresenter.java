@@ -15,7 +15,6 @@ public class AchievementPresenter {
 
     private final String achievementImageFolderLocation = "src/main/resources/images/achievements/";
     private final Achievement achievement;
-    //TODO: Add a sound effect?
     final boolean isUnlocked;
     private final Color hiddenUnlockedColour = new Color(0, 51, 204);
     private final Color hiddenLockedColour = new Color(179, 195, 255);

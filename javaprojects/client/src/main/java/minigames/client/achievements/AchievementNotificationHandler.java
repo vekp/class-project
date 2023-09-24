@@ -33,17 +33,33 @@ public class AchievementNotificationHandler implements Tickable {
         canTick = false;
     }
 
+    /**
+     * Turns on the handler, asking it to start checking the server for recent unlocks.
+     * Can only be done when a player is active on the client (e.g. a game has started)
+     * @param playerName the player that we want to check achievements for
+     */
     public void enable(String playerName) {
         this.playerName = playerName;
         canTick = true;
         anim.requestTick(this);
     }
 
+    /**
+     * Stops checking the server for recent achievement unlocks. Called any time a game is exited (as we no longer
+     * have a player to check for)
+     */
     public void disable() {
         canTick = false;
         playerName = "";
     }
 
+    /**
+     * Periodically ask the server if any achievements have been unlocked for the current player.
+     * If any are sent back, schedule a notification popup to display to the player
+     * @param al animator - used to re-request a tick
+     * @param now current time?
+     * @param delta time difference
+     */
     @Override
     public void tick(Animator al, long now, long delta) {
         //when disabled we just cancel any scheduled ticks and do nothing
@@ -61,6 +77,10 @@ public class AchievementNotificationHandler implements Tickable {
         }
     }
 
+    /**
+     * If we have recent unlocks, this will go through them all and send a popup request to the notification system
+     * @param unlocks list of achievements this player has recently unlocked
+     */
     void processAchievements(List<Achievement> unlocks) {
         for (Achievement unlock : unlocks) {
             AchievementPresenter presenter = new AchievementPresenter(unlock, true);

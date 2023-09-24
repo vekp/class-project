@@ -1,6 +1,8 @@
 package minigames.client.survey;
 
 import minigames.client.MinigameNetworkClient;
+import minigames.client.notifications.DialogManager;
+import minigames.client.notifications.NotificationManager;
 import minigames.client.survey.SurveyResults;
 
 import io.vertx.core.json.JsonObject;
@@ -65,10 +67,15 @@ public class Survey extends JPanel implements ActionListener {
         readBackgroundImage();
 
         // Reset Notification/DialogManager settings, dismiss any current dialog
-        mnClient.getNotificationManager().resetToDefaultSettings();
-        mnClient.getDialogManager()
-                .dismissCurrentNotification()
-                .resetToDefaultSettings();
+        NotificationManager manager = mnClient.getNotificationManager();
+        if(manager != null) {
+            manager.resetToDefaultSettings();
+        }
+        DialogManager dialogManager = mnClient.getDialogManager();
+        if(dialogManager != null){
+            dialogManager.dismissCurrentNotification()
+                    .resetToDefaultSettings();
+        }
 
         //This creates a nice main Survey frame.
 

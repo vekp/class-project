@@ -57,15 +57,6 @@ public class Board {
     }
 
     /**
-     * Getter for the player's current game state
-     *
-     * @return enum game state value
-     */
-    public GameState getGameState() {
-        return gameState;
-    }
-
-    /**
      * Function to get list of vessels
      *
      * @return hashmap of vessels - Ship objects
@@ -108,23 +99,6 @@ public class Board {
      */
     public void setVessels(HashMap<String, Ship> vessels) {
         this.vessels = vessels;
-    }
-
-    /**
-     * Sets the CellType for a given coordinate in the grid
-     *
-     * @param col      horizontal position
-     * @param row      vertical position
-     * @param cellType enum value representing the cell state changing to
-     */
-    public void setGridCell(int col, int row, CellType cellType) {
-        this.grid.setCellType(col, row, cellType);
-        // if the cell is being changed to a "hit" or "miss" cell, update the cell's shotAt boolean to be true
-        // This function is also used to update the grid when placing ships, it was causing issues because all parts of the
-        // ships were being read as "shotAt"
-        if (cellType.toString().equals("X") || cellType.toString().equals(".")) {
-            this.grid.shootCell(col, row);
-        }
     }
 
     /**
@@ -263,55 +237,5 @@ public class Board {
         return "<html><body>"
                 + gridStrings.toString().replace(" ", "&nbsp;").replace("\n", "<br>")
                 + "</body></html>";
-    }
-
-    //TODO: remove this function if not needed.
-    public String showEnemyBoard(String boardTitle) {
-        StringBuilder gridStrings = new StringBuilder();
-        String chars = "ABCDEFGHIJ";
-        Cell[][] grd = getGrid();
-
-        // Character width of the board
-        int strLength = 24;
-        int titleSpace = round((float) (strLength - boardTitle.length()) / 2);
-
-        // Adds space to the start of the title to centre the text
-        for (int i = 0; i < titleSpace; i++) {
-            gridStrings.append(" ");
-        }
-        gridStrings.append(boardTitle).append("\n").append(" ---------------------\n");
-
-        for (int i = 0; i < 11; i++) {
-            for (int j = 0; j < 10; j++) {
-                if (i == 0 && j == 0) gridStrings.append("   ");
-                if (i == 0) gridStrings.append(j).append(" ");
-                if (j == 0 && i != 0) gridStrings.append(" ").append(chars.charAt(i - 1)).append(" ");
-                if (i > 0) {
-                    String cellString = grd[i - 1][j].getCellTypeString();
-                    if (cellString.equals(".") || cellString.equals("X")) {
-                        if (i - 1 == lastColShot && j == lastRowShot) {
-                            cellString = "<span style='color:red'>" + cellString + "</span>";
-                        }
-                        gridStrings.append(cellString).append(" ");
-                    } else {
-                        gridStrings.append("~ ");
-                    }
-                }
-            }
-            if (i < 10) gridStrings.append("\n");
-        }
-        // Put string into HTML format
-        return "<html><body>"
-                + gridStrings.toString().replace(" ", "&nbsp;").replace("\n", "<br>")
-                + "</body></html>";
-    }
-
-    /**
-     * Call the grid's default grid creator
-     *
-     * @return A 2D array of cells
-     */
-    public Cell[][] defaultGridCreator() {
-        return this.grid.defaultGridCreator();
     }
 }

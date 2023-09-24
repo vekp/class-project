@@ -2,7 +2,6 @@ package minigames.server.achievements;
 
 import java.util.*;
 
-//todo merge this with user account profiles when implemented
 
 /**
  * Simple wrapper class to act as a 'database' for player profiles, for achievements only

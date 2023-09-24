@@ -53,7 +53,6 @@ public class AchievementUI extends JPanel {
         usernameGBC.fill = GridBagConstraints.BOTH;
         usernameGBC.ipadx = 50;
 
-        //todo obtain username from login / user system when able
         mnClient.getPlayerNames().onSuccess((resp) -> {
             String[] names = resp.replace("[","").replace("]","").split(",");
             JList<String> usernameJlist = new JList<>(names);

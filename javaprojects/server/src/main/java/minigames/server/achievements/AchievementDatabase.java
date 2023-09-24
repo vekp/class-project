@@ -45,6 +45,12 @@ public class AchievementDatabase {
         }
     }
 
+    /**
+     * Gets an achievement registered to this database under the GameID
+     * @param gameID  the game for which we want to retrieve the achievement
+     * @param achievementName the specific achievement to retrieve
+     * @return The achievement (or null if it doesnt exist)
+     */
     public Achievement getAchievement(String gameID, String achievementName) {
         Map<String, Achievement> gameMap = data.get(gameID);
         if (gameMap != null) {

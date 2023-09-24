@@ -12,7 +12,13 @@ import minigames.rendering.*;
 import minigames.rendering.NativeCommands.LoadClient;
 
 /**
- * TODO: add class description
+ * Main game glass for a battleship instance.
+ * Games are run with 2 players. When the first player joins, they will sit and wait until either a 2nd player joins, or
+ * they enter the 'start' command to play against the AI
+ *
+ * This class uses a state pattern to keep track of the various game stages (Waiting for Player, Waiting to start game,
+ * game running, game over). It is also responsible for holding the main 'pieces' of the game - the players (who in
+ * turn manage their game boards).
  */
 public class BattleshipGame {
 
@@ -344,6 +350,13 @@ public class BattleshipGame {
         }
     }
 
+    /**
+     * Will set up message commands for the game over state, depending on whether the opponent won, or the player
+     * won
+     * @param player Current player (client who is asking for this info)
+     * @param opponent The opposite player
+     * @return The messaging instructions with appropriate Win/Lose message
+     */
     private ArrayList<JsonObject> getGameOverMessaging(BattleshipPlayer player, BattleshipPlayer opponent) {
         ArrayList<JsonObject> commands = new ArrayList<>();
         String gameOverMessage = "";

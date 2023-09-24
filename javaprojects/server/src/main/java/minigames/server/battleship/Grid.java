@@ -43,25 +43,6 @@ public class Grid {
     }
 
     /**
-     * Function to shoot at desired cell
-     * @param row vertical index
-     * @param col horizontal index
-     */
-    public void shootCell(int row, int col){
-        this.grid[row][col].shoot();
-    }
-
-    /**
-     * Function to set a particular cell's CellType in the grid
-     * @param row row index
-     * @param col column index
-     * @param cellType enum value to set the Cell's parameter to
-     */
-    public void setCellType(int row, int col, CellType cellType){
-        this.grid[row][col].setCellType(cellType);
-    }
-
-    /**
      * Function to create a new ship object. Ships are constructed from the top left.
      * @param shipType int representing class of ship - eg. "Carrier"
      * @param col int representing horizontal location

@@ -184,13 +184,11 @@ public class BattleshipPlayer {
     private String generateCoordinate() {
 
         // Generate random coordinates
-        // TODO: If time permitting, add better ai
 
         // Pass in the opposing grid where this function is called, get the last shot at cell and check if it was a hit
         // if so, pick a coordinate relative to that location. If last shot at was a list of the past 2 locations it
         // would make this a lot better in terms of picking the direction of the ship
 
-        // TODO: needs better error checking to ensure we stay in board bounds? current limits are hard coded
         Random rand = new Random();
         int randX = rand.nextInt(10);
         int randY = rand.nextInt(10);
@@ -200,7 +198,6 @@ public class BattleshipPlayer {
     }
 
     // This is supposed to check if a ship with the corresponding movement added is inside the grid
-    // TODO: probably remove if not needed for anything - custom ship placement not completed in time and scrapped
     public boolean isInsideGrid(Ship shipIn, int colMov, int rowMov, boolean rotate) {
         // Get selected ship
         String[] ships = this.getBoard().getVessels().keySet().toArray(new String[0]);

@@ -570,27 +570,32 @@ public class Battleship implements GameClient, Tickable {
         // Note that this uses the -> version of case statements, not the : version
         // (which means we don't nead to say "break;" at the end of our cases)
         switch (command.getString("command")) {
-          //  case "inputAllowable" -> userCommand.setEditable(Boolean.parseBoolean(command.getString("allowed")));
             case "clearText" -> {
+                //refreshes the screen
                 nauticalText.setText("");
                 targetText.setText("");
                 messages.setText("");
             }
             case "updateHistory" -> {
+                //adds our player's messages to a message log
                 messages.setText(command.getString("history"));
                 messages.setCaretPosition(messages.getDocument().getLength());
             }
             case "wait" -> {
+                //called when player is waiting for their turn, will cause this client to
+                //utilist the animator to ask the server for refreshed information
                 messages.append("\nWaiting for Turn");
                 userCommand.setEditable(false);
                 waiting = true;
             }
             case "shipPlacement" -> {
+                //called during ship placement phase - No longer used? -
                 shipPlacement = true;
                 waiting = true;
                 userCommand.requestFocus();
             }
             case "confirm" -> {
+                //called during ship placement phase - No longer used? -
                 shipPlacement = false;
                 userCommand.requestFocus();
                 userCommand.setText("");
@@ -601,6 +606,8 @@ public class Battleship implements GameClient, Tickable {
                 userCommand.setEditable(true);
                 userCommand.requestFocus();
             }
+            //the below commands are usually always sent, and involve refreshing the entire game board drawing, e.g.
+            //drawing the player's boards, names, turn count, etc
             case "updateTurnCount" -> {
                 String turnCount = command.getString("turnCount");
                 //add some leading zeroes, so we have 3 digit turn counts - keeps alignment nice during the whole game
@@ -612,15 +619,18 @@ public class Battleship implements GameClient, Tickable {
             case "placePlayer1Board" -> nauticalText.setText(nauticalText.getText() + command.getString("text"));
             case "placePlayer2Board" -> targetText.setText(targetText.getText() + command.getString("text"));
             case "gameOver" -> {
+                //sent at end of game, displays a win/lose message, and waits for player to exit
                 waiting = false;
                 userCommand.setEditable(false);
                 messages.append("\n" + command.getString("message"));
             }
             case "playerExited" -> {
+                //sent when the opponent has left the game, the game is over so we show a 'opponent exited' dialog
                 waiting = false;
                 mnClient.getDialogManager().showMessageDialog("Game Voided", generateExitPanel(), false);
             }
             case "waitForJoin" -> {
+                //sent when waiting for other players to join so the game can start
                 messages.setText("Waiting for an opponent to join. Type 'Start' to begin vs AI");
                 userCommand.requestFocus();
                 //this isn't pretty but we're just going to keep pinging the server with refreshes until players have
