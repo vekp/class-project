@@ -14,5 +14,5 @@ public enum ItemType {
     SNAKE,      // Represents a segment of the snake's body
     SNAKE_HEAD, // Represents the head of the snake
     VACANT,      // Represents an empty or vacant cell on the game board
-WALL // Represents the boundary of the playable area
+    WALL // Represents the boundary of the playable area
 }

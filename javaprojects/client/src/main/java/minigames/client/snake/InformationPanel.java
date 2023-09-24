@@ -1,7 +1,9 @@
 package minigames.client.snake;
 
 import javax.swing.*;
-import javax.swing.text.*;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 /**
  * The InformationPanel class represents a panel that displays information with a title,
@@ -17,10 +19,11 @@ public class InformationPanel extends JPanel {
      * Constructs an InformationPanel with the provided parameters.
      *
      * @param panelSwitcher The interface used to switch between panels.
-     * @param title The title to be displayed at the top of the panel.
-     * @param message An array of strings representing the message content.
+     * @param title         The title to be displayed at the top of the panel.
+     * @param message       An array of strings representing the message content.
      */
-    public InformationPanel(MainMenuPanel.PanelSwitcher panelSwitcher, String title, String[] message) {
+    public InformationPanel(MainMenuPanel.PanelSwitcher panelSwitcher, String title,
+                            String[] message) {
         this.panelSwitcher = panelSwitcher;
         this.title = title;
         this.message = message;

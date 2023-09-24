@@ -13,7 +13,8 @@ import java.util.Collections;
 /**
  * The SnakeUI class provides an implementation for the GameClient interface.
  * It serves as the main interface between the Snake game client and the server,
- * handling actions such as loading the game, sending commands to the server, and executing server commands.
+ * handling actions such as loading the game, sending commands to the server, and executing
+ * server commands.
  */
 public class SnakeUI implements GameClient {
 
@@ -37,8 +38,8 @@ public class SnakeUI implements GameClient {
      * Loads the game UI and sets up the necessary client-server configurations.
      *
      * @param mnClient The network client responsible for communication with the game server.
-     * @param game Holds metadata about the game, like server details and game name.
-     * @param player Represents the name of the player.
+     * @param game     Holds metadata about the game, like server details and game name.
+     * @param player   Represents the name of the player.
      */
     @Override
     public void load(MinigameNetworkClient mnClient, GameMetadata game, String player) {
@@ -52,7 +53,8 @@ public class SnakeUI implements GameClient {
 
         // Set preferred size for the basePanel
         ImageIcon backgroundIcon = MultimediaManager.getPhoneBackground().getImageResource();
-        basePanel.getContainerPanel().setPreferredSize(new Dimension(backgroundIcon.getIconWidth(), backgroundIcon.getIconHeight()));
+        basePanel.getContainerPanel().setPreferredSize(
+                new Dimension(backgroundIcon.getIconWidth(), backgroundIcon.getIconHeight()));
 
         // Clear previous game window contents and set up the new game UI
         mnClient.getMainWindow().clearAll();
@@ -67,19 +69,23 @@ public class SnakeUI implements GameClient {
     }
 
     /**
-     * Sends a command to the game server. The command structure is a JSON object: { "command": command }
+     * Sends a command to the game server. The command structure is a JSON object: { "command":
+     * command }
      *
      * @param command The specific command string to be sent to the server.
      */
     public void sendCommand(String command) {
         JsonObject json = new JsonObject().put("command", command);
-        mnClient.send(new CommandPackage(gameMetadata.gameServer(), gameMetadata.name(), player, Collections.singletonList(json)));
+        mnClient.send(new CommandPackage(gameMetadata.gameServer(), gameMetadata.name(), player,
+                                         Collections.singletonList(json)
+        ));
     }
 
     /**
-     * Executes a server command. This is where the logic for handling server responses should be implemented.
+     * Executes a server command. This is where the logic for handling server responses should be
+     * implemented.
      *
-     * @param game Holds metadata about the game.
+     * @param game    Holds metadata about the game.
      * @param command The specific JSON command sent by the server.
      */
     @Override
